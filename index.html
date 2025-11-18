@@ -3,241 +3,385 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Pedidos de Camisetas</title>
+  <title>Sistema de Pedidos de Camisetas - UMADE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h1>Sistema de Pedidos de Camisetas</h1>
-    
-    <div class="menu">
-      <button onclick="mostrarSecao('pedido')">Novo Pedido</button>
-      <button onclick="mostrarSecao('consultar')">Consultar Pedido</button>
-      <button onclick="mostrarSecao('admin')">Painel Admin</button>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <h1>UMADE</h1>
+          <span>Sistema de Pedidos</span>
+        </div>
+        <nav class="nav">
+          <button class="nav-btn active" onclick="mostrarSecao('pedido')">
+            <i class="fas fa-plus-circle"></i>
+            <span>Novo Pedido</span>
+          </button>
+          <button class="nav-btn" onclick="mostrarSecao('consultar')">
+            <i class="fas fa-search"></i>
+            <span>Consultar</span>
+          </button>
+          <button class="nav-btn" onclick="mostrarSecao('admin')">
+            <i class="fas fa-user-shield"></i>
+            <span>Admin</span>
+          </button>
+        </nav>
+      </div>
     </div>
-    
-    <!-- Seção: Pedido de Camiseta -->
-    <div id="pedido" class="section">
-      <h2>Pedido de Camiseta</h2>
-      <form id="formPedido">
-        <div class="form-group">
-          <label for="nome">Nome do Líder/Coordenador:</label>
-          <input type="text" id="nome" name="nome" required>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="container">
+      <!-- Seção: Pedido de Camiseta -->
+      <section id="pedido" class="section active">
+        <div class="section-header">
+          <h2>Fazer Pedido</h2>
+          <p>Preencha o formulário abaixo para solicitar suas camisetas</p>
         </div>
-        
-        <div class="form-group">
-          <label>Você é do interior ou capital?</label>
-          <div>
-            <input type="radio" id="capital" name="local" value="Capital" required>
-            <label for="capital">Capital</label>
-            <input type="radio" id="interior" name="local" value="Interior" required>
-            <label for="interior">Interior</label>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="setor">Setor/Cidade:</label>
-          <input type="text" id="setor" name="setor" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="email">E-mail:</label>
-          <input type="email" id="email" name="email" required>
-        </div>
-        
-        <div class="form-group">
-          <h3>Pedidos Infantis</h3>
-          <div class="tamanho-group">
-            <div class="tamanho-item">
-              <label for="infantil_1">Tamanho 1:</label>
-              <input type="number" id="infantil_1" name="infantil_1" min="0" value="0">
+
+        <form id="formPedido" class="modern-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nome">
+                <i class="fas fa-user"></i>
+                Nome do Líder/Coordenador
+              </label>
+              <input type="text" id="nome" name="nome" required>
             </div>
-            <div class="tamanho-item">
-              <label for="infantil_2">Tamanho 2:</label>
-              <input type="number" id="infantil_2" name="infantil_2" min="0" value="0">
+            
+            <div class="form-group">
+              <label>
+                <i class="fas fa-map-marker-alt"></i>
+                Localização
+              </label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="local" value="Capital" required>
+                  <span class="radio-custom"></span>
+                  Capital
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="local" value="Interior" required>
+                  <span class="radio-custom"></span>
+                  Interior
+                </label>
+              </div>
             </div>
-            <div class="tamanho-item">
-              <label for="infantil_4">Tamanho 4:</label>
-              <input type="number" id="infantil_4" name="infantil_4" min="0" value="0">
+            
+            <div class="form-group">
+              <label for="setor">
+                <i class="fas fa-building"></i>
+                Setor/Cidade
+              </label>
+              <input type="text" id="setor" name="setor" required>
             </div>
-            <div class="tamanho-item">
-              <label for="infantil_6">Tamanho 6:</label>
-              <input type="number" id="infantil_6" name="infantil_6" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="infantil_8">Tamanho 8:</label>
-              <input type="number" id="infantil_8" name="infantil_8" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="infantil_10">Tamanho 10:</label>
-              <input type="number" id="infantil_10" name="infantil_10" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="infantil_12">Tamanho 12:</label>
-              <input type="number" id="infantil_12" name="infantil_12" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="infantil_14">Tamanho 14:</label>
-              <input type="number" id="infantil_14" name="infantil_14" min="0" value="0">
+            
+            <div class="form-group">
+              <label for="email">
+                <i class="fas fa-envelope"></i>
+                E-mail
+              </label>
+              <input type="email" id="email" name="email" required>
             </div>
           </div>
-        </div>
-        
-        <div class="form-group">
-          <h3>Adultos Babylook</h3>
-          <div class="tamanho-group">
-            <div class="tamanho-item">
-              <label for="babylook_PP">PP:</label>
-              <input type="number" id="babylook_PP" name="babylook_PP" min="0" value="0">
+
+          <div class="camisetas-section">
+            <div class="tipo-camiseta">
+              <h3><i class="fas fa-child"></i> Pedidos Infantis</h3>
+              <div class="tamanhos-grid">
+                <div class="tamanho-item">
+                  <label for="infantil_1">1</label>
+                  <input type="number" id="infantil_1" name="infantil_1" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_2">2</label>
+                  <input type="number" id="infantil_2" name="infantil_2" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_4">4</label>
+                  <input type="number" id="infantil_4" name="infantil_4" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_6">6</label>
+                  <input type="number" id="infantil_6" name="infantil_6" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_8">8</label>
+                  <input type="number" id="infantil_8" name="infantil_8" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_10">10</label>
+                  <input type="number" id="infantil_10" name="infantil_10" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_12">12</label>
+                  <input type="number" id="infantil_12" name="infantil_12" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_14">14</label>
+                  <input type="number" id="infantil_14" name="infantil_14" min="0" value="0">
+                </div>
+              </div>
             </div>
-            <div class="tamanho-item">
-              <label for="babylook_P">P:</label>
-              <input type="number" id="babylook_P" name="babylook_P" min="0" value="0">
+
+            <div class="tipo-camiseta">
+              <h3><i class="fas fa-female"></i> Adultos Babylook</h3>
+              <div class="tamanhos-grid">
+                <div class="tamanho-item">
+                  <label for="babylook_PP">PP</label>
+                  <input type="number" id="babylook_PP" name="babylook_PP" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_P">P</label>
+                  <input type="number" id="babylook_P" name="babylook_P" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_M">M</label>
+                  <input type="number" id="babylook_M" name="babylook_M" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_G">G</label>
+                  <input type="number" id="babylook_G" name="babylook_G" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_GG">GG</label>
+                  <input type="number" id="babylook_GG" name="babylook_GG" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_XGG">XGG</label>
+                  <input type="number" id="babylook_XGG" name="babylook_XGG" min="0" value="0">
+                </div>
+              </div>
             </div>
-            <div class="tamanho-item">
-              <label for="babylook_M">M:</label>
-              <input type="number" id="babylook_M" name="babylook_M" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="babylook_G">G:</label>
-              <input type="number" id="babylook_G" name="babylook_G" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="babylook_GG">GG:</label>
-              <input type="number" id="babylook_GG" name="babylook_GG" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="babylook_XGG">XGG:</label>
-              <input type="number" id="babylook_XGG" name="babylook_XGG" min="0" value="0">
+
+            <div class="tipo-camiseta">
+              <h3><i class="fas fa-tshirt"></i> Adultos Unissex</h3>
+              <div class="tamanhos-grid">
+                <div class="tamanho-item">
+                  <label for="unissex_PP">PP</label>
+                  <input type="number" id="unissex_PP" name="unissex_PP" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_P">P</label>
+                  <input type="number" id="unissex_P" name="unissex_P" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_M">M</label>
+                  <input type="number" id="unissex_M" name="unissex_M" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_G">G</label>
+                  <input type="number" id="unissex_G" name="unissex_G" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_GG">GG</label>
+                  <input type="number" id="unissex_GG" name="unissex_GG" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_XGG">XGG</label>
+                  <input type="number" id="unissex_XGG" name="unissex_XGG" min="0" value="0">
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="form-group">
-          <h3>Adultos Unissex</h3>
-          <div class="tamanho-group">
-            <div class="tamanho-item">
-              <label for="unissex_PP">PP:</label>
-              <input type="number" id="unissex_PP" name="unissex_PP" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="unissex_P">P:</label>
-              <input type="number" id="unissex_P" name="unissex_P" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="unissex_M">M:</label>
-              <input type="number" id="unissex_M" name="unissex_M" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="unissex_G">G:</label>
-              <input type="number" id="unissex_G" name="unissex_G" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="unissex_GG">GG:</label>
-              <input type="number" id="unissex_GG" name="unissex_GG" min="0" value="0">
-            </div>
-            <div class="tamanho-item">
-              <label for="unissex_XGG">XGG:</label>
-              <input type="number" id="unissex_XGG" name="unissex_XGG" min="0" value="0">
-            </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-paper-plane"></i>
+              Enviar Pedido
+            </button>
           </div>
-        </div>
-        
-        <button type="submit">Enviar Pedido</button>
-      </form>
-      <div id="mensagemPedido"></div>
-    </div>
-    
-    <!-- Seção: Consultar Pedidos -->
-    <div id="consultar" class="section">
-      <h2>Consultar Pedido</h2>
-      <form id="formConsultar">
-        <div class="form-group">
-          <label for="numPedidoConsulta">Número do Pedido (ex: UMADE-001):</label>
-          <input type="text" id="numPedidoConsulta" name="numPedido" required>
-        </div>
-        <button type="submit">Consultar</button>
-      </form>
-      <div id="resultadoConsulta"></div>
-    </div>
-    
-    <!-- Seção: Painel Administrador -->
-    <div id="admin" class="section">
-      <h2>Painel de Administrador</h2>
-      <div id="loginAdmin">
-        <form id="formLogin">
-          <div class="form-group">
-            <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha" required>
-          </div>
-          <button type="submit">Entrar</button>
         </form>
-        <div id="mensagemLogin"></div>
-      </div>
-      
-      <div id="painelAdmin" style="display: none;">
-        <div class="admin-menu">
-          <button onclick="mostrarAdminSecao('dashboard')" class="active">Dashboard</button>
-          <button onclick="mostrarAdminSecao('pedidos')">Pedidos</button>
+
+        <div id="mensagemPedido" class="message-container"></div>
+      </section>
+
+      <!-- Seção: Consultar Pedidos -->
+      <section id="consultar" class="section">
+        <div class="section-header">
+          <h2>Consultar Pedido</h2>
+          <p>Informe o número do pedido para visualizar os detalhes</p>
         </div>
-        
-        <!-- Dashboard -->
-        <div id="admin-dashboard" class="admin-section active">
-          <h3>Dashboard</h3>
-          <div class="dashboard-cards">
-            <div class="card">
-              <h4>Total de Pedidos</h4>
-              <p class="card-value" id="totalPedidos">0</p>
-            </div>
-            <div class="card">
-              <h4>Total de Camisetas</h4>
-              <p class="card-value" id="totalCamisetas">0</p>
-            </div>
-            <div class="card">
-              <h4>Pedidos Pendentes</h4>
-              <p class="card-value" id="pedidosPendentes">0</p>
-            </div>
-            <div class="card">
-              <h4>Pedidos Aprovados</h4>
-              <p class="card-value" id="pedidosAprovados">0</p>
+
+        <form id="formConsultar" class="modern-form">
+          <div class="form-group">
+            <label for="numPedidoConsulta">
+              <i class="fas fa-hashtag"></i>
+              Número do Pedido
+            </label>
+            <div class="input-group">
+              <input type="text" id="numPedidoConsulta" name="numPedido" placeholder="Ex: UMADE-001" required>
+              <button type="submit" class="btn-icon">
+                <i class="fas fa-search"></i>
+              </button>
             </div>
           </div>
-          
-          <div class="dashboard-details">
-            <h4>Detalhes por Tipo</h4>
-            <div class="details-grid">
-              <div class="detail-item">
-                <span>Infantis:</span>
-                <span id="totalInfantis">0</span>
+        </form>
+
+        <div id="resultadoConsulta" class="result-container"></div>
+      </section>
+
+      <!-- Seção: Painel Administrador -->
+      <section id="admin" class="section">
+        <div class="section-header">
+          <h2>Painel Administrativo</h2>
+          <p>Acesso restrito para administradores</p>
+        </div>
+
+        <div id="loginAdmin" class="login-container">
+          <form id="formLogin" class="modern-form">
+            <div class="form-group">
+              <label for="senha">
+                <i class="fas fa-lock"></i>
+                Senha de Acesso
+              </label>
+              <div class="input-group">
+                <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                <button type="submit" class="btn-icon">
+                  <i class="fas fa-arrow-right"></i>
+                </button>
               </div>
-              <div class="detail-item">
-                <span>Babylook:</span>
-                <span id="totalBabylook">0</span>
+            </div>
+          </form>
+          <div id="mensagemLogin" class="message-container"></div>
+        </div>
+
+        <div id="painelAdmin" class="admin-panel" style="display: none;">
+          <div class="admin-menu">
+            <button class="admin-menu-btn active" onclick="mostrarAdminSecao('dashboard')">
+              <i class="fas fa-chart-pie"></i>
+              Dashboard
+            </button>
+            <button class="admin-menu-btn" onclick="mostrarAdminSecao('pedidos')">
+              <i class="fas fa-list"></i>
+              Pedidos
+            </button>
+          </div>
+
+          <!-- Dashboard -->
+          <div id="admin-dashboard" class="admin-section active">
+            <div class="dashboard-header">
+              <h3>Visão Geral</h3>
+              <button onclick="carregarDashboard()" class="btn-refresh">
+                <i class="fas fa-sync-alt"></i>
+                Atualizar
+              </button>
+            </div>
+
+            <div class="dashboard-cards">
+              <div class="card">
+                <div class="card-icon">
+                  <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="card-content">
+                  <h4>Total de Pedidos</h4>
+                  <p class="card-value" id="totalPedidos">0</p>
+                </div>
               </div>
-              <div class="detail-item">
-                <span>Unissex:</span>
-                <span id="totalUnissex">0</span>
+
+              <div class="card">
+                <div class="card-icon">
+                  <i class="fas fa-tshirt"></i>
+                </div>
+                <div class="card-content">
+                  <h4>Total de Camisetas</h4>
+                  <p class="card-value" id="totalCamisetas">0</p>
+                </div>
               </div>
-              <div class="detail-item">
-                <span>Rejeitados:</span>
-                <span id="pedidosRejeitados">0</span>
+
+              <div class="card">
+                <div class="card-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-content">
+                  <h4>Pedidos Pendentes</h4>
+                  <p class="card-value" id="pedidosPendentes">0</p>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-icon">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="card-content">
+                  <h4>Pedidos Aprovados</h4>
+                  <p class="card-value" id="pedidosAprovados">0</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-details">
+              <h4>Detalhamento por Tipo</h4>
+              <div class="details-grid">
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-child"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span>Infantis</span>
+                    <strong id="totalInfantis">0</strong>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-female"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span>Babylook</span>
+                    <strong id="totalBabylook">0</strong>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-tshirt"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span>Unissex</span>
+                    <strong id="totalUnissex">0</strong>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-times-circle"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span>Rejeitados</span>
+                    <strong id="pedidosRejeitados">0</strong>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          
-          <button onclick="carregarDashboard()">Atualizar Dashboard</button>
+
+          <!-- Pedidos -->
+          <div id="admin-pedidos" class="admin-section">
+            <div class="pedidos-header">
+              <h3>Todos os Pedidos</h3>
+              <button onclick="carregarPedidos()" class="btn-refresh">
+                <i class="fas fa-sync-alt"></i>
+                Atualizar
+              </button>
+            </div>
+            <div id="listaPedidos" class="pedidos-list"></div>
+          </div>
         </div>
-        
-        <!-- Pedidos -->
-        <div id="admin-pedidos" class="admin-section">
-          <h3>Lista de Pedidos</h3>
-          <button onclick="carregarPedidos()">Atualizar Lista</button>
-          <div id="listaPedidos"></div>
-        </div>
-      </div>
+      </section>
     </div>
-  </div>
-  
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2023 UMADE - Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
   <script src="js/script.js"></script>
 </body>
 </html>
