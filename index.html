@@ -153,8 +153,8 @@
       <h2>Consultar Pedido</h2>
       <form id="formConsultar">
         <div class="form-group">
-          <label for="emailConsulta">Digite seu e-mail:</label>
-          <input type="email" id="emailConsulta" name="email" required>
+          <label for="numPedidoConsulta">Número do Pedido (ex: UMADE-001):</label>
+          <input type="text" id="numPedidoConsulta" name="numPedido" required>
         </div>
         <button type="submit">Consultar</button>
       </form>
@@ -176,8 +176,64 @@
       </div>
       
       <div id="painelAdmin" style="display: none;">
-        <button onclick="carregarPedidos()">Atualizar Lista</button>
-        <div id="listaPedidos"></div>
+        <div class="admin-menu">
+          <button onclick="mostrarAdminSecao('dashboard')" class="active">Dashboard</button>
+          <button onclick="mostrarAdminSecao('pedidos')">Pedidos</button>
+        </div>
+        
+        <!-- Dashboard -->
+        <div id="admin-dashboard" class="admin-section active">
+          <h3>Dashboard</h3>
+          <div class="dashboard-cards">
+            <div class="card">
+              <h4>Total de Pedidos</h4>
+              <p class="card-value" id="totalPedidos">0</p>
+            </div>
+            <div class="card">
+              <h4>Total de Camisetas</h4>
+              <p class="card-value" id="totalCamisetas">0</p>
+            </div>
+            <div class="card">
+              <h4>Pedidos Pendentes</h4>
+              <p class="card-value" id="pedidosPendentes">0</p>
+            </div>
+            <div class="card">
+              <h4>Pedidos Aprovados</h4>
+              <p class="card-value" id="pedidosAprovados">0</p>
+            </div>
+          </div>
+          
+          <div class="dashboard-details">
+            <h4>Detalhes por Tipo</h4>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span>Infantis:</span>
+                <span id="totalInfantis">0</span>
+              </div>
+              <div class="detail-item">
+                <span>Babylook:</span>
+                <span id="totalBabylook">0</span>
+              </div>
+              <div class="detail-item">
+                <span>Unissex:</span>
+                <span id="totalUnissex">0</span>
+              </div>
+              <div class="detail-item">
+                <span>Rejeitados:</span>
+                <span id="pedidosRejeitados">0</span>
+              </div>
+            </div>
+          </div>
+          
+          <button onclick="carregarDashboard()">Atualizar Dashboard</button>
+        </div>
+        
+        <!-- Pedidos -->
+        <div id="admin-pedidos" class="admin-section">
+          <h3>Lista de Pedidos</h3>
+          <button onclick="carregarPedidos()">Atualizar Lista</button>
+          <div id="listaPedidos"></div>
+        </div>
       </div>
     </div>
   </div>
