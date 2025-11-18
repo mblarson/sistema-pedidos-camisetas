@@ -1,5 +1,5 @@
 // URL do Google Apps Script - SUBSTITUA PELA SUA URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLyHFNxLcwKFbP-Ork802YN6zp-dP8jRYQv1We5ADemAbmJbxHIE718YvnQJ6gZofTdw/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
 
 // Mostrar seção específica
 function mostrarSecao(secao) {
