@@ -1471,7 +1471,7 @@
   </footer>
 
   <script>
-    // URL do Google Apps Script - SUBSTITUA PELA SUA URL
+    // URL do Google Apps Script
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
 
     // Mostrar seção específica
@@ -1524,9 +1524,46 @@
       }, 5000);
     }
 
+    // Verificar se e-mail já tem pedido pendente
+    function verificarEmailPedidoExistente(email) {
+      return fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: new FormData().append('action', 'verificarEmailPedido').append('email', email)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.pedidoExistente) {
+          return data.numPedido;
+        }
+        return null;
+      })
+      .catch(error => {
+        console.error('Erro ao verificar e-mail:', error);
+        return null;
+      });
+    }
+
     // Enviar pedido
-    document.getElementById('formPedido').addEventListener('submit', function(e) {
+    document.getElementById('formPedido').addEventListener('submit', async function(e) {
       e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      
+      // Verificar se já existe um pedido para este e-mail
+      const numPedidoExistente = await verificarEmailPedidoExistente(email);
+      
+      if (numPedidoExistente) {
+        exibirMensagem('mensagemPedido', 'erro', `Já existe um pedido pendente para este e-mail. Número do pedido: ${numPedidoExistente}. Por favor, edite o pedido existente.`);
+        
+        // Redirecionar para a consulta após 3 segundos
+        setTimeout(() => {
+          mostrarSecao('consultar');
+          document.getElementById('numPedidoConsulta').value = numPedidoExistente;
+          document.getElementById('formConsultar').dispatchEvent(new Event('submit'));
+        }, 3000);
+        
+        return;
+      }
       
       const formData = new FormData(this);
       formData.append('action', 'novoPedido');
