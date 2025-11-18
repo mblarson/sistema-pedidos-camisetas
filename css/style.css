@@ -1,561 +1,827 @@
-// URL do Google Apps Script - SUBSTITUA PELA SUA URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/SEU_ID_AQUI/exec';
-
-// Mostrar seção específica
-function mostrarSecao(secao) {
-  // Remover classe active de todas as seções e botões
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  
-  // Adicionar classe active à seção e botão selecionados
-  document.getElementById(secao).classList.add('active');
-  event.target.closest('.nav-btn').classList.add('active');
+/* ===== VARIÁVEIS E RESET ===== */
+:root {
+  --primary-color: #D4AF37; /* Dourado elegante */
+  --secondary-color: #F4E4C1; /* Dourado claro */
+  --accent-color: #B8860B; /* Dourado escuro */
+  --dark-color: #0A0A0A; /* Preto profundo */
+  --light-color: #1A1A1A; /* Preto claro */
+  --white-color: #FFFFFF;
+  --gray-color: #808080;
+  --text-color: #E0E0E0; /* Cinza claro para texto */
+  --border-color: #333333;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --border-radius: 12px;
+  --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-// Mostrar seção específica do admin
-function mostrarAdminSecao(secao) {
-  // Remover classe active de todas as seções e botões
-  document.querySelectorAll('.admin-section').forEach(s => {
-    s.classList.remove('active');
-  });
-  
-  document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
-  
-  // Adicionar classe active à seção e botão selecionados
-  const secaoElement = document.getElementById(`admin-${secao}`);
-  secaoElement.classList.add('active');
-  
-  event.target.closest('.admin-menu-btn').classList.add('active');
-  
-  // Carregar dados da seção
-  if (secao === 'dashboard') {
-    carregarDashboard();
-  } else if (secao === 'pedidos') {
-    carregarPedidos();
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+  color: var(--text-color);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.logo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  letter-spacing: -1px;
+  text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+.logo span {
+  font-size: 0.875rem;
+  color: var(--gray-color);
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  color: var(--text-color);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+  transition: var(--transition);
+}
+
+.nav-btn:hover::before {
+  left: 100%;
+}
+
+.nav-btn:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.nav-btn.active {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  border-color: var(--primary-color);
+  color: var(--white-color);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+}
+
+/* ===== MAIN ===== */
+.main {
+  min-height: calc(100vh - 140px);
+  padding: 3rem 0;
+}
+
+.section {
+  display: none;
+  animation: fadeIn 0.6s ease;
+}
+
+.section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-// Função para exibir mensagens
-function exibirMensagem(elementoId, tipo, mensagem) {
-  const elemento = document.getElementById(elementoId);
-  const icone = tipo === 'sucesso' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-  
-  elemento.innerHTML = `
-    <div class="mensagem ${tipo}">
-      <i class="${icone}"></i>
-      ${mensagem}
-    </div>
-  `;
-  
-  // Auto-remover após 5 segundos
-  setTimeout(() => {
-    elemento.innerHTML = '';
-  }, 5000);
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
 }
 
-// Enviar pedido
-document.getElementById('formPedido').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(this);
-  formData.append('action', 'novoPedido');
-  
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success) {
-      exibirMensagem('mensagemPedido', 'sucesso', `Pedido realizado com sucesso! Número do pedido: ${data.numPedido}`);
-      this.reset();
-      
-      // Resetar campos de quantidade
-      document.querySelectorAll('input[type="number"]').forEach(input => {
-        if (input.name.includes('infantil_') || input.name.includes('babylook_') || input.name.includes('unissex_')) {
-          input.value = 0;
-        }
-      });
-    } else {
-      exibirMensagem('mensagemPedido', 'erro', `Erro ao realizar pedido: ${data.error}`);
-    }
-  })
-  .catch(error => {
-    console.error('Erro:', error);
-    exibirMensagem('mensagemPedido', 'erro', 'Erro na comunicação com o servidor');
-  });
-});
-
-// Consultar pedido por ID
-document.getElementById('formConsultar').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(this);
-  formData.append('action', 'consultarPedidoPorId');
-  
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    const divResultado = document.getElementById('resultadoConsulta');
-    
-    if (data.success) {
-      const pedido = data.pedido;
-      const statusClass = `status-${pedido.status.toLowerCase()}`;
-      
-      let html = `
-        <div class="pedido-item">
-          <div class="pedido-header">
-            <div class="pedido-numero">#${pedido.numPedido}</div>
-            <div class="pedido-status ${statusClass}">${pedido.status}</div>
-          </div>
-          
-          <div class="pedido-info">
-            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-            <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
-            <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
-            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
-            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
-          </div>
-          
-          <div class="pedido-tamanhos">
-            <div class="tipo-tamanhos">
-              <h4><i class="fas fa-child"></i> Infantis</h4>
-              <ul>
-                ${Object.entries(pedido.infantil).map(([tamanho, qtd]) => 
-                  qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                ).join('')}
-              </ul>
-            </div>
-            
-            <div class="tipo-tamanhos">
-              <h4><i class="fas fa-female"></i> Babylook</h4>
-              <ul>
-                ${Object.entries(pedido.babylook).map(([tamanho, qtd]) => 
-                  qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                ).join('')}
-              </ul>
-            </div>
-            
-            <div class="tipo-tamanhos">
-              <h4><i class="fas fa-tshirt"></i> Unissex</h4>
-              <ul>
-                ${Object.entries(pedido.unissex).map(([tamanho, qtd]) => 
-                  qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                ).join('')}
-              </ul>
-            </div>
-          </div>
-          
-          <div class="admin-actions">
-            <button class="btn-editar" onclick="mostrarFormularioEdicao('${pedido.numPedido}')">
-              <i class="fas fa-edit"></i> Editar
-            </button>
-          </div>
-        </div>
-      `;
-      
-      html += `<div id="form-edicao-${pedido.numPedido}"></div>`;
-      
-      divResultado.innerHTML = html;
-    } else {
-      exibirMensagem('resultadoConsulta', 'erro', data.error);
-    }
-  })
-  .catch(error => {
-    console.error('Erro:', error);
-    exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
-  });
-});
-
-// Mostrar formulário de edição
-function mostrarFormularioEdicao(numPedido) {
-  const formContainer = document.getElementById(`form-edicao-${numPedido}`);
-  
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: new FormData().append('action', 'consultarPedidoPorId').append('numPedido', numPedido)
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      const pedido = data.pedido;
-      
-      let html = `
-        <div class="edit-form">
-          <h3><i class="fas fa-edit"></i> Editar Pedido #${numPedido}</h3>
-          <form id="formEditarPedido">
-            <input type="hidden" name="numPedido" value="${numPedido}">
-            
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="edit-nome">
-                  <i class="fas fa-user"></i>
-                  Nome do Líder/Coordenador
-                </label>
-                <input type="text" id="edit-nome" name="nome" value="${pedido.nome}" required>
-              </div>
-              
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-map-marker-alt"></i>
-                  Localização
-                </label>
-                <div class="radio-group">
-                  <label class="radio-label">
-                    <input type="radio" name="local" value="Capital" ${pedido.local === 'Capital' ? 'checked' : ''} required>
-                    <span class="radio-custom"></span>
-                    Capital
-                  </label>
-                  <label class="radio-label">
-                    <input type="radio" name="local" value="Interior" ${pedido.local === 'Interior' ? 'checked' : ''} required>
-                    <span class="radio-custom"></span>
-                    Interior
-                  </label>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label for="edit-setor">
-                  <i class="fas fa-building"></i>
-                  Setor/Cidade
-                </label>
-                <input type="text" id="edit-setor" name="setor" value="${pedido.setor}" required>
-              </div>
-              
-              <div class="form-group">
-                <label for="edit-email">
-                  <i class="fas fa-envelope"></i>
-                  E-mail
-                </label>
-                <input type="email" id="edit-email" name="email" value="${pedido.email}" required>
-              </div>
-            </div>
-            
-            <div class="camisetas-section">
-              <div class="tipo-camiseta">
-                <h3><i class="fas fa-child"></i> Pedidos Infantis</h3>
-                <div class="tamanhos-grid">
-                  ${['1', '2', '4', '6', '8', '10', '12', '14'].map(tamanho => `
-                    <div class="tamanho-item">
-                      <label for="edit-infantil_${tamanho}">${tamanho}</label>
-                      <input type="number" id="edit-infantil_${tamanho}" name="infantil_${tamanho}" min="0" value="${pedido.infantil[tamanho] || 0}">
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-              
-              <div class="tipo-camiseta">
-                <h3><i class="fas fa-female"></i> Adultos Babylook</h3>
-                <div class="tamanhos-grid">
-                  ${['PP', 'P', 'M', 'G', 'GG', 'XGG'].map(tamanho => `
-                    <div class="tamanho-item">
-                      <label for="edit-babylook_${tamanho}">${tamanho}</label>
-                      <input type="number" id="edit-babylook_${tamanho}" name="babylook_${tamanho}" min="0" value="${pedido.babylook[tamanho] || 0}">
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-              
-              <div class="tipo-camiseta">
-                <h3><i class="fas fa-tshirt"></i> Adultos Unissex</h3>
-                <div class="tamanhos-grid">
-                  ${['PP', 'P', 'M', 'G', 'GG', 'XGG'].map(tamanho => `
-                    <div class="tamanho-item">
-                      <label for="edit-unissex_${tamanho}">${tamanho}</label>
-                      <input type="number" id="edit-unissex_${tamanho}" name="unissex_${tamanho}" min="0" value="${pedido.unissex[tamanho] || 0}">
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            </div>
-            
-            <div class="form-actions">
-              <button type="submit">
-                <i class="fas fa-save"></i> Salvar Alterações
-              </button>
-              <button type="button" onclick="cancelarEdicao('${numPedido}')">
-                <i class="fas fa-times"></i> Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      `;
-      
-      formContainer.innerHTML = html;
-      
-      // Adicionar evento de submit ao formulário
-      document.getElementById('formEditarPedido').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        formData.append('action', 'editarPedido');
-        
-        fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            exibirMensagem('resultadoConsulta', 'sucesso', 'Pedido atualizado com sucesso!');
-            cancelarEdicao(numPedido);
-            // Recarregar a consulta
-            document.getElementById('formConsultar').dispatchEvent(new Event('submit'));
-          } else {
-            exibirMensagem('resultadoConsulta', 'erro', `Erro ao atualizar pedido: ${data.error}`);
-          }
-        })
-        .catch(error => {
-          console.error('Erro:', error);
-          exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
-        });
-      });
-    }
-  })
-  .catch(error => {
-    console.error('Erro:', error);
-    exibirMensagem('resultadoConsulta', 'erro', 'Erro ao carregar dados do pedido');
-  });
+.section-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--white-color);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-// Cancelar edição
-function cancelarEdicao(numPedido) {
-  document.getElementById(`form-edicao-${numPedido}`).innerHTML = '';
+.section-header p {
+  font-size: 1.125rem;
+  color: var(--gray-color);
+  font-weight: 300;
 }
 
-// Login admin
-document.getElementById('formLogin').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(this);
-  formData.append('action', 'loginAdmin');
-  
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success) {
-      document.getElementById('loginAdmin').style.display = 'none';
-      document.getElementById('painelAdmin').style.display = 'block';
-      mostrarAdminSecao('dashboard');
-    } else {
-      exibirMensagem('mensagemLogin', 'erro', data.error);
-    }
-  })
-  .catch(error => {
-    console.error('Erro:', error);
-    exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor');
-  });
-});
-
-// Carregar dados do dashboard
-function carregarDashboard() {
-  const formData = new FormData();
-  formData.append('action', 'getDashboardData');
-  
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success) {
-      const dashboard = data.dashboard;
-      
-      // Animação de contagem
-      animateValue('totalPedidos', 0, dashboard.totalPedidos, 1000);
-      animateValue('totalCamisetas', 0, dashboard.totalCamisetas, 1000);
-      animateValue('pedidosPendentes', 0, dashboard.pedidosPendentes, 1000);
-      animateValue('pedidosAprovados', 0, dashboard.pedidosAprovados, 1000);
-      animateValue('totalInfantis', 0, dashboard.totalInfantis, 1000);
-      animateValue('totalBabylook', 0, dashboard.totalBabylook, 1000);
-      animateValue('totalUnissex', 0, dashboard.totalUnissex, 1000);
-      animateValue('pedidosRejeitados', 0, dashboard.pedidosRejeitados, 1000);
-    } else {
-      console.error('Erro ao carregar dashboard:', data.error);
-    }
-  })
-  .catch(error => {
-    console.error('Erro:', error);
-  });
+/* ===== FORMULÁRIOS ===== */
+.modern-form {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  padding: 2.5rem;
+  box-shadow: var(--box-shadow);
 }
 
-// Animação de contagem para números
-function animateValue(id, start, end, duration) {
-  const obj = document.getElementById(id);
-  const range = end - start;
-  const minTimer = 50;
-  let stepTime = Math.abs(Math.floor(duration / range));
-  stepTime = Math.max(stepTime, minTimer);
-  const startTime = new Date().getTime();
-  const endTime = startTime + duration;
-  
-  function run() {
-    const now = new Date().getTime();
-    const remaining = Math.max((endTime - now) / duration, 0);
-    const value = Math.round(end - (remaining * range));
-    obj.innerHTML = value;
-    if (value == end) {
-      clearInterval(timer);
-    }
-  }
-  
-  const timer = setInterval(run, stepTime);
-  run();
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-// Carregar pedidos no painel admin
-function carregarPedidos() {
-  const formData = new FormData();
-  formData.append('action', 'listarPedidos');
-  
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    const divLista = document.getElementById('listaPedidos');
-    
-    if (data.success) {
-      if (data.pedidos.length > 0) {
-        let html = '';
-        data.pedidos.forEach(pedido => {
-          const statusClass = `status-${pedido.status.toLowerCase()}`;
-          
-          html += `
-            <div class="pedido-item">
-              <div class="pedido-header">
-                <div class="pedido-numero">#${pedido.numPedido}</div>
-                <div class="pedido-status ${statusClass}">${pedido.status}</div>
-              </div>
-              
-              <div class="pedido-info">
-                <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-                <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
-                <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
-                <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
-                <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
-              </div>
-              
-              <div class="pedido-tamanhos">
-                <div class="tipo-tamanhos">
-                  <h4><i class="fas fa-child"></i> Infantis</h4>
-                  <ul>
-                    ${Object.entries(pedido.infantil).map(([tamanho, qtd]) => 
-                      qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                    ).join('')}
-                  </ul>
-                </div>
-                
-                <div class="tipo-tamanhos">
-                  <h4><i class="fas fa-female"></i> Babylook</h4>
-                  <ul>
-                    ${Object.entries(pedido.babylook).map(([tamanho, qtd]) => 
-                      qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                    ).join('')}
-                  </ul>
-                </div>
-                
-                <div class="tipo-tamanhos">
-                  <h4><i class="fas fa-tshirt"></i> Unissex</h4>
-                  <ul>
-                    ${Object.entries(pedido.unissex).map(([tamanho, qtd]) => 
-                      qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                    ).join('')}
-                  </ul>
-                </div>
-              </div>
-              
-              <div class="admin-actions">
-                ${pedido.status === 'Pendente' ? `
-                  <button class="btn-aprovar" onclick="atualizarStatus('${pedido.numPedido}', 'Aprovado')">
-                    <i class="fas fa-check"></i> Aprovar
-                  </button>
-                  <button class="btn-rejeitar" onclick="atualizarStatus('${pedido.numPedido}', 'Rejeitado')">
-                    <i class="fas fa-times"></i> Rejeitar
-                  </button>
-                ` : ''}
-              </div>
-            </div>
-          `;
-        });
-        
-        divLista.innerHTML = html;
-      } else {
-        divLista.innerHTML = '<div class="mensagem erro"><i class="fas fa-info-circle"></i> Nenhum pedido encontrado.</div>';
-      }
-    } else {
-      console.error('Erro ao carregar pedidos:', data.error);
-    }
-  })
-  .catch(error => {
-    console.error('Erro:', error);
-  });
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
 
-// Atualizar status do pedido
-function atualizarStatus(numPedido, status) {
-  const formData = new FormData();
-  formData.append('action', 'atualizarStatus');
-  formData.append('numPedido', numPedido);
-  formData.append('status', status);
-  
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success) {
-      carregarPedidos();
-    } else {
-      alert('Erro ao atualizar status: ' + data.error);
-    }
-  })
-  .catch(error => {
-    console.error('Erro:', error);
-    alert('Erro na comunicação com o servidor');
-  });
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-// Inicialização
-document.addEventListener('DOMContentLoaded', function() {
-  // Mostrar a primeira seção por padrão
-  mostrarSecao('pedido');
-});
+.form-group input {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  color: var(--text-color);
+  transition: var(--transition);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group input::placeholder {
+  color: var(--gray-color);
+}
+
+.radio-group {
+  display: flex;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.radio-label input[type="radio"] {
+  display: none;
+}
+
+.radio-custom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--glass-border);
+  border-radius: 50%;
+  position: relative;
+  transition: var(--transition);
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.input-group:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.input-group input {
+  flex: 1;
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background: transparent;
+  color: var(--text-color);
+}
+
+.input-group input:focus {
+  outline: none;
+}
+
+.btn-icon {
+  background: var(--primary-color);
+  color: var(--white-color);
+  border: none;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-icon:hover {
+  background: var(--accent-color);
+  transform: scale(1.05);
+}
+
+/* ===== CAMISETAS ===== */
+.camisetas-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.tipo-camiseta {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow);
+}
+
+.tipo-camiseta h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--white-color);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tipo-camiseta h3 i {
+  color: var(--primary-color);
+}
+
+.tamanhos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+.tamanho-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tamanho-item label {
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.tamanho-item input {
+  width: 60px;
+  padding: 0.5rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  color: var(--text-color);
+  transition: var(--transition);
+}
+
+.tamanho-item input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+/* ===== BOTÕES ===== */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: var(--white-color);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: var(--transition);
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+}
+
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--glass-bg);
+  color: var(--text-color);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-refresh:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* ===== MENSAGENS ===== */
+.message-container {
+  margin-top: 2rem;
+}
+
+.mensagem {
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.sucesso {
+  background: rgba(54, 179, 126, 0.1);
+  color: #36B37E;
+  border: 1px solid rgba(54, 179, 126, 0.3);
+}
+
+.erro {
+  background: rgba(222, 53, 11, 0.1);
+  color: #DE350B;
+  border: 1px solid rgba(222, 53, 11, 0.3);
+}
+
+.detalhes-erro {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+/* ===== LOGIN ===== */
+.login-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ===== ADMIN PANEL ===== */
+.admin-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--box-shadow);
+}
+
+.admin-menu {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.admin-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-color);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.admin-menu-btn:hover {
+  color: var(--primary-color);
+}
+
+.admin-menu-btn.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.admin-section {
+  display: none;
+  animation: fadeIn 0.6s ease;
+}
+
+.admin-section.active {
+  display: block;
+}
+
+/* ===== DASHBOARD ===== */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white-color);
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  transform: translateX(-100%);
+  transition: var(--transition);
+}
+
+.card:hover::before {
+  transform: translateX(0);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--primary-color);
+}
+
+.card-content h4 {
+  font-size: 0.875rem;
+  color: var(--gray-color);
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--white-color);
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-details {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+}
+
+.dashboard-details h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--white-color);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.detail-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.detail-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.detail-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-content span {
+  color: var(--gray-color);
+  font-size: 0.875rem;
+}
+
+.detail-content strong {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--white-color);
+}
+
+/* ===== PEDIDOS ===== */
+.pedidos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.pedidos-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white-color);
+}
+
+.pedidos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pedido-item {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.pedido-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary-color);
+  transform: scaleY(0);
+  transition: var(--transition);
+}
+
+.pedido-item:hover::before {
+  transform: scaleY(1);
+}
+
+.pedido-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.pedido-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.pedido-numero {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+.pedido-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-pendente {
+  background: rgba(255, 153, 31, 0.1);
+  color: #FF991F;
+  border: 1px solid rgba(255, 153, 31, 0.3);
+}
+
+.status-aprovado {
+  background: rgba(54, 179, 126, 0.1);
+  color: #36B37E;
+  border: 1px solid rgba(54, 179, 126, 0.3);
+}
+
+.status-rejeitado {
+  background: rgba(222, 53, 11, 0.1);
+  color: #DE350B;
+  border: 1px solid rgba(222, 53, 11, 0.3);
+}
+
+.pedido-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pedido-info p {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--gray-color);
+}
+
+.pedido-info strong {
+  color: var(--text-color);
+}
+
+.pedido-tamanhos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tipo-tamanhos h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-color);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tipo-tamanhos ul {
+  list-style: none;
+}
+
+.tipo-tamanhos li {
+  font-si
