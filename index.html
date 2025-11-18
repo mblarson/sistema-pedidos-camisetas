@@ -63,6 +63,238 @@
       padding: 0 20px;
     }
 
+    /* ===== BARRA DE CARREGAMENTO ===== */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(6, 44, 63, 0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .loading-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    .loading-text {
+      margin-top: 1.5rem;
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ===== CARD DE CONFIRMAÇÃO DE PEDIDO ===== */
+    .pedido-confirmacao-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(6, 44, 63, 0.85);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .pedido-confirmacao-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .pedido-confirmacao-card {
+      background: var(--darker-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .pedido-confirmacao-overlay.active .pedido-confirmacao-card {
+      transform: scale(1);
+    }
+
+    .pedido-confirmacao-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .pedido-confirmacao-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pedido-confirmacao-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pedido-confirmacao-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--primary-color);
+    }
+
+    .pedido-confirmacao-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pedido-confirmacao-info p {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .pedido-confirmacao-info strong {
+      color: var(--text-primary);
+    }
+
+    .pedido-confirmacao-tamanhos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pedido-confirmacao-tipo {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1rem;
+    }
+
+    .pedido-confirmacao-tipo h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pedido-confirmacao-tipo ul {
+      list-style: none;
+    }
+
+    .pedido-confirmacao-tipo li {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      padding: 0.25rem 0;
+    }
+
+    .pedido-confirmacao-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .pedido-confirmacao-numero {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .mensagem-importante {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(255, 126, 95, 0.1);
+      border: 1px solid var(--primary-color);
+      border-radius: var(--border-radius);
+      text-align: center;
+    }
+
+    .mensagem-importante p {
+      color: var(--primary-color);
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-copiar {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 0.5rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .btn-copiar:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
     /* ===== HEADER ===== */
     .header {
       background: var(--darker-color);
@@ -130,10 +362,13 @@
       display: none;
       animation: fadeIn 0.5s ease;
       position: relative;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     .section.active {
       display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     @keyframes fadeIn {
@@ -1036,6 +1271,10 @@
         justify-content: center;
         min-width: 120px;
       }
+
+      .pedido-confirmacao-tamanhos {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 480px) {
@@ -1066,10 +1305,48 @@
       .card-value {
         font-size: 1.5rem;
       }
+
+      .pedido-confirmacao-card {
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Barra de Carregamento -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">Processando...</div>
+  </div>
+
+  <!-- Card de Confirmação de Pedido -->
+  <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
+    <div class="pedido-confirmacao-card">
+      <div class="pedido-confirmacao-header">
+        <h2><i class="fas fa-check-circle"></i> Pedido Enviado com Sucesso!</h2>
+        <button class="pedido-confirmacao-close" onclick="fecharConfirmacaoPedido()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="pedido-confirmacao-numero" id="pedidoConfirmacaoNumero"></div>
+      
+      <div class="pedido-confirmacao-info" id="pedidoConfirmacaoInfo"></div>
+      
+      <div class="pedido-confirmacao-tamanhos" id="pedidoConfirmacaoTamanhos"></div>
+      
+      <div class="mensagem-importante">
+        <p><i class="fas fa-exclamation-triangle"></i> CARO LÍDER, GUARDE O NÚMERO DO PEDIDO PARA QUE POSSA CONSULTAR OU EDITAR POSTERIORMENTE.</p>
+      </div>
+      
+      <div class="pedido-confirmacao-actions">
+        <button class="btn-primary" onclick="fecharConfirmacaoPedido()">
+          <i class="fas fa-home"></i> Voltar ao Início
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="header">
     <div class="container">
@@ -1477,10 +1754,21 @@
     // Mostrar seção específica
     function mostrarSecao(secao) {
       // Remover classe active de todas as seções
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => {
+        s.classList.remove('active');
+        s.style.opacity = '0';
+        s.style.transform = 'translateY(20px)';
+      });
       
       // Adicionar classe active à seção selecionada
-      document.getElementById(secao).classList.add('active');
+      const secaoElement = document.getElementById(secao);
+      secaoElement.classList.add('active');
+      
+      // Animação de entrada
+      setTimeout(() => {
+        secaoElement.style.opacity = '1';
+        secaoElement.style.transform = 'translateY(0)';
+      }, 50);
     }
 
     // Mostrar seção específica do admin
@@ -1524,51 +1812,104 @@
       }, 5000);
     }
 
-    // Verificar se e-mail já tem pedido pendente
-    function verificarEmailPedidoExistente(email) {
-      return fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: new FormData().append('action', 'verificarEmailPedido').append('email', email)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success && data.pedidoExistente) {
-          return data.numPedido;
-        }
-        return null;
-      })
-      .catch(error => {
-        console.error('Erro ao verificar e-mail:', error);
-        return null;
-      });
+    // Função para mostrar/ocultar barra de carregamento
+    function mostrarCarregamento(mostrar = true, texto = 'Processando...') {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const loadingText = document.getElementById('loadingText');
+      
+      loadingText.textContent = texto;
+      
+      if (mostrar) {
+        loadingOverlay.classList.add('active');
+      } else {
+        loadingOverlay.classList.remove('active');
+      }
     }
 
-    // Enviar pedido
-    document.getElementById('formPedido').addEventListener('submit', async function(e) {
-      e.preventDefault();
+    // Função para copiar o número do pedido para a área de transferência
+    function copiarNumeroPedido(numPedido) {
+      navigator.clipboard.writeText(numPedido)
+        .then(() => {
+          exibirMensagem('mensagemPedido', 'sucesso', 'Número do pedido copiado para a área de transferência!');
+        })
+        .catch(err => {
+          console.error('Erro ao copiar número do pedido:', err);
+          exibirMensagem('mensagemPedido', 'erro', 'Não foi possível copiar o número do pedido');
+        });
+    }
+
+    // Função para exibir o card de confirmação de pedido
+    function exibirConfirmacaoPedido(pedido) {
+      const overlay = document.getElementById('pedidoConfirmacaoOverlay');
+      const numeroElement = document.getElementById('pedidoConfirmacaoNumero');
+      const infoElement = document.getElementById('pedidoConfirmacaoInfo');
+      const tamanhosElement = document.getElementById('pedidoConfirmacaoTamanhos');
       
-      const email = document.getElementById('email').value;
+      // Exibir número do pedido com botão de cópia
+      numeroElement.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+          <strong>Número do Pedido:</strong> #${pedido.numPedido}
+          <button onclick="copiarNumeroPedido('${pedido.numPedido}')" class="btn-copiar">
+            <i class="fas fa-copy"></i> Copiar
+          </button>
+        </div>
+      `;
       
-      // Verificar se já existe um pedido para este e-mail
-      const numPedidoExistente = await verificarEmailPedidoExistente(email);
+      // Exibir informações do pedido
+      infoElement.innerHTML = `
+        <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
+        <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
+        <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
+        <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+        <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+      `;
       
-      if (numPedidoExistente) {
-        exibirMensagem('mensagemPedido', 'erro', `Já existe um pedido pendente para este e-mail. Número do pedido: ${numPedidoExistente}. Por favor, edite o pedido existente.`);
+      // Exibir tamanhos do pedido
+      tamanhosElement.innerHTML = `
+        <div class="pedido-confirmacao-tipo">
+          <h4><i class="fas fa-child"></i> Infantis</h4>
+          <ul>
+            ${Object.entries(pedido.infantil).map(([tamanho, qtd]) => 
+              qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+            ).join('')}
+          </ul>
+        </div>
         
-        // Redirecionar para a consulta após 3 segundos
-        setTimeout(() => {
-          mostrarSecao('consultar');
-          document.getElementById('numPedidoConsulta').value = numPedidoExistente;
-          document.getElementById('formConsultar').dispatchEvent(new Event('submit'));
-        }, 3000);
+        <div class="pedido-confirmacao-tipo">
+          <h4><i class="fas fa-female"></i> Babylook</h4>
+          <ul>
+            ${Object.entries(pedido.babylook).map(([tamanho, qtd]) => 
+              qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+            ).join('')}
+          </ul>
+        </div>
         
-        return;
-      }
+        <div class="pedido-confirmacao-tipo">
+          <h4><i class="fas fa-tshirt"></i> Unissex</h4>
+          <ul>
+            ${Object.entries(pedido.unissex).map(([tamanho, qtd]) => 
+              qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+            ).join('')}
+          </ul>
+        </div>
+      `;
       
-      const formData = new FormData(this);
-      formData.append('action', 'novoPedido');
+      // Exibir o overlay
+      overlay.classList.add('active');
+    }
+
+    // Função para fechar o card de confirmação de pedido
+    function fecharConfirmacaoPedido() {
+      const overlay = document.getElementById('pedidoConfirmacaoOverlay');
+      overlay.classList.remove('active');
+      mostrarSecao('home');
+    }
+
+    // Função para enviar requisição para o Google Apps Script
+    function enviarRequisicao(formData, textoCarregamento = 'Processando...') {
+      mostrarCarregamento(true, textoCarregamento);
       
-      fetch(SCRIPT_URL, {
+      return fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       })
@@ -1578,25 +1919,192 @@
         }
         return response.json();
       })
-      .then(data => {
-        if (data.success) {
-          exibirMensagem('mensagemPedido', 'sucesso', `Pedido realizado com sucesso! Número do pedido: ${data.numPedido}`);
-          this.reset();
-          
-          // Resetar campos de quantidade
-          document.querySelectorAll('input[type="number"]').forEach(input => {
-            if (input.name.includes('infantil_') || input.name.includes('babylook_') || input.name.includes('unissex_')) {
-              input.value = 0;
-            }
-          });
-        } else {
-          exibirMensagem('mensagemPedido', 'erro', `Erro ao realizar pedido: ${data.error}`);
+      .catch(error => {
+        console.error('Erro na requisição:', error);
+        throw new Error('Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
+      });
+    }
+
+    // Verificar se e-mail já tem pedido pendente
+    function verificarEmailPedidoExistente(email) {
+      const formData = new FormData();
+      formData.append('action', 'verificarEmailPedido');
+      formData.append('email', email);
+      
+      console.log('Verificando e-mail:', email);
+      
+      mostrarCarregamento(true, 'Verificando e-mail...');
+      
+      return fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        console.log('Status da resposta:', response.status);
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
         }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Resposta da verificação de e-mail:', data);
+        if (data.success && data.pedidoExistente) {
+          console.log('E-mail já possui pedido:', data.numPedido);
+          return data.numPedido;
+        }
+        console.log('E-mail não possui pedido pendente');
+        return null;
       })
       .catch(error => {
-        console.error('Erro:', error);
-        exibirMensagem('mensagemPedido', 'erro', 'Erro na comunicação com o servidor');
+        console.error('Erro ao verificar e-mail:', error);
+        // Em caso de erro na verificação, permitimos o envio do pedido
+        return null;
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
+    }
+
+    // Função para redirecionar com animação
+    function redirecionarComAnimacao(secao, callback) {
+      const elemento = document.getElementById(secao);
+      
+      // Adiciona classe de animação de saída
+      elemento.style.opacity = '0';
+      elemento.style.transform = 'translateY(20px)';
+      
+      setTimeout(() => {
+        mostrarSecao(secao);
+        
+        // Executa o callback após a mudança de seção
+        if (callback) callback();
+        
+        // Animação de entrada
+        setTimeout(() => {
+          elemento.style.opacity = '1';
+          elemento.style.transform = 'translateY(0)';
+        }, 50);
+      }, 300);
+    }
+
+    // Enviar pedido
+    document.getElementById('formPedido').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      console.log('Iniciando envio de pedido para o e-mail:', email);
+      
+      try {
+        // Verificar se já existe um pedido para este e-mail
+        console.log('Verificando se e-mail já possui pedido...');
+        const numPedidoExistente = await verificarEmailPedidoExistente(email);
+        
+        if (numPedidoExistente) {
+          console.log('E-mail já possui pedido:', numPedidoExistente);
+          exibirMensagem('mensagemPedido', 'erro', `Já existe um pedido pendente para este e-mail. Número do pedido: ${numPedidoExistente}. Redirecionando para a consulta...`);
+          
+          // Redirecionar para a consulta após 2 segundos com animação
+          setTimeout(() => {
+            redirecionarComAnimacao('consultar', () => {
+              document.getElementById('numPedidoConsulta').value = numPedidoExistente;
+              document.getElementById('formConsultar').dispatchEvent(new Event('submit'));
+            });
+          }, 2000);
+          
+          return;
+        }
+        
+        console.log('E-mail não possui pedido, continuando com envio...');
+        
+        const formData = new FormData(this);
+        formData.append('action', 'novoPedido');
+        
+        // Adicionar logs para depuração
+        console.log('Enviando formulário:');
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
+        }
+        
+        mostrarCarregamento(true, 'Enviando pedido...');
+        
+        // Enviar o pedido e obter a resposta com o número real
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData
+        });
+        
+        console.log('Status da resposta do envio:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Resposta do envio:', data);
+        
+        if (!data.success) {
+          throw new Error(data.error || 'Erro ao enviar pedido');
+        }
+        
+        // Usar o número real do pedido retornado pelo backend
+        const pedidoReal = {
+          numPedido: data.numPedido,
+          nome: document.getElementById('nome').value,
+          local: document.querySelector('input[name="local"]:checked').value,
+          setor: document.getElementById('setor').value,
+          email: document.getElementById('email').value,
+          data: new Date().toISOString(),
+          infantil: {
+            '1': parseInt(document.getElementById('infantil_1').value) || 0,
+            '2': parseInt(document.getElementById('infantil_2').value) || 0,
+            '4': parseInt(document.getElementById('infantil_4').value) || 0,
+            '6': parseInt(document.getElementById('infantil_6').value) || 0,
+            '8': parseInt(document.getElementById('infantil_8').value) || 0,
+            '10': parseInt(document.getElementById('infantil_10').value) || 0,
+            '12': parseInt(document.getElementById('infantil_12').value) || 0,
+            '14': parseInt(document.getElementById('infantil_14').value) || 0
+          },
+          babylook: {
+            'PP': parseInt(document.getElementById('babylook_PP').value) || 0,
+            'P': parseInt(document.getElementById('babylook_P').value) || 0,
+            'M': parseInt(document.getElementById('babylook_M').value) || 0,
+            'G': parseInt(document.getElementById('babylook_G').value) || 0,
+            'GG': parseInt(document.getElementById('babylook_GG').value) || 0,
+            'XGG': parseInt(document.getElementById('babylook_XGG').value) || 0
+          },
+          unissex: {
+            'PP': parseInt(document.getElementById('unissex_PP').value) || 0,
+            'P': parseInt(document.getElementById('unissex_P').value) || 0,
+            'M': parseInt(document.getElementById('unissex_M').value) || 0,
+            'G': parseInt(document.getElementById('unissex_G').value) || 0,
+            'GG': parseInt(document.getElementById('unissex_GG').value) || 0,
+            'XGG': parseInt(document.getElementById('unissex_XGG').value) || 0
+          }
+        };
+        
+        console.log('Exibindo confirmação do pedido:', pedidoReal);
+        
+        // Exibir o card de confirmação com os dados do pedido
+        exibirConfirmacaoPedido(pedidoReal);
+        
+        // Limpar o formulário
+        this.reset();
+        
+        // Resetar campos de quantidade
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+          if (input.name.includes('infantil_') || input.name.includes('babylook_') || input.name.includes('unissex_')) {
+            input.value = 0;
+          }
+        });
+      } catch (error) {
+        console.error('Erro:', error);
+        exibirMensagem('mensagemPedido', 'erro', 'Erro na comunicação com o servidor: ' + error.message);
+      } finally {
+        mostrarCarregamento(false);
+      }
     });
 
     // Consultar pedido por ID
@@ -1605,6 +2113,8 @@
       
       const formData = new FormData(this);
       formData.append('action', 'consultarPedidoPorId');
+      
+      mostrarCarregamento(true, 'Consultando pedido...');
       
       fetch(SCRIPT_URL, {
         method: 'POST',
@@ -1685,12 +2195,17 @@
       .catch(error => {
         console.error('Erro:', error);
         exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
     });
 
     // Mostrar formulário de edição
     function mostrarFormularioEdicao(numPedido) {
       const formContainer = document.getElementById(`form-edicao-${numPedido}`);
+      
+      mostrarCarregamento(true, 'Carregando pedido...');
       
       fetch(SCRIPT_URL, {
         method: 'POST',
@@ -1811,6 +2326,8 @@
             const formData = new FormData(this);
             formData.append('action', 'editarPedido');
             
+            mostrarCarregamento(true, 'Salvando alterações...');
+            
             fetch(SCRIPT_URL, {
               method: 'POST',
               body: formData
@@ -1829,6 +2346,9 @@
             .catch(error => {
               console.error('Erro:', error);
               exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
+            })
+            .finally(() => {
+              mostrarCarregamento(false);
             });
           });
         } else {
@@ -1838,6 +2358,9 @@
       .catch(error => {
         console.error('Erro:', error);
         exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
     }
 
@@ -1852,6 +2375,8 @@
       
       const formData = new FormData(this);
       formData.append('action', 'loginAdmin');
+      
+      mostrarCarregamento(true, 'Autenticando...');
       
       fetch(SCRIPT_URL, {
         method: 'POST',
@@ -1875,11 +2400,16 @@
       .catch(error => {
         console.error('Erro:', error);
         exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
     });
 
     // Carregar dashboard
     function carregarDashboard() {
+      mostrarCarregamento(true, 'Carregando dashboard...');
+      
       fetch(SCRIPT_URL, {
         method: 'POST',
         body: new FormData().append('action', 'getDashboardData')
@@ -1906,11 +2436,16 @@
       })
       .catch(error => {
         console.error('Erro:', error);
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
     }
 
     // Carregar pedidos
     function carregarPedidos() {
+      mostrarCarregamento(true, 'Carregando pedidos...');
+      
       fetch(SCRIPT_URL, {
         method: 'POST',
         body: new FormData().append('action', 'getAllPedidos')
@@ -2005,11 +2540,16 @@
       .catch(error => {
         console.error('Erro:', error);
         document.getElementById('listaPedidos').innerHTML = '<p>Erro na comunicação com o servidor</p>';
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
     }
 
     // Atualizar status do pedido
     function atualizarStatusPedido(numPedido, status) {
+      mostrarCarregamento(true, 'Atualizando status...');
+      
       fetch(SCRIPT_URL, {
         method: 'POST',
         body: new FormData()
@@ -2034,12 +2574,17 @@
       .catch(error => {
         console.error('Erro:', error);
         alert('Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
     }
 
     // Mostrar formulário de edição no admin
     function mostrarFormularioEdicaoAdmin(numPedido) {
       const formContainer = document.getElementById(`form-edicao-admin-${numPedido}`);
+      
+      mostrarCarregamento(true, 'Carregando pedido...');
       
       fetch(SCRIPT_URL, {
         method: 'POST',
@@ -2160,6 +2705,8 @@
             const formData = new FormData(this);
             formData.append('action', 'editarPedido');
             
+            mostrarCarregamento(true, 'Salvando alterações...');
+            
             fetch(SCRIPT_URL, {
               method: 'POST',
               body: formData
@@ -2176,6 +2723,9 @@
             .catch(error => {
               console.error('Erro:', error);
               alert('Erro na comunicação com o servidor');
+            })
+            .finally(() => {
+              mostrarCarregamento(false);
             });
           });
         } else {
@@ -2185,6 +2735,9 @@
       .catch(error => {
         console.error('Erro:', error);
         alert('Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
     }
 
