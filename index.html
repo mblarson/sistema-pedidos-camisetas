@@ -360,8 +360,8 @@
 
     .section {
       display: none;
-      animation: fadeIn 0.5s ease;
-      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
@@ -369,17 +369,6 @@
       display: block;
       opacity: 1;
       transform: translateY(0);
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     /* ===== BOTÃO VOLTAR ===== */
@@ -1756,19 +1745,13 @@
       // Remover classe active de todas as seções
       document.querySelectorAll('.section').forEach(s => {
         s.classList.remove('active');
-        s.style.opacity = '0';
-        s.style.transform = 'translateY(20px)';
       });
       
       // Adicionar classe active à seção selecionada
       const secaoElement = document.getElementById(secao);
-      secaoElement.classList.add('active');
-      
-      // Animação de entrada
-      setTimeout(() => {
-        secaoElement.style.opacity = '1';
-        secaoElement.style.transform = 'translateY(0)';
-      }, 50);
+      if (secaoElement) {
+        secaoElement.classList.add('active');
+      }
     }
 
     // Mostrar seção específica do admin
@@ -1782,8 +1765,11 @@
       
       // Adicionar classe active à seção e botão selecionados
       const secaoElement = document.getElementById(`admin-${secao}`);
-      secaoElement.classList.add('active');
+      if (secaoElement) {
+        secaoElement.classList.add('active');
+      }
       
+      // Encontrar o botão clicado e adicionar classe active
       event.target.closest('.admin-menu-btn').classList.add('active');
       
       // Carregar dados da seção
@@ -2066,3 +2052,538 @@
             '10': parseInt(document.getElementById('infantil_10').value) || 0,
             '12': parseInt(document.getElementById('infantil_12').value) || 0,
             '14': parseInt(document.getElementById('infantil_14').value) || 0
+          },
+          babylook: {
+            'PP': parseInt(document.getElementById('babylook_PP').value) || 0,
+            'P': parseInt(document.getElementById('babylook_P').value) || 0,
+            'M': parseInt(document.getElementById('babylook_M').value) || 0,
+            'G': parseInt(document.getElementById('babylook_G').value) || 0,
+            'GG': parseInt(document.getElementById('babylook_GG').value) || 0,
+            'XGG': parseInt(document.getElementById('babylook_XGG').value) || 0
+          },
+          unissex: {
+            'PP': parseInt(document.getElementById('unissex_PP').value) || 0,
+            'P': parseInt(document.getElementById('unissex_P').value) || 0,
+            'M': parseInt(document.getElementById('unissex_M').value) || 0,
+            'G': parseInt(document.getElementById('unissex_G').value) || 0,
+            'GG': parseInt(document.getElementById('unissex_GG').value) || 0,
+            'XGG': parseInt(document.getElementById('unissex_XGG').value) || 0
+          }
+        };
+        
+        console.log('Exibindo confirmação do pedido:', pedidoReal);
+        
+        // Exibir o card de confirmação com os dados do pedido
+        exibirConfirmacaoPedido(pedidoReal);
+        
+        // Limpar o formulário
+        this.reset();
+        
+        // Resetar campos de quantidade
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+          if (input.name.includes('infantil_') || input.name.includes('babylook_') || input.name.includes('unissex_')) {
+            input.value = 0;
+          }
+        });
+      } catch (error) {
+        console.error('Erro:', error);
+        exibirMensagem('mensagemPedido', 'erro', 'Erro na comunicação com o servidor: ' + error.message);
+      } finally {
+        mostrarCarregamento(false);
+      }
+    });
+
+    // Consultar pedido por ID
+    document.getElementById('formConsultar').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      formData.append('action', 'consultarPedidoPorId');
+      
+      mostrarCarregamento(true, 'Consultando pedido...');
+      
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const divResultado = document.getElementById('resultadoConsulta');
+        
+        if (data.success) {
+          const pedido = data.pedido;
+          const statusClass = `status-${pedido.status.toLowerCase()}`;
+          
+          let html = `
+            <div class="pedido-item">
+              <div class="pedido-header">
+                <div class="pedido-numero">#${pedido.numPedido}</div>
+                <div class="pedido-status ${statusClass}">${pedido.status}</div>
+              </div>
+              
+              <div class="pedido-info">
+                <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
+                <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
+                <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
+                <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+              </div>
+              
+              <div class="pedido-tamanhos">
+                <div class="tipo-tamanhos">
+                  <h4><i class="fas fa-child"></i> Infantis</h4>
+                  <ul>
+                    ${Object.entries(pedido.infantil).map(([tamanho, qtd]) => 
+                      qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                    ).join('')}
+                  </ul>
+                </div>
+                
+                <div class="tipo-tamanhos">
+                  <h4><i class="fas fa-female"></i> Babylook</h4>
+                  <ul>
+                    ${Object.entries(pedido.babylook).map(([tamanho, qtd]) => 
+                      qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                    ).join('')}
+                  </ul>
+                </div>
+                
+                <div class="tipo-tamanhos">
+                  <h4><i class="fas fa-tshirt"></i> Unissex</h4>
+                  <ul>
+                    ${Object.entries(pedido.unissex).map(([tamanho, qtd]) => 
+                      qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                    ).join('')}
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="admin-actions">
+                <button class="btn-editar" onclick="mostrarFormularioEdicao('${pedido.numPedido}')">
+                  <i class="fas fa-edit"></i> Editar
+                </button>
+              </div>
+            </div>
+          `;
+          
+          html += `<div id="form-edicao-${pedido.numPedido}"></div>`;
+          
+          divResultado.innerHTML = html;
+        } else {
+          exibirMensagem('resultadoConsulta', 'erro', data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
+      });
+    });
+
+    // Mostrar formulário de edição
+    function mostrarFormularioEdicao(numPedido) {
+      const formContainer = document.getElementById(`form-edicao-${numPedido}`);
+      
+      mostrarCarregamento(true, 'Carregando pedido...');
+      
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: new FormData().append('action', 'consultarPedidoPorId').append('numPedido', numPedido)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const pedido = data.pedido;
+          
+          let html = `
+            <div class="edit-form">
+              <h3><i class="fas fa-edit"></i> Editar Pedido #${numPedido}</h3>
+              <form id="formEditarPedido">
+                <input type="hidden" name="numPedido" value="${numPedido}">
+                
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="edit-nome">
+                      <i class="fas fa-user"></i>
+                      Nome do Líder/Coordenador
+                    </label>
+                    <input type="text" id="edit-nome" name="nome" value="${pedido.nome}" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label>
+                      <i class="fas fa-map-marker-alt"></i>
+                      Localização
+                    </label>
+                    <div class="radio-group">
+                      <label class="radio-label">
+                        <input type="radio" name="local" value="Capital" ${pedido.local === 'Capital' ? 'checked' : ''} required>
+                        <span class="radio-custom"></span>
+                        Capital
+                      </label>
+                      <label class="radio-label">
+                        <input type="radio" name="local" value="Interior" ${pedido.local === 'Interior' ? 'checked' : ''} required>
+                        <span class="radio-custom"></span>
+                        Interior
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="edit-setor">
+                      <i class="fas fa-building"></i>
+                      Setor/Cidade
+                    </label>
+                    <input type="text" id="edit-setor" name="setor" value="${pedido.setor}" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="edit-email">
+                      <i class="fas fa-envelope"></i>
+                      E-mail
+                    </label>
+                    <input type="email" id="edit-email" name="email" value="${pedido.email}" required>
+                  </div>
+                </div>
+
+                <div class="camisetas-section">
+                  <div class="tipo-camiseta">
+                    <h3><i class="fas fa-child"></i> Pedidos Infantis</h3>
+                    <div class="tamanhos-grid">
+                      <div class="tamanho-item">
+                        <label for="edit-infantil_1">1</label>
+                        <input type="number" id="edit-infantil_1" name="infantil_1" min="0" value="${pedido.infantil['1'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-infantil_2">2</label>
+                        <input type="number" id="edit-infantil_2" name="infantil_2" min="0" value="${pedido.infantil['2'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-infantil_4">4</label>
+                        <input type="number" id="edit-infantil_4" name="infantil_4" min="0" value="${pedido.infantil['4'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-infantil_6">6</label>
+                        <input type="number" id="edit-infantil_6" name="infantil_6" min="0" value="${pedido.infantil['6'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-infantil_8">8</label>
+                        <input type="number" id="edit-infantil_8" name="infantil_8" min="0" value="${pedido.infantil['8'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-infantil_10">10</label>
+                        <input type="number" id="edit-infantil_10" name="infantil_10" min="0" value="${pedido.infantil['10'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-infantil_12">12</label>
+                        <input type="number" id="edit-infantil_12" name="infantil_12" min="0" value="${pedido.infantil['12'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-infantil_14">14</label>
+                        <input type="number" id="edit-infantil_14" name="infantil_14" min="0" value="${pedido.infantil['14'] || 0}">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tipo-camiseta">
+                    <h3><i class="fas fa-female"></i> Adultos Babylook</h3>
+                    <div class="tamanhos-grid">
+                      <div class="tamanho-item">
+                        <label for="edit-babylook_PP">PP</label>
+                        <input type="number" id="edit-babylook_PP" name="babylook_PP" min="0" value="${pedido.babylook['PP'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-babylook_P">P</label>
+                        <input type="number" id="edit-babylook_P" name="babylook_P" min="0" value="${pedido.babylook['P'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-babylook_M">M</label>
+                        <input type="number" id="edit-babylook_M" name="babylook_M" min="0" value="${pedido.babylook['M'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-babylook_G">G</label>
+                        <input type="number" id="edit-babylook_G" name="babylook_G" min="0" value="${pedido.babylook['G'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-babylook_GG">GG</label>
+                        <input type="number" id="edit-babylook_GG" name="babylook_GG" min="0" value="${pedido.babylook['GG'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-babylook_XGG">XGG</label>
+                        <input type="number" id="edit-babylook_XGG" name="babylook_XGG" min="0" value="${pedido.babylook['XGG'] || 0}">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tipo-camiseta">
+                    <h3><i class="fas fa-tshirt"></i> Adultos Unissex</h3>
+                    <div class="tamanhos-grid">
+                      <div class="tamanho-item">
+                        <label for="edit-unissex_PP">PP</label>
+                        <input type="number" id="edit-unissex_PP" name="unissex_PP" min="0" value="${pedido.unissex['PP'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-unissex_P">P</label>
+                        <input type="number" id="edit-unissex_P" name="unissex_P" min="0" value="${pedido.unissex['P'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-unissex_M">M</label>
+                        <input type="number" id="edit-unissex_M" name="unissex_M" min="0" value="${pedido.unissex['M'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-unissex_G">G</label>
+                        <input type="number" id="edit-unissex_G" name="unissex_G" min="0" value="${pedido.unissex['G'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-unissex_GG">GG</label>
+                        <input type="number" id="edit-unissex_GG" name="unissex_GG" min="0" value="${pedido.unissex['GG'] || 0}">
+                      </div>
+                      <div class="tamanho-item">
+                        <label for="edit-unissex_XGG">XGG</label>
+                        <input type="number" id="edit-unissex_XGG" name="unissex_XGG" min="0" value="${pedido.unissex['XGG'] || 0}">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                  </button>
+                  <button type="button" class="btn-primary" onclick="cancelarEdicao('${numPedido}')">
+                    <i class="fas fa-times"></i> Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          `;
+          
+          formContainer.innerHTML = html;
+          
+          // Adicionar evento de submit ao formulário de edição
+          document.getElementById('formEditarPedido').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('action', 'editarPedido');
+            
+            enviarRequisicao(formData, 'Salvando alterações...')
+              .then(data => {
+                if (data.success) {
+                  exibirMensagem('resultadoConsulta', 'sucesso', 'Pedido atualizado com sucesso!');
+                  // Recarregar a consulta
+                  document.getElementById('formConsultar').dispatchEvent(new Event('submit'));
+                } else {
+                  exibirMensagem('resultadoConsulta', 'erro', data.error || 'Erro ao atualizar pedido');
+                }
+              })
+              .catch(error => {
+                exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
+              });
+          });
+        } else {
+          exibirMensagem('resultadoConsulta', 'erro', data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
+      });
+    }
+
+    // Cancelar edição
+    function cancelarEdicao(numPedido) {
+      document.getElementById(`form-edicao-${numPedido}`).innerHTML = '';
+    }
+
+    // Login do administrador
+    document.getElementById('formLogin').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      formData.append('action', 'loginAdmin');
+      
+      enviarRequisicao(formData, 'Autenticando...')
+        .then(data => {
+          if (data.success) {
+            document.getElementById('loginAdmin').style.display = 'none';
+            document.getElementById('painelAdmin').style.display = 'block';
+            carregarDashboard();
+          } else {
+            exibirMensagem('mensagemLogin', 'erro', data.error || 'Senha incorreta');
+          }
+        })
+        .catch(error => {
+          exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor');
+        });
+    });
+
+    // Carregar dashboard
+    function carregarDashboard() {
+      const formData = new FormData();
+      formData.append('action', 'carregarDashboard');
+      
+      enviarRequisicao(formData, 'Carregando dashboard...')
+        .then(data => {
+          if (data.success) {
+            document.getElementById('totalPedidos').textContent = data.totalPedidos;
+            document.getElementById('totalCamisetas').textContent = data.totalCamisetas;
+            document.getElementById('pedidosPendentes').textContent = data.pedidosPendentes;
+            document.getElementById('pedidosAprovados').textContent = data.pedidosAprovados;
+            document.getElementById('totalInfantis').textContent = data.totalInfantis;
+            document.getElementById('totalBabylook').textContent = data.totalBabylook;
+            document.getElementById('totalUnissex').textContent = data.totalUnissex;
+            document.getElementById('pedidosRejeitados').textContent = data.pedidosRejeitados;
+          } else {
+            console.error('Erro ao carregar dashboard:', data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao carregar dashboard:', error);
+        });
+    }
+
+    // Carregar pedidos
+    function carregarPedidos() {
+      const formData = new FormData();
+      formData.append('action', 'carregarPedidos');
+      
+      enviarRequisicao(formData, 'Carregando pedidos...')
+        .then(data => {
+          if (data.success) {
+            const listaPedidos = document.getElementById('listaPedidos');
+            let html = '';
+            
+            data.pedidos.forEach(pedido => {
+              const statusClass = `status-${pedido.status.toLowerCase()}`;
+              
+              html += `
+                <div class="pedido-item">
+                  <div class="pedido-header">
+                    <div class="pedido-numero">#${pedido.numPedido}</div>
+                    <div class="pedido-status ${statusClass}">${pedido.status}</div>
+                  </div>
+                  
+                  <div class="pedido-info">
+                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                    <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
+                    <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                  </div>
+                  
+                  <div class="pedido-tamanhos">
+                    <div class="tipo-tamanhos">
+                      <h4><i class="fas fa-child"></i> Infantis</h4>
+                      <ul>
+                        ${Object.entries(pedido.infantil).map(([tamanho, qtd]) => 
+                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                        ).join('')}
+                      </ul>
+                    </div>
+                    
+                    <div class="tipo-tamanhos">
+                      <h4><i class="fas fa-female"></i> Babylook</h4>
+                      <ul>
+                        ${Object.entries(pedido.babylook).map(([tamanho, qtd]) => 
+                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                        ).join('')}
+                      </ul>
+                    </div>
+                    
+                    <div class="tipo-tamanhos">
+                      <h4><i class="fas fa-tshirt"></i> Unissex</h4>
+                      <ul>
+                        ${Object.entries(pedido.unissex).map(([tamanho, qtd]) => 
+                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                        ).join('')}
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div class="admin-actions">
+                    ${pedido.status === 'Pendente' ? `
+                      <button class="btn-aprovar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Aprovado')">
+                        <i class="fas fa-check"></i> Aprovar
+                      </button>
+                      <button class="btn-rejeitar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Rejeitado')">
+                        <i class="fas fa-times"></i> Rejeitar
+                      </button>
+                    ` : ''}
+                    <button class="btn-editar" onclick="mostrarFormularioEdicaoAdmin('${pedido.numPedido}')">
+                      <i class="fas fa-edit"></i> Editar
+                    </button>
+                  </div>
+                </div>
+              `;
+            });
+            
+            listaPedidos.innerHTML = html;
+          } else {
+            console.error('Erro ao carregar pedidos:', data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao carregar pedidos:', error);
+        });
+    }
+
+    // Atualizar status do pedido
+    function atualizarStatusPedido(numPedido, status) {
+      const formData = new FormData();
+      formData.append('action', 'atualizarStatusPedido');
+      formData.append('numPedido', numPedido);
+      formData.append('status', status);
+      
+      enviarRequisicao(formData, 'Atualizando status...')
+        .then(data => {
+          if (data.success) {
+            carregarPedidos();
+            carregarDashboard();
+          } else {
+            console.error('Erro ao atualizar status:', data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao atualizar status:', error);
+        });
+    }
+
+    // Mostrar formulário de edição do admin
+    function mostrarFormularioEdicaoAdmin(numPedido) {
+      // Implementação similar à mostrarFormularioEdição, mas para o admin
+      // Por enquanto, vamos apenas recarregar a lista de pedidos
+      carregarPedidos();
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM carregado');
+      
+      // Verificar se os botões existem
+      const botoes = document.querySelectorAll('.menu-button');
+      console.log('Botões encontrados:', botoes.length);
+      
+      // Adicionar evento de clique para depuração
+      botoes.forEach((botao, index) => {
+        botao.addEventListener('click', function() {
+          console.log(`Botão ${index} clicado`);
+          const secao = this.getAttribute('onclick').match(/mostrarSecao\('(.+)'\)/)[1];
+          console.log('Seção alvo:', secao);
+          console.log('Elemento da seção:', document.getElementById(secao));
+        });
+      });
+    });
+  </script>
+</body>
+</html>
