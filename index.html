@@ -2647,146 +2647,182 @@
       });
     }
 
-    // Carregar pedidos - Versão corrigida
-    function carregarPedidos() {
-      const formData = new FormData();
-      // Tentar com diferentes ações que o script pode reconhecer
-      formData.append('action', 'getAllOrders');
+    // Carregar pedidos - Versão corrigida com múltiplas tentativas
+    async function carregarPedidos() {
+      console.log('=== INICIANDO CARREGAMENTO DE PEDIDOS ===');
+      
+      // Lista de ações alternativas para tentar
+      const acoesAlternativas = [
+        'getAllOrders',
+        'listarPedidos', 
+        'getTodosPedidos',
+        'getAllPedidos',
+        'consultarTodosPedidos',
+        'obterPedidos'
+      ];
       
       mostrarCarregamento(true, 'Carregando pedidos...');
       
-      return fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Erro HTTP: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Dados recebidos do servidor:', data);
+      // Tentar cada ação até encontrar uma que funcione
+      for (let i = 0; i < acoesAlternativas.length; i++) {
+        const acao = acoesAlternativas[i];
+        console.log(`Tentativa ${i + 1}/${acoesAlternativas.length}: Testando ação '${acao}'`);
         
-        const listaPedidos = document.getElementById('listaPedidos');
-        
-        if (data.success && data.pedidos && Array.isArray(data.pedidos)) {
-          console.log('Número de pedidos:', data.pedidos.length);
+        try {
+          const formData = new FormData();
+          formData.append('action', acao);
           
-          if (data.pedidos.length === 0) {
-            // Exibir mensagem de estado vazio
-            listaPedidos.innerHTML = `
-              <div class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h3>Nenhum pedido encontrado</h3>
-                <p>Não há pedidos registrados no sistema no momento.</p>
-              </div>
-            `;
-            return;
-          }
-          
-          let html = '';
-          
-          data.pedidos.forEach(pedido => {
-            console.log('Processando pedido:', pedido);
-            
-            // Garantir que o pedido tenha todas as propriedades necessárias
-            const status = pedido.status || 'Pendente';
-            const statusClass = `status-${status.toLowerCase()}`;
-            
-            // Garantir que os tamanhos sejam objetos válidos
-            const infantil = pedido.infantil || {};
-            const babylook = pedido.babylook || {};
-            const unissex = pedido.unissex || {};
-            
-            html += `
-              <div class="pedido-item">
-                <div class="pedido-header">
-                  <div class="pedido-numero">#${pedido.numPedido || 'N/A'}</div>
-                  <div class="pedido-status ${statusClass}">${status}</div>
-                </div>
-                
-                <div class="pedido-info">
-                  <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${pedido.data ? new Date(pedido.data).toLocaleString() : 'N/A'}</p>
-                  <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome || 'N/A'}</p>
-                  <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local || 'N/A'}</p>
-                  <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor || 'N/A'}</p>
-                  <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email || 'N/A'}</p>
-                </div>
-                
-                <div class="pedido-tamanhos">
-                  <div class="tipo-tamanhos">
-                    <h4><i class="fas fa-child"></i> Infantis</h4>
-                    <ul>
-                      ${Object.entries(infantil).map(([tamanho, qtd]) => 
-                        qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                      ).join('')}
-                    </ul>
-                  </div>
-                  
-                  <div class="tipo-tamanhos">
-                    <h4><i class="fas fa-female"></i> Babylook</h4>
-                    <ul>
-                      ${Object.entries(babylook).map(([tamanho, qtd]) => 
-                        qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                      ).join('')}
-                    </ul>
-                  </div>
-                  
-                  <div class="tipo-tamanhos">
-                    <h4><i class="fas fa-tshirt"></i> Unissex</h4>
-                    <ul>
-                      ${Object.entries(unissex).map(([tamanho, qtd]) => 
-                        qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                      ).join('')}
-                    </ul>
-                  </div>
-                </div>
-                
-                <div class="admin-actions">
-                  ${status === 'Pendente' ? `
-                    <button class="btn-aprovar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Aprovado')">
-                      <i class="fas fa-check"></i> Aprovar
-                    </button>
-                    <button class="btn-rejeitar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Rejeitado')">
-                      <i class="fas fa-times"></i> Rejeitar
-                    </button>
-                  ` : ''}
-                  <button class="btn-editar" onclick="mostrarFormularioEdicaoAdmin('${pedido.numPedido}')">
-                    <i class="fas fa-edit"></i> Editar
-                  </button>
-                </div>
-              </div>
-            `;
+          const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: formData
           });
           
-          listaPedidos.innerHTML = html;
-        } else {
-          console.error('Resposta inválida do servidor:', data);
-          listaPedidos.innerHTML = `
-            <div class="empty-state">
-              <i class="fas fa-exclamation-triangle"></i>
-              <h3>Erro ao carregar pedidos</h3>
-              <p>Não foi possível carregar a lista de pedidos. Tente novamente mais tarde.</p>
-            </div>
-          `;
+          console.log(`Resposta HTTP para '${acao}':`, response.status, response.statusText);
+          
+          if (!response.ok) {
+            console.warn(`Erro HTTP ${response.status} para ação '${acao}'`);
+            continue; // Tentar próxima ação
+          }
+          
+          const data = await response.json();
+          console.log(`Dados recebidos para '${acao}':`, data);
+          
+          const listaPedidos = document.getElementById('listaPedidos');
+          
+          // Verificar se a resposta é válida
+          if (data.success && data.pedidos && Array.isArray(data.pedidos)) {
+            console.log(`✓ Ação '${acao}' funcionou! Número de pedidos:`, data.pedidos.length);
+            
+            if (data.pedidos.length === 0) {
+              listaPedidos.innerHTML = `
+                <div class="empty-state">
+                  <i class="fas fa-inbox"></i>
+                  <h3>Nenhum pedido encontrado</h3>
+                  <p>Não há pedidos registrados no sistema no momento.</p>
+                </div>
+              `;
+              mostrarCarregamento(false);
+              return; // Sucesso, sair da função
+            }
+            
+            let html = '';
+            
+            data.pedidos.forEach(pedido => {
+              console.log('Processando pedido:', pedido);
+              
+              const status = pedido.status || 'Pendente';
+              const statusClass = `status-${status.toLowerCase()}`;
+              
+              const infantil = pedido.infantil || {};
+              const babylook = pedido.babylook || {};
+              const unissex = pedido.unissex || {};
+              
+              html += `
+                <div class="pedido-item">
+                  <div class="pedido-header">
+                    <div class="pedido-numero">#${pedido.numPedido || 'N/A'}</div>
+                    <div class="pedido-status ${statusClass}">${status}</div>
+                  </div>
+                  
+                  <div class="pedido-info">
+                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${pedido.data ? new Date(pedido.data).toLocaleString() : 'N/A'}</p>
+                    <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome || 'N/A'}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local || 'N/A'}</p>
+                    <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor || 'N/A'}</p>
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email || 'N/A'}</p>
+                  </div>
+                  
+                  <div class="pedido-tamanhos">
+                    <div class="tipo-tamanhos">
+                      <h4><i class="fas fa-child"></i> Infantis</h4>
+                      <ul>
+                        ${Object.entries(infantil).map(([tamanho, qtd]) => 
+                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                        ).join('') || '<li>Nenhum</li>'}
+                      </ul>
+                    </div>
+                    
+                    <div class="tipo-tamanhos">
+                      <h4><i class="fas fa-female"></i> Babylook</h4>
+                      <ul>
+                        ${Object.entries(babylook).map(([tamanho, qtd]) => 
+                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                        ).join('') || '<li>Nenhum</li>'}
+                      </ul>
+                    </div>
+                    
+                    <div class="tipo-tamanhos">
+                      <h4><i class="fas fa-tshirt"></i> Unissex</h4>
+                      <ul>
+                        ${Object.entries(unissex).map(([tamanho, qtd]) => 
+                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                        ).join('') || '<li>Nenhum</li>'}
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div class="admin-actions">
+                    ${status === 'Pendente' ? `
+                      <button class="btn-aprovar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Aprovado')">
+                        <i class="fas fa-check"></i> Aprovar
+                      </button>
+                      <button class="btn-rejeitar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Rejeitado')">
+                        <i class="fas fa-times"></i> Rejeitar
+                      </button>
+                    ` : ''}
+                    <button class="btn-editar" onclick="mostrarFormularioEdicaoAdmin('${pedido.numPedido}')">
+                      <i class="fas fa-edit"></i> Editar
+                    </button>
+                  </div>
+                </div>
+              `;
+            });
+            
+            listaPedidos.innerHTML = html;
+            mostrarCarregamento(false);
+            return; // Sucesso, sair da função
+            
+          } else if (data.error) {
+            console.warn(`Ação '${acao}' retornou erro:`, data.error);
+            // Continuar tentando outras ações
+          } else {
+            console.warn(`Ação '${acao}' retornou resposta inválida:`, data);
+            // Continuar tentando outras ações
+          }
+          
+        } catch (error) {
+          console.error(`Erro ao tentar ação '${acao}':`, error);
+          // Continuar tentando outras ações
         }
-      })
-      .catch(error => {
-        console.error('Erro ao carregar pedidos:', error);
-        const listaPedidos = document.getElementById('listaPedidos');
-        listaPedidos.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Erro de comunicação</h3>
-            <p>Ocorreu um erro ao comunicar com o servidor. Verifique sua conexão e tente novamente.</p>
-          </div>
-        `;
-      })
-      .finally(() => {
-        mostrarCarregamento(false);
-      });
+      }
+      
+      // Se chegou aqui, nenhuma ação funcionou
+      console.error('❌ TODAS AS TENTATIVAS FALHARAM');
+      console.error('Ações tentadas:', acoesAlternativas);
+      console.error('Possíveis causas:');
+      console.error('1. O backend não implementa nenhuma dessas ações');
+      console.error('2. O backend usa um nome de ação diferente');
+      console.error('3. Há um problema de autenticação ou permissões');
+      console.error('4. A URL do script está incorreta ou o script está offline');
+      
+      const listaPedidos = document.getElementById('listaPedidos');
+      listaPedidos.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Erro ao carregar pedidos</h3>
+          <p>Não foi possível carregar a lista de pedidos. O backend pode não estar configurado corretamente.</p>
+          <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--text-muted);">
+            Verifique o console do navegador (F12) para mais detalhes técnicos.
+          </p>
+          <button onclick="carregarPedidos()" class="btn-primary" style="margin-top: 1rem;">
+            <i class="fas fa-sync-alt"></i> Tentar Novamente
+          </button>
+        </div>
+      `;
+      
+      mostrarCarregamento(false);
     }
+
 
     // Atualizar status do pedido
     function atualizarStatusPedido(numPedido, status) {
