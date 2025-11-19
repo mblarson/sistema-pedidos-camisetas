@@ -1235,16 +1235,6 @@
       margin-top: 1rem;
     }
 
-    .form-actions button {
-      flex: 1;
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: var(--border-radius);
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
     .form-actions button[type="submit"] {
       background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
       color: var(--white-color);
@@ -2034,13 +2024,12 @@
     window.verificarPedidoPorNumero = async function(numPedido) {
         const numNormalizado = numPedido.toUpperCase().trim();
         try {
-            // A busca por numPedido no Firestore deve ser feita pelo campo 'numPedido'
-            const q = query(pedidosCollection, where("numPedido", "==", numNormalizado));
-            const snapshot = await getDocs(q);
+            const docRef = doc(db, "pedidos", numNormalizado);
+            const docSnap = await getDoc(docRef);
             
-            if (!snapshot.empty) {
-                const docData = snapshot.docs[0].data();
-                const docId = snapshot.docs[0].id;
+            if (docSnap.exists()) {
+                const docData = docSnap.data();
+                const docId = docSnap.id;
                 
                 return { docId, ...docData }; 
             }
@@ -2076,8 +2065,11 @@
         
         document.getElementById('pedidoDocId').value = pedido.docId; 
         document.getElementById('nome').value = pedido.nome;
+        
+        // Marca o rádio correto
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
         
+        // Atualiza e preenche o campo Setor/Cidade
         window.updateSetorCidadeInput(); 
         document.getElementById('setor').value = pedido.setor; 
         
@@ -2499,11 +2491,12 @@
               const pedido = await window.verificarPedidoPorNumero(consulta);
 
               if (pedido) {
-                  window.displayVisualizacaoPedido(pedido);
+                  currentPedidoParaEdicao = pedido;
+                  window.setupEdicaoPedido();
                   window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
               } else {
                   document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido correspondente ao número '${consulta}' foi localizado.</p></div>`;
-                  window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Pedido não encontrado.');
               }
               
               window.mostrarCarregamento(false);
@@ -2526,7 +2519,8 @@
               const pedido = await window.verificarPedidoPorEmail(consulta);
 
               if (pedido) {
-                  window.displayVisualizacaoPedido(pedido);
+                  currentPedidoParaEdicao = pedido;
+                  window.setupEdicaoPedido();
                   window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
               } else {
                   document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido para o e-mail '${consulta}' foi localizado.</p></div>`;
