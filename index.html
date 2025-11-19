@@ -1880,16 +1880,16 @@
     const pedidosCollection = collection(db, "pedidos"); // Nome da sua coleção (criada no passo anterior)
     const auth = getAuth(app); 
 
-    // VARIÁVEIS DE ADMIN 
-    const ADMIN_EMAIL = "admin@umademats.com"; 
+    // VARIÁVEIS DE ADMIN (CORRIGIDO)
+    const ADMIN_EMAIL = "ieadms.umademats@gmail.com"; 
     
     // Funções auxiliares para mapear campos do formulário
     function getQuantidadesFromForm(formData, prefix) {
         const quantidades = {};
         for (const [key, value] of formData.entries()) {
             if (key.startsWith(prefix + '_')) {
-                // Converte o valor para número. Se for zero, é 0. Se for vazio, é NaN, que vira 0.
-                quantidades[key.split('_')[1]] = parseInt(value) || 0;
+                const tamanho = key.split('_')[1];
+                quantidades[tamanho] = parseInt(value) || 0;
             }
         }
         return quantidades;
@@ -2063,7 +2063,7 @@
         try {
             const snapshot = await getDocs(pedidosCollection);
             const pedidos = snapshot.docs.map(doc => ({ 
-                docId: doc.id, // Armazena o ID do documento para operações de UPDATE/DELETE
+                docId: doc.id, 
                 ...doc.data() 
             }));
             return pedidos;
