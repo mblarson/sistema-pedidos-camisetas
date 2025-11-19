@@ -2717,6 +2717,9 @@
       
       mostrarCarregamento(true, 'Carregando dashboard...');
       
+      const formData = new FormData();
+      formData.append('action', 'getDashboardData');
+      
       fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
@@ -2814,7 +2817,7 @@
       .finally(() => {
         mostrarCarregamento(false);
       });
-    
+    }
 
     // Método alternativo para carregar dashboard
     function carregarDashboardAlternativo() {
@@ -3199,9 +3202,12 @@
       if (!numPedido) {
         console.error('Número do pedido não fornecido');
         return;
-      }
-
-      mostrarCarregamento(true, 'Carregando pedido...');
+    }
+      
+      mostrarCarregamento(true, 'Carregando dashboard...');
+      
+      const formData = new FormData();
+      formData.append('action', 'getDashboardData');
       
       fetch(SCRIPT_URL, {
         method: 'POST',
