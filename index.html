@@ -2027,12 +2027,12 @@
             numNormalizado = numNormalizado.substring(6); // Remove 'UMADE-' (6 caracteres)
         }
         try {
-            const docRef = doc(db, "pedidos", numNormalizado);
-            const docSnap = await getDoc(docRef);
+            const q = query(pedidosCollection, where("numPedido", "==", numNormalizado));
+            const snapshot = await getDocs(q);
             
-            if (docSnap.exists()) {
-                const docData = docSnap.data();
-                const docId = docSnap.id;
+            if (!snapshot.empty) {
+                const docData = snapshot.docs[0].data();
+                const docId = snapshot.docs[0].id;
                 
                 return { docId, ...docData }; 
             }
