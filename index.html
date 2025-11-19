@@ -1880,7 +1880,7 @@
     const pedidosCollection = collection(db, "pedidos"); // Nome da sua coleção (criada no passo anterior)
     const auth = getAuth(app); 
 
-    // VARIÁVEIS DE ADMIN (Usaremos este e-mail para login no Firebase Auth)
+    // VARIÁVEIS DE ADMIN 
     const ADMIN_EMAIL = "admin@umademats.com"; 
     
     // Funções auxiliares para mapear campos do formulário
@@ -1888,18 +1888,29 @@
         const quantidades = {};
         for (const [key, value] of formData.entries()) {
             if (key.startsWith(prefix + '_')) {
-                const tamanho = key.split('_')[1];
-                quantidades[tamanho] = parseInt(value) || 0;
+                // Converte o valor para número. Se for zero, é 0. Se for vazio, é NaN, que vira 0.
+                quantidades[key.split('_')[1]] = parseInt(value) || 0;
             }
         }
         return quantidades;
     }
 
+    // Função de utilidade para encontrar o DocId pelo numPedido (necessário para updates no Firebase)
+    async function getDocIdByNumPedido(numPedido) {
+        const q = query(pedidosCollection, where("numPedido", "==", numPedido));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+            return snapshot.docs[0].id;
+        }
+        return null;
+    }
+
 
     // ==========================================================
-    // FUNÇÕES DE UTILIDADE GERAL
+    // FUNÇÕES DE UTILIDADE GERAL (Expostas no escopo global)
     // ==========================================================
     
+    // CORREÇÃO: Funções expostas no window para acesso pelos Event Listeners
     window.mostrarSecao = function(secao) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       const secaoElement = document.getElementById(secao);
@@ -1926,6 +1937,34 @@
       } else if (secao === 'pedidos') {
         window.carregarPedidos();
       }
+    };
+    
+    window.redirecionarComAnimacao = function(secao, callback) {
+      const elementoAtual = document.querySelector('.section.active');
+      const proximoElemento = document.getElementById(secao);
+
+      if (!elementoAtual || !proximoElemento || elementoAtual === proximoElemento) {
+        window.mostrarSecao(secao);
+        if(callback) callback();
+        return;
+      }
+      
+      elementoAtual.style.opacity = '0';
+      elementoAtual.style.transform = 'translateY(-20px)';
+      
+      setTimeout(() => {
+        window.mostrarSecao(secao);
+        
+        if (callback) callback();
+        
+        proximoElemento.style.opacity = '0';
+        proximoElemento.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+          proximoElemento.style.opacity = '1';
+          proximoElemento.style.transform = 'translateY(0)';
+        }, 50);
+      }, 300);
     };
 
     window.exibirMensagem = function(elementoId, tipo, mensagem) {
@@ -1955,19 +1994,76 @@
         document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
         window.mostrarSecao('home');
     };
-    
-    // Funções de animação e cópia (omissão para brevidade)
 
+    window.copiarNumeroPedido = function(numPedido) {
+      navigator.clipboard.writeText(numPedido)
+        .then(() => {
+          window.exibirMensagem('mensagemPedido', 'sucesso', 'Número do pedido copiado para a área de transferência!');
+        })
+        .catch(err => {
+          console.error('Erro ao copiar número do pedido:', err);
+          window.exibirMensagem('mensagemPedido', 'erro', 'Não foi possível copiar o número do pedido');
+        });
+    };
+
+    window.exibirConfirmacaoPedido = function(pedido) {
+      const overlay = document.getElementById('pedidoConfirmacaoOverlay');
+      const numeroElement = document.getElementById('pedidoConfirmacaoNumero');
+      const infoElement = document.getElementById('pedidoConfirmacaoInfo');
+      const tamanhosElement = document.getElementById('pedidoConfirmacaoTamanhos');
+      
+      const formatarTamanhos = (tamanhos) => {
+        return Object.entries(tamanhos).map(([tamanho, qtd]) => 
+          parseInt(qtd) > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+        ).join('');
+      };
+      
+      numeroElement.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+          <strong>Número do Pedido:</strong> #${pedido.numPedido}
+          <button onclick="window.copiarNumeroPedido('${pedido.numPedido}')" class="btn-copiar">
+            <i class="fas fa-copy"></i> Copiar
+          </button>
+        </div>
+      `;
+      
+      infoElement.innerHTML = `
+        <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
+        <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
+        <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
+        <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+        <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+      `;
+      
+      tamanhosElement.innerHTML = `
+        <div class="pedido-confirmacao-tipo">
+          <h4><i class="fas fa-child"></i> Infantis</h4>
+          <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
+        </div>
+        
+        <div class="pedido-confirmacao-tipo">
+          <h4><i class="fas fa-female"></i> Babylook</h4>
+          <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
+        </div>
+        
+        <div class="pedido-confirmacao-tipo">
+          <h4><i class="fas fa-tshirt"></i> Unissex</h4>
+          <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
+        </div>
+      `;
+      
+      overlay.classList.add('active');
+    };
+    
     // ==========================================================
     // FUNÇÕES FIREBASE: COMUNICAÇÃO COM O BANCO DE DADOS
     // ==========================================================
 
     window.carregarTodosPedidos = async function() {
-        // Função para obter todos os pedidos (base para Dashboard e Lista)
         try {
             const snapshot = await getDocs(pedidosCollection);
             const pedidos = snapshot.docs.map(doc => ({ 
-                id: doc.id, 
+                docId: doc.id, // Armazena o ID do documento para operações de UPDATE/DELETE
                 ...doc.data() 
             }));
             return pedidos;
@@ -1978,7 +2074,6 @@
     }
 
     window.verificarEmailPedidoExistente = async function(email) {
-        // Query para encontrar pedidos 'Pendente' com o mesmo e-mail
         const q = query(pedidosCollection, where("email", "==", email), where("status", "==", "Pendente"));
         const snapshot = await getDocs(q);
         
@@ -2018,7 +2113,6 @@
                 else if (pedido.status === 'Rejeitado') pedidosRejeitados++;
             });
             
-            // Atualizar os cards principais
             window.atualizarElemento('totalPedidos', totalPedidos);
             window.atualizarElemento('totalCamisetas', totalCamisetas);
             window.atualizarElemento('pedidosPendentes', pedidosPendentes);
@@ -2037,7 +2131,6 @@
         }
     };
     
-    // Função para cálculo de detalhes de tamanho (sob demanda)
     window.carregarDetalhesTamanho = async function() {
         window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
         const detalhesBody = document.getElementById('tamanhosDetalhesBody');
@@ -2061,7 +2154,6 @@
             const totaisGerais = {};
             tamanhosDisponiveis.forEach(t => totaisGerais[t] = 0);
 
-            // Estrutura de acúmulo de detalhes
             const detalhes = { infantil: {}, babylook: {}, unissex: {} };
             tamanhosDisponiveis.forEach(t => {
                 detalhes.infantil[t] = 0;
@@ -2079,7 +2171,6 @@
                 });
             });
             
-            // Renderização da Tabela
             tipos.forEach(tipo => {
                 htmlBody += `<tr><td class="tipo-header">${tipo.name}</td>`;
                 
@@ -2134,9 +2225,14 @@
                     return Object.entries(tipos).filter(([_, qtd]) => parseInt(qtd) > 0)
                                 .map(([t, q]) => `<li>${t}: ${q}</li>`).join('');
                 };
+                
+                const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                             Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                             Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
 
                 const pedidoHtml = `
-                    <div class="pedido-item" data-id="${pedido.numPedido}">
+                    <div class="pedido-item" data-id="${pedido.docId}">
                         <div class="pedido-header">
                             <span class="pedido-numero">#${pedido.numPedido}</span>
                             <span class="pedido-status ${statusClass}">${pedido.status}</span>
@@ -2145,7 +2241,7 @@
                             <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
                             <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
                             <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-                            <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${pedido.totalCamisetas || 0}</p>
+                            <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
                         </div>
                         <div class="pedido-tamanhos">
                             <div class="tipo-tamanhos">
@@ -2162,8 +2258,8 @@
                             </div>
                         </div>
                         <div class="admin-actions">
-                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.id}', 'Aprovado')">Aprovar</button>
-                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.id}', 'Rejeitado')">Rejeitar</button>
+                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Aprovado')">Aprovar</button>
+                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Rejeitado')">Rejeitar</button>
                         </div>
                     </div>
                 `;
@@ -2300,10 +2396,9 @@
                     numPedido: 'PENDING' // Placeholder
                   };
                   
-                  // 1. Adiciona o documento e obtém a referência
                   const docRef = await addDoc(pedidosCollection, novoPedidoBase);
                   
-                  // 2. Atualiza o campo numPedido com o ID do documento Firestore (ID único)
+                  // Atualiza o numPedido com o ID do documento Firestore (ID único)
                   await updateDoc(doc(db, "pedidos", docRef.id), { numPedido: docRef.id });
 
                   formPedido.reset();
@@ -2330,7 +2425,6 @@
               window.mostrarCarregamento(true, 'Verificando senha...');
 
               try {
-                  // Tenta autenticar contra o usuário ADMIN_EMAIL criado no Firebase Auth
                   const userCredential = await signInWithEmailAndPassword(auth, ADMIN_EMAIL, senha);
 
                   if (userCredential.user) {
@@ -2375,7 +2469,7 @@
                   const snapshot = await getDocs(q);
 
                   if (!snapshot.empty) {
-                      const pedido = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+                      const pedido = { docId: snapshot.docs[0].id, ...snapshot.docs[0].data() };
                       
                       const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
                                             pedido.status === 'Aprovado' ? 'status-aprovado' : 
