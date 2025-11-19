@@ -2024,12 +2024,12 @@
     window.verificarPedidoPorNumero = async function(numPedido) {
         const numNormalizado = numPedido.toUpperCase().trim();
         try {
-            const q = query(pedidosCollection, where("numPedido", "==", numNormalizado));
-            const snapshot = await getDocs(q);
+            const docRef = doc(db, "pedidos", numNormalizado);
+            const docSnap = await getDoc(docRef);
             
-            if (!snapshot.empty) {
-                const docData = snapshot.docs[0].data();
-                const docId = snapshot.docs[0].id;
+            if (docSnap.exists()) {
+                const docData = docSnap.data();
+                const docId = docSnap.id;
                 
                 return { docId, ...docData }; 
             }
