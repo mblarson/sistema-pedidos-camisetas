@@ -533,7 +533,8 @@
       font-size: 0.875rem;
     }
 
-    .form-group input {
+    .form-group input, 
+    .form-group select {
       padding: 0.75rem 1rem;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-color);
@@ -541,6 +542,25 @@
       font-size: 1rem;
       color: var(--text-primary);
       transition: var(--transition);
+    }
+    
+    /* CORREÇÃO DO SELECIONE */
+    .form-group select {
+        appearance: none; 
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.5em 1.5em;
+    }
+    
+    .form-group select option {
+        background: var(--dark-color);
+        color: var(--text-primary);
+    }
+    .form-group select option[disabled] {
+        color: var(--text-muted);
     }
     
     /* NOVO: Estiliza o campo de senha com ícone */
@@ -568,33 +588,6 @@
     }
     .form-group .input-with-icon .btn-toggle-password:hover {
         color: var(--primary-color);
-    }
-
-    /* CORREÇÃO DO SELECIONE */
-    .form-group select {
-        padding: 0.75rem 1rem;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        font-size: 1rem;
-        color: var(--text-primary);
-        /* Estilos para o dropdown (necessário para cores escuras) */
-        appearance: none; 
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 1.5em 1.5em;
-    }
-    
-    .form-group select option {
-        /* Garante que o dropdown dentro da lista seja escuro */
-        background: var(--dark-color);
-        color: var(--text-primary);
-    }
-    .form-group select option[disabled] {
-        color: var(--text-muted);
     }
 
 
@@ -1805,7 +1798,7 @@
     // ==========================================================
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
-    const ADMIN_PASSWORD_FIXA = "umadematssecretariaI"; // <-- **INSERIR SENHA AQUI**
+    const ADMIN_PASSWORD_FIXA = "umademats"; // <-- **INSERIR SENHA AQUI**
     
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
@@ -2070,7 +2063,6 @@
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
         
-        // Garante que o rádio 'Capital' esteja checado se o formulário for novo/resetado
         document.querySelector('input[name="local"][value="Capital"]').checked = true; 
         window.updateSetorCidadeInput(); 
     }
@@ -2214,8 +2206,6 @@
         window.mostrarCarregamento(false);
     }
     
-    // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
-
     window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
@@ -2225,8 +2215,8 @@
             }));
             return pedidos;
         } catch (error) {
-            console.error('Erro ao carregar todos os pedidos:', error);
-            throw new Error('Falha ao carregar dados do banco de dados.');
+            console.error("Erro ao carregar todos os pedidos:", error);
+            throw new Error("Falha ao carregar dados do banco de dados.");
         }
     }
 
@@ -2506,10 +2496,8 @@
               let pedido = null;
               
               if (isValidEmail(consulta)) {
-                  // Se for e-mail, tenta buscar por e-mail
                   pedido = await window.verificarPedidoPorEmail(consulta);
               } else {
-                  // Se não for e-mail, tenta buscar por numPedido
                   pedido = await window.verificarPedidoPorNumero(consulta);
               }
 
@@ -2532,7 +2520,6 @@
           const labelElement = document.getElementById('setorCidadeLabel');
           const radioCapitalChecked = document.querySelector('input[name="local"][value="Capital"]:checked');
           
-          // Preserva o valor atual antes de recriar o input
           const currentValue = document.getElementById('setor') ? document.getElementById('setor').value : '';
 
 
@@ -2556,17 +2543,14 @@
                       <option value="Setor N" style="background: var(--dark-color);">Setor N</option>
                   </select>
               `;
-              // Tenta restaurar o valor, se for um dos setores
               const selectElement = document.getElementById('setor');
               if (selectElement) selectElement.value = currentValue || "";
               
           } else {
               labelElement.textContent = 'Cidade/Setor';
-              // Opção INTERIOR: Input de Texto (já com a classe/estilo global)
               container.innerHTML = `
                   <input type="text" id="setor" name="setor" placeholder="Digite sua Cidade/Setor" required>
               `;
-              // Restaura o valor
               document.getElementById('setor').value = currentValue;
           }
       }
@@ -2574,7 +2558,6 @@
       if (radioCapital) radioCapital.addEventListener('change', window.updateSetorCidadeInput);
       if (radioInterior) radioInterior.addEventListener('change', window.updateSetorCidadeInput);
       
-      // Inicializa o campo de setor/cidade na carga da página
       window.updateSetorCidadeInput(); 
 
       // === Botões de Navegação / Voltar ===
