@@ -1164,8 +1164,8 @@
     .btn-editar:hover {
       background: rgba(255, 126, 95, 0.2);
     }
-
-    /* ===== FORMULÁRIO DE EDIÇÃO ===== */
+    
+    /* ===== FORMULÁRIO DE EDIÇÃO / VISUALIZAÇÃO (Mantidas) ===== */
     .edit-form {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-color);
@@ -1188,16 +1188,6 @@
       margin-top: 1rem;
     }
 
-    .form-actions button {
-      flex: 1;
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: var(--border-radius);
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
     .form-actions button[type="submit"] {
       background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
       color: var(--white-color);
@@ -1206,17 +1196,6 @@
     .form-actions button[type="submit"]:hover {
       transform: translateY(-1px);
       box-shadow: var(--shadow-md);
-    }
-
-    .form-actions button[type="button"] {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
-    }
-
-    .form-actions button[type="button"]:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: var(--text-primary);
     }
     
     /* === NOVO: SEÇÃO DE VISUALIZAÇÃO DE PEDIDO EXISTENTE === */
@@ -1241,38 +1220,17 @@
         border-bottom: 1px solid var(--border-color);
     }
 
-    /* ===== RESULTADOS ===== */
+    /* ===== RESULTADOS/ESTADOS VAZIOS (Mantidas) ===== */
     .result-container {
       margin-top: 2rem;
     }
-
-    /* ===== MENSAGEM VAZIA ===== */
     .empty-state {
       text-align: center;
       padding: 3rem 1rem;
       color: var(--text-secondary);
     }
 
-    .empty-state i {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      color: var(--text-muted);
-    }
-
-    .empty-state h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--text-primary);
-    }
-
-    .empty-state p {
-      font-size: 1rem;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    /* ===== FOOTER ===== */
+    /* ===== FOOTER (Mantidas) ===== */
     .footer {
       background: var(--darker-color);
       border-top: 1px solid var(--border-color);
@@ -1280,10 +1238,6 @@
       text-align: center;
       padding: 2rem 0;
       margin-top: 4rem;
-    }
-
-    .footer p {
-      font-size: 0.875rem;
     }
   </style>
 </head>
@@ -1798,7 +1752,6 @@
         return quantidades;
     }
 
-    // Função de utilidade para encontrar o DocId pelo numPedido (necessário para updates no Firebase)
     async function getDocIdByNumPedido(numPedido) {
         const q = query(pedidosCollection, where("numPedido", "==", numPedido));
         const snapshot = await getDocs(q);
@@ -2170,6 +2123,27 @@
         }
     };
 
+    // Função de Login Admin (Corrigida para receber 'e')
+    window.handleAdminLogin = async function(e) {
+        e.preventDefault(); 
+        const senha = document.getElementById('senhaAdmin').value;
+        window.mostrarCarregamento(true, 'Verificando senha...');
+
+        if (senha === ADMIN_PASSWORD_FIXA) { 
+            document.getElementById('loginAdmin').style.display = 'none';
+            document.getElementById('painelAdmin').style.display = 'block';
+            document.getElementById('mensagemLogin').innerHTML = ''; 
+            
+            document.getElementById('admin-dashboard').classList.add('active');
+            document.getElementById('btnDashboard').classList.add('active');
+            window.carregarDashboard(); 
+            
+        } else {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Senha incorreta.');
+        }
+        window.mostrarCarregamento(false);
+    }
+
     // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
 
     window.carregarTodosPedidos = async function() {
@@ -2420,10 +2394,7 @@
           btnAcessoLideranca.addEventListener('click', async () => {
              window.mostrarCarregamento(true, 'Iniciando login com Google...');
              try {
-                // Inicia o pop-up de login
                 const result = await signInWithPopup(auth, googleProvider);
-                
-                // Redireciona para o fluxo de verificação de pedido
                 window.handleAcessoLideranca(result.user.email); 
              } catch (error) {
                 console.error("Erro de login com Google:", error);
@@ -2436,7 +2407,6 @@
       
       // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
       if (btnAdministrador) {
-          // Apenas muda a seção
           btnAdministrador.addEventListener('click', () => {
               document.getElementById('loginAdmin').style.display = 'block';
               document.getElementById('painelAdmin').style.display = 'none';
@@ -2446,7 +2416,6 @@
       }
       
       if (formLoginAdmin) {
-          // Anexa o listener de submit à função de login admin
           formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
       }
 
@@ -2456,7 +2425,6 @@
       }
       
       // === Event Listeners de Navegação / Botões (Mantidos) ===
-      // Botões de Voltar
       document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
