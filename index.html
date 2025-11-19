@@ -1285,8 +1285,6 @@
     .footer p {
       font-size: 0.875rem;
     }
-    
-    /* ===== RESPONSIVO (Omitido para brevidade, mas as regras mantidas) ===== */
   </style>
 </head>
 <body>
@@ -1760,10 +1758,13 @@
       messagingSenderId: "604273766416",
       appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
     };
-    
-    // VARIÁVEL DE SENHA FIXA DO ADMIN (Defina uma senha forte aqui)
-    const ADMIN_PASSWORD_FIXA = "SUA_SENHA_FORTE_AQUI"; 
 
+    // ==========================================================
+    // VARIÁVEIS CRÍTICAS
+    // ==========================================================
+    const ADMIN_EMAIL = "ieadms.umademats@gmail.com"; 
+    const ADMIN_PASSWORD_FIXA = "SUA_SENHA_FORTE_AQUI"; 
+    
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
     // ==========================================================
@@ -1777,7 +1778,7 @@
     const db = getFirestore(app);
     const pedidosCollection = collection(db, "pedidos"); 
     const auth = getAuth(app); 
-    const googleProvider = new GoogleAuthProvider(); // Provedor Google
+    const googleProvider = new GoogleAuthProvider(); 
 
     // VARIÁVEIS GLOBAIS DE ESTADO
     let currentLeaderEmail = null; 
@@ -1796,12 +1797,22 @@
         }
         return quantidades;
     }
-    
+
+    // Função de utilidade para encontrar o DocId pelo numPedido (necessário para updates no Firebase)
+    async function getDocIdByNumPedido(numPedido) {
+        const q = query(pedidosCollection, where("numPedido", "==", numPedido));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+            return snapshot.docs[0].id;
+        }
+        return null;
+    }
+
+
     // ==========================================================
     // FUNÇÕES DE UTILIDADE GERAL (Expostas no escopo global)
     // ==========================================================
     
-    // Funções de Utilitários de Interface (Mantidas no window)
     window.mostrarSecao = function(secao) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       const secaoElement = document.getElementById(secao);
@@ -1831,7 +1842,6 @@
     };
     
     window.redirecionarComAnimacao = function(secao, callback) {
-        // ... (Lógica de transição mantida) ...
         const elementoAtual = document.querySelector('.section.active');
         const proximoElemento = document.getElementById(secao);
   
@@ -1966,7 +1976,6 @@
                 const docData = snapshot.docs[0].data();
                 const docId = snapshot.docs[0].id;
                 
-                // Retorna o primeiro pedido encontrado (assumindo 1 pedido por líder)
                 return { docId, ...docData }; 
             }
             return null;
@@ -1986,7 +1995,7 @@
         
         if (pedido) {
             // CASO A: PEDIDO EXISTENTE
-            currentLeaderPedido = pedido; // Armazena para edição futura
+            currentLeaderPedido = pedido; 
             window.displayVisualizacaoPedido(pedido);
             window.redirecionarComAnimacao('visualizar-pedido-lider');
         } else {
@@ -2003,10 +2012,8 @@
         
         document.getElementById('email').value = email;
         
-        // Limpa estado anterior
         document.getElementById('formPedido').reset();
         
-        // Atualiza a interface
         document.getElementById('pedidoTitulo').textContent = 'Fazer Novo Pedido';
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
@@ -2075,14 +2082,12 @@
         const pedido = currentLeaderPedido;
         if (!pedido) return;
         
-        // 1. Preenche dados do líder
-        document.getElementById('pedidoDocId').value = pedido.docId; // ID do doc Firestore
+        document.getElementById('pedidoDocId').value = pedido.docId; 
         document.getElementById('nome').value = pedido.nome;
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
         document.getElementById('setor').value = pedido.setor;
         document.getElementById('email').value = pedido.email;
         
-        // 2. Preenche quantidades de camisetas
         const preencherTamanhos = (tamanhos, prefix) => {
             for (const [t, q] of Object.entries(tamanhos || {})) {
                 const input = document.getElementById(`${prefix}_${t}`);
@@ -2094,7 +2099,6 @@
         preencherTamanhos(pedido.babylook, 'babylook');
         preencherTamanhos(pedido.unissex, 'unissex');
         
-        // 3. Atualiza a interface
         document.getElementById('pedidoTitulo').textContent = `Editar Pedido #${pedido.numPedido}`;
         document.getElementById('pedidoSubtitulo').textContent = 'Revise as quantidades e confirme o reenvio.';
         document.getElementById('submitButtonText').textContent = 'Reenviar Pedido';
@@ -2102,10 +2106,7 @@
         window.redirecionarComAnimacao('pedido');
     };
     
-    // ----------------------------------------------------------
-    // SUBMISSÃO E ADMIN (MANTIDAS)
-    // ----------------------------------------------------------
-
+    // Função 6: Lógica de Submissão Única (Novo ou Edição)
     window.handleFormSubmission = async function(e) {
         e.preventDefault();
         
@@ -2146,13 +2147,11 @@
             let finalNumPedido = '';
 
             if (isEditing) {
-                // EDIÇÃO: Apenas atualiza os campos
                 const pedidoRef = doc(db, "pedidos", docId);
                 await updateDoc(pedidoRef, dataToSave);
                 finalNumPedido = currentLeaderPedido.numPedido;
                 
             } else {
-                // NOVO PEDIDO: Adiciona e define o ID do documento como o numPedido
                 const docRef = await addDoc(pedidosCollection, { ...dataToSave, numPedido: 'PENDING' });
                 await updateDoc(doc(db, "pedidos", docRef.id), { numPedido: docRef.id });
                 finalNumPedido = docRef.id;
@@ -2173,27 +2172,269 @@
     };
 
     // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
+
+    window.carregarTodosPedidos = async function() {
+        // ... (Lógica mantida) ...
+        try {
+            const snapshot = await getDocs(pedidosCollection);
+            const pedidos = snapshot.docs.map(doc => ({ 
+                docId: doc.id, 
+                ...doc.data() 
+            }));
+            return pedidos;
+        } catch (error) {
+            console.error("Erro ao carregar todos os pedidos:", error);
+            throw new Error("Falha ao carregar dados do banco de dados.");
+        }
+    }
+
+    window.carregarDashboard = async function() {
+        // ... (Lógica mantida) ...
+        window.mostrarCarregamento(true, 'Calculando visão geral...');
+        
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+            
+            let totalPedidos = pedidos.length;
+            let totalCamisetas = 0;
+            let pedidosPendentes = 0;
+            let pedidosAprovados = 0;
+            let pedidosRejeitados = 0;
+            let totalInfantis = 0;
+            let totalBabylook = 0;
+            let totalUnissex = 0;
+
+            pedidos.forEach(pedido => {
+                const infantilCount = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0);
+                const babylookCount = Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0);
+                const unissexCount = Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
+                totalInfantis += infantilCount;
+                totalBabylook += babylookCount;
+                totalUnissex += unissexCount;
+                totalCamisetas += infantilCount + babylookCount + unissexCount;
+
+                if (pedido.status === 'Pendente') pedidosPendentes++;
+                else if (pedido.status === 'Aprovado') pedidosAprovados++;
+                else if (pedido.status === 'Rejeitado') pedidosRejeitados++;
+            });
+            
+            window.atualizarElemento('totalPedidos', totalPedidos);
+            window.atualizarElemento('totalCamisetas', totalCamisetas);
+            window.atualizarElemento('pedidosPendentes', pedidosPendentes);
+            window.atualizarElemento('pedidosAprovados', pedidosAprovados);
+            window.atualizarElemento('totalInfantis', totalInfantis);
+            window.atualizarElemento('totalBabylook', totalBabylook);
+            window.atualizarElemento('totalUnissex', totalUnissex);
+            window.atualizarElemento('pedidosRejeitados', pedidosRejeitados);
+            
+            window.mostrarCarregamento(false);
+            
+        } catch (error) {
+            console.error(`Erro ao carregar Dashboard:`, error);
+            window.exibirMensagem('mensagemLogin', 'erro', `Erro ao carregar dashboard: ${error.message}.`);
+            window.mostrarCarregamento(false);
+        }
+    };
     
+    window.carregarDetalhesTamanho = async function() {
+        // ... (Lógica mantida) ...
+        window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
+        const detalhesBody = document.getElementById('tamanhosDetalhesBody');
+        const detalhesFooter = document.getElementById('tamanhosDetalhesFooter');
+        
+        detalhesBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Calculando...</td></tr>';
+        detalhesFooter.innerHTML = '';
+        
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+            const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
+            let htmlBody = '';
+            let htmlFooter = '<tfoot><tr><td class="tipo-header"><strong>Total Geral</strong></td>';
+            
+            const tipos = [
+                { name: 'Infantis', key: 'infantil' },
+                { name: 'Babylook', key: 'babylook' },
+                { name: 'Unissex', key: 'unissex' }
+            ];
+
+            const totaisGerais = {};
+            tamanhosDisponiveis.forEach(t => totaisGerais[t] = 0);
+
+            const detalhes = { infantil: {}, babylook: {}, unissex: {} };
+            tamanhosDisponiveis.forEach(t => {
+                detalhes.infantil[t] = 0;
+                detalhes.babylook[t] = 0;
+                detalhes.unissex[t] = 0;
+            });
+
+
+            pedidos.forEach(pedido => {
+                tipos.forEach(tipo => {
+                    const quantidades = pedido[tipo.key] || {};
+                    Object.entries(quantidades).forEach(([tamanho, qtd]) => {
+                        detalhes[tipo.key][tamanho] = (detalhes[tipo.key][tamanho] || 0) + qtd;
+                    });
+                });
+            });
+            
+            tipos.forEach(tipo => {
+                htmlBody += `<tr><td class="tipo-header">${tipo.name}</td>`;
+                
+                tamanhosDisponiveis.forEach(t => {
+                    const qtd = detalhes[tipo.key][t] || 0;
+                    htmlBody += `<td>${qtd}</td>`;
+                    totaisGerais[t] += qtd;
+                });
+                htmlBody += `</tr>`;
+            });
+            
+            // Gerar footer
+            tamanhosDisponiveis.forEach(t => {
+                htmlFooter += `<td><strong>${totaisGerais[t]}</strong></td>`;
+            });
+            htmlFooter += '</tr></tfoot>';
+
+            detalhesBody.innerHTML = htmlBody;
+            detalhesFooter.innerHTML = htmlFooter;
+            window.exibirMensagem('mensagemLogin', 'sucesso', 'Detalhes de tamanho carregados com sucesso!');
+
+        } catch (error) {
+            console.error('Erro ao carregar detalhes de tamanho:', error);
+            detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">Erro de comunicação: ${error.message}</td></tr>`;
+            window.exibirMensagem('mensagemLogin', 'erro', 'Erro ao carregar Detalhes.');
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+
+
+    window.carregarPedidos = async function() {
+        // ... (Lógica mantida) ...
+        window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
+        const listaPedidosElement = document.getElementById('listaPedidos');
+        listaPedidosElement.innerHTML = ''; 
+
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+
+            if (pedidos.length === 0) {
+                listaPedidosElement.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Não há pedidos registrados no sistema.</p></div>`;
+                window.mostrarCarregamento(false);
+                return;
+            }
+
+            pedidos.forEach(pedido => {
+                const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
+                                    pedido.status === 'Aprovado' ? 'status-aprovado' : 
+                                    'status-rejeitado';
+
+                const formatarTamanhos = (tipos) => {
+                    return Object.entries(tipos).filter(([_, qtd]) => parseInt(qtd) > 0)
+                                .map(([t, q]) => `<li>${t}: ${q}</li>`).join('');
+                };
+                
+                const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                             Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                             Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
+
+                const pedidoHtml = `
+                    <div class="pedido-item" data-id="${pedido.docId}">
+                        <div class="pedido-header">
+                            <span class="pedido-numero">#${pedido.numPedido}</span>
+                            <span class="pedido-status ${statusClass}">${pedido.status}</span>
+                        </div>
+                        <div class="pedido-info">
+                            <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
+                            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                            <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
+                        </div>
+                        <div class="pedido-tamanhos">
+                            <div class="tipo-tamanhos">
+                                <h4>Infantis</h4>
+                                <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
+                            </div>
+                            <div class="tipo-tamanhos">
+                                <h4>Babylook</h4>
+                                <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
+                            </div>
+                            <div class="tipo-tamanhos">
+                                <h4>Unissex</h4>
+                                <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
+                            </div>
+                        </div>
+                        <div class="admin-actions">
+                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Aprovado')">Aprovar</button>
+                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Rejeitado')">Rejeitar</button>
+                        </div>
+                    </div>
+                `;
+                listaPedidosElement.insertAdjacentHTML('beforeend', pedidoHtml);
+            });
+
+        } catch (error) {
+            console.error('Erro ao carregar lista de pedidos:', error);
+            listaPedidosElement.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar pedidos: ${error.message}</div>`;
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+    
+    window.atualizarStatusPedido = async function(docId, novoStatus) {
+        // ... (Lógica mantida) ...
+        if (!confirm(`Tem certeza que deseja mudar o status do pedido para '${novoStatus}'?`)) {
+            return;
+        }
+
+        window.mostrarCarregamento(true, `Atualizando status para ${novoStatus}...`);
+
+        try {
+            const pedidoRef = doc(db, "pedidos", docId);
+            await updateDoc(pedidoRef, { status: novoStatus });
+
+            window.exibirMensagem('mensagemLogin', 'sucesso', `Status do pedido atualizado para ${novoStatus} com sucesso!`);
+            await window.carregarPedidos(); 
+            await window.carregarDashboard();
+            
+        } catch (error) {
+            console.error('Erro ao atualizar status:', error);
+            window.exibirMensagem('mensagemLogin', 'erro', `Erro ao atualizar status: ${error.message}`);
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+
+
     // ==========================================================
     // EVENT LISTENERS PRINCIPAIS (Inicialização)
     // ==========================================================
     document.addEventListener('DOMContentLoaded', () => {
       
       const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
+      const btnAdministrador = document.getElementById('btnAdministrador');
       const formLoginAdmin = document.getElementById('formLoginAdmin');
       const formPedido = document.getElementById('formPedido');
+      
+      // Botões secundários do Dashboard
+      const btnVerDetalhes = document.getElementById('btnVerDetalhes');
+      const voltarDashboard = document.getElementById('voltarDashboard');
+      const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
+
 
       // === Fluxo do Líder (ACESSO LIDERANÇA) ===
       if (btnAcessoLideranca) {
           btnAcessoLideranca.addEventListener('click', async () => {
              window.mostrarCarregamento(true, 'Iniciando login com Google...');
              try {
-                // Faz login com Google
+                // Inicia o pop-up de login
                 const result = await signInWithPopup(auth, googleProvider);
                 
-                // Se bem-sucedido, usa o e-mail do usuário logado para verificar o pedido
+                // Redireciona para o fluxo de verificação de pedido
                 window.handleAcessoLideranca(result.user.email); 
              } catch (error) {
+                // Trata o erro de login (ex: pop-up bloqueado, usuário cancelou)
                 console.error("Erro de login com Google:", error);
                 window.exibirMensagem('mensagemPedido', 'erro', 'Falha no login Google. Tente novamente.');
              } finally {
@@ -2203,28 +2444,18 @@
       }
       
       // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
-      if (formLoginAdmin) {
-          formLoginAdmin.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const senha = document.getElementById('senhaAdmin').value;
-
-              window.mostrarCarregamento(true, 'Verificando senha...');
-
-              // *** CORREÇÃO AQUI: Usa senha estática (não Firebase Auth) ***
-              if (senha === ADMIN_PASSWORD_FIXA) { 
-                  document.getElementById('loginAdmin').style.display = 'none';
-                  document.getElementById('painelAdmin').style.display = 'block';
-                  document.getElementById('mensagemLogin').innerHTML = ''; 
-                  
-                  document.getElementById('admin-dashboard').classList.add('active');
-                  document.getElementById('btnDashboard').classList.add('active');
-                  window.carregarDashboard(); 
-                  
-              } else {
-                  window.exibirMensagem('mensagemLogin', 'erro', 'Senha incorreta.');
-              }
-              window.mostrarCarregamento(false);
+      if (btnAdministrador) {
+          btnAdministrador.addEventListener('click', () => {
+              document.getElementById('loginAdmin').style.display = 'block';
+              document.getElementById('painelAdmin').style.display = 'none';
+              document.getElementById('mensagemLogin').innerHTML = '';
+              window.redirecionarComAnimacao('admin');
           });
+      }
+      
+      if (formLoginAdmin) {
+          // Anexa o listener de submit à função de login admin
+          formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
       }
 
       // === Submissão Única (NOVO / EDITAR) ===
@@ -2232,33 +2463,33 @@
           formPedido.addEventListener('submit', window.handleFormSubmission);
       }
       
-      // === Event Listeners de Navegação (Mantidos) ===
-      // * NOVO PEDIDO * agora tem a mesma função do botão Liderança, mas para usuários sem login
-      // MANTEMOS A VERSÃO SIMPLIFICADA SEM PREENCHIMENTO DE EMAIL AUTOMÁTICO AQUI
-      document.getElementById('btnNovoPedido').addEventListener('click', () => {
-          window.setupNovoPedido(''); 
-          window.redirecionarComAnimacao('pedido');
-      });
-      
+      // === Event Listeners de Navegação / Botões (Mantidos) ===
+      // Botões de Voltar
       document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
       document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
-      
-      // Botão Voltar da Edição
       document.getElementById('voltarHome2').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       
-      // Outros Event Listeners do Admin Panel (Mantidos)
+      // Outros Event Listeners do Admin Panel
       document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
       document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
       document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
-      document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
-      document.getElementById('btnVerDetalhes').addEventListener('click', () => {
-          window.mostrarAdminSecao('detalhes-tamanhos'); 
-          window.carregarDetalhesTamanho(); 
-      });
-      document.getElementById('voltarDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
-      document.getElementById('atualizarDetalhesTamanho').addEventListener('click', window.carregarDetalhesTamanho);
+      
+      if (btnVerDetalhes) {
+          btnVerDetalhes.addEventListener('click', () => {
+              window.mostrarAdminSecao('detalhes-tamanhos'); 
+              window.carregarDetalhesTamanho(); 
+          });
+      }
+      if (voltarDashboard) {
+          voltarDashboard.addEventListener('click', () => {
+              window.mostrarAdminSecao('dashboard');
+          });
+      }
+      if (atualizarDetalhesTamanho) {
+          atualizarDetalhesTamanho.addEventListener('click', window.carregarDetalhesTamanho);
+      }
     });
 
   </script>
