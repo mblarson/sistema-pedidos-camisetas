@@ -9,508 +9,170 @@
   <style>
     /* ===== VARIÁVEIS E RESET (Mantidas) ===== */
     :root {
-      --primary-color: #ff7e5f; 
-      --primary-dark: #ff6b47; 
-      --secondary-color: #feb47b; 
-      --accent-color: #ffd4a3; 
-      --success-color: #10b981; 
-      --warning-color: #f59e0b; 
-      --danger-color: #ef4444; 
-      --dark-color: #062C3F; 
-      --darker-color: #042035; 
-      --light-color: #f8fafc; 
+      --primary-color: #ff7e5f;
+      --primary-dark: #ff6b47;
+      --secondary-color: #feb47b;
+      --accent-color: #ffd4a3;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --dark-color: #062C3F;
+      --darker-color: #042035;
+      --light-color: #f8fafc;
       --white-color: #ffffff;
       --gray-50: #f9fafb;
       --gray-100: #f3f4f6;
       --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-700: #374151;
-      --gray-800: #1f2937;
-      --gray-900: #111827;
-      --text-primary: #ffffff;
-      --text-secondary: #e2e8f0;
-      --text-muted: #94a3b8;
-      --border-color: rgba(255, 255, 255, 0.1);
+      --text-color: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #d1d5db;
       --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --border-radius: 0.75rem;
-      --transition: all 0.3s ease;
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
     }
 
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--dark-color);
-      color: var(--text-primary);
+      background-color: var(--gray-50);
+      color: var(--text-color);
       line-height: 1.6;
-      min-height: 100vh;
-      overflow-x: hidden;
     }
 
+    /* ===== ESTRUTURA GERAL ===== */
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* ===== BARRA DE CARREGAMENTO ===== */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(6, 44, 63, 0.8);
+      padding: 20px;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
     }
 
-    .loading-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 5px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      border-top-color: var(--primary-color);
-      animation: spin 1s ease-in-out infinite;
-    }
-
-    .loading-text {
-      margin-top: 1.5rem;
-      font-size: 1.125rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      text-align: center;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* ===== CARD DE CONFIRMAÇÃO DE PEDIDO ===== */
-    .pedido-confirmacao-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(6, 44, 63, 0.85);
-      backdrop-filter: blur(5px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-
-    .pedido-confirmacao-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .pedido-confirmacao-card {
-      background: var(--darker-color);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 2rem;
-      max-width: 600px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: var(--shadow-lg);
-      transform: scale(0.9);
-      transition: transform 0.3s ease;
-    }
-
-    .pedido-confirmacao-overlay.active .pedido-confirmacao-card {
-      transform: scale(1);
-    }
-
-    .pedido-confirmacao-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .pedido-confirmacao-header h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .pedido-confirmacao-close {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: var(--transition);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .pedido-confirmacao-close:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--primary-color);
-    }
-
-    .pedido-confirmacao-info {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .pedido-confirmacao-info p {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-
-    .pedido-confirmacao-info strong {
-      color: var(--text-primary);
-    }
-
-    .pedido-confirmacao-tamanhos {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .pedido-confirmacao-tipo {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1rem;
-    }
-
-    .pedido-confirmacao-tipo h4 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .pedido-confirmacao-tipo ul {
-      list-style: none;
-    }
-
-    .pedido-confirmacao-tipo li {
-      font-size: 0.875rem;
-      color: var(--text-primary);
-      padding: 0.25rem 0;
-    }
-
-    .pedido-confirmacao-actions {
-      display: flex;
-      justify-content: center;
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .pedido-confirmacao-numero {
-      text-align: center;
-      margin-bottom: 1rem;
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
-    .mensagem-importante {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      background: rgba(255, 126, 95, 0.1);
-      border: 1px solid var(--primary-color);
-      border-radius: var(--border-radius);
-      text-align: center;
-    }
-
-    .mensagem-importante p {
-      color: var(--primary-color);
-      font-weight: 600;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .btn-copiar {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 0.5rem;
-      color: var(--text-primary);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: var(--transition);
-    }
-
-    .btn-copiar:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: var(--primary-color);
-      color: var(--primary-color);
-    }
-
-    /* ===== HEADER ===== */
     .header {
-      background: var(--darker-color);
-      border-bottom: 1px solid var(--border-color);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 0;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .logo-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      border-radius: var(--border-radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .logo-text h1 {
-      font-size: 1.875rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      line-height: 1.2;
-    }
-
-    .logo-text span {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    /* ===== MAIN ===== */
-    .main {
-      min-height: calc(100vh - 140px);
-      padding: 3rem 0;
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 20px;
+      background-color: var(--white-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
       position: relative;
     }
 
-    .section {
-      display: none;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
+    .header h1 {
+      color: var(--primary-color);
+      font-weight: 800;
+      margin-bottom: 5px;
     }
 
-    .section.active {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
+    .header p {
+      color: var(--text-muted);
+      font-weight: 500;
     }
-
-    /* ===== BOTÃO VOLTAR ===== */
-    .back-button {
-      position: absolute;
-      top: -2.5rem;
-      left: 0;
+    
+    /* ===== BOTÕES E LINKS ===== */
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.625rem 1.25rem;
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
-      text-decoration: none;
-      backdrop-filter: blur(10px);
-    }
-
-    .back-button:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: var(--primary-color);
-      border-color: var(--primary-color);
-      transform: translateY(-1px);
-    }
-
-    .back-button i {
-      font-size: 1rem;
-    }
-
-    /* ===== HOME SCREEN ===== */
-    .home-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-      min-height: calc(100vh - 140px);
-      text-align: center;
-      padding: 2rem 0;
-    }
-
-    .home-title {
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
-      line-height: 1.2;
-    }
-
-    .home-subtitle {
-      font-size: 1.25rem;
-      color: var(--text-secondary);
-      margin-bottom: 3rem;
-      max-width: 600px;
-      font-weight: 400;
-    }
-
-    .menu-container {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 2rem;
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      width: 100%;
-      max-width: 400px;
-      backdrop-filter: blur(10px);
-    }
-
-    .menu-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      padding: 1rem 1.5rem;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
       text-decoration: none;
-      position: relative;
-      overflow: hidden;
     }
 
-    .menu-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      opacity: 0;
-      transition: var(--transition);
-      z-index: -1;
+    .btn i {
+        margin-right: 8px;
     }
 
-    .menu-button:hover {
+    .btn-primary {
+      background-color: var(--primary-color);
       color: var(--white-color);
-      border-color: var(--primary-color);
-      transform: translateY(-2px);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary-color);
+      color: var(--dark-color);
+      border: 1px solid var(--secondary-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #f7a96e;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-link {
+        background: none;
+        color: var(--text-muted);
+        padding: 8px 16px;
+    }
+    
+    .btn-link:hover {
+        color: var(--primary-color);
+        background-color: var(--gray-100);
+    }
+    
+    .btn-danger {
+        background-color: var(--danger-color);
+        color: var(--white-color);
+    }
+    
+    .btn-danger:hover {
+        background-color: #cc3939;
+    }
+
+    /* ===== SEÇÕES DA PÁGINA (Home, Pedido, Consulta, Admin) ===== */
+    .section-content {
+      background-color: var(--white-color);
+      padding: 30px;
+      border-radius: 12px;
       box-shadow: var(--shadow-md);
+      margin-bottom: 20px;
     }
 
-    .menu-button:hover::before {
-      opacity: 1;
+    .section-content h2 {
+      color: var(--dark-color);
+      font-weight: 700;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--gray-200);
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
     }
 
-    .menu-button i {
-      font-size: 1.25rem;
-      transition: var(--transition);
+    .section-content h2 i {
+        margin-right: 10px;
+        color: var(--primary-color);
     }
 
-    .menu-button:hover i {
-      transform: scale(1.1);
+    /* ===== HOME (Página Inicial) ===== */
+    #home .btn-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
     }
 
-    /* ===== FORMULÁRIOS ===== */
-    .modern-form {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 2rem;
-      box-shadow: var(--shadow-lg);
-      margin-top: 1rem;
-      backdrop-filter: blur(10px);
-    }
-
+    /* ===== FORMULÁRIO GERAL (Fazer Pedido) ===== */
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
     }
 
     .form-group {
@@ -519,1710 +181,1428 @@
     }
 
     .form-group label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-color);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
     }
-
+    
     .form-group label i {
-      color: var(--primary-color);
-      font-size: 0.875rem;
-    }
-
-    .form-group input, 
-    .form-group select {
-      padding: 0.75rem 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      font-size: 1rem;
-      color: var(--text-primary);
-      transition: var(--transition);
-    }
-    
-    /* NOVO: Estiliza o campo de senha com ícone */
-    .form-group .input-with-icon {
-        display: flex;
-        align-items: center;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        overflow: hidden;
-    }
-    .form-group .input-with-icon input {
-        border: none;
-        background: transparent;
-        flex-grow: 1;
-        padding: 0.75rem 1rem;
-    }
-    .form-group .input-with-icon .btn-toggle-password {
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        padding: 0.75rem;
-        transition: color 0.2s;
-    }
-    .form-group .input-with-icon .btn-toggle-password:hover {
-        color: var(--primary-color);
-    }
-
-    /* CORREÇÃO DO SELECIONE */
-    .form-group select {
-        appearance: none; 
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 1.5em 1.5em;
-    }
-    
-    .form-group select option {
-        background: var(--dark-color);
-        color: var(--text-primary);
-    }
-    .form-group select option[disabled] {
+        margin-right: 6px;
         color: var(--text-muted);
     }
+
+    .form-group input:not([type="checkbox"]), .form-group select {
+      padding: 10px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+    }
     
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
-      background: rgba(255, 255, 255, 0.15);
+    .form-group input[type="number"] {
+        appearance: textfield; /* Remove arrows from number input */
     }
 
-    .form-group input::placeholder {
-      color: var(--text-muted);
+    /* Estilos para a tabela de tamanhos */
+    .tamanhos-section {
+      margin-top: 30px;
+      padding: 20px;
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      background-color: var(--gray-50);
     }
 
-    .radio-group {
-      display: flex;
-      gap: 2rem;
-      margin-top: 0.5rem;
-    }
-
-    .radio-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    .radio-label input[type="radio"] {
-      display: none;
-    }
-
-    .radio-custom {
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--border-color);
-      border-radius: 50%;
-      position: relative;
-      transition: var(--transition);
-    }
-
-    .radio-label input[type="radio"]:checked + .radio-custom {
-      border-color: var(--primary-color);
-    }
-
-    .radio-label input[type="radio"]:checked + .radio-custom::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 10px;
-      height: 10px;
-      background: var(--primary-color);
-      border-radius: 50%;
-    }
-
-    .input-group {
-      display: flex;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      overflow: hidden;
-      transition: var(--transition);
-    }
-
-    .input-group:focus-within {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
-    }
-
-    .input-group input {
-      flex: 1;
-      border: none;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      background: transparent;
-      color: var(--text-primary);
-    }
-
-    .input-group input:focus {
-      outline: none;
-    }
-
-    .btn-icon {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      color: var(--white-color);
-      border: none;
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .btn-icon:hover {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-    }
-
-    /* ===== CAMISETAS ===== */
-    .camisetas-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .tipo-camiseta {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-    }
-
-    .tipo-camiseta h3 {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
-    }
-
-    .tipo-camiseta h3 i {
-      color: var(--primary-color);
+    .tamanhos-section h3 {
+        color: var(--dark-color);
+        margin-bottom: 15px;
+        font-weight: 600;
+        border-bottom: 1px dashed var(--gray-200);
+        padding-bottom: 10px;
     }
 
     .tamanhos-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 15px;
     }
 
-    .tamanho-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .tamanhos-grid-tipo {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px;
+        background-color: var(--white-color);
+        box-shadow: var(--shadow-sm);
     }
 
-    .tamanho-item label {
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
+    .tamanhos-grid-tipo h4 {
+        margin-bottom: 15px;
+        font-weight: 700;
+        color: var(--dark-color);
+        text-align: center;
+        padding-bottom: 5px;
+        border-bottom: 2px solid var(--secondary-color);
     }
 
-    .tamanho-item input {
-      width: 60px;
-      padding: 0.5rem;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      font-size: 1rem;
-      color: var(--text-primary);
-      transition: var(--transition);
+    .tamanhos-grid-tamanho {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 5px 0;
+        border-bottom: 1px dotted var(--gray-100);
     }
 
-    .tamanho-item input:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+    .tamanhos-grid-tamanho:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
     }
 
-    /* ===== BOTÕES ===== */
-    .form-actions {
-      display: flex;
-      justify-content: center;
-      margin-top: 2rem;
+    .tamanhos-grid-tamanho label {
+        font-weight: 500;
+        margin-bottom: 0;
+        color: var(--text-color);
     }
 
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.875rem 2rem;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      color: var(--white-color);
-      border: none;
-      border-radius: var(--border-radius);
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      text-decoration: none;
-      box-shadow: var(--shadow-md);
+    .tamanhos-grid-tamanho input[type="number"] {
+        width: 70px;
+        text-align: center;
+        padding: 6px;
     }
 
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-    }
-
-    .btn-refresh {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
-      text-decoration: none;
-      backdrop-filter: blur(10px);
-    }
-
-    .btn-refresh:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-
-    /* ===== MENSAGENS ===== */
+    /* ===== MENSAGENS E FEEDBACK ===== */
     .message-container {
-      margin-top: 2rem;
+      margin-top: 20px;
+      min-height: 20px; /* Garante espaço */
     }
-
+    
     .mensagem {
-      padding: 1rem 1.5rem;
-      border-radius: var(--border-radius);
-      font-weight: 500;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      backdrop-filter: blur(10px);
     }
 
+    .mensagem i {
+        margin-right: 10px;
+        font-size: 1.1em;
+    }
+    
     .sucesso {
-      background: rgba(16, 185, 129, 0.1);
+      background-color: #d1fae5;
       color: var(--success-color);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      border: 1px solid #a7f3d0;
     }
 
     .erro {
-      background: rgba(239, 68, 68, 0.1);
+      background-color: #fee2e2;
       color: var(--danger-color);
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      border: 1px solid #fecaca;
     }
 
-    /* ===== LOGIN ===== */
-    .login-container {
-      max-width: 400px;
-      margin: 0 auto;
-      margin-top: 1rem;
+    .aviso {
+      background-color: #fef3c7;
+      color: var(--warning-color);
+      border: 1px solid #fde68a;
     }
 
-    /* ===== ADMIN PANEL ===== */
-    .admin-panel {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 2rem;
-      box-shadow: var(--shadow-lg);
-      margin-top: 1rem;
-      backdrop-filter: blur(10px);
+    /* ===== CARREGAMENTO (Spinner) ===== */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      flex-direction: column;
+    }
+
+    .spinner {
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top: 6px solid var(--secondary-color);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    #loading-text {
+        color: var(--white-color);
+        margin-top: 15px;
+        font-weight: 600;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ===== CONSULTA E CONFIRMAÇÃO DE PEDIDO (Nova Lógica) ===== */
+    .consulta-pedido-container, .confirmacao-pedido-container {
+        padding: 30px;
+        background-color: var(--gray-50);
+        border-radius: 12px;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        margin-top: 20px;
+    }
+
+    .resumo-pedido-body {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        background-color: var(--white-color);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .resumo-detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 5px;
+        border-bottom: 1px dotted var(--gray-100);
+    }
+    
+    .resumo-detail-item .label {
+        font-weight: 500;
+        color: var(--text-muted);
+    }
+    
+    .resumo-detail-item .value {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    /* Estilo para a linha do Valor Total (novo) */
+    .resumo-detail-item.total-value-line {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 2px solid var(--secondary-color);
+        border-bottom: none;
+    }
+
+    .resumo-detail-item.total-value-line .label {
+        font-size: 1.1em;
+        font-weight: 700;
+        color: var(--dark-color);
+    }
+
+    .resumo-detail-item.total-value-line .value.price-value {
+        font-size: 1.2em;
+        font-weight: 800;
+        color: var(--primary-color);
+    }
+
+
+    /* Tabela de Detalhes de Tamanhos */
+    .resumo-tamanhos table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .resumo-tamanhos th, .resumo-tamanhos td {
+        padding: 10px;
+        border: 1px solid var(--gray-200);
+        text-align: center;
+    }
+    
+    .resumo-tamanhos th {
+        background-color: var(--primary-color);
+        color: var(--white-color);
+        font-weight: 600;
+    }
+
+    .resumo-tamanhos tr:nth-child(even) {
+        background-color: var(--gray-50);
+    }
+
+    .resumo-tamanhos h4 {
+        margin-top: 20px;
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+
+
+    /* ===== PAINEL ADMINISTRATIVO ===== */
+    #painelAdmin {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-top: 20px;
+      flex-grow: 1; /* Permite que o painel cresça */
     }
 
     .admin-menu {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border-color);
+      width: 250px;
+      min-height: 400px;
+      background-color: var(--white-color);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      flex-shrink: 0;
+      position: sticky;
+      top: 20px; /* Fixa o menu ao rolar */
     }
 
     .admin-menu-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
+      width: 100%;
+      text-align: left;
+      padding: 12px 15px;
+      margin-bottom: 8px;
       background: none;
       border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--text-secondary);
-      font-weight: 500;
+      border-radius: 8px;
+      font-weight: 600;
       cursor: pointer;
-      transition: var(--transition);
+      color: var(--text-muted);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+    }
+
+    .admin-menu-btn i {
+      margin-right: 10px;
+      font-size: 1.1em;
     }
 
     .admin-menu-btn:hover {
+      background-color: var(--gray-100);
       color: var(--primary-color);
     }
 
     .admin-menu-btn.active {
-      color: var(--primary-color);
-      border-bottom-color: var(--primary-color);
+      background-color: var(--primary-color);
+      color: var(--white-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .admin-menu-btn.active:hover {
+        background-color: var(--primary-dark);
+        color: var(--white-color);
+    }
+
+    .admin-content {
+      flex-grow: 1;
+      min-width: 0;
     }
 
     .admin-section {
-      display: none;
-      animation: fadeIn 0.5s ease;
-    }
-
-    .admin-section.active {
-      display: block;
-    }
-
-    /* ===== DASHBOARD ===== */
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .dashboard-header h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .dashboard-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      transition: var(--transition);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
+      background-color: var(--white-color);
+      padding: 30px;
+      border-radius: 12px;
       box-shadow: var(--shadow-md);
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .admin-section.active {
+        display: block;
     }
 
+    .dashboard-header, .admin-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--gray-200);
+    }
+    
+    .dashboard-header h3, .admin-section-header h3 {
+        color: var(--dark-color);
+        font-weight: 700;
+    }
+
+    .btn-refresh {
+        background: none;
+        border: 1px solid var(--border-color);
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.2s;
+    }
+
+    .btn-refresh:hover {
+        background-color: var(--gray-100);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    /* DASHBOARD */
+    .dashboard-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .card {
+        background-color: var(--gray-50);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        border-left: 5px solid var(--primary-color);
+    }
+    
     .card-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      border-radius: var(--border-radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      color: var(--white-color);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        color: var(--white-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em;
+        margin-right: 15px;
     }
-
+    
     .card-content h4 {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.25rem;
-      font-weight: 500;
+        color: var(--text-muted);
+        font-size: 0.9em;
+        font-weight: 500;
+        margin-bottom: 4px;
     }
-
-    .card-value {
-      font-size: 1.875rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 0;
+    
+    .card-content .card-value {
+        font-size: 2em;
+        font-weight: 800;
+        color: var(--dark-color);
     }
-
-    .dashboard-details {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      backdrop-filter: blur(10px);
-      margin-bottom: 2rem;
-    }
-
-    .dashboard-details h4 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
-    }
-
-    .details-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-    }
-
-    .detail-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      transition: var(--transition);
-    }
-
-    .detail-item:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow);
-    }
-
-    .detail-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      border-radius: var(--border-radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      color: var(--white-color);
-    }
-
-    .detail-content {
-      flex: 1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .detail-content span {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    .detail-content strong {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    /* ===== TABELA DE TAMANHOS ===== */
-    .tamanhos-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-
-    .tamanhos-table th,
-    .tamanhos-table td {
-      padding: 0.75rem;
-      text-align: center;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .tamanhos-table th {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
-
-    .tamanhos-table td {
-      color: var(--text-primary);
-    }
-
-    .tamanhos-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .tamanhos-table .tipo-header {
-      text-align: left;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
-    /* ===== PEDIDOS ===== */
-    .pedidos-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .pedidos-header h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
+    
+    /* PEDIDOS (ADMIN) */
     .pedidos-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
-
+    
     .pedido-item {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      transition: var(--transition);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
+        padding: 15px;
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        background-color: var(--gray-50);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
     }
 
     .pedido-item:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+        border-color: var(--secondary-color);
+        box-shadow: var(--shadow-sm);
     }
-
-    .pedido-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
+    
+    .pedido-info h5 {
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 5px;
     }
-
-    .pedido-numero {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--primary-color);
-    }
-
-    .pedido-status {
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .status-pendente {
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--warning-color);
-    }
-
-    .status-aprovado {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success-color);
-    }
-
-    .status-rejeitado {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger-color);
-    }
-
-    .pedido-info {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
+    
     .pedido-info p {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
+        font-size: 0.9em;
+        color: var(--text-muted);
+    }
+    
+    .pedido-status {
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85em;
     }
 
-    .pedido-info strong {
-      color: var(--text-primary);
+    .status-Pendente {
+        background-color: #fef3c7;
+        color: var(--warning-color);
     }
 
-    .pedido-tamanhos {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1rem;
+    .status-Aprovado {
+        background-color: #d1fae5;
+        color: var(--success-color);
     }
 
-    .tipo-tamanhos h4 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
+    .status-Rejeitado {
+        background-color: #fee2e2;
+        color: var(--danger-color);
     }
 
-    .tipo-tamanhos ul {
-      list-style: none;
+    .pedido-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* DETALHES DE TAMANHOS (ADMIN) */
+    .details-tamanhos-table table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
     }
 
-    .tipo-tamanhos li {
-      font-size: 0.875rem;
-      color: var(--text-primary);
-      padding: 0.25rem 0;
+    .details-tamanhos-table th, .details-tamanhos-table td {
+        padding: 12px;
+        border: 1px solid var(--gray-200);
+        text-align: center;
+        font-size: 0.95em;
+    }
+    
+    .details-tamanhos-table th {
+        background-color: var(--dark-color);
+        color: var(--white-color);
+        font-weight: 600;
     }
 
-    .admin-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
+    .details-tamanhos-table tr:nth-child(even) {
+        background-color: var(--gray-50);
+    }
+    
+    /* Estilos Adicionais para a Tabela de Detalhes de Tamanhos */
+    .details-tamanhos-table h4 {
+        margin-top: 25px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        border-bottom: 1px dashed var(--gray-200);
+        padding-bottom: 5px;
     }
 
-    .admin-actions button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: var(--border-radius);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
+    /* ESTILO PARA A SEÇÃO FINANCEIRO (NOVO) */
+    .modern-form {
+        padding: 20px;
+        border: 1px solid var(--gray-200);
+        border-radius: 10px;
+        background-color: var(--gray-50);
+        box-shadow: var(--shadow-sm);
     }
 
-    .btn-aprovar {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success-color);
+    .modern-form h4 {
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed var(--border-color);
     }
 
-    .btn-aprovar:hover {
-      background: rgba(16, 185, 129, 0.2);
+    .dashboard-details {
+        margin-top: 30px;
     }
 
-    .btn-rejeitar {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger-color);
+    .dashboard-details h4 {
+        margin-bottom: 15px;
+        font-weight: 700;
+        color: var(--dark-color);
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--primary-color);
     }
 
-    .btn-rejeitar:hover {
-      background: rgba(239, 68, 68, 0.2);
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
     }
 
-    .btn-editar {
-      background: rgba(255, 126, 95, 0.1);
-      color: var(--primary-color);
+    .detail-item {
+        background-color: var(--white-color);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        border-left: 4px solid var(--secondary-color);
     }
 
-    .btn-editar:hover {
-      background: rgba(255, 126, 95, 0.2);
+    .detail-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(254, 180, 123, 0.2);
+        color: var(--primary-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2em;
+        margin-right: 15px;
     }
 
-    /* ===== FORMULÁRIO DE EDIÇÃO ===== */
-    .edit-form {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      margin-top: 1rem;
-      backdrop-filter: blur(10px);
+    .detail-content span, .detail-content strong {
+        display: block;
     }
 
-    .edit-form h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
+    .detail-content strong {
+        margin-top: 3px;
     }
 
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
 
-    .form-actions button[type="submit"] {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      color: var(--white-color);
-    }
+        .tamanhos-grid {
+            grid-template-columns: 1fr;
+        }
 
-    .form-actions button[type="submit"]:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
+        .dashboard-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        #painelAdmin {
+            flex-direction: column;
+        }
 
-    /* ===== RESULTADOS/ESTADOS VAZIOS (Mantidas) ===== */
-    .result-container {
-      margin-top: 2rem;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--text-secondary);
-    }
-
-    /* ===== FOOTER (Mantidas) ===== */
-    .footer {
-      background: var(--darker-color);
-      border-top: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      text-align: center;
-      padding: 2rem 0;
-      margin-top: 4rem;
+        .admin-menu {
+            width: 100%;
+            position: static;
+        }
     }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
-  <div id="loadingOverlay" class="loading-overlay">
-    <div class="loading-spinner"></div>
-    <div class="loading-text" id="loadingText">Processando...</div>
+
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <span id="loading-text">Carregando...</span>
   </div>
 
-  <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
-    <div class="pedido-confirmacao-card">
-      <div class="pedido-confirmacao-header">
-        <h2><i class="fas fa-check-circle"></i> Pedido Enviado com Sucesso!</h2>
-        <button class="pedido-confirmacao-close" id="fecharConfirmacaoPedido">
-          <i class="fas fa-times"></i>
+  <div class="container">
+
+    <header class="header">
+      <h1>UMADEMATS - Pedido de Camisetas</h1>
+      <p>Faça seu pedido ou consulte o status com seu CPF.</p>
+      <button class="btn-link" id="btnAdminAccess" style="position: absolute; top: 10px; right: 10px;">
+          <i class="fas fa-cog"></i>
+          Admin
+      </button>
+    </header>
+
+    <section id="home" class="section-content">
+      <h2><i class="fas fa-home"></i> Bem-vindo(a)</h2>
+      <p>Utilize as opções abaixo para iniciar um novo pedido ou verificar o status de um pedido já realizado.</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnFazerPedido">
+          <i class="fas fa-cart-plus"></i>
+          Fazer Pedido
+        </button>
+        <button class="btn btn-secondary" id="btnConsultarPedido">
+          <i class="fas fa-search"></i>
+          Consultar Pedido
         </button>
       </div>
-      
-      <div id="pedidoConfirmacaoNumero" class="pedido-confirmacao-numero"></div>
-      
-      <div id="pedidoConfirmacaoInfo" class="pedido-confirmacao-info"></div>
-      
-      <div id="pedidoConfirmacaoTamanhos" class="pedido-confirmacao-tamanhos"></div>
-      
-      <div class="mensagem-importante">
-        <p><i class="fas fa-exclamation-triangle"></i> CARO LÍDER, GUARDE O NÚMERO DO PEDIDO PARA QUE POSSA CONSULTAR OU EDITAR POSTERIORMENTE.</p>
-      </div>
-      
-      <div class="pedido-confirmacao-actions">
-        <button class="btn-primary" id="voltarInicio">
-          <i class="fas fa-home"></i> Voltar ao Início
-        </button>
-      </div>
-    </div>
-  </div>
+      <div id="mensagemHome" class="message-container"></div>
+    </section>
 
-  <header class="header">
-    <div class="container">
-      <div class="header-content">
-        <div class="logo">
-          <div class="logo-icon">U</div>
-          <div class="logo-text">
-            <h1>UMADEMATS</h1>
-            <span>Pedidos</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <main class="main">
-    <div class="container">
-      <section id="home" class="section active">
-        <div class="home-screen">
-          <h1 class="home-title">Sistema de Pedidos</h1>
-          <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
-          
-          <div class="menu-container">
-            <button class="menu-button" id="btnNovoPedido">
-              <i class="fas fa-plus-circle"></i>
-              NOVO PEDIDO
-            </button>
-            <button class="menu-button" id="btnConsultarPedido">
-              <i class="fas fa-search"></i>
-              CONSULTAR PEDIDO
-            </button>
-            <button class="menu-button" id="btnAdministrador">
-              <i class="fas fa-user-shield"></i>
-              ADMINISTRADOR
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section id="consultar" class="section">
-        <button class="back-button" id="voltarHomeConsulta">
-          <i class="fas fa-arrow-left"></i>
-          Voltar
-        </button>
+    <section id="fazer-pedido" class="section-content" style="display: none;">
+      <h2><i class="fas fa-tshirt"></i> Formulário de Pedido</h2>
+      <form id="formPedido">
         
-        <div class="section-header">
-          <h2>Consultar Pedido</h2>
-          <p>Localize e edite seu pedido por número ou e-mail.</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="nome"><i class="fas fa-user"></i> Nome Completo</label>
+                <input type="text" id="nome" required>
+            </div>
+            <div class="form-group">
+                <label for="cpf"><i class="fas fa-id-card"></i> CPF</label>
+                <input type="text" id="cpf" required pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="000.000.000-00">
+            </div>
+            <div class="form-group">
+                <label for="local"><i class="fas fa-city"></i> Cidade/Local</label>
+                <input type="text" id="local" required placeholder="Ex: Campo Grande, Dourados, etc.">
+            </div>
+            <div class="form-group">
+                <label for="setor"><i class="fas fa-map-marker-alt"></i> Setor (Apenas p/ Capital) / Bairro</label>
+                <input type="text" id="setor" required placeholder="Ex: Setor Monte Líbano, Bairro Tal">
+            </div>
         </div>
 
-        <form id="formConsultarNumero" class="modern-form">
-          <div class="form-group">
-            <label for="numPedidoConsultaInput">
-              <i class="fas fa-hashtag"></i>
-              Pesquise por Número do Pedido
-            </label>
-            <div class="input-group">
-              <input type="text" id="numPedidoConsultaInput" name="numPedido" placeholder="Ex: UMADE-ABCD123" required>
-              <button type="submit" class="btn-icon">
-                <i class="fas fa-search"></i>
-              </button>
+        <div class="tamanhos-section">
+            <h3><i class="fas fa-ruler-combined"></i> Quantidade por Tamanho</h3>
+            <div class="tamanhos-grid">
+                
+                <div class="tamanhos-grid-tipo">
+                    <h4>Infantil</h4>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="infantil_2">Tam 2</label>
+                        <input type="number" id="infantil_2" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="infantil_4">Tam 4</label>
+                        <input type="number" id="infantil_4" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="infantil_6">Tam 6</label>
+                        <input type="number" id="infantil_6" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="infantil_8">Tam 8</label>
+                        <input type="number" id="infantil_8" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="infantil_10">Tam 10</label>
+                        <input type="number" id="infantil_10" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="infantil_12">Tam 12</label>
+                        <input type="number" id="infantil_12" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="tamanhos-grid-tipo">
+                    <h4>Babylook Feminina</h4>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="babylook_p">P</label>
+                        <input type="number" id="babylook_p" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="babylook_m">M</label>
+                        <input type="number" id="babylook_m" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="babylook_g">G</label>
+                        <input type="number" id="babylook_g" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="babylook_gg">GG</label>
+                        <input type="number" id="babylook_gg" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="babylook_xg">XG</label>
+                        <input type="number" id="babylook_xg" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="babylook_g1">G1</label>
+                        <input type="number" id="babylook_g1" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="tamanhos-grid-tipo">
+                    <h4>Unissex</h4>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="unissex_p">P</label>
+                        <input type="number" id="unissex_p" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="unissex_m">M</label>
+                        <input type="number" id="unissex_m" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="unissex_g">G</label>
+                        <input type="number" id="unissex_g" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="unissex_gg">GG</label>
+                        <input type="number" id="unissex_gg" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="unissex_xg">XG</label>
+                        <input type="number" id="unissex_xg" min="0" value="0">
+                    </div>
+                    <div class="tamanhos-grid-tamanho">
+                        <label for="unissex_g1">G1</label>
+                        <input type="number" id="unissex_g1" min="0" value="0">
+                    </div>
+                </div>
+
             </div>
-          </div>
-        </form>
-
-        <form id="formConsultarEmail" class="modern-form" style="margin-top: 1rem;">
-          <div class="form-group">
-            <label for="emailConsultaInput">
-              <i class="fas fa-envelope"></i>
-              Pesquise por E-mail
-            </label>
-            <div class="input-group">
-              <input type="email" id="emailConsultaInput" name="email" placeholder="seu@email.com" required>
-              <button type="submit" class="btn-icon">
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
-          </div>
-        </form>
-
-        <div id="resultadoConsulta" class="result-container"></div>
-        <div id="mensagemConsulta" class="message-container"></div> 
-      </section>
-
-      <section id="pedido" class="section">
-        <button class="back-button" id="voltarHome1">
-          <i class="fas fa-arrow-left"></i>
-          Voltar
-        </button>
-        
-        <div class="section-header">
-          <h2 id="pedidoTitulo">Fazer Novo Pedido</h2>
-          <p id="pedidoSubtitulo">Solicite suas camisetas com elegância</p>
         </div>
-
-        <form id="formPedido" class="modern-form">
-          <input type="hidden" id="pedidoDocId" name="docId" value="">
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="nome">
-                <i class="fas fa-user"></i>
-                Nome do Líder/Coordenador
-              </label>
-              <input type="text" id="nome" name="nome" required>
-            </div>
-            
-            <div class="form-group">
-              <label>
-                <i class="fas fa-map-marker-alt"></i>
-                Localização
-              </label>
-              <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="local" value="Capital" required id="radioCapital">
-                  <span class="radio-custom"></span>
-                  Capital
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="local" value="Interior" required id="radioInterior">
-                  <span class="radio-custom"></span>
-                  Interior
-                </label>
-              </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="setorInputLabel">
-                    <i class="fas fa-building"></i>
-                    <span id="setorCidadeLabel">Setor/Cidade</span>
-                </label>
-                <div id="setorCidadeContainer">
-                    <input type="text" id="setor" name="setor" required>
-                </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="email">
-                <i class="fas fa-envelope"></i>
-                E-mail (Seu Identificador)
-              </label>
-              <input type="email" id="email" name="email" required>
-            </div>
-          </div>
-
-          <div class="camisetas-section">
-            <div class="tipo-camiseta">
-              <h3><i class="fas fa-child"></i> Pedidos Infantis</h3>
-              <div class="tamanhos-grid">
-                <div class="tamanho-item">
-                  <label for="infantil_1">1</label>
-                  <input type="number" id="infantil_1" name="infantil_1" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="infantil_2">2</label>
-                  <input type="number" id="infantil_2" name="infantil_2" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="infantil_4">4</label>
-                  <input type="number" id="infantil_4" name="infantil_4" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="infantil_6">6</label>
-                  <input type="number" id="infantil_6" name="infantil_6" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="infantil_8">8</label>
-                  <input type="number" id="infantil_8" name="infantil_8" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="infantil_10">10</label>
-                  <input type="number" id="infantil_10" name="infantil_10" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="infantil_12">12</label>
-                  <input type="number" id="infantil_12" name="infantil_12" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="infantil_14">14</label>
-                  <input type="number" id="infantil_14" name="infantil_14" min="0" value="0">
-                </div>
-              </div>
-            </div>
-
-            <div class="tipo-camiseta">
-              <h3><i class="fas fa-female"></i> Adultos Babylook</h3>
-              <div class="tamanhos-grid">
-                <div class="tamanho-item">
-                  <label for="babylook_PP">PP</label>
-                  <input type="number" id="babylook_PP" name="babylook_PP" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="babylook_P">P</label>
-                  <input type="number" id="babylook_P" name="babylook_P" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="babylook_M">M</label>
-                  <input type="number" id="babylook_M" name="babylook_M" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="babylook_G">G</label>
-                  <input type="number" id="babylook_G" name="babylook_G" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="babylook_GG">GG</label>
-                  <input type="number" id="babylook_GG" name="babylook_GG" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="babylook_XGG">XGG</label>
-                  <input type="number" id="babylook_XGG" name="babylook_XGG" min="0" value="0">
-                </div>
-              </div>
-            </div>
-
-            <div class="tipo-camiseta">
-              <h3><i class="fas fa-tshirt"></i> Adultos Unissex</h3>
-              <div class="tamanhos-grid">
-                <div class="tamanho-item">
-                  <label for="unissex_PP">PP</label>
-                  <input type="number" id="unissex_PP" name="unissex_PP" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="unissex_P">P</label>
-                  <input type="number" id="unissex_P" name="unissex_P" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="unissex_M">M</label>
-                  <input type="number" id="unissex_M" name="unissex_M" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="unissex_G">G</label>
-                  <input type="number" id="unissex_G" name="unissex_G" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="unissex_GG">GG</label>
-                  <input type="number" id="unissex_GG" name="unissex_GG" min="0" value="0">
-                </div>
-                <div class="tamanho-item">
-                  <label for="unissex_XGG">XGG</label>
-                  <input type="number" id="unissex_XGG" name="unissex_XGG" min="0" value="0">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">
-              <i class="fas fa-paper-plane"></i>
-              <span id="submitButtonText">Enviar Pedido</span>
-            </button>
-          </div>
-        </form>
 
         <div id="mensagemPedido" class="message-container"></div>
-      </section>
-
-      <section id="admin" class="section">
-        <button class="back-button" id="voltarHome3">
-          <i class="fas fa-arrow-left"></i>
-          Voltar
-        </button>
         
-        <div class="section-header">
-          <h2>Painel Administrativo</h2>
-          <p>Acesso exclusivo para administradores</p>
+        <div class="btn-group" style="margin-top: 30px; justify-content: flex-start;">
+            <button type="submit" class="btn btn-primary" id="btnSalvarPedido">
+                <i class="fas fa-check"></i>
+                Finalizar Pedido
+            </button>
+            <button type="button" class="btn btn-link" id="btnCancelarPedido">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </button>
         </div>
-        
-        <div id="loginAdmin" class="login-container">
-          <form id="formLoginAdmin" class="modern-form">
-            <div class="form-group">
-              <label for="senhaAdmin">
-                <i class="fas fa-lock"></i>
-                Senha de Acesso Admin
-              </label>
-              <div class="input-with-icon">
-                <input type="password" id="senhaAdmin" name="senha" placeholder="Digite sua senha" required>
-                <button type="button" class="btn-toggle-password" 
-                        onclick="window.togglePasswordVisibility('senhaAdmin', this.querySelector('i'))" 
-                        style="background: none; border: none; padding: 0.75rem 1rem;">
-                    <i class="fas fa-eye" style="color: var(--text-secondary);"></i>
-                </button>
+      </form>
+    </section>
+
+    <section id="consulta-pedido" class="section-content" style="display: none;">
+      <h2><i class="fas fa-search"></i> Consultar Pedido</h2>
+      
+      <form id="formConsulta">
+        <div class="form-group">
+            <label for="cpfConsulta"><i class="fas fa-id-card"></i> Digite seu CPF para consultar</label>
+            <input type="text" id="cpfConsulta" required pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="000.000.000-00">
+        </div>
+        <div id="mensagemConsulta" class="message-container"></div>
+        <div class="btn-group" style="justify-content: flex-start; margin-top: 20px;">
+            <button type="submit" class="btn btn-secondary">
+                <i class="fas fa-search"></i>
+                Buscar Pedido
+            </button>
+            <button type="button" class="btn btn-link" id="voltarHomeConsulta">
+                <i class="fas fa-home"></i>
+                Voltar
+            </button>
+        </div>
+      </form>
+
+      <div id="resumoPedido" class="consulta-pedido-container" style="display: none;">
+          <h3><i class="fas fa-file-alt" style="color: var(--secondary-color);"></i> Resumo do Pedido</h3>
+          <div id="resumoPedidoBody" class="resumo-pedido-body">
               </div>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-arrow-right"></i>
-                    Acessar
-                </button>
-            </div>
-          </form>
-          <div id="mensagemLogin" class="message-container"></div>
-        </div>
+          <div class="btn-group" style="justify-content: flex-start; margin-top: 20px;">
+              <button type="button" class="btn btn-link" id="fecharResumoConsulta">
+                  <i class="fas fa-undo-alt"></i>
+                  Nova Consulta
+              </button>
+          </div>
+      </div>
+    </section>
 
-        <div id="painelAdmin" class="admin-panel" style="display: none;">
-            <div class="admin-menu">
-                <button class="admin-menu-btn active" id="btnDashboard">
-                    <i class="fas fa-chart-pie"></i>
-                    Dashboard
-                </button>
-                <button class="admin-menu-btn" id="btnPedidos">
-                    <i class="fas fa-list"></i>
-                    Pedidos
-                </button>
-            </div>
+    <section id="confirmacao-pedido" class="section-content" style="display: none;">
+        <h2><i class="fas fa-clipboard-check"></i> Pedido Finalizado com Sucesso!</h2>
+        <div class="confirmacao-pedido-container">
+            <p style="font-size: 1.1em; font-weight: 600; color: var(--success-color);">Seu pedido foi registrado. O status inicial é <span class="pedido-status status-Pendente">Pendente</span>.</p>
+            <p style="margin-top: 10px; color: var(--text-color);">Utilize seu CPF para acompanhar o status na seção "Consultar Pedido".</p>
             
-            <div id="admin-dashboard" class="admin-section active">
-                <div class="dashboard-header">
-                <h3>Visão Geral Rápida</h3>
-                <button id="atualizarDashboard" class="btn-refresh">
-                    <i class="fas fa-sync-alt"></i>
-                    Atualizar
+            <h3 style="margin-top: 20px;"><i class="fas fa-info-circle" style="color: var(--success-color);"></i> Detalhes do Seu Pedido:</h3>
+            <div id="confirmacaoPedidoBody" class="resumo-pedido-body">
+                </div>
+            
+            <div class="btn-group" style="justify-content: flex-start; margin-top: 30px;">
+                <button class="btn btn-primary" id="fecharConfirmacaoPedido">
+                    <i class="fas fa-home"></i>
+                    Voltar ao Início
                 </button>
-                </div>
-
-                <div class="dashboard-cards">
-                    <div class="card">
-                        <div class="card-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="card-content">
-                        <h4>Total de Pedidos</h4>
-                        <p class="card-value" id="totalPedidos">0</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-icon">
-                        <i class="fas fa-tshirt"></i>
-                        </div>
-                        <div class="card-content">
-                        <h4>Total de Camisetas</h4>
-                        <p class="card-value" id="totalCamisetas">0</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-icon">
-                        <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="card-content">
-                        <h4>Pedidos Pendentes</h4>
-                        <p class="card-value" id="pedidosPendentes">0</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-icon">
-                        <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="card-content">
-                        <h4>Pedidos Aprovados</h4>
-                        <p class="card-value" id="pedidosAprovados">0</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dashboard-details">
-                    <h4>Detalhamento por Tipo</h4>
-                    <div class="details-grid">
-                        <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-child"></i>
-                        </div>
-                        <div class="detail-content">
-                            <span>Infantis</span>
-                            <strong id="totalInfantis">0</strong>
-                        </div>
-                        </div>
-                        <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-female"></i>
-                        </div>
-                        <div class="detail-content">
-                            <span>Babylook</span>
-                            <strong id="totalBabylook">0</strong>
-                        </div>
-                        </div>
-                        <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-tshirt"></i>
-                        </div>
-                        <div class="detail-content">
-                            <span>Unissex</span>
-                            <strong id="totalUnissex">0</strong>
-                        </div>
-                        </div>
-                        <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-times-circle"></i>
-                        </div>
-                        <div class="detail-content">
-                            <span>Rejeitados</span>
-                            <strong id="pedidosRejeitados">0</strong>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-actions">
-                <button class="btn-primary" id="btnVerDetalhes">
-                    <i class="fas fa-calculator"></i>
-                    Verificar Detalhamento por Tamanho
-                </button>
-                </div>
-            </div>
-
-            <div id="admin-detalhes-tamanhos" class="admin-section">
-                <div class="dashboard-header">
-                <h3>Totalizadores por Tamanho</h3>
-                <button id="voltarDashboard" class="btn-refresh">
-                    <i class="fas fa-arrow-left"></i>
-                    Voltar ao Dashboard
-                </button>
-                </div>
-                
-                <div class="dashboard-details">
-                <div id="tamanhosDetalhesContainer">
-                    <table class="tamanhos-table">
-                    <thead>
-                        <tr>
-                        <th class="tipo-header">Tipo</th>
-                        <th>PP</th>
-                        <th>P</th>
-                        <th>M</th>
-                        <th>G</th>
-                        <th>GG</th>
-                        <th>XGG</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>4</th>
-                        <th>6</th>
-                        <th>8</th>
-                        <th>10</th>
-                        <th>12</th>
-                        <th>14</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tamanhosDetalhesBody">
-                        <tr><td colspan="15" style="text-align: center;">Clique em "Atualizar Detalhes" para carregar os dados.</td></tr>
-                    </tbody>
-                    <tfoot id="tamanhosDetalhesFooter">
-                        </tfoot>
-                    </table>
-                </div>
-                </div>
-                
-                <div class="form-actions">
-                    <button class="btn-refresh" id="atualizarDetalhesTamanho">
-                        <i class="fas fa-sync-alt"></i>
-                        Atualizar Detalhes
-                    </button>
-                </div>
-            </div>
-
-            <div id="admin-pedidos" class="admin-section">
-                <div class="pedidos-header">
-                <h3>Todos os Pedidos</h3>
-                <button id="atualizarPedidos" class="btn-refresh">
-                    <i class="fas fa-sync-alt"></i>
-                    Atualizar
-                </button>
-                </div>
-                <div id="listaPedidos" class="pedidos-list"></div>
             </div>
         </div>
-      </section>
-    </div>
-  </main>
+    </section>
 
-  <footer class="footer">
-    <div class="container">
-      <p>&copy; 2023 UMADEMATS - Todos os direitos reservados</p>
+    <div id="painelAdmin" class="admin-panel" style="display: none;">
+      
+      <div class="admin-menu">
+          <button class="admin-menu-btn active" id="btnDashboard">
+              <i class="fas fa-chart-pie"></i>
+              Dashboard
+          </button>
+          <button class="admin-menu-btn" id="btnPedidos">
+              <i class="fas fa-list"></i>
+              Pedidos
+          </button>
+          <button class="admin-menu-btn" id="btnFinanceiro">
+              <i class="fas fa-dollar-sign"></i>
+              Financeiro
+          </button>
+          <button class="admin-menu-btn btn-danger" id="btnLogoutAdmin" style="margin-top: 20px;">
+              <i class="fas fa-sign-out-alt"></i>
+              Sair
+          </button>
+      </div>
+
+      <div class="admin-content">
+          
+          <div id="admin-dashboard" class="admin-section active">
+              <div class="dashboard-header">
+                  <h3>Visão Geral</h3>
+                  <button id="atualizarDashboard" class="btn-refresh">
+                      <i class="fas fa-sync-alt"></i>
+                      Atualizar
+                  </button>
+              </div>
+
+              <div class="dashboard-cards">
+                  <div class="card" style="border-left-color: var(--primary-color);">
+                      <div class="card-icon" style="background-color: var(--primary-color);">
+                          <i class="fas fa-boxes"></i>
+                      </div>
+                      <div class="card-content">
+                          <h4>Total de Camisetas</h4>
+                          <p class="card-value" id="totalCamisetas">0</p>
+                      </div>
+                  </div>
+                  <div class="card" style="border-left-color: var(--secondary-color);">
+                      <div class="card-icon" style="background-color: var(--secondary-color);">
+                          <i class="fas fa-file-alt"></i>
+                      </div>
+                      <div class="card-content">
+                          <h4>Total de Pedidos</h4>
+                          <p class="card-value" id="totalPedidos">0</p>
+                      </div>
+                  </div>
+                  <div class="card" style="border-left-color: var(--warning-color);">
+                      <div class="card-icon" style="background-color: var(--warning-color);">
+                          <i class="fas fa-clock"></i>
+                      </div>
+                      <div class="card-content">
+                          <h4>Pedidos Pendentes</h4>
+                          <p class="card-value" id="pedidosPendentes">0</p>
+                      </div>
+                  </div>
+                  <div class="card" style="border-left-color: var(--success-color);">
+                      <div class="card-icon" style="background-color: var(--success-color);">
+                          <i class="fas fa-check-circle"></i>
+                      </div>
+                      <div class="card-content">
+                          <h4>Pedidos Aprovados</h4>
+                          <p class="card-value" id="pedidosAprovados">0</p>
+                      </div>
+                  </div>
+                  <div class="card" style="background: rgba(254, 180, 123, 0.1); border-left-color: var(--primary-dark);"> 
+                      <div class="card-icon" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+                          <i class="fas fa-money-bill-wave"></i>
+                      </div>
+                      <div class="card-content">
+                          <h4>Valor Arrecadado (Estimativa)</h4>
+                          <p class="card-value" id="valorArrecadado">R$ 0,00</p>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="dashboard-details">
+                  <h4><i class="fas fa-chart-bar" style="color: var(--primary-color);"></i> Detalhes por Categoria e Tamanho</h4>
+                  <div class="dashboard-cards" style="grid-template-columns: repeat(3, 1fr);">
+                      <div class="card" style="border-left-color: #00bcd4; background-color: #e0f7fa;">
+                          <div class="card-icon" style="background-color: #00bcd4;"><i class="fas fa-baby"></i></div>
+                          <div class="card-content"><h4>Infantil</h4><p class="card-value" id="totalInfantis">0</p></div>
+                      </div>
+                      <div class="card" style="border-left-color: #e91e63; background-color: #fce4ec;">
+                          <div class="card-icon" style="background-color: #e91e63;"><i class="fas fa-female"></i></div>
+                          <div class="card-content"><h4>Babylook</h4><p class="card-value" id="totalBabylook">0</p></div>
+                      </div>
+                      <div class="card" style="border-left-color: #4caf50; background-color: #e8f5e9;">
+                          <div class="card-icon" style="background-color: #4caf50;"><i class="fas fa-male"></i></div>
+                          <div class="card-content"><h4>Unissex</h4><p class="card-value" id="totalUnissex">0</p></div>
+                      </div>
+                  </div>
+                  <button class="btn btn-secondary" id="btnVerDetalhes" style="margin-top: 10px;">
+                      <i class="fas fa-table"></i> Ver Detalhes por Tamanho
+                  </button>
+              </div>
+
+              <div id="mensagemAdmin" class="message-container"></div>
+          </div>
+
+          <div id="admin-pedidos" class="admin-section">
+              <div class="admin-section-header">
+                  <h3>Lista de Pedidos</h3>
+                  <button id="atualizarPedidos" class="btn-refresh">
+                      <i class="fas fa-sync-alt"></i>
+                      Atualizar Lista
+                  </button>
+              </div>
+              <div id="pedidosListContainer" class="pedidos-list">
+                  <div class="mensagem aviso">Nenhum pedido encontrado.</div>
+              </div>
+          </div>
+          
+          <div id="admin-detalhes-tamanhos" class="admin-section">
+              <div class="admin-section-header">
+                  <h3><i class="fas fa-ruler-combined"></i> Detalhes de Quantidade por Tamanho</h3>
+                  <div class="pedido-actions">
+                      <button id="atualizarDetalhesTamanho" class="btn-refresh">
+                          <i class="fas fa-sync-alt"></i>
+                          Atualizar Tabela
+                      </button>
+                      <button id="voltarDashboard" class="btn btn-secondary">
+                          <i class="fas fa-arrow-left"></i>
+                          Dashboard
+                      </button>
+                  </div>
+              </div>
+              <div id="detalhesTamanhosContainer" class="details-tamanhos-table">
+                  <div class="mensagem aviso">Carregando detalhes...</div>
+              </div>
+          </div>
+
+          <div id="admin-financeiro" class="admin-section">
+              <div class="dashboard-header">
+                  <h3>Configurações e Detalhamento Financeiro</h3>
+                  <button id="atualizarFinanceiro" class="btn-refresh">
+                      <i class="fas fa-sync-alt"></i>
+                      Atualizar
+                  </button>
+              </div>
+
+              <div class="modern-form" style="margin-bottom: 2rem;">
+                  <h4><i class="fas fa-cog" style="color: var(--primary-color);"></i> Configurar Preço da Camiseta</h4>
+                  <form id="formConfigPrecoCamiseta" style="margin-top: 1rem;">
+                      <div class="form-grid" style="grid-template-columns: 1fr auto;">
+                          <div class="form-group">
+                              <label for="precoCamisetaInput">
+                                  <i class="fas fa-tag"></i>
+                                  Valor Unitário da Camiseta (R$)
+                              </label>
+                              <input type="number" id="precoCamisetaInput" step="0.01" min="0" value="0.00" required>
+                          </div>
+                          <div class="form-actions" style="margin-top: auto; align-self: flex-end;">
+                              <button type="submit" class="btn-primary" style="padding: 0.75rem 1.5rem;">
+                                  <i class="fas fa-save"></i>
+                                  Salvar Preço
+                              </button>
+                          </div>
+                      </div>
+                      <div id="mensagemFinanceiroConfig" class="message-container" style="margin-top: 0;"></div>
+                  </form>
+                  <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 1rem;">O valor é salvo localmente no seu navegador e será usado para calcular o total arrecadado.</p>
+              </div>
+              
+              <div class="dashboard-details">
+                  <h4><i class="fas fa-file-invoice-dollar" style="color: var(--primary-color);"></i> Detalhamento por Localidade (R$)</h4>
+                  <div id="detalhamentoFinanceiroBody">
+                      <p style="color: var(--text-muted);">Carregando dados...</p>
+                  </div>
+              </div>
+          </div>
+
+          
+          <div id="modalDetalhesPedido" class="admin-section" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1001; width: 90%; max-width: 700px; padding: 30px; border: 2px solid var(--primary-color);">
+              <div class="admin-section-header">
+                  <h3 id="detalhesPedidoTitulo"><i class="fas fa-receipt"></i> Detalhes do Pedido</h3>
+                  <button class="btn btn-link" id="fecharDetalhesModal">
+                      <i class="fas fa-times"></i> Fechar
+                  </button>
+              </div>
+              <div id="detalhesPedidoBody" class="resumo-pedido-body">
+                  </div>
+              <div class="btn-group" style="margin-top: 20px; justify-content: flex-end;">
+                  <button class="btn btn-success" id="btnAprovarPedido">
+                      <i class="fas fa-check"></i> Aprovar
+                  </button>
+                  <button class="btn btn-danger" id="btnRejeitarPedido">
+                      <i class="fas fa-ban"></i> Rejeitar
+                  </button>
+              </div>
+              <div id="mensagemDetalhes" class="message-container"></div>
+          </div>
+          <div id="modalDetalhesOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; display: none;"></div>
+
+      </div>
     </div>
-  </footer>
+
+
+  </div>
 
   <script type="module">
-    // ==========================================================
-    // 1. CONFIGURAÇÃO DO FIREBASE
-    // ==========================================================
-    
-    // OBJETO FIREBASE (Com suas chaves inseridas)
+    // Firebase Config (Necessário configurar antes de usar)
     const firebaseConfig = {
-      apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
-      authDomain: "pedidosumademats.firebaseapp.com",
-      projectId: "pedidosumademats",
-      storageBucket: "pedidosumademats.firebasestorage.app",
-      messagingSenderId: "604273766416",
-      appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
+        // Substitua com suas credenciais do Firebase
+        apiKey: "SUA_API_KEY",
+        authDomain: "SEU_PROJETO.firebaseapp.com",
+        projectId: "SEU_PROJETO",
+        storageBucket: "SEU_PROJETO.appspot.com",
+        messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+        appId: "SEU_APP_ID"
     };
 
-    // ==========================================================
-    // VARIÁVEIS CRÍTICAS
-    // ==========================================================
-    const ADMIN_PASSWORD_FIXA = "umademats"; // <-- **INSERIR SENHA AQUI**
-    
-    // ==========================================================
-    // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
-    // ==========================================================
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-
-
     // Inicializa o Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const pedidosCollection = collection(db, "pedidos"); 
-    const auth = getAuth(app); 
+    // if (!firebase.apps.length) {
+    //     firebase.initializeApp(firebaseConfig);
+    // }
+    // const db = firebase.firestore();
 
-    // VARIÁVEIS GLOBAIS DE ESTADO
-    let currentPedidoParaEdicao = null; 
+    // VARIÁVEIS CRÍTICAS
+    // Alerta: Remova ou altere esta senha em um ambiente real
+    const ADMIN_PASSWORD_FIXA = "umademats"; // <-- **INSERIR SENHA AQUI**
+    const LOCAL_STORAGE_PRECO_KEY = "umademats_preco_camiseta"; // Chave para o Local Storage
+    
+    // Simulação do Firestore e Inicialização
+    // Usaremos um objeto simples no LocalStorage para simular o banco de dados
+    const DB_KEY = 'umademats_pedidos_db';
+    
+    window.inicializarDB = function() {
+        if (!localStorage.getItem(DB_KEY)) {
+            localStorage.setItem(DB_KEY, JSON.stringify({}));
+        }
+    }
+    window.inicializarDB();
+
 
     // ==========================================================
     // FUNÇÕES AUXILIARES
     // ==========================================================
     
-    function getQuantidadesFromForm(formData, prefix) {
-        const quantidades = {};
-        for (const [key, value] of formData.entries()) {
-            if (key.startsWith(prefix + '_')) {
-                quantidades[key.split('_')[1]] = parseInt(value) || 0;
-            }
+    // Funções de manipulação de tela (display, loading, messages)
+    window.redirecionarComAnimacao = function(secaoId) {
+        document.querySelectorAll('.section-content, .admin-panel').forEach(sec => sec.style.display = 'none');
+        const secao = document.getElementById(secaoId);
+        if (secao) {
+            secao.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        return quantidades;
     }
-
-    // Função para alternar a visibilidade da senha
-    window.togglePasswordVisibility = function(inputId, iconElement) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-            iconElement.classList.remove('fa-eye');
-            iconElement.classList.add('fa-eye-slash');
+    
+    window.mostrarCarregamento = function(mostrar, texto = 'Carregando...') {
+        const overlay = document.getElementById('loading-overlay');
+        const textSpan = document.getElementById('loading-text');
+        if (mostrar) {
+            textSpan.textContent = texto;
+            overlay.style.display = 'flex';
         } else {
-            input.type = "password";
-            iconElement.classList.remove('fa-eye-slash');
-            iconElement.classList.add('fa-eye');
+            overlay.style.display = 'none';
         }
-    };
-    
-    // Função para verificar se o valor é um e-mail válido
-    function isValidEmail(value) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(value);
+    }
+
+    window.exibirMensagem = function(containerId, tipo, texto) {
+        const container = document.getElementById(containerId);
+        const icon = tipo === 'sucesso' ? 'fas fa-check-circle' : tipo === 'erro' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+        container.innerHTML = `<div class="mensagem ${tipo}"><i class="${icon}"></i> ${texto}</div>`;
+        setTimeout(() => container.innerHTML = '', 7000);
     }
     
+    window.limparFormulario = function(formId) {
+        const form = document.getElementById(formId);
+        if (form) form.reset();
+        document.querySelectorAll(`#${formId} input[type="number"]`).forEach(input => input.value = 0);
+    }
+
+    window.formatarCPF = function(cpf) {
+        cpf = cpf.replace(/\D/g, ""); // Remove tudo o que não é dígito
+        cpf = cpf.replace(/^(\d{3})(\d)/, "$1.$2");
+        cpf = cpf.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        return cpf;
+    }
+    
+    document.getElementById('cpf').addEventListener('input', (e) => {
+        e.target.value = window.formatarCPF(e.target.value);
+    });
+    
+    document.getElementById('cpfConsulta').addEventListener('input', (e) => {
+        e.target.value = window.formatarCPF(e.target.value);
+    });
+
+    window.atualizarElemento = function(id, valor) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = valor;
+    }
+    
+    window.formatarMoeda = function(valor) {
+        if (isNaN(valor)) return "R$ 0,00";
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
     // ==========================================================
-    // FUNÇÕES DE UTILIDADE GERAL (Expostas no escopo global)
+    // FUNÇÕES FIREBASE (SIMULAÇÃO COM LOCALSTORAGE)
     // ==========================================================
-    
-    window.mostrarSecao = function(secao) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      const secaoElement = document.getElementById(secao);
-      if (secaoElement) secaoElement.classList.add('active');
-    };
 
-    window.mostrarAdminSecao = function(secao) {
-      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
-      
-      const secaoElement = document.getElementById(`admin-${secao}`);
-      if (secaoElement) secaoElement.classList.add('active');
-      
-      const botoes = document.querySelectorAll('.admin-menu-btn');
-      botoes.forEach(botao => {
-        const textoBotao = botao.textContent.toLowerCase().trim();
-        if (textoBotao.includes(secao) && secao !== 'detalhes-tamanhos') {
-          botao.classList.add('active');
-        }
-      });
-      
-      if (secao === 'dashboard') {
-        window.carregarDashboard();
-      } else if (secao === 'pedidos') {
-        window.carregarPedidos();
-      }
-    };
-    
-    window.redirecionarComAnimacao = function(secao, callback) {
-        const elementoAtual = document.querySelector('.section.active');
-        const proximoElemento = document.getElementById(secao);
-  
-        if (!elementoAtual || !proximoElemento || elementoAtual === proximoElemento) {
-          window.mostrarSecao(secao);
-          if(callback) callback();
-          return;
-        }
-        
-        elementoAtual.style.opacity = '0';
-        elementoAtual.style.transform = 'translateY(-20px)';
-        
-        setTimeout(() => {
-          window.mostrarSecao(secao);
-          
-          if (callback) callback();
-          
-          proximoElemento.style.opacity = '0';
-          proximoElemento.style.transform = 'translateY(20px)';
-  
-          setTimeout(() => {
-            proximoElemento.style.opacity = '1';
-            proximoElemento.style.transform = 'translateY(0)';
-          }, 50);
-        }, 300);
-    };
-
-    window.exibirMensagem = function(elementoId, tipo, mensagem) {
-      const elemento = document.getElementById(elementoId);
-      if (!elemento) {
-          console.error(`Erro ao exibir mensagem: Elemento com ID '${elementoId}' não encontrado.`);
-          return; 
-      }
-      
-      const icone = tipo === 'sucesso' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-      elemento.innerHTML = `<div class="mensagem ${tipo}"><i class="${icone}"></i>${mensagem}</div>`;
-      setTimeout(() => { elemento.innerHTML = ''; }, 5000);
-    };
-
-    window.mostrarCarregamento = function(mostrar = true, texto = 'Processando...') {
-      const loadingOverlay = document.getElementById('loadingOverlay');
-      const loadingText = document.getElementById('loadingText');
-      loadingText.textContent = texto;
-      if (mostrar) {
-        loadingOverlay.classList.add('active');
-      } else {
-        loadingOverlay.classList.remove('active');
-      }
-    };
-
-    window.atualizarElemento = function(elementId, valor) {
-      const elemento = document.getElementById(elementId);
-      if (elemento) elemento.textContent = valor;
-    };
-    
-    window.fecharConfirmacaoPedido = function() {
-        document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
-        window.mostrarSecao('home');
-    };
-
-    window.copiarNumeroPedido = function(numPedido) {
-        navigator.clipboard.writeText(numPedido)
-        .then(() => {
-          window.exibirMensagem('mensagemPedido', 'sucesso', 'Número do pedido copiado para a área de transferência!');
-        })
-        .catch(err => {
-          console.error('Erro ao copiar número do pedido:', err);
-          window.exibirMensagem('mensagemPedido', 'erro', 'Não foi possível copiar o número do pedido');
+    // Salva o pedido no DB (simulado)
+    window.salvarPedidoDB = async function(pedido) {
+        return new Promise((resolve) => {
+            window.mostrarCarregamento(true, 'Salvando pedido...');
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+            
+            // Usar o CPF (normalizado) como chave única
+            const key = pedido.cpf.replace(/\D/g, ''); 
+            
+            db[key] = {
+                ...pedido,
+                id: key, // ID baseado no CPF para facilitar a consulta
+                dataPedido: new Date().toISOString(),
+                status: 'Pendente' // Status inicial
+            };
+            
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            setTimeout(() => { // Simula o tempo de resposta do DB
+                window.mostrarCarregamento(false);
+                resolve(db[key]);
+            }, 500);
         });
     };
 
-    window.exibirConfirmacaoPedido = function(pedido) {
-        const overlay = document.getElementById('pedidoConfirmacaoOverlay');
-        const numeroElement = document.getElementById('pedidoConfirmacaoNumero');
-        const infoElement = document.getElementById('pedidoConfirmacaoInfo');
-        const tamanhosElement = document.getElementById('pedidoConfirmacaoTamanhos');
-        
-        const formatarTamanhos = (tamanhos) => {
-            return Object.entries(tamanhos).map(([tamanho, qtd]) => 
-            parseInt(qtd) > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-            ).join('');
-        };
-        
-        numeroElement.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
-            <strong>Número do Pedido:</strong> #${pedido.numPedido}
-            <button onclick="window.copiarNumeroPedido('${pedido.numPedido}')" class="btn-copiar">
-                <i class="fas fa-copy"></i> Copiar
-            </button>
-            </div>
-        `;
-        
-        infoElement.innerHTML = `
-            <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
-            <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
-            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
-            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
-            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date().toLocaleString()}</p>
-        `; 
-        
-        tamanhosElement.innerHTML = `
-            <div class="pedido-confirmacao-tipo">
-            <h4><i class="fas fa-child"></i> Infantis</h4>
-            <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
-            </div>
+    // Consulta um pedido pelo CPF
+    window.consultarPedidoDB = async function(cpf) {
+        return new Promise((resolve) => {
+            window.mostrarCarregamento(true, 'Buscando pedido...');
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+            const key = cpf.replace(/\D/g, '');
             
-            <div class="pedido-confirmacao-tipo">
-            <h4><i class="fas fa-female"></i> Babylook</h4>
-            <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
-            </div>
-            
-            <div class="pedido-confirmacao-tipo">
-            <h4><i class="fas fa-tshirt"></i> Unissex</h4>
-            <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
-            </div>
-        `;
-        
-        overlay.classList.add('active');
+            setTimeout(() => {
+                window.mostrarCarregamento(false);
+                resolve(db[key] || null);
+            }, 500);
+        });
     };
     
-    // ==========================================================
-    // FUNÇÕES FIREBASE: FLUXO DE ACESSO E PEDIDOS
-    // ==========================================================
-    
-    // Função para verificar se o e-mail JÁ TEM pedido (retorna o pedido se sim)
-    window.verificarPedidoPorEmail = async function(email) {
-        const emailNormalizado = email.toLowerCase().trim(); 
-        try {
-            const q = query(pedidosCollection, where("email", "==", emailNormalizado));
-            const snapshot = await getDocs(q);
-            
-            if (!snapshot.empty) {
-                const docData = snapshot.docs[0].data();
-                const docId = snapshot.docs[0].id;
-                
-                return { docId, ...docData }; 
-            }
-            return null;
-        } catch (error) {
-            console.error("Erro ao buscar pedido por email:", error);
-            return null;
-        }
-    };
-    
-    // Função para verificar se o ID JÁ TEM pedido (retorna o pedido se sim)
-    window.verificarPedidoPorNumero = async function(numPedido) {
-        let numNormalizado = numPedido.trim();
-        if (numNormalizado.startsWith('UMADE-')) {
-            numNormalizado = numNormalizado.substring(6); // Remove 'UMADE-' (6 caracteres)
-        }
-        try {
-            const q = query(pedidosCollection, where("numPedido", "==", numNormalizado));
-            const snapshot = await getDocs(q);
-            
-            if (!snapshot.empty) {
-                const docData = snapshot.docs[0].data();
-                const docId = snapshot.docs[0].id;
-                
-                return { docId, ...docData }; 
-            }
-            return null;
-        } catch (error) {
-            console.error("Erro ao buscar pedido por número:", error);
-            return null;
-        }
-    };
-
-    // Função 3: Preenche o formulário para Novo Pedido (Simples)
-    window.setupNovoPedido = async function() {
-        currentPedidoParaEdicao = null; 
-        document.getElementById('pedidoDocId').value = '';
-        document.getElementById('email').value = ''; 
-        document.getElementById('nome').value = '';
-        document.getElementById('setor').value = ''; 
-        
-        document.getElementById('formPedido').reset();
-        
-        document.getElementById('pedidoTitulo').textContent = 'Fazer Novo Pedido';
-        document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
-        document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
-        
-        document.querySelector('input[name="local"][value="Capital"]').checked = true; 
-        window.updateSetorCidadeInput(); 
-    }
-
-    // Função 5: Preenche o formulário para Edição
-    window.setupEdicaoPedido = function() {
-        const pedido = currentPedidoParaEdicao;
-        if (!pedido) return;
-        
-        document.getElementById('pedidoDocId').value = pedido.docId; 
-        document.getElementById('nome').value = pedido.nome;
-        
-        // Marca o rádio correto
-        document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
-        
-        // Atualiza e preenche o campo Setor/Cidade
-        window.updateSetorCidadeInput(); 
-        document.getElementById('setor').value = pedido.setor; 
-        
-        document.getElementById('email').value = pedido.email;
-        
-        const preencherTamanhos = (tamanhos, prefix) => {
-            for (const [t, q] of Object.entries(tamanhos || {})) {
-                const input = document.getElementById(`${prefix}_${t}`);
-                if (input) input.value = q;
-            }
-        };
-
-        preencherTamanhos(pedido.infantil, 'infantil');
-        preencherTamanhos(pedido.babylook, 'babylook');
-        preencherTamanhos(pedido.unissex, 'unissex');
-        
-        document.getElementById('pedidoTitulo').textContent = `Editar Pedido #${pedido.numPedido}`;
-        document.getElementById('pedidoSubtitulo').textContent = 'Revise as quantidades e confirme o reenvio.';
-        document.getElementById('submitButtonText').textContent = 'Reenviar Pedido';
-        
-        window.redirecionarComAnimacao('pedido');
-    };
-    
-    // Função 6: Lógica de Submissão Única (Novo ou Edição)
-    window.handleFormSubmission = async function(e) {
-        e.preventDefault();
-        
-        const docId = document.getElementById('pedidoDocId').value;
-        const isEditing = !!docId;
-        
-        const formData = new FormData(document.getElementById('formPedido'));
-        const emailInput = formData.get('email');
-        const setorInput = formData.get('setor');
-        
-        // 1. Validação de E-mail
-        if (!isValidEmail(emailInput)) {
-            window.exibirMensagem('mensagemPedido', 'erro', 'O e-mail inserido é inválido.');
-            return;
-        }
-
-        // 2. Validação de Pedido Duplicado (APENAS PARA NOVOS PEDIDOS)
-        if (!isEditing) {
-            const pedidoExistente = await window.verificarPedidoPorEmail(emailInput);
-            if (pedidoExistente) {
-                window.exibirMensagem('mensagemPedido', 'erro', `O e-mail ${emailInput} já possui um pedido (#${pedidoExistente.numPedido}). Consulte seu pedido para editar.`);
-                return;
-            }
-        }
-        
-        if (isEditing) {
-            const confirmacao = confirm("ATENÇÃO: Você está prestes a substituir seu pedido anterior. Deseja continuar com o reenvio?");
-            if (!confirmacao) {
-                return;
-            }
-        }
-        
-        const totalCamisetas = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]'))
-                                    .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
-
-        if (totalCamisetas === 0) {
-            window.exibirMensagem('mensagemPedido', 'erro', 'O pedido deve conter pelo menos uma camiseta.');
-            return;
-        }
-
-        window.mostrarCarregamento(true, isEditing ? 'Reenviando e Atualizando Pedido...' : 'Enviando Novo Pedido...');
-        
-        try {
-            const emailParaSalvar = emailInput.toLowerCase().trim();
-
-            const dataToSave = {
-                data: new Date().toISOString(),
-                nome: formData.get('nome'),
-                local: formData.get('local'),
-                setor: setorInput, 
-                email: emailParaSalvar, 
-                infantil: getQuantidadesFromForm(formData, 'infantil'),
-                babylook: getQuantidadesFromForm(formData, 'babylook'),
-                unissex: getQuantidadesFromForm(formData, 'unissex'),
-                status: 'Pendente' 
-            };
-
-            let finalNumPedido = '';
-
-            if (isEditing) {
-                const pedidoRef = doc(db, "pedidos", docId);
-                await updateDoc(pedidoRef, dataToSave);
-                finalNumPedido = currentPedidoParaEdicao.numPedido;
-                
-            } else {
-                const docRef = doc(pedidosCollection); 
-                dataToSave.numPedido = docRef.id;
-                
-                await setDoc(docRef, dataToSave); 
-                finalNumPedido = docRef.id;
-            }
-
-            document.getElementById('formPedido').reset();
-            
-            const pedidoConfirmado = { numPedido: finalNumPedido, ...dataToSave };
-            window.exibirConfirmacaoPedido(pedidoConfirmado);
-            
-        } catch (error) {
-            console.error('Erro ao submeter pedido:', error);
-            window.exibirMensagem('mensagemPedido', 'erro', `Erro ao se comunicar com o Firebase. Verifique suas Regras de Criação. (${error.message})`);
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
-
-    // Função de Login Admin (Corrigida para receber 'e')
-    window.handleAdminLogin = async function(e) {
-        e.preventDefault(); 
-        const senha = document.getElementById('senhaAdmin').value;
-        window.mostrarCarregamento(true, 'Verificando senha...');
-
-        if (senha === ADMIN_PASSWORD_FIXA) { 
-            document.getElementById('loginAdmin').style.display = 'none';
-            document.getElementById('painelAdmin').style.display = 'block';
-            document.getElementById('mensagemLogin').innerHTML = ''; 
-            
-            document.getElementById('admin-dashboard').classList.add('active');
-            document.getElementById('btnDashboard').classList.add('active');
-            window.carregarDashboard(); 
-            
-        } else {
-            window.exibirMensagem('mensagemLogin', 'erro', 'Senha incorreta.');
-        }
-        window.mostrarCarregamento(false);
-    }
-    
+    // Carrega todos os pedidos
     window.carregarTodosPedidos = async function() {
+        return new Promise((resolve) => {
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+            const pedidos = Object.values(db || {});
+            // Ordena do mais novo para o mais antigo
+            pedidos.sort((a, b) => new Date(b.dataPedido) - new Date(a.dataPedido));
+            resolve(pedidos);
+        });
+    };
+    
+    // Atualiza o status de um pedido
+    window.atualizarStatusPedidoDB = async function(id, novoStatus) {
+        return new Promise((resolve, reject) => {
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+            if (db[id]) {
+                db[id].status = novoStatus;
+                localStorage.setItem(DB_KEY, JSON.stringify(db));
+                resolve(db[id]);
+            } else {
+                reject(new Error("Pedido não encontrado."));
+            }
+        });
+    };
+
+    // ==========================================================
+    // FUNÇÕES DE FLUXO DO USUÁRIO
+    // ==========================================================
+
+    window.handleFazerPedido = async function(e) {
+        e.preventDefault();
+        window.mostrarCarregamento(true, 'Processando pedido...');
+
+        const form = e.target;
+        const nome = form.nome.value.trim();
+        const cpf = form.cpf.value.trim();
+        const local = form.local.value.trim();
+        const setor = form.setor.value.trim();
+        
+        // 1. Coleta e validação dos tamanhos
+        const tamanhos = ['2', '4', '6', '8', '10', '12', 'p', 'm', 'g', 'gg', 'xg', 'g1'];
+        const infantil = {};
+        const babylook = {};
+        const unissex = {};
+        let totalCamisetas = 0;
+        
+        tamanhos.forEach(t => {
+            const inf = parseInt(document.getElementById(`infantil_${t}`)?.value || 0);
+            const bb = parseInt(document.getElementById(`babylook_${t}`)?.value || 0);
+            const uni = parseInt(document.getElementById(`unissex_${t}`)?.value || 0);
+            
+            if (inf > 0) infantil[t] = inf;
+            if (bb > 0) babylook[t] = bb;
+            if (uni > 0) unissex[t] = uni;
+            
+            totalCamisetas += (inf + bb + uni);
+        });
+        
+        if (totalCamisetas === 0) {
+            window.mostrarCarregamento(false);
+            window.exibirMensagem('mensagemPedido', 'erro', 'Você deve pedir pelo menos uma camiseta.');
+            return;
+        }
+
+        // 2. Monta o objeto pedido
+        const novoPedido = {
+            nome,
+            cpf,
+            local,
+            setor,
+            infantil,
+            babylook,
+            unissex,
+            totalCamisetas
+        };
+        
         try {
-            const snapshot = await getDocs(pedidosCollection);
-            const pedidos = snapshot.docs.map(doc => ({ 
-                docId: doc.id, 
-                ...doc.data() 
-            }));
-            return pedidos;
+            // 3. Salva no DB (simulado)
+            const pedidoSalvo = await window.salvarPedidoDB(novoPedido);
+            
+            // 4. Exibe a tela de confirmação
+            window.exibirConfirmacaoPedido(pedidoSalvo);
+            window.limparFormulario('formPedido');
+            
         } catch (error) {
-            console.error("Erro ao carregar todos os pedidos:", error);
-            throw new Error("Falha ao carregar dados do banco de dados.");
+            window.mostrarCarregamento(false);
+            console.error("Erro ao salvar o pedido:", error);
+            window.exibirMensagem('mensagemPedido', 'erro', `Erro ao finalizar pedido: ${error.message}`);
+        }
+    }
+    
+    // Exibe a tela de confirmação (após o envio)
+    window.exibirConfirmacaoPedido = function(pedido) {
+        window.redirecionarComAnimacao('confirmacao-pedido');
+        
+        // **INÍCIO DA LÓGICA DE CÁLCULO DE VALOR (COMO NA CONSULTA)**
+        const precoCamisetaString = localStorage.getItem(LOCAL_STORAGE_PRECO_KEY);
+        const precoCamiseta = parseFloat(precoCamisetaString) || 0.00;
+        const valorTotal = pedido.totalCamisetas * precoCamiseta;
+        // **FIM DA LÓGICA DE CÁLCULO DE VALOR**
+
+        const resumoHtml = window.gerarResumoPedidoHtml(pedido, pedido.status, valorTotal);
+        document.getElementById('confirmacaoPedidoBody').innerHTML = resumoHtml;
+    }
+    
+    window.fecharConfirmacaoPedido = function() {
+        window.redirecionarComAnimacao('home');
+    }
+
+    // Lida com a consulta de pedido pelo CPF
+    window.handleConsultaPedido = async function(e) {
+        e.preventDefault();
+        const cpfConsulta = document.getElementById('cpfConsulta').value.trim();
+        if (!cpfConsulta) return;
+        
+        try {
+            const pedido = await window.consultarPedidoDB(cpfConsulta);
+
+            if (pedido) {
+                document.getElementById('formConsulta').style.display = 'none';
+                document.getElementById('resumoPedido').style.display = 'block';
+                window.exibirPedido(pedido);
+            } else {
+                window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado para o CPF informado.');
+                document.getElementById('formConsulta').style.display = 'block';
+                document.getElementById('resumoPedido').style.display = 'none';
+            }
+        } catch (error) {
+            console.error("Erro ao consultar o pedido:", error);
+            window.exibirMensagem('mensagemConsulta', 'erro', 'Ocorreu um erro ao buscar o pedido. Tente novamente.');
+        }
+    }
+    
+    // Função MODIFICADA para exibir o resumo do pedido (agora inclui o valor)
+    window.exibirPedido = function(pedido) {
+        const resumoElement = document.getElementById('resumoPedidoBody');
+        
+        // **INÍCIO DA LÓGICA DE CÁLCULO DE VALOR (NOVO)**
+        const precoCamisetaString = localStorage.getItem(LOCAL_STORAGE_PRECO_KEY);
+        const precoCamiseta = parseFloat(precoCamisetaString) || 0.00;
+        const valorTotal = pedido.totalCamisetas * precoCamiseta;
+        // **FIM DA LÓGICA DE CÁLCULO DE VALOR**
+
+        const resumoHtml = window.gerarResumoPedidoHtml(pedido, pedido.status, valorTotal);
+        resumoElement.innerHTML = resumoHtml;
+    }
+    
+    // Função auxiliar para gerar o HTML do resumo (usada na Confirmação e na Consulta)
+    window.gerarResumoPedidoHtml = function(pedido, status, valorTotal) {
+        const statusClass = `status-${status}`;
+        const dataFormatada = pedido.dataPedido ? new Date(pedido.dataPedido).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'N/A';
+        
+        let tamanhosHtml = '';
+        
+        const categorias = [
+            { nome: 'Infantil', dados: pedido.infantil },
+            { nome: 'Babylook', dados: pedido.babylook },
+            { nome: 'Unissex', dados: pedido.unissex }
+        ];
+
+        categorias.forEach(cat => {
+            if (cat.dados && Object.keys(cat.dados).length > 0) {
+                tamanhosHtml += `<h4>${cat.nome}</h4>`;
+                tamanhosHtml += '<table><thead><tr><th>Tamanho</th><th>Qtd</th></tr></thead><tbody>';
+                for (const [tamanho, qtd] of Object.entries(cat.dados)) {
+                    tamanhosHtml += `<tr><td>${tamanho.toUpperCase()}</td><td>${qtd}</td></tr>`;
+                }
+                tamanhosHtml += '</tbody></table>';
+            }
+        });
+
+        return `
+            <div class="resumo-detail-item">
+                <span class="label">Nome:</span>
+                <span class="value">${pedido.nome}</span>
+            </div>
+            <div class="resumo-detail-item">
+                <span class="label">CPF:</span>
+                <span class="value">${pedido.cpf}</span>
+            </div>
+            <div class="resumo-detail-item">
+                <span class="label">Local (Cidade/Setor):</span>
+                <span class="value">${pedido.local} / ${pedido.setor}</span>
+            </div>
+            <div class="resumo-detail-item">
+                <span class="label">Data do Pedido:</span>
+                <span class="value">${dataFormatada}</span>
+            </div>
+            <div class="resumo-detail-item">
+                <span class="label">Status:</span>
+                <span class="value"><span class="pedido-status ${statusClass}">${status}</span></span>
+            </div>
+            <div class="resumo-detail-item">
+                <span class="label">Total de Camisetas:</span>
+                <span class="value">${pedido.totalCamisetas}</span>
+            </div>
+            <div class="resumo-detail-item total-value-line">
+                <span class="label">Valor Estimado das Camisetas:</span>
+                <span class="value price-value">${window.formatarMoeda(valorTotal)}</span>
+            </div>
+            
+            <div class="resumo-tamanhos" style="margin-top: 20px;">
+                <h3 style="font-weight: 700; color: var(--dark-color); margin-bottom: 10px;">Detalhes por Tamanho</h3>
+                ${tamanhosHtml}
+            </div>
+        `;
+    }
+
+    // ==========================================================
+    // FUNÇÕES DE FLUXO DO ADMINISTRADOR
+    // ==========================================================
+    
+    // Função para fazer login no admin
+    window.handleAdminLogin = function() {
+        const senha = prompt("Digite a senha de administrador:");
+        if (senha === ADMIN_PASSWORD_FIXA) {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('fazer-pedido').style.display = 'none';
+            document.getElementById('consulta-pedido').style.display = 'none';
+            document.getElementById('confirmacao-pedido').style.display = 'none';
+            document.getElementById('painelAdmin').style.display = 'flex';
+            window.carregarDashboard();
+            window.carregarPrecoCamiseta(); // Carrega o preço ao entrar no admin
+
+        } else if (senha !== null && senha !== "") {
+            window.exibirMensagem('mensagemHome', 'erro', 'Senha incorreta.');
+        }
+    }
+    
+    // Função para sair do admin
+    window.handleAdminLogout = function() {
+        document.getElementById('painelAdmin').style.display = 'none';
+        window.redirecionarComAnimacao('home');
+    }
+    
+    // Alterna a seção visível no Admin Panel
+    window.mostrarAdminSecao = function(secao) {
+        document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.admin-menu-btn').forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(`admin-${secao}`).classList.add('active');
+        document.getElementById(`btn${secao.charAt(0).toUpperCase() + secao.slice(1)}`).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Ações específicas ao mudar de seção
+        if (secao === 'pedidos') {
+            window.carregarPedidos();
+        } else if (secao === 'dashboard') {
+            window.carregarDashboard();
+        } else if (secao === 'financeiro') {
+            window.carregarPrecoCamiseta();
+            window.carregarDetalhesFinanceiro();
         }
     }
 
+    // DASHBOARD (Função MODIFICADA para incluir o Valor Arrecadado)
     window.carregarDashboard = async function() {
         window.mostrarCarregamento(true, 'Calculando visão geral...');
         
         try {
             const pedidos = await window.carregarTodosPedidos();
             
+            // NOVO: Carrega o preço da camiseta
+            const precoCamiseta = window.carregarPrecoCamiseta();
+
             let totalPedidos = pedidos.length;
             let totalCamisetas = 0;
             let pedidosPendentes = 0;
@@ -2247,6 +1627,9 @@
                 else if (pedido.status === 'Rejeitado') pedidosRejeitados++;
             });
             
+            // NOVO: Cálculo do Valor Arrecadado
+            const valorArrecadado = totalCamisetas * precoCamiseta;
+
             window.atualizarElemento('totalPedidos', totalPedidos);
             window.atualizarElemento('totalCamisetas', totalCamisetas);
             window.atualizarElemento('pedidosPendentes', pedidosPendentes);
@@ -2256,176 +1639,283 @@
             window.atualizarElemento('totalUnissex', totalUnissex);
             window.atualizarElemento('pedidosRejeitados', pedidosRejeitados);
             
+            // NOVO: Atualiza o card de valor arrecadado
+            window.atualizarElemento('valorArrecadado', formatarMoeda(valorArrecadado));
+            
             window.mostrarCarregamento(false);
             
         } catch (error) {
             console.error(`Erro ao carregar Dashboard:`, error);
-            window.exibirMensagem('mensagemLogin', 'erro', `Erro ao carregar dashboard: ${error.message}.`);
+            window.exibirMensagem('mensagemAdmin', 'erro', `Erro ao carregar dashboard: ${error.message}.`);
             window.mostrarCarregamento(false);
         }
     };
     
-    window.carregarDetalhesTamanho = async function() {
-        window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
-        const detalhesBody = document.getElementById('tamanhosDetalhesBody');
-        const detalhesFooter = document.getElementById('tamanhosDetalhesFooter');
-        
-        detalhesBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Calculando...</td></tr>';
-        detalhesFooter.innerHTML = '';
-        
-        try {
-            const pedidos = await window.carregarTodosPedidos();
-            const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-            let htmlBody = '';
-            let htmlFooter = '<tfoot><tr><td class="tipo-header"><strong>Total Geral</strong></td>';
-            
-            const tipos = [
-                { name: 'Infantis', key: 'infantil' },
-                { name: 'Babylook', key: 'babylook' },
-                { name: 'Unissex', key: 'unissex' }
-            ];
-
-            const totaisGerais = {};
-            tamanhosDisponiveis.forEach(t => totaisGerais[t] = 0);
-
-            const detalhes = { infantil: {}, babylook: {}, unissex: {} };
-            tamanhosDisponiveis.forEach(t => {
-                detalhes.infantil[t] = 0;
-                detalhes.babylook[t] = 0;
-                detalhes.unissex[t] = 0;
-            });
-
-
-            pedidos.forEach(pedido => {
-                tipos.forEach(tipo => {
-                    const quantidades = pedido[tipo.key] || {};
-                    Object.entries(quantidades).forEach(([tamanho, qtd]) => {
-                        detalhes[tipo.key][tamanho] = (detalhes[tipo.key][tamanho] || 0) + qtd;
-                    });
-                });
-            });
-            
-            tipos.forEach(tipo => {
-                htmlBody += `<tr><td class="tipo-header">${tipo.name}</td>`;
-                
-                tamanhosDisponiveis.forEach(t => {
-                    const qtd = detalhes[tipo.key][t] || 0;
-                    htmlBody += `<td>${qtd}</td>`;
-                    totaisGerais[t] += qtd;
-                });
-                htmlBody += `</tr>`;
-            });
-            
-            // Gerar footer
-            tamanhosDisponiveis.forEach(t => {
-                htmlFooter += `<td><strong>${totaisGerais[t]}</strong></td>`;
-            });
-            htmlFooter += '</tr></tfoot>';
-
-            detalhesBody.innerHTML = htmlBody;
-            detalhesFooter.innerHTML = htmlFooter;
-            window.exibirMensagem('mensagemLogin', 'sucesso', 'Detalhes de tamanho carregados com sucesso!');
-
-        } catch (error) {
-            console.error('Erro ao carregar detalhes de tamanho:', error);
-            detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">Erro de comunicação: ${error.message}</td></tr>`;
-            window.exibirMensagem('mensagemLogin', 'erro', 'Erro ao carregar Detalhes.');
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
-
-
+    // PEDIDOS (Admin)
     window.carregarPedidos = async function() {
         window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
-        const listaPedidosElement = document.getElementById('listaPedidos');
-        listaPedidosElement.innerHTML = ''; 
-
+        const container = document.getElementById('pedidosListContainer');
+        container.innerHTML = '';
+        
         try {
             const pedidos = await window.carregarTodosPedidos();
 
             if (pedidos.length === 0) {
-                listaPedidosElement.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Não há pedidos registrados no sistema.</p></div>`;
+                container.innerHTML = '<div class="mensagem aviso"><i class="fas fa-info-circle"></i> Nenhum pedido encontrado no sistema.</div>';
                 window.mostrarCarregamento(false);
                 return;
             }
 
             pedidos.forEach(pedido => {
-                const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
-                                    pedido.status === 'Aprovado' ? 'status-aprovado' : 
-                                    'status-rejeitado';
-
-                const formatarTamanhos = (tipos) => {
-                    return Object.entries(tipos).filter(([_, qtd]) => parseInt(qtd) > 0)
-                                .map(([t, q]) => `<li>${t}: ${q}</li>`).join('');
-                };
+                const statusClass = `status-${pedido.status}`;
+                const dataFormatada = new Date(pedido.dataPedido).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
                 
-                const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
-                                             Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
-                                             Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
-
-
-                const pedidoHtml = `
-                    <div class="pedido-item" data-id="${pedido.docId}">
-                        <div class="pedido-header">
-                            <span class="pedido-numero">#${pedido.numPedido}</span>
-                            <span class="pedido-status ${statusClass}">${pedido.status}</span>
-                        </div>
+                const itemHtml = `
+                    <div class="pedido-item" data-id="${pedido.id}">
                         <div class="pedido-info">
-                            <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
-                            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
-                            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-                            <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
+                            <h5>${pedido.nome} - ${pedido.cpf}</h5>
+                            <p>${pedido.local} / ${pedido.setor} | Camisetas: ${pedido.totalCamisetas} | Data: ${dataFormatada}</p>
                         </div>
-                        <div class="pedido-tamanhos">
-                            <div class="tipo-tamanhos">
-                                <h4>Infantis</h4>
-                                <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
-                            </div>
-                            <div class="tipo-tamanhos">
-                                <h4>Babylook</h4>
-                                <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
-                            </div>
-                            <div class="tipo-tamanhos">
-                                <h4>Unissex</h4>
-                                <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
-                            </div>
-                        </div>
-                        <div class="admin-actions">
-                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Aprovado')">Aprovar</button>
-                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Rejeitado')">Rejeitar</button>
+                        <div class="pedido-actions">
+                            <span class="pedido-status ${statusClass}">${pedido.status}</span>
+                            <button class="btn btn-secondary btn-sm" onclick="window.abrirDetalhesPedido('${pedido.id}')">
+                                <i class="fas fa-eye"></i> Detalhes
+                            </button>
                         </div>
                     </div>
                 `;
-                listaPedidosElement.insertAdjacentHTML('beforeend', pedidoHtml);
+                container.innerHTML += itemHtml;
             });
-
+            window.mostrarCarregamento(false);
+            
         } catch (error) {
-            console.error('Erro ao carregar lista de pedidos:', error);
-            listaPedidosElement.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar pedidos: ${error.message}</div>`;
-        } finally {
+            console.error("Erro ao carregar pedidos:", error);
+            container.innerHTML = '<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar a lista de pedidos.</div>';
             window.mostrarCarregamento(false);
         }
-    };
-    
-    window.atualizarStatusPedido = async function(docId, novoStatus) {
-        if (!confirm(`Tem certeza que deseja mudar o status do pedido para '${novoStatus}'?`)) {
+    }
+
+    // Ações do Modal de Detalhes
+    window.abrirDetalhesPedido = async function(id) {
+        window.mostrarCarregamento(true, 'Carregando detalhes do pedido...');
+        const pedido = await window.consultarPedidoDB(id);
+        
+        if (!pedido) {
+            window.mostrarCarregamento(false);
+            window.exibirMensagem('mensagemDetalhes', 'erro', 'Pedido não encontrado.');
             return;
         }
 
+        // **INÍCIO DA LÓGICA DE CÁLCULO DE VALOR (NOVO)**
+        const precoCamisetaString = localStorage.getItem(LOCAL_STORAGE_PRECO_KEY);
+        const precoCamiseta = parseFloat(precoCamisetaString) || 0.00;
+        const valorTotal = pedido.totalCamisetas * precoCamiseta;
+        // **FIM DA LÓGICA DE CÁLCULO DE VALOR**
+
+        const resumoHtml = window.gerarResumoPedidoHtml(pedido, pedido.status, valorTotal);
+        
+        document.getElementById('detalhesPedidoTitulo').innerHTML = `<i class="fas fa-receipt"></i> Pedido de ${pedido.nome}`;
+        document.getElementById('detalhesPedidoBody').innerHTML = resumoHtml;
+        
+        // Configura botões de status
+        document.getElementById('btnAprovarPedido').onclick = () => window.alterarStatusPedido(id, 'Aprovado');
+        document.getElementById('btnRejeitarPedido').onclick = () => window.alterarStatusPedido(id, 'Rejeitado');
+        
+        // Exibe modal
+        document.getElementById('modalDetalhesPedido').style.display = 'block';
+        document.getElementById('modalDetalhesOverlay').style.display = 'block';
+        window.mostrarCarregamento(false);
+    }
+
+    window.fecharDetalhesPedido = function() {
+        document.getElementById('modalDetalhesPedido').style.display = 'none';
+        document.getElementById('modalDetalhesOverlay').style.display = 'none';
+        window.exibirMensagem('mensagemDetalhes', 'erro', ''); // Limpa mensagem
+    }
+
+    window.alterarStatusPedido = async function(id, novoStatus) {
         window.mostrarCarregamento(true, `Atualizando status para ${novoStatus}...`);
+        try {
+            await window.atualizarStatusPedidoDB(id, novoStatus);
+            window.exibirMensagem('mensagemDetalhes', 'sucesso', `Status atualizado para ${novoStatus}!`);
+            window.carregarPedidos(); // Recarrega a lista
+            window.carregarDashboard(); // Recarrega o dashboard
+            setTimeout(window.fecharDetalhesPedido, 1000); // Fecha após 1s
+        } catch (error) {
+            window.mostrarCarregamento(false);
+            window.exibirMensagem('mensagemDetalhes', 'erro', `Erro ao atualizar status: ${error.message}`);
+        }
+    }
+    
+    // Detalhes por Tamanho (Tabela)
+    window.carregarDetalhesTamanho = async function() {
+        window.mostrarCarregamento(true, 'Gerando tabela de tamanhos...');
+        const container = document.getElementById('detalhesTamanhosContainer');
+        container.innerHTML = '';
+        
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+            const totais = {};
+            let totalGeral = 0;
+
+            const categorias = ['infantil', 'babylook', 'unissex'];
+            const tamanhos = {
+                'infantil': ['2', '4', '6', '8', '10', '12'],
+                'babylook': ['p', 'm', 'g', 'gg', 'xg', 'g1'],
+                'unissex': ['p', 'm', 'g', 'gg', 'xg', 'g1']
+            };
+
+            categorias.forEach(cat => {
+                totais[cat] = {};
+                tamanhos[cat].forEach(t => totais[cat][t] = 0);
+            });
+
+            pedidos.forEach(pedido => {
+                categorias.forEach(cat => {
+                    const dados = pedido[cat] || {};
+                    for (const t in dados) {
+                        if (totais[cat][t] !== undefined) {
+                            totais[cat][t] += dados[t];
+                            totalGeral += dados[t];
+                        }
+                    }
+                });
+            });
+
+            let htmlTabela = '';
+            
+            categorias.forEach(cat => {
+                const catNome = cat.charAt(0).toUpperCase() + cat.slice(1);
+                
+                let totalCat = Object.values(totais[cat]).reduce((a, b) => a + b, 0);
+
+                htmlTabela += `
+                    <h4>${catNome} (Total: ${totalCat})</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tamanho</th>
+                                <th>Quantidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                tamanhos[cat].forEach(t => {
+                    htmlTabela += `
+                        <tr>
+                            <td>${t.toUpperCase()}</td>
+                            <td>${totais[cat][t]}</td>
+                        </tr>
+                    `;
+                });
+                htmlTabela += `</tbody></table>`;
+            });
+            
+            container.innerHTML = `<h3>TOTAL GERAL DE CAMISETAS: ${totalGeral}</h3>` + htmlTabela;
+            window.mostrarCarregamento(false);
+
+        } catch (error) {
+            console.error("Erro ao carregar detalhes de tamanhos:", error);
+            container.innerHTML = '<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar detalhes de tamanhos.</div>';
+            window.mostrarCarregamento(false);
+        }
+    }
+    
+    // === FUNÇÕES FINANCEIRAS (NOVO) ===
+
+    // Salva o preço no Local Storage
+    window.salvarPrecoCamiseta = function(e) {
+        e.preventDefault();
+        const precoInput = document.getElementById('precoCamisetaInput');
+        const preco = parseFloat(precoInput.value);
+        
+        if (isNaN(preco) || preco < 0) {
+            window.exibirMensagem('mensagemFinanceiroConfig', 'erro', 'O valor deve ser um número positivo.');
+            return;
+        }
 
         try {
-            const pedidoRef = doc(db, "pedidos", docId);
-            await updateDoc(pedidoRef, { status: novoStatus });
+            localStorage.setItem(LOCAL_STORAGE_PRECO_KEY, preco.toFixed(2));
+            window.exibirMensagem('mensagemFinanceiroConfig', 'sucesso', `Preço salvo: ${window.formatarMoeda(preco)}. Atualize o Dashboard para ver o novo cálculo.`);
+            
+            // Atualiza imediatamente o input com o valor formatado
+            precoInput.value = preco.toFixed(2);
+            
+            // Recalcula o dashboard após salvar o preço
+            window.carregarDashboard();
 
-            window.exibirMensagem('mensagemLogin', 'sucesso', `Status do pedido atualizado para ${novoStatus} com sucesso!`);
-            await window.carregarPedidos(); 
-            await window.carregarDashboard();
+        } catch (error) {
+            window.exibirMensagem('mensagemFinanceiroConfig', 'erro', 'Erro ao salvar o preço.');
+        }
+    };
+
+    // Carrega o preço do Local Storage
+    window.carregarPrecoCamiseta = function() {
+        const precoString = localStorage.getItem(LOCAL_STORAGE_PRECO_KEY);
+        const preco = parseFloat(precoString) || 0.00; // Valor padrão de 0
+        const inputElement = document.getElementById('precoCamisetaInput');
+        if (inputElement) {
+            inputElement.value = preco.toFixed(2);
+        }
+        return preco;
+    };
+
+    // Carrega o detalhamento financeiro por localidade
+    window.carregarDetalhesFinanceiro = async function() {
+        window.mostrarCarregamento(true, 'Calculando detalhamento financeiro...');
+        const detalhesElement = document.getElementById('detalhamentoFinanceiroBody');
+        detalhesElement.innerHTML = '<p style="color: var(--text-muted);">Calculando...</p>';
+        
+        try {
+            const precoCamiseta = window.carregarPrecoCamiseta();
+            const pedidos = await window.carregarTodosPedidos();
+            
+            const totaisPorLocal = {};
+            let totalGeral = 0;
+            
+            pedidos.forEach(pedido => {
+                const localKey = `${pedido.setor} (${pedido.local})`;
+                const totalCamisetas = pedido.totalCamisetas; // Já calculado no objeto pedido
+                
+                const valorTotal = totalCamisetas * precoCamiseta;
+
+                totaisPorLocal[localKey] = (totaisPorLocal[localKey] || 0) + valorTotal;
+                totalGeral += valorTotal;
+            });
+
+            let htmlContent = `<div class="details-grid">`;
+            
+            // Ordena por valor decrescente
+            const locaisOrdenados = Object.entries(totaisPorLocal).sort(([, a], [, b]) => b - a);
+            
+            if (locaisOrdenados.length === 0) {
+                detalhesElement.innerHTML = '<div class="mensagem aviso"><i class="fas fa-info-circle"></i> Nenhum pedido com valor encontrado.</div>';
+                window.mostrarCarregamento(false);
+                return;
+            }
+
+
+            locaisOrdenados.forEach(([local, valor]) => {
+                htmlContent += `
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="detail-content" style="flex-direction: column; align-items: flex-start;">
+                            <span style="font-weight: 600;">${local}</span>
+                            <strong style="color: var(--primary-color); font-size: 1.25rem;">${window.formatarMoeda(valor)}</strong>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            htmlContent += `</div>`;
+            
+            detalhesElement.innerHTML = htmlContent;
             
         } catch (error) {
-            console.error('Erro ao atualizar status:', error);
-            window.exibirMensagem('mensagemLogin', 'erro', `Erro ao atualizar status: ${error.message}`);
+            console.error('Erro ao carregar detalhes financeiros:', error);
+            detalhesElement.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar detalhes: ${error.message}</div>`;
         } finally {
             window.mostrarCarregamento(false);
         }
@@ -2433,167 +1923,42 @@
 
 
     // ==========================================================
-    // EVENT LISTENERS PRINCIPAIS (Inicialização)
+    // EVENT LISTENERS GLOBAIS
     // ==========================================================
     document.addEventListener('DOMContentLoaded', () => {
+      window.mostrarCarregamento(false); // Esconde no carregamento inicial
       
-      const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
-      const btnAdministrador = document.getElementById('btnAdministrador');
-      const formLoginAdmin = document.getElementById('formLoginAdmin');
-      const formConsultarNumero = document.getElementById('formConsultarNumero');
-      const formConsultarEmail = document.getElementById('formConsultarEmail');
+      // Fluxo do Usuário
+      document.getElementById('btnFazerPedido').addEventListener('click', () => window.redirecionarComAnimacao('fazer-pedido'));
+      document.getElementById('btnConsultarPedido').addEventListener('click', () => window.redirecionarComAnimacao('consulta-pedido'));
+      document.getElementById('btnCancelarPedido').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      document.getElementById('formPedido').addEventListener('submit', window.handleFazerPedido);
+      document.getElementById('formConsulta').addEventListener('submit', window.handleConsultaPedido);
+      document.getElementById('fecharResumoConsulta').addEventListener('click', () => {
+          document.getElementById('formConsulta').style.display = 'block';
+          document.getElementById('resumoPedido').style.display = 'none';
+          document.getElementById('cpfConsulta').value = '';
+          document.getElementById('mensagemConsulta').innerHTML = '';
+      });
 
-      const radioCapital = document.getElementById('radioCapital');
-      const radioInterior = document.getElementById('radioInterior');
+      // Fluxo da Confirmação/Volta
+      document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
+      document.getElementById('voltarHomeConsulta').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      
+      // Fluxo do Administrador (Botões Principais)
+      document.getElementById('btnAdminAccess').addEventListener('click', window.handleAdminLogin);
+      document.getElementById('btnLogoutAdmin').addEventListener('click', window.handleAdminLogout);
+      document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
+      document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
+      
+      // Dashboard/Detalhes
+      document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
+      document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
       
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
 
-      // === Fluxo Home ===
-      document.getElementById('btnNovoPedido').addEventListener('click', () => {
-          window.setupNovoPedido(); 
-          window.redirecionarComAnimacao('pedido');
-      });
-      document.getElementById('btnConsultarPedido').addEventListener('click', () => {
-          document.getElementById('resultadoConsulta').innerHTML = '';
-          window.redirecionarComAnimacao('consultar');
-      });
-      document.getElementById('btnAdministrador').addEventListener('click', () => {
-          document.getElementById('loginAdmin').style.display = 'block';
-          document.getElementById('painelAdmin').style.display = 'none';
-          document.getElementById('mensagemLogin').innerHTML = '';
-          window.redirecionarComAnimacao('admin');
-      });
-
-
-      // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
-      if (formLoginAdmin) {
-          formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
-      }
-
-      // === Submissão Única (NOVO / EDITAR) ===
-      const formPedido = document.getElementById('formPedido');
-      if (formPedido) {
-          formPedido.addEventListener('submit', window.handleFormSubmission);
-      }
-      
-      // === Fluxo de Consulta/Edição: NÚMERO ===
-      if (formConsultarNumero) {
-          formConsultarNumero.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const consulta = document.getElementById('numPedidoConsultaInput').value.trim();
-              
-              if (!consulta) {
-                  window.exibirMensagem('mensagemConsulta', 'erro', 'Insira o número do pedido.');
-                  return;
-              }
-              
-              window.mostrarCarregamento(true, 'Buscando pedido por número...');
-              
-              const pedido = await window.verificarPedidoPorNumero(consulta);
-
-              if (pedido) {
-                  currentPedidoParaEdicao = pedido;
-                  window.setupEdicaoPedido();
-                  window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
-              } else {
-                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido correspondente ao número '${consulta}' foi localizado.</p></div>`;
-                  window.exibirMensagem('mensagemConsulta', 'erro', 'Pedido não encontrado.');
-              }
-              
-              window.mostrarCarregamento(false);
-          });
-      }
-      
-      // === Fluxo de Consulta/Edição: E-MAIL ===
-      if (formConsultarEmail) {
-          formConsultarEmail.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const consulta = document.getElementById('emailConsultaInput').value.trim();
-              
-              if (!isValidEmail(consulta)) {
-                  window.exibirMensagem('mensagemConsulta', 'erro', 'Insira um e-mail válido.');
-                  return;
-              }
-              
-              window.mostrarCarregamento(true, 'Buscando pedido por e-mail...');
-              
-              const pedido = await window.verificarPedidoPorEmail(consulta);
-
-              if (pedido) {
-                  currentPedidoParaEdicao = pedido;
-                  window.setupEdicaoPedido();
-                  window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
-              } else {
-                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido para o e-mail '${consulta}' foi localizado.</p></div>`;
-                  window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
-              }
-              
-              window.mostrarCarregamento(false);
-          });
-      }
-
-
-      // === Lógica de Campo Dinâmico (Capital/Interior) ===
-      window.updateSetorCidadeInput = function() {
-          const container = document.getElementById('setorCidadeContainer');
-          const labelElement = document.getElementById('setorCidadeLabel');
-          const radioCapitalChecked = document.querySelector('input[name="local"][value="Capital"]:checked');
-          
-          const currentValue = document.getElementById('setor') ? document.getElementById('setor').value : '';
-
-
-          if (radioCapitalChecked) {
-              labelElement.textContent = 'Setor';
-              // Opção CAPITAL: Dropdown de Setores (Com estilos inline para escuro)
-              container.innerHTML = `
-                  <select id="setor" name="setor" required 
-                          style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%;">
-                      <option value="" disabled selected style="background: var(--dark-color); color: var(--text-muted);">Selecione seu Setor</option>
-                      <option value="Setor A" style="background: var(--dark-color);">Setor A</option>
-                      <option value="Setor B" style="background: var(--dark-color);">Setor B</option>
-                      <option value="Setor C1" style="background: var(--dark-color);">Setor C1</option>
-                      <option value="Setor C2" style="background: var(--dark-color);">Setor C2</option>
-                      <option value="Setor D" style="background: var(--dark-color);">Setor D</option>
-                      <option value="Setor E" style="background: var(--dark-color);">Setor E</option>
-                      <option value="Setor F" style="background: var(--dark-color);">Setor F</option>
-                      <option value="Setor G" style="background: var(--dark-color);">Setor G</option>
-                      <option value="Setor H" style="background: var(--dark-color);">Setor H</option>
-                      <option value="Setor M" style="background: var(--dark-color);">Setor M</option>
-                      <option value="Setor N" style="background: var(--dark-color);">Setor N</option>
-                  </select>
-              `;
-              const selectElement = document.getElementById('setor');
-              if (selectElement) selectElement.value = currentValue || "";
-              
-          } else {
-              labelElement.textContent = 'Cidade/Setor';
-              container.innerHTML = `
-                  <input type="text" id="setor" name="setor" placeholder="Digite sua Cidade/Setor" required>
-              `;
-              document.getElementById('setor').value = currentValue;
-          }
-      }
-      
-      if (radioCapital) radioCapital.addEventListener('change', window.updateSetorCidadeInput);
-      if (radioInterior) radioInterior.addEventListener('change', window.updateSetorCidadeInput);
-      
-      window.updateSetorCidadeInput(); 
-
-      // === Botões de Navegação / Voltar ===
-      document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
-      document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
-      document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
-      document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
-      document.getElementById('voltarHomeConsulta').addEventListener('click', () => window.redirecionarComAnimacao('home'));
-      
-      // Outros Event Listeners do Admin Panel
-      document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
-      document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
-      document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
-      document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
-      
       if (btnVerDetalhes) {
           btnVerDetalhes.addEventListener('click', () => {
               window.mostrarAdminSecao('detalhes-tamanhos'); 
@@ -2607,6 +1972,35 @@
       }
       if (atualizarDetalhesTamanho) {
           atualizarDetalhesTamanho.addEventListener('click', window.carregarDetalhesTamanho);
+      }
+      
+      // Modal de Detalhes do Pedido
+      document.getElementById('fecharDetalhesModal').addEventListener('click', window.fecharDetalhesPedido);
+
+      // === Fluxo do Administrador (Financeiro) ===
+      const btnFinanceiro = document.getElementById('btnFinanceiro');
+      const formConfigPrecoCamiseta = document.getElementById('formConfigPrecoCamiseta');
+      const atualizarFinanceiro = document.getElementById('atualizarFinanceiro');
+
+      if (btnFinanceiro) {
+          btnFinanceiro.addEventListener('click', () => {
+              window.mostrarAdminSecao('financeiro');
+              window.carregarPrecoCamiseta(); // Carrega o preço salvo ao abrir a tela
+              window.carregarDetalhesFinanceiro();
+          });
+      }
+      
+      if (formConfigPrecoCamiseta) {
+          formConfigPrecoCamiseta.addEventListener('submit', window.salvarPrecoCamiseta);
+      }
+      
+      if (atualizarFinanceiro) {
+          atualizarFinanceiro.addEventListener('click', window.carregarDetalhesFinanceiro);
+      }
+      
+      // Carrega o preço no input ao iniciar (para usuários que acessam o Admin)
+      if (document.getElementById('precoCamisetaInput')) {
+          window.carregarPrecoCamiseta();
       }
     });
 
