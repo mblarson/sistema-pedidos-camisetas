@@ -570,6 +570,24 @@
         color: var(--primary-color);
     }
 
+    /* CORREÇÃO DO SELECIONE */
+    .form-group select {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        color: var(--text-primary);
+        /* Estilos para o dropdown (necessário para cores escuras) */
+        appearance: none; 
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.5em 1.5em;
+    }
+    
     .form-group input:focus {
       outline: none;
       border-color: var(--primary-color);
@@ -1366,6 +1384,7 @@
         </form>
 
         <div id="resultadoConsulta" class="result-container"></div>
+        <div id="mensagemConsulta" class="message-container"></div> 
       </section>
 
       <section id="pedido" class="section">
@@ -1415,7 +1434,8 @@
                     <span id="setorCidadeLabel">Setor/Cidade</span>
                 </label>
                 <div id="setorCidadeContainer">
-                    </div>
+                    <input type="text" id="setor" name="setor" required>
+                </div>
             </div>
             
             <div class="form-group">
@@ -1890,6 +1910,11 @@
 
     window.exibirMensagem = function(elementoId, tipo, mensagem) {
       const elemento = document.getElementById(elementoId);
+      if (!elemento) {
+          console.error(`Erro ao exibir mensagem: Elemento com ID '${elementoId}' não encontrado.`);
+          return; // Sai da função se o elemento não for encontrado
+      }
+      
       const icone = tipo === 'sucesso' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
       elemento.innerHTML = `<div class="mensagem ${tipo}"><i class="${icone}"></i>${mensagem}</div>`;
       setTimeout(() => { elemento.innerHTML = ''; }, 5000);
@@ -2034,80 +2059,9 @@
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
         
-        // Garante que o rádio 'Capital' esteja checado se o formulário for novo/resetado
         document.querySelector('input[name="local"][value="Capital"]').checked = true; 
-        
-        // Chama a função para atualizar os campos dinâmicos (Setor/Cidade)
         window.updateSetorCidadeInput(); 
     }
-
-    // Função 4: Exibe a tela de consulta para o Líder (usada no fluxo de consulta)
-    window.displayVisualizacaoPedido = function(pedido, containerId = 'resultadoConsulta') {
-        currentPedidoParaEdicao = pedido;
-        const container = document.getElementById(containerId);
-        
-        const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
-                            pedido.status === 'Aprovado' ? 'status-aprovado' : 
-                            'status-rejeitado';
-        const statusDisplay = pedido.status === 'Aprovado' ? 
-                              '<strong style="color: var(--success-color);">APROVADO</strong>' : 
-                              `<span class="pedido-status ${statusClass}">${pedido.status}</span>`;
-
-        const formatarTamanhos = (tamanhos) => {
-            let list = '';
-            for (const [t, q] of Object.entries(tamanhos || {})) {
-                if (q > 0) list += `<li>${t}: ${q}</li>`;
-            }
-            return list || '<li>Nenhuma</li>';
-        };
-
-        const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
-                                 Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
-                                 Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
-
-
-        container.innerHTML = `
-            <div class="pedido-item" data-id="${pedido.docId}">
-                <div class="pedido-header">
-                    <span class="pedido-numero">#${pedido.numPedido}</span>
-                    ${statusDisplay}
-                </div>
-                
-                <div class="pedido-info">
-                    <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
-                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local} / ${pedido.setor}</p>
-                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
-                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-                    <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas}</p>
-                </div>
-                
-                <div class="pedido-tamanhos">
-                    <div class="tipo-tamanhos">
-                        <h4>Infantis</h4>
-                        <ul>${formatarTamanhos(pedido.infantil)}</ul>
-                    </div>
-                    <div class="tipo-tamanhos">
-                        <h4>Babylook</h4>
-                        <ul>${formatarTamanhos(pedido.babylook)}</ul>
-                    </div>
-                    <div class="tipo-tamanhos">
-                        <h4>Unissex</h4>
-                        <ul>${formatarTamanhos(pedido.unissex)}</ul>
-                    </div>
-                </div>
-
-                <div class="form-actions" style="margin-top: 1rem;">
-                    <button class="btn-primary" id="btnIniciarEdicao">
-                        <i class="fas fa-edit"></i>
-                        EDITAR E REENVIAR
-                    </button>
-                </div>
-            </div>
-            <div id="mensagemConsulta" class="message-container"></div>
-        `;
-        
-        document.getElementById('btnIniciarEdicao').addEventListener('click', window.setupEdicaoPedido);
-    };
 
     // Função 5: Preenche o formulário para Edição
     window.setupEdicaoPedido = function() {
@@ -2118,8 +2072,8 @@
         document.getElementById('nome').value = pedido.nome;
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
         
-        // CORRIGIDO: PREENCHE O CAMPO DE SETOR/CIDADE CORRETO
-        window.updateSetorCidadeInput(); // Atualiza o tipo de campo (select/input)
+        // Atualiza o tipo de campo antes de preencher
+        window.updateSetorCidadeInput(); 
         document.getElementById('setor').value = pedido.setor; // Preenche o valor salvo
         
         document.getElementById('email').value = pedido.email;
@@ -2192,7 +2146,7 @@
                 data: new Date().toISOString(),
                 nome: formData.get('nome'),
                 local: formData.get('local'),
-                setor: setorInput, // USA O VALOR DO CAMPO SETOR/CIDADE DINÂMICO
+                setor: setorInput, 
                 email: emailParaSalvar, 
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
                 babylook: getQuantidadesFromForm(formData, 'babylook'),
@@ -2227,7 +2181,7 @@
             window.mostrarCarregamento(false);
         }
     };
-    
+
     // Função de Login Admin (Corrigida para receber 'e')
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
@@ -2249,7 +2203,6 @@
         window.mostrarCarregamento(false);
     }
     
-    // Funções de Dashboard e Utilidades (Mantidas)
     window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
@@ -2487,7 +2440,6 @@
       const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
       const btnAdministrador = document.getElementById('btnAdministrador');
       const formLoginAdmin = document.getElementById('formLoginAdmin');
-      const formPedido = document.getElementById('formPedido');
       const formConsultar = document.getElementById('formConsultar');
 
       const radioCapital = document.getElementById('radioCapital');
@@ -2513,12 +2465,14 @@
           window.redirecionarComAnimacao('admin');
       });
 
+
       // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
       if (formLoginAdmin) {
           formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
       }
 
       // === Submissão Única (NOVO / EDITAR) ===
+      const formPedido = document.getElementById('formPedido');
       if (formPedido) {
           formPedido.addEventListener('submit', window.handleFormSubmission);
       }
@@ -2527,10 +2481,10 @@
       if (formConsultar) {
           formConsultar.addEventListener('submit', async (e) => {
               e.preventDefault();
-              const consulta = document.getElementById('consultaInput').value.toLowerCase().trim();
+              const consulta = document.getElementById('consultaInput').value.trim();
               
               if (!consulta) {
-                  window.exibirMensagem('mensagemPedido', 'erro', 'Insira o número do pedido ou e-mail.');
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Insira o número do pedido ou e-mail.');
                   return;
               }
               
@@ -2562,14 +2516,19 @@
           const container = document.getElementById('setorCidadeContainer');
           const labelElement = document.getElementById('setorCidadeLabel');
           const radioCapitalChecked = document.querySelector('input[name="local"][value="Capital"]:checked');
+          
+          // Preserva o valor atual antes de recriar o input
+          const currentValue = document.getElementById('setor') ? document.getElementById('setor').value : '';
+
 
           if (radioCapitalChecked) {
               labelElement.textContent = 'Setor';
-              // Opção CAPITAL: Dropdown de Setores
+              // Opção CAPITAL: Dropdown de Setores (Com estilos inline para escuro)
               container.innerHTML = `
                   <select id="setor" name="setor" required 
-                          style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%;">
-                      <option value="" disabled selected>Selecione seu Setor</option>
+                          style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%;"
+                          onchange="this.style.color = 'var(--text-primary)'">
+                      <option value="" disabled selected style="color: var(--text-muted);">Selecione seu Setor</option>
                       <option value="Setor A">Setor A</option>
                       <option value="Setor B">Setor B</option>
                       <option value="Setor C1">Setor C1</option>
@@ -2583,12 +2542,18 @@
                       <option value="Setor N">Setor N</option>
                   </select>
               `;
+              // Tenta restaurar o valor, se for um dos setores
+              const selectElement = document.getElementById('setor');
+              if (selectElement) selectElement.value = currentValue || "";
+              
           } else {
               labelElement.textContent = 'Cidade/Setor';
-              // Opção INTERIOR: Input de Texto
+              // Opção INTERIOR: Input de Texto (já com a classe/estilo global)
               container.innerHTML = `
                   <input type="text" id="setor" name="setor" placeholder="Digite sua Cidade/Setor" required>
               `;
+              // Restaura o valor
+              document.getElementById('setor').value = currentValue;
           }
       }
       
