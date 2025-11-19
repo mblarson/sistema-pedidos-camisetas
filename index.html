@@ -7,18 +7,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ===== VARIÁVEIS E RESET (CSS) ===== */
+    /* ===== VARIÁVEIS E RESET (Mantidas) ===== */
     :root {
-      --primary-color: #ff7e5f; /* Laranja principal */
-      --primary-dark: #ff6b47; /* Laranja escuro */
-      --secondary-color: #feb47b; /* Laranja claro */
-      --accent-color: #ffd4a3; /* Laranja muito claro */
-      --success-color: #10b981; /* Verde sucesso */
-      --warning-color: #f59e0b; /* Amarelo alerta */
-      --danger-color: #ef4444; /* Vermelho erro */
-      --dark-color: #062C3F; /* Azul marinho escuro */
-      --darker-color: #042035; /* Azul marinho mais escuro */
-      --light-color: #f8fafc; /* Branco gelo */
+      --primary-color: #ff7e5f; 
+      --primary-dark: #ff6b47; 
+      --secondary-color: #feb47b; 
+      --accent-color: #ffd4a3; 
+      --success-color: #10b981; 
+      --warning-color: #f59e0b; 
+      --danger-color: #ef4444; 
+      --dark-color: #062C3F; 
+      --darker-color: #042035; 
+      --light-color: #f8fafc; 
       --white-color: #ffffff;
       --gray-50: #f9fafb;
       --gray-100: #f3f4f6;
@@ -569,7 +569,6 @@
     .form-group .input-with-icon .btn-toggle-password:hover {
         color: var(--primary-color);
     }
-
 
     .form-group input:focus {
       outline: none;
@@ -1284,11 +1283,11 @@
         </button>
       </div>
       
-      <div class="pedido-confirmacao-numero" id="pedidoConfirmacaoNumero"></div>
+      <div id="pedidoConfirmacaoNumero" class="pedido-confirmacao-numero"></div>
       
-      <div class="pedido-confirmacao-info" id="pedidoConfirmacaoInfo"></div>
+      <div id="pedidoConfirmacaoInfo" class="pedido-confirmacao-info"></div>
       
-      <div class="pedido-confirmacao-tamanhos" id="pedidoConfirmacaoTamanhos"></div>
+      <div id="pedidoConfirmacaoTamanhos" class="pedido-confirmacao-tamanhos"></div>
       
       <div class="mensagem-importante">
         <p><i class="fas fa-exclamation-triangle"></i> CARO LÍDER, GUARDE O NÚMERO DO PEDIDO PARA QUE POSSA CONSULTAR OU EDITAR POSTERIORMENTE.</p>
@@ -1339,7 +1338,7 @@
           </div>
         </div>
       </section>
-      
+
       <section id="consultar" class="section">
         <button class="back-button" id="voltarHomeConsulta">
           <i class="fas fa-arrow-left"></i>
@@ -1368,7 +1367,7 @@
 
         <div id="resultadoConsulta" class="result-container"></div>
       </section>
-      
+
       <section id="pedido" class="section">
         <button class="back-button" id="voltarHome1">
           <i class="fas fa-arrow-left"></i>
@@ -1398,12 +1397,12 @@
               </label>
               <div class="radio-group">
                 <label class="radio-label">
-                  <input type="radio" name="local" value="Capital" required>
+                  <input type="radio" name="local" value="Capital" required id="radioCapital">
                   <span class="radio-custom"></span>
                   Capital
                 </label>
                 <label class="radio-label">
-                  <input type="radio" name="local" value="Interior" required>
+                  <input type="radio" name="local" value="Interior" required id="radioInterior">
                   <span class="radio-custom"></span>
                   Interior
                 </label>
@@ -1411,11 +1410,12 @@
             </div>
             
             <div class="form-group">
-              <label for="setor">
-                <i class="fas fa-building"></i>
-                Setor/Cidade
-              </label>
-              <input type="text" id="setor" name="setor" required>
+                <label for="setorInputLabel">
+                    <i class="fas fa-building"></i>
+                    <span id="setorCidadeLabel">Setor/Cidade</span>
+                </label>
+                <div id="setorCidadeContainer">
+                    </div>
             </div>
             
             <div class="form-group">
@@ -1537,7 +1537,7 @@
 
         <div id="mensagemPedido" class="message-container"></div>
       </section>
-      
+
       <section id="admin" class="section">
         <button class="back-button" id="voltarHome3">
           <i class="fas fa-arrow-left"></i>
@@ -1775,7 +1775,7 @@
     // ==========================================================
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
-    const ADMIN_PASSWORD_FIXA = "umadematssecretaria2026"; // <-- **INSERIR SENHA AQUI**
+    const ADMIN_PASSWORD_FIXA = "SUA_SENHA_FORTE_AQUI"; // <-- **INSERIR SENHA AQUI**
     
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
@@ -1807,7 +1807,7 @@
         }
         return quantidades;
     }
-    
+
     // Função para alternar a visibilidade da senha
     window.togglePasswordVisibility = function(inputId, iconElement) {
         const input = document.getElementById(inputId);
@@ -2034,8 +2034,80 @@
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
         
+        // Garante que o rádio 'Capital' esteja checado se o formulário for novo/resetado
         document.querySelector('input[name="local"][value="Capital"]').checked = true; 
+        
+        // Chama a função para atualizar os campos dinâmicos (Setor/Cidade)
+        window.updateSetorCidadeInput(); 
     }
+
+    // Função 4: Exibe a tela de consulta para o Líder (usada no fluxo de consulta)
+    window.displayVisualizacaoPedido = function(pedido, containerId = 'resultadoConsulta') {
+        currentPedidoParaEdicao = pedido;
+        const container = document.getElementById(containerId);
+        
+        const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
+                            pedido.status === 'Aprovado' ? 'status-aprovado' : 
+                            'status-rejeitado';
+        const statusDisplay = pedido.status === 'Aprovado' ? 
+                              '<strong style="color: var(--success-color);">APROVADO</strong>' : 
+                              `<span class="pedido-status ${statusClass}">${pedido.status}</span>`;
+
+        const formatarTamanhos = (tamanhos) => {
+            let list = '';
+            for (const [t, q] of Object.entries(tamanhos || {})) {
+                if (q > 0) list += `<li>${t}: ${q}</li>`;
+            }
+            return list || '<li>Nenhuma</li>';
+        };
+
+        const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                 Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                 Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
+
+        container.innerHTML = `
+            <div class="pedido-item" data-id="${pedido.docId}">
+                <div class="pedido-header">
+                    <span class="pedido-numero">#${pedido.numPedido}</span>
+                    ${statusDisplay}
+                </div>
+                
+                <div class="pedido-info">
+                    <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local} / ${pedido.setor}</p>
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                    <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas}</p>
+                </div>
+                
+                <div class="pedido-tamanhos">
+                    <div class="tipo-tamanhos">
+                        <h4>Infantis</h4>
+                        <ul>${formatarTamanhos(pedido.infantil)}</ul>
+                    </div>
+                    <div class="tipo-tamanhos">
+                        <h4>Babylook</h4>
+                        <ul>${formatarTamanhos(pedido.babylook)}</ul>
+                    </div>
+                    <div class="tipo-tamanhos">
+                        <h4>Unissex</h4>
+                        <ul>${formatarTamanhos(pedido.unissex)}</ul>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top: 1rem;">
+                    <button class="btn-primary" id="btnIniciarEdicao">
+                        <i class="fas fa-edit"></i>
+                        EDITAR E REENVIAR
+                    </button>
+                </div>
+            </div>
+            <div id="mensagemConsulta" class="message-container"></div>
+        `;
+        
+        document.getElementById('btnIniciarEdicao').addEventListener('click', window.setupEdicaoPedido);
+    };
 
     // Função 5: Preenche o formulário para Edição
     window.setupEdicaoPedido = function() {
@@ -2045,7 +2117,11 @@
         document.getElementById('pedidoDocId').value = pedido.docId; 
         document.getElementById('nome').value = pedido.nome;
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
-        document.getElementById('setor').value = pedido.setor;
+        
+        // CORRIGIDO: PREENCHE O CAMPO DE SETOR/CIDADE CORRETO
+        window.updateSetorCidadeInput(); // Atualiza o tipo de campo (select/input)
+        document.getElementById('setor').value = pedido.setor; // Preenche o valor salvo
+        
         document.getElementById('email').value = pedido.email;
         
         const preencherTamanhos = (tamanhos, prefix) => {
@@ -2075,14 +2151,15 @@
         
         const formData = new FormData(document.getElementById('formPedido'));
         const emailInput = formData.get('email');
+        const setorInput = formData.get('setor'); // Captura o valor do campo dinâmico
         
-        // Validação de E-mail
+        // 1. Validação de E-mail
         if (!isValidEmail(emailInput)) {
             window.exibirMensagem('mensagemPedido', 'erro', 'O e-mail inserido é inválido.');
             return;
         }
 
-        // Validação de Pedido Duplicado (APENAS PARA NOVOS PEDIDOS)
+        // 2. Validação de Pedido Duplicado (APENAS PARA NOVOS PEDIDOS)
         if (!isEditing) {
             const pedidoExistente = await window.verificarPedidoPorEmail(emailInput);
             if (pedidoExistente) {
@@ -2115,8 +2192,8 @@
                 data: new Date().toISOString(),
                 nome: formData.get('nome'),
                 local: formData.get('local'),
-                setor: formData.get('setor'),
-                email: emailParaSalvar,
+                setor: setorInput, // USA O VALOR DO CAMPO SETOR/CIDADE DINÂMICO
+                email: emailParaSalvar, 
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
                 babylook: getQuantidadesFromForm(formData, 'babylook'),
                 unissex: getQuantidadesFromForm(formData, 'unissex'),
@@ -2131,9 +2208,8 @@
                 finalNumPedido = currentPedidoParaEdicao.numPedido;
                 
             } else {
-                // CRIAÇÃO: Uma única operação de escrita no Firebase
                 const docRef = doc(pedidosCollection); 
-                dataToSave.numPedido = docRef.id; // Define o numPedido com o ID do documento
+                dataToSave.numPedido = docRef.id;
                 
                 await setDoc(docRef, dataToSave); 
                 finalNumPedido = docRef.id;
@@ -2151,7 +2227,7 @@
             window.mostrarCarregamento(false);
         }
     };
-
+    
     // Função de Login Admin (Corrigida para receber 'e')
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
@@ -2173,9 +2249,7 @@
         window.mostrarCarregamento(false);
     }
     
-    // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
-    
-    // ... (restante das funções de carregarDashboard, etc.) ...
+    // Funções de Dashboard e Utilidades (Mantidas)
     window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
@@ -2413,9 +2487,11 @@
       const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
       const btnAdministrador = document.getElementById('btnAdministrador');
       const formLoginAdmin = document.getElementById('formLoginAdmin');
-      const formLoginLider = document.getElementById('formLoginLider');
-      const formCadastroLider = document.getElementById('formCadastroLider'); 
       const formPedido = document.getElementById('formPedido');
+      const formConsultar = document.getElementById('formConsultar');
+
+      const radioCapital = document.getElementById('radioCapital');
+      const radioInterior = document.getElementById('radioInterior');
       
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
@@ -2423,30 +2499,21 @@
 
       // === Fluxo Home ===
       document.getElementById('btnNovoPedido').addEventListener('click', () => {
-          window.setupNovoPedido(); // Chama a versão simplificada que limpa tudo
+          window.setupNovoPedido(); 
           window.redirecionarComAnimacao('pedido');
       });
       document.getElementById('btnConsultarPedido').addEventListener('click', () => {
           document.getElementById('resultadoConsulta').innerHTML = '';
           window.redirecionarComAnimacao('consultar');
       });
+      document.getElementById('btnAdministrador').addEventListener('click', () => {
+          document.getElementById('loginAdmin').style.display = 'block';
+          document.getElementById('painelAdmin').style.display = 'none';
+          document.getElementById('mensagemLogin').innerHTML = '';
+          window.redirecionarComAnimacao('admin');
+      });
 
       // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
-      if (btnAdministrador) {
-          btnAdministrador.addEventListener('click', () => {
-              document.getElementById('loginAdmin').style.display = 'block';
-              document.getElementById('painelAdmin').style.display = 'none';
-              document.getElementById('mensagemLogin').innerHTML = '';
-              window.redirecionarComAnimacao('admin');
-          });
-      }
-      
-      // Submit do Formulário de Login do Líder
-      if (formLoginLider) {
-          formLoginLider.addEventListener('submit', window.handleLoginLider);
-      }
-      
-      // Submit do Formulário de Login Admin
       if (formLoginAdmin) {
           formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
       }
@@ -2456,7 +2523,82 @@
           formPedido.addEventListener('submit', window.handleFormSubmission);
       }
       
-      // === Event Listeners de Navegação / Botões (Mantidos) ===
+      // === Fluxo de Consulta/Edição (Form Consultar) ===
+      if (formConsultar) {
+          formConsultar.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const consulta = document.getElementById('consultaInput').value.toLowerCase().trim();
+              
+              if (!consulta) {
+                  window.exibirMensagem('mensagemPedido', 'erro', 'Insira o número do pedido ou e-mail.');
+                  return;
+              }
+              
+              window.mostrarCarregamento(true, 'Buscando pedido...');
+              
+              let pedido = null;
+              
+              if (isValidEmail(consulta)) {
+                  pedido = await window.verificarPedidoPorEmail(consulta);
+              } else {
+                  pedido = await window.verificarPedidoPorNumero(consulta);
+              }
+
+              if (pedido) {
+                  window.displayVisualizacaoPedido(pedido);
+                  window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
+              } else {
+                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Nenhum pedido correspondente ao valor '${consulta}' foi localizado.</p></div>`;
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
+              }
+              
+              window.mostrarCarregamento(false);
+          });
+      }
+
+
+      // === Lógica de Campo Dinâmico (Capital/Interior) ===
+      window.updateSetorCidadeInput = function() {
+          const container = document.getElementById('setorCidadeContainer');
+          const labelElement = document.getElementById('setorCidadeLabel');
+          const radioCapitalChecked = document.querySelector('input[name="local"][value="Capital"]:checked');
+
+          if (radioCapitalChecked) {
+              labelElement.textContent = 'Setor';
+              // Opção CAPITAL: Dropdown de Setores
+              container.innerHTML = `
+                  <select id="setor" name="setor" required 
+                          style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%;">
+                      <option value="" disabled selected>Selecione seu Setor</option>
+                      <option value="Setor A">Setor A</option>
+                      <option value="Setor B">Setor B</option>
+                      <option value="Setor C1">Setor C1</option>
+                      <option value="Setor C2">Setor C2</option>
+                      <option value="Setor D">Setor D</option>
+                      <option value="Setor E">Setor E</option>
+                      <option value="Setor F">Setor F</option>
+                      <option value="Setor G">Setor G</option>
+                      <option value="Setor H">Setor H</option>
+                      <option value="Setor M">Setor M</option>
+                      <option value="Setor N">Setor N</option>
+                  </select>
+              `;
+          } else {
+              labelElement.textContent = 'Cidade/Setor';
+              // Opção INTERIOR: Input de Texto
+              container.innerHTML = `
+                  <input type="text" id="setor" name="setor" placeholder="Digite sua Cidade/Setor" required>
+              `;
+          }
+      }
+      
+      if (radioCapital) radioCapital.addEventListener('change', window.updateSetorCidadeInput);
+      if (radioInterior) radioInterior.addEventListener('change', window.updateSetorCidadeInput);
+      
+      // Inicializa o campo de setor/cidade na carga da página
+      window.updateSetorCidadeInput(); 
+
+      // === Botões de Navegação / Voltar ===
       document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
