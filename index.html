@@ -1190,6 +1190,32 @@
       margin-top: 2rem;
     }
 
+    /* ===== MENSAGEM VAZIA ===== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .empty-state p {
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
     /* ===== FOOTER ===== */
     .footer {
       background: var(--darker-color);
@@ -1763,20 +1789,29 @@
       
       document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
       
-      // Adicionar classe active à seção e botão selecionados
+      // Adicionar classe active à seção selecionada
       const secaoElement = document.getElementById(`admin-${secao}`);
       if (secaoElement) {
         secaoElement.classList.add('active');
       }
       
-      // Encontrar o botão clicado e adicionar classe active
-      event.target.closest('.admin-menu-btn').classList.add('active');
+      // Encontrar o botão correspondente e adicionar classe active
+      const botoes = document.querySelectorAll('.admin-menu-btn');
+      botoes.forEach(botao => {
+        if (botao.textContent.toLowerCase().includes(secao)) {
+          botao.classList.add('active');
+        }
+      });
       
       // Carregar dados da seção
       if (secao === 'dashboard') {
-        carregarDashboard();
+        carregarDashboard().catch(error => {
+          console.error('Erro ao carregar dashboard:', error);
+        });
       } else if (secao === 'pedidos') {
-        carregarPedidos();
+        carregarPedidos().catch(error => {
+          console.error('Erro ao carregar pedidos:', error);
+        });
       }
     }
 
@@ -1889,29 +1924,6 @@
       const overlay = document.getElementById('pedidoConfirmacaoOverlay');
       overlay.classList.remove('active');
       mostrarSecao('home');
-    }
-
-    // Função para enviar requisição para o Google Apps Script
-    function enviarRequisicao(formData, textoCarregamento = 'Processando...') {
-      mostrarCarregamento(true, textoCarregamento);
-      
-      return fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Erro HTTP: ${response.status}`);
-        }
-        return response.json();
-      })
-      .catch(error => {
-        console.error('Erro na requisição:', error);
-        throw new Error('Erro na comunicação com o servidor');
-      })
-      .finally(() => {
-        mostrarCarregamento(false);
-      });
     }
 
     // Verificar se e-mail já tem pedido pendente
@@ -2374,19 +2386,34 @@
             const formData = new FormData(this);
             formData.append('action', 'editarPedido');
             
-            enviarRequisicao(formData, 'Salvando alterações...')
-              .then(data => {
-                if (data.success) {
-                  exibirMensagem('resultadoConsulta', 'sucesso', 'Pedido atualizado com sucesso!');
-                  // Recarregar a consulta
-                  document.getElementById('formConsultar').dispatchEvent(new Event('submit'));
-                } else {
-                  exibirMensagem('resultadoConsulta', 'erro', data.error || 'Erro ao atualizar pedido');
-                }
-              })
-              .catch(error => {
-                exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
-              });
+            mostrarCarregamento(true, 'Salvando alterações...');
+            
+            fetch(SCRIPT_URL, {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.success) {
+                exibirMensagem('resultadoConsulta', 'sucesso', 'Pedido atualizado com sucesso!');
+                // Recarregar a consulta
+                document.getElementById('formConsultar').dispatchEvent(new Event('submit'));
+              } else {
+                exibirMensagem('resultadoConsulta', 'erro', data.error || 'Erro ao atualizar pedido');
+              }
+            })
+            .catch(error => {
+              console.error('Erro:', error);
+              exibirMensagem('resultadoConsulta', 'erro', 'Erro na comunicação com o servidor');
+            })
+            .finally(() => {
+              mostrarCarregamento(false);
+            });
           });
         } else {
           exibirMensagem('resultadoConsulta', 'erro', data.error);
@@ -2413,19 +2440,36 @@
       const formData = new FormData(this);
       formData.append('action', 'loginAdmin');
       
-      enviarRequisicao(formData, 'Autenticando...')
-        .then(data => {
-          if (data.success) {
-            document.getElementById('loginAdmin').style.display = 'none';
-            document.getElementById('painelAdmin').style.display = 'block';
-            carregarDashboard();
-          } else {
-            exibirMensagem('mensagemLogin', 'erro', data.error || 'Senha incorreta');
-          }
-        })
-        .catch(error => {
-          exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor');
-        });
+      mostrarCarregamento(true, 'Autenticando...');
+      
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          document.getElementById('loginAdmin').style.display = 'none';
+          document.getElementById('painelAdmin').style.display = 'block';
+          
+          // Garantir que o dashboard esteja ativo
+          mostrarAdminSecao('dashboard');
+        } else {
+          exibirMensagem('mensagemLogin', 'erro', data.error || 'Senha incorreta');
+        }
+      })
+      .catch(error => {
+        console.error('Erro no login:', error);
+        exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
+      });
     });
 
     // Carregar dashboard
@@ -2433,24 +2477,40 @@
       const formData = new FormData();
       formData.append('action', 'carregarDashboard');
       
-      enviarRequisicao(formData, 'Carregando dashboard...')
-        .then(data => {
-          if (data.success) {
-            document.getElementById('totalPedidos').textContent = data.totalPedidos;
-            document.getElementById('totalCamisetas').textContent = data.totalCamisetas;
-            document.getElementById('pedidosPendentes').textContent = data.pedidosPendentes;
-            document.getElementById('pedidosAprovados').textContent = data.pedidosAprovados;
-            document.getElementById('totalInfantis').textContent = data.totalInfantis;
-            document.getElementById('totalBabylook').textContent = data.totalBabylook;
-            document.getElementById('totalUnissex').textContent = data.totalUnissex;
-            document.getElementById('pedidosRejeitados').textContent = data.pedidosRejeitados;
-          } else {
-            console.error('Erro ao carregar dashboard:', data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Erro ao carregar dashboard:', error);
-        });
+      mostrarCarregamento(true, 'Carregando dashboard...');
+      
+      return fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          document.getElementById('totalPedidos').textContent = data.totalPedidos;
+          document.getElementById('totalCamisetas').textContent = data.totalCamisetas;
+          document.getElementById('pedidosPendentes').textContent = data.pedidosPendentes;
+          document.getElementById('pedidosAprovados').textContent = data.pedidosAprovados;
+          document.getElementById('totalInfantis').textContent = data.totalInfantis;
+          document.getElementById('totalBabylook').textContent = data.totalBabylook;
+          document.getElementById('totalUnissex').textContent = data.totalUnissex;
+          document.getElementById('pedidosRejeitados').textContent = data.pedidosRejeitados;
+        } else {
+          console.error('Erro ao carregar dashboard:', data.error);
+          exibirMensagem('mensagemLogin', 'erro', 'Erro ao carregar dashboard: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar dashboard:', error);
+        exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
+      });
     }
 
     // Carregar pedidos
@@ -2458,84 +2518,139 @@
       const formData = new FormData();
       formData.append('action', 'carregarPedidos');
       
-      enviarRequisicao(formData, 'Carregando pedidos...')
-        .then(data => {
-          if (data.success) {
-            const listaPedidos = document.getElementById('listaPedidos');
-            let html = '';
+      mostrarCarregamento(true, 'Carregando pedidos...');
+      
+      return fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Dados recebidos do servidor:', data);
+        
+        const listaPedidos = document.getElementById('listaPedidos');
+        
+        if (data.success && data.pedidos && Array.isArray(data.pedidos)) {
+          console.log('Número de pedidos:', data.pedidos.length);
+          
+          if (data.pedidos.length === 0) {
+            // Exibir mensagem de estado vazio
+            listaPedidos.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>Nenhum pedido encontrado</h3>
+                <p>Não há pedidos registrados no sistema no momento.</p>
+              </div>
+            `;
+            return;
+          }
+          
+          let html = '';
+          
+          data.pedidos.forEach(pedido => {
+            console.log('Processando pedido:', pedido);
             
-            data.pedidos.forEach(pedido => {
-              const statusClass = `status-${pedido.status.toLowerCase()}`;
-              
-              html += `
-                <div class="pedido-item">
-                  <div class="pedido-header">
-                    <div class="pedido-numero">#${pedido.numPedido}</div>
-                    <div class="pedido-status ${statusClass}">${pedido.status}</div>
+            // Garantir que o pedido tenha todas as propriedades necessárias
+            const status = pedido.status || 'Pendente';
+            const statusClass = `status-${status.toLowerCase()}`;
+            
+            // Garantir que os tamanhos sejam objetos válidos
+            const infantil = pedido.infantil || {};
+            const babylook = pedido.babylook || {};
+            const unissex = pedido.unissex || {};
+            
+            html += `
+              <div class="pedido-item">
+                <div class="pedido-header">
+                  <div class="pedido-numero">#${pedido.numPedido || 'N/A'}</div>
+                  <div class="pedido-status ${statusClass}">${status}</div>
+                </div>
+                
+                <div class="pedido-info">
+                  <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${pedido.data ? new Date(pedido.data).toLocaleString() : 'N/A'}</p>
+                  <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome || 'N/A'}</p>
+                  <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local || 'N/A'}</p>
+                  <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor || 'N/A'}</p>
+                  <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email || 'N/A'}</p>
+                </div>
+                
+                <div class="pedido-tamanhos">
+                  <div class="tipo-tamanhos">
+                    <h4><i class="fas fa-child"></i> Infantis</h4>
+                    <ul>
+                      ${Object.entries(infantil).map(([tamanho, qtd]) => 
+                        qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                      ).join('')}
+                    </ul>
                   </div>
                   
-                  <div class="pedido-info">
-                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-                    <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
-                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
-                    <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
-                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                  <div class="tipo-tamanhos">
+                    <h4><i class="fas fa-female"></i> Babylook</h4>
+                    <ul>
+                      ${Object.entries(babylook).map(([tamanho, qtd]) => 
+                        qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                      ).join('')}
+                    </ul>
                   </div>
                   
-                  <div class="pedido-tamanhos">
-                    <div class="tipo-tamanhos">
-                      <h4><i class="fas fa-child"></i> Infantis</h4>
-                      <ul>
-                        ${Object.entries(pedido.infantil).map(([tamanho, qtd]) => 
-                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                        ).join('')}
-                      </ul>
-                    </div>
-                    
-                    <div class="tipo-tamanhos">
-                      <h4><i class="fas fa-female"></i> Babylook</h4>
-                      <ul>
-                        ${Object.entries(pedido.babylook).map(([tamanho, qtd]) => 
-                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                        ).join('')}
-                      </ul>
-                    </div>
-                    
-                    <div class="tipo-tamanhos">
-                      <h4><i class="fas fa-tshirt"></i> Unissex</h4>
-                      <ul>
-                        ${Object.entries(pedido.unissex).map(([tamanho, qtd]) => 
-                          qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-                        ).join('')}
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div class="admin-actions">
-                    ${pedido.status === 'Pendente' ? `
-                      <button class="btn-aprovar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Aprovado')">
-                        <i class="fas fa-check"></i> Aprovar
-                      </button>
-                      <button class="btn-rejeitar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Rejeitado')">
-                        <i class="fas fa-times"></i> Rejeitar
-                      </button>
-                    ` : ''}
-                    <button class="btn-editar" onclick="mostrarFormularioEdicaoAdmin('${pedido.numPedido}')">
-                      <i class="fas fa-edit"></i> Editar
-                    </button>
+                  <div class="tipo-tamanhos">
+                    <h4><i class="fas fa-tshirt"></i> Unissex</h4>
+                    <ul>
+                      ${Object.entries(unissex).map(([tamanho, qtd]) => 
+                        qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+                      ).join('')}
+                    </ul>
                   </div>
                 </div>
-              `;
-            });
-            
-            listaPedidos.innerHTML = html;
-          } else {
-            console.error('Erro ao carregar pedidos:', data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Erro ao carregar pedidos:', error);
-        });
+                
+                <div class="admin-actions">
+                  ${status === 'Pendente' ? `
+                    <button class="btn-aprovar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Aprovado')">
+                      <i class="fas fa-check"></i> Aprovar
+                    </button>
+                    <button class="btn-rejeitar" onclick="atualizarStatusPedido('${pedido.numPedido}', 'Rejeitado')">
+                      <i class="fas fa-times"></i> Rejeitar
+                    </button>
+                  ` : ''}
+                  <button class="btn-editar" onclick="mostrarFormularioEdicaoAdmin('${pedido.numPedido}')">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+          
+          listaPedidos.innerHTML = html;
+        } else {
+          console.error('Resposta inválida do servidor:', data);
+          listaPedidos.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-exclamation-triangle"></i>
+              <h3>Erro ao carregar pedidos</h3>
+              <p>Não foi possível carregar a lista de pedidos. Tente novamente mais tarde.</p>
+            </div>
+          `;
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar pedidos:', error);
+        const listaPedidos = document.getElementById('listaPedidos');
+        listaPedidos.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Erro de comunicação</h3>
+            <p>Ocorreu um erro ao comunicar com o servidor. Verifique sua conexão e tente novamente.</p>
+          </div>
+        `;
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
+      });
     }
 
     // Atualizar status do pedido
@@ -2545,18 +2660,39 @@
       formData.append('numPedido', numPedido);
       formData.append('status', status);
       
-      enviarRequisicao(formData, 'Atualizando status...')
-        .then(data => {
-          if (data.success) {
-            carregarPedidos();
-            carregarDashboard();
-          } else {
-            console.error('Erro ao atualizar status:', data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Erro ao atualizar status:', error);
-        });
+      mostrarCarregamento(true, 'Atualizando status...');
+      
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          // Recarregar os dados
+          Promise.all([
+            carregarDashboard(),
+            carregarPedidos()
+          ]).catch(error => {
+            console.error('Erro ao recarregar dados:', error);
+          });
+        } else {
+          console.error('Erro ao atualizar status:', data.error);
+          exibirMensagem('mensagemLogin', 'erro', 'Erro ao atualizar status: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao atualizar status:', error);
+        exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor');
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
+      });
     }
 
     // Mostrar formulário de edição do admin
@@ -2583,6 +2719,16 @@
           console.log('Elemento da seção:', document.getElementById(secao));
         });
       });
+    });
+
+    // Tratamento de erro global para promessas não tratadas
+    window.addEventListener('unhandledrejection', function(event) {
+      console.error('Promessa não tratada:', event.reason);
+    });
+
+    // Tratamento de erro global para exceções não capturadas
+    window.addEventListener('error', function(event) {
+      console.error('Erro não capturado:', event.error);
     });
   </script>
 </body>
