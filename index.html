@@ -2086,7 +2086,8 @@
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
         
         // CORREÇÃO FINAL PARA O ERRO DE VALIDAÇÃO DO RÁDIO
-        document.querySelector('input[name="local"][value="Capital"]').checked = true;
+        // Garante que o rádio 'Capital' esteja checado se o formulário for novo/resetado
+        document.querySelector('input[name="local"][value="Capital"]').checked = true; 
     }
 
     // Função 4: Exibe a tela de visualização (se pedido existe)
@@ -2202,6 +2203,7 @@
         window.mostrarCarregamento(true, isEditing ? 'Reenviando e Atualizando Pedido...' : 'Enviando Novo Pedido...');
         
         try {
+            // CORREÇÃO CRÍTICA: Normaliza o email ANTES de enviar (usa o valor do campo readonly)
             const emailParaSalvar = formData.get('email').toLowerCase().trim();
 
             const dataToSave = {
@@ -2209,7 +2211,7 @@
                 nome: formData.get('nome'),
                 local: formData.get('local'),
                 setor: formData.get('setor'),
-                email: emailParaSalvar, // USA O EMAIL NORMALIZADO
+                email: emailParaSalvar, // USA O EMAIL NORMALIZADO (CORRIGINDO O ERRO DE PERMISSÃO)
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
                 babylook: getQuantidadesFromForm(formData, 'babylook'),
                 unissex: getQuantidadesFromForm(formData, 'unissex'),
@@ -2219,13 +2221,18 @@
             let finalNumPedido = '';
 
             if (isEditing) {
+                // EDIÇÃO: Apenas atualiza o documento existente
                 const pedidoRef = doc(db, "pedidos", docId);
                 await updateDoc(pedidoRef, dataToSave);
                 finalNumPedido = currentLeaderPedido.numPedido;
                 
             } else {
-                const docRef = await addDoc(pedidosCollection, { ...dataToSave, numPedido: 'PENDING' });
-                await updateDoc(doc(db, "pedidos", docRef.id), { numPedido: docRef.id });
+                // CRIAÇÃO: Cria o documento e usa seu ID como numPedido (Uma única operação de escrita)
+                const docRef = doc(pedidosCollection); // Gera o ID automaticamente
+                
+                // Salva o documento já completo
+                await setDoc(docRef, { ...dataToSave, numPedido: docRef.id }); 
+                
                 finalNumPedido = docRef.id;
             }
 
@@ -2242,95 +2249,7 @@
             window.mostrarCarregamento(false);
         }
     };
-
-    // Função de Login Admin (Corrigida para receber 'e')
-    window.handleAdminLogin = async function(e) {
-        e.preventDefault(); 
-        const senha = document.getElementById('senhaAdmin').value;
-        window.mostrarCarregamento(true, 'Verificando senha...');
-
-        if (senha === ADMIN_PASSWORD_FIXA) { 
-            document.getElementById('loginAdmin').style.display = 'none';
-            document.getElementById('painelAdmin').style.display = 'block';
-            document.getElementById('mensagemLogin').innerHTML = ''; 
-            
-            document.getElementById('admin-dashboard').classList.add('active');
-            document.getElementById('btnDashboard').classList.add('active');
-            window.carregarDashboard(); 
-            
-        } else {
-            window.exibirMensagem('mensagemLogin', 'erro', 'Senha incorreta.');
-        }
-        window.mostrarCarregamento(false);
-    }
     
-    // Função de Login Líder (Nova)
-    window.handleLoginLider = async function(e) {
-        e.preventDefault();
-        const email = document.getElementById('emailLider').value;
-        const senha = document.getElementById('senhaLider').value;
-
-        window.mostrarCarregamento(true, 'Verificando credenciais...');
-
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, senha);
-            
-            await window.handleAcessoLideranca(userCredential.user.email); 
-
-        } catch (error) {
-            console.error("Erro de login do Líder:", error);
-            let msg = "E-mail ou senha incorretos.";
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                msg = "E-mail ou senha incorretos. Por favor, verifique.";
-            } else if (error.code === 'auth/invalid-email') {
-                msg = "Formato de e-mail inválido.";
-            }
-            window.exibirMensagem('mensagemLoginLider', 'erro', msg);
-
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
-    
-    // Função de Cadastro do Líder
-    window.handleCadastroLider = async function(e) {
-        e.preventDefault();
-        const nome = document.getElementById('cadastroNome').value;
-        const email = document.getElementById('cadastroEmail').value;
-        const senha = document.getElementById('cadastroSenha').value;
-
-        window.mostrarCarregamento(true, 'Criando acesso...');
-
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-
-            // 2. Salva o nome e e-mail no Firestore (para referência)
-            const uid = userCredential.user.uid;
-            await setDoc(doc(db, "lideres", uid), {
-                nome: nome,
-                email: email.toLowerCase().trim(),
-                dataCadastro: new Date().toISOString()
-            });
-
-            window.exibirMensagem('mensagemCadastroLider', 'sucesso', 'Cadastro realizado! Redirecionando...');
-            setTimeout(() => {
-                window.handleAcessoLideranca(email);
-            }, 1000);
-
-        } catch (error) {
-            console.error("Erro no cadastro:", error);
-            let msg = "Falha no cadastro.";
-            if (error.code === 'auth/email-already-in-use') {
-                msg = "Este e-mail já está em uso. Tente fazer o login.";
-            } else if (error.code === 'auth/weak-password') {
-                msg = "A senha deve ter pelo menos 6 caracteres.";
-            }
-            window.exibirMensagem('mensagemCadastroLider', 'erro', msg);
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    }
-
     // Função para buscar o perfil do líder (Nome)
     window.getLeaderProfile = async function(email) {
         try {
