@@ -9,16 +9,16 @@
   <style>
     /* ===== VARIÁVEIS E RESET (Mantidas) ===== */
     :root {
-      --primary-color: #ff7e5f;
-      --primary-dark: #ff6b47;
-      --secondary-color: #feb47b;
-      --accent-color: #ffd4a3;
-      --success-color: #10b981;
-      --warning-color: #f59e0b;
-      --danger-color: #ef4444;
-      --dark-color: #062C3F;
-      --darker-color: #042035;
-      --light-color: #f8fafc;
+      --primary-color: #ff7e5f; 
+      --primary-dark: #ff6b47; 
+      --secondary-color: #feb47b; 
+      --accent-color: #ffd4a3; 
+      --success-color: #10b981; 
+      --warning-color: #f59e0b; 
+      --danger-color: #ef4444; 
+      --dark-color: #062C3F; 
+      --darker-color: #042035; 
+      --light-color: #f8fafc; 
       --white-color: #ffffff;
       --gray-50: #f9fafb;
       --gray-100: #f3f4f6;
@@ -1344,13 +1344,13 @@
           <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
           
           <div class="menu-container">
-            <button class="menu-button" id="btnNovoPedido">
-              <i class="fas fa-plus-circle"></i>
-              NOVO PEDIDO
-            </button>
             <button class="menu-button" id="btnAcessoLideranca">
               <i class="fab fa-google"></i>
               ACESSO LIDERANÇA
+            </button>
+            <button class="menu-button" id="btnAdministrador">
+              <i class="fas fa-user-shield"></i>
+              ADMINISTRADOR
             </button>
           </div>
         </div>
@@ -1547,19 +1547,35 @@
         </div>
         
         <div id="loginAdmin" class="login-container">
-          <div class="modern-form" style="text-align: center;">
-            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
-                Acesso Restrito: Faça login com a conta de Administrador.
-            </p>
-            <button type="button" class="btn-primary" id="btnAdminGoogleLogin" style="width: 100%;">
-              <i class="fab fa-google"></i>
-              Entrar como Admin
-            </button>
-          </div>
+          <form id="formLoginAdmin" class="modern-form">
+            <div class="form-group">
+              <label for="senhaAdmin">
+                <i class="fas fa-lock"></i>
+                Senha de Acesso Admin
+              </label>
+              <div class="input-group">
+                <input type="password" id="senhaAdmin" name="senha" placeholder="Digite sua senha" required>
+                <button type="submit" class="btn-icon">
+                  <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </form>
           <div id="mensagemLogin" class="message-container"></div>
         </div>
 
         <div id="painelAdmin" class="admin-panel" style="display: none;">
+            <div class="admin-menu">
+                <button class="admin-menu-btn active" id="btnDashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    Dashboard
+                </button>
+                <button class="admin-menu-btn" id="btnPedidos">
+                    <i class="fas fa-list"></i>
+                    Pedidos
+                </button>
+            </div>
+            
             <div id="admin-dashboard" class="admin-section active">
                 <div class="dashboard-header">
                 <h3>Visão Geral Rápida</h3>
@@ -1744,6 +1760,9 @@
       messagingSenderId: "604273766416",
       appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
     };
+    
+    // VARIÁVEL DE SENHA FIXA DO ADMIN (Defina uma senha forte aqui)
+    const ADMIN_PASSWORD_FIXA = "SUA_SENHA_FORTE_AQUI"; 
 
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
@@ -1762,8 +1781,7 @@
 
     // VARIÁVEIS GLOBAIS DE ESTADO
     let currentLeaderEmail = null; 
-    let currentLeaderPedido = null; // Armazena o objeto do pedido existente para edição
-    const ADMIN_EMAIL = "ieadms.umademats@gmail.com"; 
+    let currentLeaderPedido = null; 
 
     // ==========================================================
     // FUNÇÕES AUXILIARES
@@ -1790,6 +1808,28 @@
       if (secaoElement) secaoElement.classList.add('active');
     };
 
+    window.mostrarAdminSecao = function(secao) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
+      
+      const secaoElement = document.getElementById(`admin-${secao}`);
+      if (secaoElement) secaoElement.classList.add('active');
+      
+      const botoes = document.querySelectorAll('.admin-menu-btn');
+      botoes.forEach(botao => {
+        const textoBotao = botao.textContent.toLowerCase().trim();
+        if (textoBotao.includes(secao) && secao !== 'detalhes-tamanhos') {
+          botao.classList.add('active');
+        }
+      });
+      
+      if (secao === 'dashboard') {
+        window.carregarDashboard();
+      } else if (secao === 'pedidos') {
+        window.carregarPedidos();
+      }
+    };
+    
     window.redirecionarComAnimacao = function(secao, callback) {
         // ... (Lógica de transição mantida) ...
         const elementoAtual = document.querySelector('.section.active');
@@ -1825,8 +1865,7 @@
       elemento.innerHTML = `<div class="mensagem ${tipo}"><i class="${icone}"></i>${mensagem}</div>`;
       setTimeout(() => { elemento.innerHTML = ''; }, 5000);
     };
-    
-    // (As demais funções de utilidade (carregamento, atualizarElemento, etc.) são mantidas)
+
     window.mostrarCarregamento = function(mostrar = true, texto = 'Processando...') {
       const loadingOverlay = document.getElementById('loadingOverlay');
       const loadingText = document.getElementById('loadingText');
@@ -1837,7 +1876,7 @@
         loadingOverlay.classList.remove('active');
       }
     };
-    
+
     window.atualizarElemento = function(elementId, valor) {
       const elemento = document.getElementById(elementId);
       if (elemento) elemento.textContent = valor;
@@ -1849,7 +1888,6 @@
     };
 
     window.copiarNumeroPedido = function(numPedido) {
-        // ... (Lógica de cópia mantida) ...
         navigator.clipboard.writeText(numPedido)
         .then(() => {
           window.exibirMensagem('mensagemPedido', 'sucesso', 'Número do pedido copiado para a área de transferência!');
@@ -1859,9 +1897,8 @@
           window.exibirMensagem('mensagemPedido', 'erro', 'Não foi possível copiar o número do pedido');
         });
     };
-    
+
     window.exibirConfirmacaoPedido = function(pedido) {
-        // ... (Lógica de exibição mantida) ...
         const overlay = document.getElementById('pedidoConfirmacaoOverlay');
         const numeroElement = document.getElementById('pedidoConfirmacaoNumero');
         const infoElement = document.getElementById('pedidoConfirmacaoInfo');
@@ -1888,7 +1925,7 @@
             <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
             <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
             <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date().toLocaleString()}</p>
-        `; // Data atual simulada
+        `; 
         
         tamanhosElement.innerHTML = `
             <div class="pedido-confirmacao-tipo">
@@ -1909,32 +1946,30 @@
         
         overlay.classList.add('active');
     };
-
-
+    
     // ==========================================================
-    // FUNÇÕES DE FLUXO DE PEDIDO (LÍDER)
+    // FUNÇÕES FIREBASE: FLUXO DO LÍDER E ADMIN
     // ==========================================================
     
-    // Função 1: Verifica o Pedido Existente para o e-mail do líder
+    // ----------------------------------------------------------
+    // FLUXO DO LÍDER (ACESSO)
+    // ----------------------------------------------------------
+    
     window.buscarPedidoExistente = async function(email) {
         window.mostrarCarregamento(true, 'Buscando pedido existente...');
         try {
-            // Busca pedidos que correspondem ao email do líder E que estejam Pendentes ou Aprovados
+            // Busca o pedido que corresponde ao email do líder
             const q = query(pedidosCollection, where("email", "==", email));
             const snapshot = await getDocs(q);
             
             if (!snapshot.empty) {
-                // Pega o primeiro pedido encontrado para edição
                 const docData = snapshot.docs[0].data();
                 const docId = snapshot.docs[0].id;
-
-                // Armazena o objeto na variável global
-                currentLeaderPedido = { docId, ...docData }; 
-                currentLeaderEmail = email;
-
-                return currentLeaderPedido;
+                
+                // Retorna o primeiro pedido encontrado (assumindo 1 pedido por líder)
+                return { docId, ...docData }; 
             }
-            return null; // Não encontrou pedido
+            return null;
         } catch (error) {
             console.error("Erro ao buscar pedido no Firestore:", error);
             window.exibirMensagem('visualizacaoContainer', 'erro', 'Erro ao consultar banco de dados.');
@@ -1946,34 +1981,32 @@
     
     // Função 2: Redireciona e configura a tela (Novo Pedido ou Edição)
     window.handleAcessoLideranca = async function(email) {
+        currentLeaderEmail = email;
         const pedido = await window.buscarPedidoExistente(email);
         
         if (pedido) {
-            // ------------------------------------
             // CASO A: PEDIDO EXISTENTE
-            // ------------------------------------
+            currentLeaderPedido = pedido; // Armazena para edição futura
             window.displayVisualizacaoPedido(pedido);
             window.redirecionarComAnimacao('visualizar-pedido-lider');
         } else {
-            // ------------------------------------
             // CASO B: NOVO PEDIDO
-            // ------------------------------------
             window.setupNovoPedido(email);
             window.redirecionarComAnimacao('pedido');
         }
     };
-    
+
     // Função 3: Preenche o formulário para Novo Pedido
     window.setupNovoPedido = function(email) {
-        // Limpa estado de edição e prepara para novo envio
         currentLeaderPedido = null;
         document.getElementById('pedidoDocId').value = '';
         
-        // Define o email do usuário logado (readonly)
         document.getElementById('email').value = email;
         
-        // Atualiza a interface
+        // Limpa estado anterior
         document.getElementById('formPedido').reset();
+        
+        // Atualiza a interface
         document.getElementById('pedidoTitulo').textContent = 'Fazer Novo Pedido';
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
@@ -2034,7 +2067,6 @@
             </div>
         `;
         
-        // Listener para iniciar a edição (o que fará o preenchimento do formulário)
         document.getElementById('btnIniciarEdicao').addEventListener('click', window.setupEdicaoPedido);
     };
 
@@ -2044,23 +2076,23 @@
         if (!pedido) return;
         
         // 1. Preenche dados do líder
-        document.getElementById('pedidoDocId').value = pedido.docId; // ID para update
+        document.getElementById('pedidoDocId').value = pedido.docId; // ID do doc Firestore
         document.getElementById('nome').value = pedido.nome;
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
         document.getElementById('setor').value = pedido.setor;
-        document.getElementById('email').value = pedido.email; // Já preenchido, mas garante
+        document.getElementById('email').value = pedido.email;
         
         // 2. Preenche quantidades de camisetas
-        const preencherTamanhos = (tamanhos) => {
+        const preencherTamanhos = (tamanhos, prefix) => {
             for (const [t, q] of Object.entries(tamanhos || {})) {
-                const input = document.getElementById(`${tamanhos === pedido.infantil ? 'infantil' : tamanhos === pedido.babylook ? 'babylook' : 'unissex'}_${t}`);
+                const input = document.getElementById(`${prefix}_${t}`);
                 if (input) input.value = q;
             }
         };
 
-        preencherTamanhos(pedido.infantil);
-        preencherTamanhos(pedido.babylook);
-        preencherTamanhos(pedido.unissex);
+        preencherTamanhos(pedido.infantil, 'infantil');
+        preencherTamanhos(pedido.babylook, 'babylook');
+        preencherTamanhos(pedido.unissex, 'unissex');
         
         // 3. Atualiza a interface
         document.getElementById('pedidoTitulo').textContent = `Editar Pedido #${pedido.numPedido}`;
@@ -2069,16 +2101,17 @@
         
         window.redirecionarComAnimacao('pedido');
     };
+    
+    // ----------------------------------------------------------
+    // SUBMISSÃO E ADMIN (MANTIDAS)
+    // ----------------------------------------------------------
 
-    // Função 6: Lógica de Submissão Única (Novo ou Edição)
     window.handleFormSubmission = async function(e) {
         e.preventDefault();
         
         const docId = document.getElementById('pedidoDocId').value;
         const isEditing = !!docId;
-        const email = document.getElementById('email').value;
         
-        // Se estiver editando, exige confirmação
         if (isEditing) {
             const confirmacao = confirm("ATENÇÃO: Você está prestes a substituir seu pedido anterior. Deseja continuar com o reenvio?");
             if (!confirmacao) {
@@ -2086,7 +2119,6 @@
             }
         }
         
-        // ... (Lógica de validação e criação do objeto novoPedidoBase/UpdateData) ...
         const formData = new FormData(document.getElementById('formPedido'));
         const totalCamisetas = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]'))
                                     .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
@@ -2106,21 +2138,21 @@
                 setor: formData.get('setor'),
                 email: formData.get('email'),
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
-                babylook: getQuantittalidadesFromForm(formData, 'babylook'),
+                babylook: getQuantidadesFromForm(formData, 'babylook'),
                 unissex: getQuantidadesFromForm(formData, 'unissex'),
-                status: 'Pendente' // Volta para Pendente após edição, se não for Aprovado
+                status: 'Pendente' 
             };
 
             let finalNumPedido = '';
 
             if (isEditing) {
-                // Se for EDIÇÃO
+                // EDIÇÃO: Apenas atualiza os campos
                 const pedidoRef = doc(db, "pedidos", docId);
                 await updateDoc(pedidoRef, dataToSave);
                 finalNumPedido = currentLeaderPedido.numPedido;
                 
             } else {
-                // Se for NOVO PEDIDO
+                // NOVO PEDIDO: Adiciona e define o ID do documento como o numPedido
                 const docRef = await addDoc(pedidosCollection, { ...dataToSave, numPedido: 'PENDING' });
                 await updateDoc(doc(db, "pedidos", docRef.id), { numPedido: docRef.id });
                 finalNumPedido = docRef.id;
@@ -2140,23 +2172,27 @@
         }
     };
 
-
+    // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
+    
     // ==========================================================
     // EVENT LISTENERS PRINCIPAIS (Inicialização)
     // ==========================================================
     document.addEventListener('DOMContentLoaded', () => {
       
       const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
-      const btnAdminGoogleLogin = document.getElementById('btnAdminGoogleLogin');
-      const formPedido = document.getElementById('formPedido'); // Referencia o formulário
+      const formLoginAdmin = document.getElementById('formLoginAdmin');
+      const formPedido = document.getElementById('formPedido');
 
-      // === Fluxo do Líder (Acesso) ===
+      // === Fluxo do Líder (ACESSO LIDERANÇA) ===
       if (btnAcessoLideranca) {
           btnAcessoLideranca.addEventListener('click', async () => {
-             window.mostrarCarregamento(true, 'Iniciando login...');
+             window.mostrarCarregamento(true, 'Iniciando login com Google...');
              try {
+                // Faz login com Google
                 const result = await signInWithPopup(auth, googleProvider);
-                window.handleAcessoLideranca(result.user.email); // Chama a função que verifica se já existe pedido
+                
+                // Se bem-sucedido, usa o e-mail do usuário logado para verificar o pedido
+                window.handleAcessoLideranca(result.user.email); 
              } catch (error) {
                 console.error("Erro de login com Google:", error);
                 window.exibirMensagem('mensagemPedido', 'erro', 'Falha no login Google. Tente novamente.');
@@ -2166,45 +2202,51 @@
           });
       }
       
-      // === Fluxo do Administrador (Restrito) ===
-      if (btnAdminGoogleLogin) {
-          btnAdminGoogleLogin.addEventListener('click', async () => {
-             window.mostrarCarregamento(true, 'Iniciando login Admin...');
-             try {
-                const result = await signInWithPopup(auth, googleProvider);
-                
-                if (result.user.email === ADMIN_EMAIL) {
-                    document.getElementById('loginAdmin').style.display = 'none';
-                    document.getElementById('painelAdmin').style.display = 'block';
-                    document.getElementById('mensagemLogin').innerHTML = ''; 
-                    window.mostrarAdminSecao('dashboard'); 
-                } else {
-                    await signOut(auth); // Desloga o usuário que não é admin
-                    window.exibirMensagem('mensagemLogin', 'erro', 'Acesso negado. Esta conta não é o administrador.');
-                }
-             } catch (error) {
-                console.error("Erro de login Admin:", error);
-                window.exibirMensagem('mensagemLogin', 'erro', 'Falha na autenticação Admin.');
-             } finally {
-                window.mostrarCarregamento(false);
-             }
+      // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
+      if (formLoginAdmin) {
+          formLoginAdmin.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const senha = document.getElementById('senhaAdmin').value;
+
+              window.mostrarCarregamento(true, 'Verificando senha...');
+
+              // *** CORREÇÃO AQUI: Usa senha estática (não Firebase Auth) ***
+              if (senha === ADMIN_PASSWORD_FIXA) { 
+                  document.getElementById('loginAdmin').style.display = 'none';
+                  document.getElementById('painelAdmin').style.display = 'block';
+                  document.getElementById('mensagemLogin').innerHTML = ''; 
+                  
+                  document.getElementById('admin-dashboard').classList.add('active');
+                  document.getElementById('btnDashboard').classList.add('active');
+                  window.carregarDashboard(); 
+                  
+              } else {
+                  window.exibirMensagem('mensagemLogin', 'erro', 'Senha incorreta.');
+              }
+              window.mostrarCarregamento(false);
           });
       }
-      
+
       // === Submissão Única (NOVO / EDITAR) ===
       if (formPedido) {
           formPedido.addEventListener('submit', window.handleFormSubmission);
       }
       
       // === Event Listeners de Navegação (Mantidos) ===
+      // * NOVO PEDIDO * agora tem a mesma função do botão Liderança, mas para usuários sem login
+      // MANTEMOS A VERSÃO SIMPLIFICADA SEM PREENCHIMENTO DE EMAIL AUTOMÁTICO AQUI
       document.getElementById('btnNovoPedido').addEventListener('click', () => {
-          window.setupNovoPedido(''); // Prepara para um novo pedido sem email
+          window.setupNovoPedido(''); 
           window.redirecionarComAnimacao('pedido');
       });
+      
       document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
       document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
+      
+      // Botão Voltar da Edição
+      document.getElementById('voltarHome2').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       
       // Outros Event Listeners do Admin Panel (Mantidos)
       document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
