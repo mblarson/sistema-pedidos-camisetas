@@ -1907,8 +1907,7 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
 
     // Mostrar seção específica
-    function mostrarSecao(secao) {
-      // Remover classe active de todas as seções
+   window.mostrarSecao = function(secaoId) {      // Remover classe active de todas as seções
       document.querySelectorAll('.section').forEach(s => {
         s.classList.remove('active');
       });
@@ -2085,7 +2084,7 @@
       
       mostrarCarregamento(true, 'Verificando e-mail...');
       
-      return fetch(SCRIPT_URL, {
+      fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       })
@@ -2718,7 +2717,7 @@
       
       mostrarCarregamento(true, 'Carregando dashboard...');
       
-      return fetch(SCRIPT_URL, {
+      fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       })
@@ -2824,7 +2823,7 @@
       
       mostrarCarregamento(true, 'Carregando dashboard (alternativo)...');
       
-      return fetch(SCRIPT_URL, {
+      fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       })
