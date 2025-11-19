@@ -7,18 +7,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ===== CSS (Mantido) ===== */
+    /* ===== VARIÁVEIS E RESET (CSS) ===== */
     :root {
-      --primary-color: #ff7e5f; 
-      --primary-dark: #ff6b47; 
-      --secondary-color: #feb47b; 
-      --accent-color: #ffd4a3; 
-      --success-color: #10b981; 
-      --warning-color: #f59e0b; 
-      --danger-color: #ef4444; 
-      --dark-color: #062C3F; 
-      --darker-color: #042035; 
-      --light-color: #f8fafc; 
+      --primary-color: #ff7e5f; /* Laranja principal */
+      --primary-dark: #ff6b47; /* Laranja escuro */
+      --secondary-color: #feb47b; /* Laranja claro */
+      --accent-color: #ffd4a3; /* Laranja muito claro */
+      --success-color: #10b981; /* Verde sucesso */
+      --warning-color: #f59e0b; /* Amarelo alerta */
+      --danger-color: #ef4444; /* Vermelho erro */
+      --dark-color: #062C3F; /* Azul marinho escuro */
+      --darker-color: #042035; /* Azul marinho mais escuro */
+      --light-color: #f8fafc; /* Branco gelo */
       --white-color: #ffffff;
       --gray-50: #f9fafb;
       --gray-100: #f3f4f6;
@@ -56,10 +56,495 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-    
-    /* ... (Restante do CSS) ... */
 
-    .input-with-icon {
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ===== BARRA DE CARREGAMENTO ===== */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(6, 44, 63, 0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .loading-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    .loading-text {
+      margin-top: 1.5rem;
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ===== CARD DE CONFIRMAÇÃO DE PEDIDO ===== */
+    .pedido-confirmacao-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(6, 44, 63, 0.85);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .pedido-confirmacao-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .pedido-confirmacao-card {
+      background: var(--darker-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .pedido-confirmacao-overlay.active .pedido-confirmacao-card {
+      transform: scale(1);
+    }
+
+    .pedido-confirmacao-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .pedido-confirmacao-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pedido-confirmacao-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pedido-confirmacao-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--primary-color);
+    }
+
+    .pedido-confirmacao-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pedido-confirmacao-info p {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .pedido-confirmacao-info strong {
+      color: var(--text-primary);
+    }
+
+    .pedido-confirmacao-tamanhos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pedido-confirmacao-tipo {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1rem;
+    }
+
+    .pedido-confirmacao-tipo h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pedido-confirmacao-tipo ul {
+      list-style: none;
+    }
+
+    .pedido-confirmacao-tipo li {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      padding: 0.25rem 0;
+    }
+
+    .pedido-confirmacao-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .pedido-confirmacao-numero {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .mensagem-importante {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(255, 126, 95, 0.1);
+      border: 1px solid var(--primary-color);
+      border-radius: var(--border-radius);
+      text-align: center;
+    }
+
+    .mensagem-importante p {
+      color: var(--primary-color);
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-copiar {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 0.5rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .btn-copiar:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: var(--darker-color);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-text h1 {
+      font-size: 1.875rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .logo-text span {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== MAIN ===== */
+    .main {
+      min-height: calc(100vh - 140px);
+      padding: 3rem 0;
+      position: relative;
+    }
+
+    .section {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .section.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== BOTÃO VOLTAR ===== */
+    .back-button {
+      position: absolute;
+      top: -2.5rem;
+      left: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      transform: translateY(-1px);
+    }
+
+    .back-button i {
+      font-size: 1rem;
+    }
+
+    /* ===== HOME SCREEN ===== */
+    .home-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 140px);
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .home-title {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .home-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 3rem;
+      max-width: 600px;
+      font-weight: 400;
+    }
+
+    .menu-container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 400px;
+      backdrop-filter: blur(10px);
+    }
+
+    .menu-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      opacity: 0;
+      transition: var(--transition);
+      z-index: -1;
+    }
+
+    .menu-button:hover {
+      color: var(--white-color);
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .menu-button:hover::before {
+      opacity: 1;
+    }
+
+    .menu-button i {
+      font-size: 1.25rem;
+      transition: var(--transition);
+    }
+
+    .menu-button:hover i {
+      transform: scale(1.1);
+    }
+
+    /* ===== FORMULÁRIOS ===== */
+    .modern-form {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      margin-top: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .form-group label i {
+      color: var(--primary-color);
+      font-size: 0.875rem;
+    }
+
+    .form-group input {
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+    
+    /* NOVO: Estiliza o campo de senha com ícone */
+    .form-group .input-with-icon {
         display: flex;
         align-items: center;
         background: rgba(255, 255, 255, 0.1);
@@ -67,13 +552,13 @@
         border-radius: var(--border-radius);
         overflow: hidden;
     }
-    .input-with-icon input {
+    .form-group .input-with-icon input {
         border: none;
         background: transparent;
         flex-grow: 1;
         padding: 0.75rem 1rem;
     }
-    .input-with-icon .btn-toggle-password {
+    .form-group .input-with-icon .btn-toggle-password {
         background: none;
         border: none;
         color: var(--text-secondary);
@@ -81,10 +566,667 @@
         padding: 0.75rem;
         transition: color 0.2s;
     }
-    .input-with-icon .btn-toggle-password:hover {
+    .form-group .input-with-icon .btn-toggle-password:hover {
         color: var(--primary-color);
     }
+
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .form-group input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 2rem;
+      margin-top: 0.5rem;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .radio-label input[type="radio"] {
+      display: none;
+    }
+
+    .radio-custom {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .radio-label input[type="radio"]:checked + .radio-custom {
+      border-color: var(--primary-color);
+    }
+
+    .radio-label input[type="radio"]:checked + .radio-custom::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      background: var(--primary-color);
+      border-radius: 50%;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .input-group:focus-within {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+    }
+
+    .input-group input {
+      flex: 1;
+      border: none;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      background: transparent;
+      color: var(--text-primary);
+    }
+
+    .input-group input:focus {
+      outline: none;
+    }
+
+    .btn-icon {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: var(--white-color);
+      border: none;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-icon:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    }
+
+    /* ===== CAMISETAS ===== */
+    .camisetas-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .tipo-camiseta {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+    }
+
+    .tipo-camiseta h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .tipo-camiseta h3 i {
+      color: var(--primary-color);
+    }
+
+    .tamanhos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 1rem;
+    }
+
+    .tamanho-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tamanho-item label {
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .tamanho-item input {
+      width: 60px;
+      padding: 0.5rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    .tamanho-item input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+    }
+
+    /* ===== BOTÕES ===== */
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 2rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: var(--white-color);
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    }
+
+    .btn-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-refresh:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    /* ===== MENSAGENS ===== */
+    .message-container {
+      margin-top: 2rem;
+    }
+
+    .mensagem {
+      padding: 1rem 1.5rem;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .sucesso {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .erro {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger-color);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* ===== LOGIN ===== */
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      margin-top: 1rem;
+    }
+
+    /* ===== ADMIN PANEL ===== */
+    .admin-panel {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      margin-top: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .admin-menu {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .admin-menu-btn:hover {
+      color: var(--primary-color);
+    }
+
+    .admin-menu-btn.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .admin-section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .admin-section.active {
+      display: block;
+    }
+
+    /* ===== DASHBOARD ===== */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-header h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--white-color);
+    }
+
+    .card-content h4 {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+
+    .card-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .dashboard-details {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-details h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+    }
+
+    .detail-item:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .detail-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--white-color);
+    }
+
+    .detail-content {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-content span {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .detail-content strong {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* ===== TABELA DE TAMANHOS ===== */
+    .tamanhos-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .tamanhos-table th,
+    .tamanhos-table td {
+      padding: 0.75rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tamanhos-table th {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .tamanhos-table td {
+      color: var(--text-primary);
+    }
+
+    .tamanhos-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .tamanhos-table .tipo-header {
+      text-align: left;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    /* ===== PEDIDOS ===== */
+    .pedidos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .pedidos-header h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .pedidos-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .pedido-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .pedido-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .pedido-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .pedido-numero {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .pedido-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-pendente {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+    }
+
+    .status-aprovado {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+
+    .status-rejeitado {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger-color);
+    }
+
+    .pedido-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .pedido-info p {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .pedido-info strong {
+      color: var(--text-primary);
+    }
+
+    .pedido-tamanhos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .tipo-tamanhos h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .tipo-tamanhos ul {
+      list-style: none;
+    }
+
+    .tipo-tamanhos li {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      padding: 0.25rem 0;
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .admin-actions button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-aprovar {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+
+    .btn-aprovar:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-rejeitar {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger-color);
+    }
+
+    .btn-rejeitar:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-editar {
+      background: rgba(255, 126, 95, 0.1);
+      color: var(--primary-color);
+    }
+
+    .btn-editar:hover {
+      background: rgba(255, 126, 95, 0.2);
+    }
     
+    /* ===== FORMULÁRIO DE EDIÇÃO / VISUALIZAÇÃO (Mantidas) ===== */
+    .edit-form {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      margin-top: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .edit-form h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .form-actions button[type="submit"] {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: var(--white-color);
+    }
+
+    .form-actions button[type="submit"]:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* === NOVO: SEÇÃO DE VISUALIZAÇÃO DE PEDIDO EXISTENTE === */
     .visualizar-pedido {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-color);
@@ -104,6 +1246,26 @@
         margin-bottom: 2rem;
         padding-bottom: 1rem;
         border-bottom: 1px solid var(--border-color);
+    }
+
+    /* ===== RESULTADOS/ESTADOS VAZIOS (Mantidas) ===== */
+    .result-container {
+      margin-top: 2rem;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+
+    /* ===== FOOTER (Mantidas) ===== */
+    .footer {
+      background: var(--darker-color);
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 2rem 0;
+      margin-top: 4rem;
     }
   </style>
 </head>
@@ -176,6 +1338,35 @@
             </button>
           </div>
         </div>
+      </section>
+      
+      <section id="consultar" class="section">
+        <button class="back-button" id="voltarHomeConsulta">
+          <i class="fas fa-arrow-left"></i>
+          Voltar
+        </button>
+        
+        <div class="section-header">
+          <h2>Consultar Pedido</h2>
+          <p>Insira o número do pedido ou seu e-mail para localizar e editar seu pedido.</p>
+        </div>
+
+        <form id="formConsultar" class="modern-form">
+          <div class="form-group">
+            <label for="consultaInput">
+              <i class="fas fa-hashtag"></i>
+              Número do Pedido ou E-mail
+            </label>
+            <div class="input-group">
+              <input type="text" id="consultaInput" name="consulta" placeholder="Ex: UMADE-ABCD123 ou seu@email.com" required>
+              <button type="submit" class="btn-icon">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div id="resultadoConsulta" class="result-container"></div>
       </section>
       
       <section id="pedido" class="section">
@@ -347,36 +1538,6 @@
         <div id="mensagemPedido" class="message-container"></div>
       </section>
       
-      <section id="consultar" class="section">
-        <button class="back-button" id="voltarHomeConsulta">
-          <i class="fas fa-arrow-left"></i>
-          Voltar
-        </button>
-        
-        <div class="section-header">
-          <h2>Consultar Pedido</h2>
-          <p>Insira o número do pedido ou seu e-mail para localizar e editar seu pedido.</p>
-        </div>
-
-        <form id="formConsultar" class="modern-form">
-          <div class="form-group">
-            <label for="consultaInput">
-              <i class="fas fa-hashtag"></i>
-              Número do Pedido ou E-mail
-            </label>
-            <div class="input-group">
-              <input type="text" id="consultaInput" name="consulta" placeholder="Ex: UMADE-ABCD123 ou seu@email.com" required>
-              <button type="submit" class="btn-icon">
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
-          </div>
-        </form>
-
-        <div id="resultadoConsulta" class="result-container"></div>
-      </section>
-
-
       <section id="admin" class="section">
         <button class="back-button" id="voltarHome3">
           <i class="fas fa-arrow-left"></i>
@@ -646,13 +1807,27 @@
         }
         return quantidades;
     }
-
-    // Função de utilidade: verifica se o valor é um e-mail válido
+    
+    // Função para alternar a visibilidade da senha
+    window.togglePasswordVisibility = function(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            iconElement.classList.remove('fa-eye');
+            iconElement.classList.add('fa-eye-slash');
+        } else {
+            input.type = "password";
+            iconElement.classList.remove('fa-eye-slash');
+            iconElement.classList.add('fa-eye');
+        }
+    };
+    
+    // Função para verificar se o valor é um e-mail válido
     function isValidEmail(value) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(value);
     }
-
+    
     // ==========================================================
     // FUNÇÕES DE UTILIDADE GERAL (Expostas no escopo global)
     // ==========================================================
@@ -847,10 +2022,11 @@
 
     // Função 3: Preenche o formulário para Novo Pedido (Simples)
     window.setupNovoPedido = async function() {
-        currentPedidoParaEdicao = null; // Reinicia o estado de edição
+        currentPedidoParaEdicao = null; 
         document.getElementById('pedidoDocId').value = '';
         document.getElementById('email').value = ''; 
         document.getElementById('nome').value = '';
+        document.getElementById('setor').value = ''; 
         
         document.getElementById('formPedido').reset();
         
@@ -858,78 +2034,8 @@
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
         
-        // Garante que o rádio 'Capital' esteja checado se o formulário for novo/resetado
         document.querySelector('input[name="local"][value="Capital"]').checked = true; 
     }
-
-    // Função 4: Exibe a tela de consulta para o Líder (usada no fluxo de consulta)
-    window.displayVisualizacaoPedido = function(pedido, containerId = 'resultadoConsulta') {
-        currentPedidoParaEdicao = pedido;
-        const container = document.getElementById(containerId);
-        
-        const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
-                            pedido.status === 'Aprovado' ? 'status-aprovado' : 
-                            'status-rejeitado';
-        const statusDisplay = pedido.status === 'Aprovado' ? 
-                              '<strong style="color: var(--success-color);">APROVADO</strong>' : 
-                              `<span class="pedido-status ${statusClass}">${pedido.status}</span>`;
-
-        const formatarTamanhos = (tamanhos) => {
-            let list = '';
-            for (const [t, q] of Object.entries(tamanhos || {})) {
-                if (q > 0) list += `<li>${t}: ${q}</li>`;
-            }
-            return list || '<li>Nenhuma</li>';
-        };
-        
-        const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
-                                 Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
-                                 Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
-
-
-        container.innerHTML = `
-            <div class="pedido-item" data-id="${pedido.docId}">
-                <div class="pedido-header">
-                    <span class="pedido-numero">#${pedido.numPedido}</span>
-                    ${statusDisplay}
-                </div>
-                
-                <div class="pedido-info">
-                    <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
-                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local} / ${pedido.setor}</p>
-                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
-                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-                    <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas}</p>
-                </div>
-                
-                <div class="pedido-tamanhos">
-                    <div class="tipo-tamanhos">
-                        <h4>Infantis</h4>
-                        <ul>${formatarTamanhos(pedido.infantil)}</ul>
-                    </div>
-                    <div class="tipo-tamanhos">
-                        <h4>Babylook</h4>
-                        <ul>${formatarTamanhos(pedido.babylook)}</ul>
-                    </div>
-                    <div class="tipo-tamanhos">
-                        <h4>Unissex</h4>
-                        <ul>${formatarTamanhos(pedido.unissex)}</ul>
-                    </div>
-                </div>
-
-                <div class="form-actions" style="margin-top: 1rem;">
-                    <button class="btn-primary" id="btnIniciarEdicao">
-                        <i class="fas fa-edit"></i>
-                        EDITAR E REENVIAR
-                    </button>
-                </div>
-            </div>
-            <div id="mensagemConsulta" class="message-container"></div>
-        `;
-        
-        // Listener para iniciar a edição (o que fará o preenchimento do formulário)
-        document.getElementById('btnIniciarEdicao').addEventListener('click', window.setupEdicaoPedido);
-    };
 
     // Função 5: Preenche o formulário para Edição
     window.setupEdicaoPedido = function() {
@@ -967,22 +2073,31 @@
         const docId = document.getElementById('pedidoDocId').value;
         const isEditing = !!docId;
         
+        const formData = new FormData(document.getElementById('formPedido'));
+        const emailInput = formData.get('email');
+        
+        // Validação de E-mail
+        if (!isValidEmail(emailInput)) {
+            window.exibirMensagem('mensagemPedido', 'erro', 'O e-mail inserido é inválido.');
+            return;
+        }
+
+        // Validação de Pedido Duplicado (APENAS PARA NOVOS PEDIDOS)
+        if (!isEditing) {
+            const pedidoExistente = await window.verificarPedidoPorEmail(emailInput);
+            if (pedidoExistente) {
+                window.exibirMensagem('mensagemPedido', 'erro', `O e-mail ${emailInput} já possui um pedido (#${pedidoExistente.numPedido}). Consulte seu pedido para editar.`);
+                return;
+            }
+        }
+        
         if (isEditing) {
             const confirmacao = confirm("ATENÇÃO: Você está prestes a substituir seu pedido anterior. Deseja continuar com o reenvio?");
             if (!confirmacao) {
                 return;
             }
-        } else {
-            // VERIFICAÇÃO CRÍTICA PARA NOVOS PEDIDOS: O e-mail já existe?
-            const emailExistente = await window.verificarPedidoPorEmail(document.getElementById('email').value);
-            if (emailExistente) {
-                window.exibirMensagem('mensagemPedido', 'erro', `O e-mail ${emailExistente.email} já possui um pedido (#${emailExistente.numPedido}). Consulte seu pedido para editar.`);
-                return;
-            }
         }
         
-        // ... (Verificação de camisetas e carregamento mantidos) ...
-        const formData = new FormData(document.getElementById('formPedido'));
         const totalCamisetas = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]'))
                                     .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
 
@@ -994,14 +2109,14 @@
         window.mostrarCarregamento(true, isEditing ? 'Reenviando e Atualizando Pedido...' : 'Enviando Novo Pedido...');
         
         try {
-            const emailParaSalvar = formData.get('email').toLowerCase().trim();
+            const emailParaSalvar = emailInput.toLowerCase().trim();
 
             const dataToSave = {
                 data: new Date().toISOString(),
                 nome: formData.get('nome'),
                 local: formData.get('local'),
                 setor: formData.get('setor'),
-                email: emailParaSalvar, 
+                email: emailParaSalvar,
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
                 babylook: getQuantidadesFromForm(formData, 'babylook'),
                 unissex: getQuantidadesFromForm(formData, 'unissex'),
@@ -1016,8 +2131,9 @@
                 finalNumPedido = currentPedidoParaEdicao.numPedido;
                 
             } else {
+                // CRIAÇÃO: Uma única operação de escrita no Firebase
                 const docRef = doc(pedidosCollection); 
-                dataToSave.numPedido = docRef.id; 
+                dataToSave.numPedido = docRef.id; // Define o numPedido com o ID do documento
                 
                 await setDoc(docRef, dataToSave); 
                 finalNumPedido = docRef.id;
@@ -1030,12 +2146,12 @@
             
         } catch (error) {
             console.error('Erro ao submeter pedido:', error);
-            window.exibirMensagem('mensagemPedido', 'erro', 'Erro de comunicação com o Firebase.');
+            window.exibirMensagem('mensagemPedido', 'erro', `Erro ao se comunicar com o Firebase. Verifique suas Regras de Criação. (${error.message})`);
         } finally {
             window.mostrarCarregamento(false);
         }
     };
-    
+
     // Função de Login Admin (Corrigida para receber 'e')
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
@@ -1057,9 +2173,9 @@
         window.mostrarCarregamento(false);
     }
     
-    
     // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
     
+    // ... (restante das funções de carregarDashboard, etc.) ...
     window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
@@ -1300,30 +2416,37 @@
       const formLoginLider = document.getElementById('formLoginLider');
       const formCadastroLider = document.getElementById('formCadastroLider'); 
       const formPedido = document.getElementById('formPedido');
-      const formConsultar = document.getElementById('formConsultar'); // NOVO: Form Consultar
       
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
 
       // === Fluxo Home ===
-      document.getElementById('btnAcessoLideranca').addEventListener('click', () => window.redirecionarComAnimacao('login-lider'));
-      document.getElementById('btnAdministrador').addEventListener('click', () => {
-          document.getElementById('loginAdmin').style.display = 'block';
-          document.getElementById('painelAdmin').style.display = 'none';
-          document.getElementById('mensagemLogin').innerHTML = '';
-          window.redirecionarComAnimacao('admin');
-      });
       document.getElementById('btnNovoPedido').addEventListener('click', () => {
-          window.setupNovoPedido('');
+          window.setupNovoPedido(); // Chama a versão simplificada que limpa tudo
           window.redirecionarComAnimacao('pedido');
       });
       document.getElementById('btnConsultarPedido').addEventListener('click', () => {
+          document.getElementById('resultadoConsulta').innerHTML = '';
           window.redirecionarComAnimacao('consultar');
       });
 
-
       // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
+      if (btnAdministrador) {
+          btnAdministrador.addEventListener('click', () => {
+              document.getElementById('loginAdmin').style.display = 'block';
+              document.getElementById('painelAdmin').style.display = 'none';
+              document.getElementById('mensagemLogin').innerHTML = '';
+              window.redirecionarComAnimacao('admin');
+          });
+      }
+      
+      // Submit do Formulário de Login do Líder
+      if (formLoginLider) {
+          formLoginLider.addEventListener('submit', window.handleLoginLider);
+      }
+      
+      // Submit do Formulário de Login Admin
       if (formLoginAdmin) {
           formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
       }
@@ -1333,42 +2456,7 @@
           formPedido.addEventListener('submit', window.handleFormSubmission);
       }
       
-      // === Fluxo de Consulta/Edição (Form Consultar) ===
-      if (formConsultar) {
-          formConsultar.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const consulta = document.getElementById('consultaInput').value.toLowerCase().trim();
-              
-              if (!consulta) {
-                  window.exibirMensagem('mensagemPedido', 'erro', 'Insira o número do pedido ou e-mail.');
-                  return;
-              }
-              
-              window.mostrarCarregamento(true, 'Buscando pedido...');
-              
-              let pedido = null;
-              
-              if (isValidEmail(consulta)) {
-                  pedido = await window.verificarPedidoPorEmail(consulta);
-              } else {
-                  // Se não for e-mail, tenta buscar por numPedido
-                  pedido = await window.verificarPedidoPorNumero(consulta);
-              }
-
-              if (pedido) {
-                  window.displayVisualizacaoPedido(pedido);
-                  window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
-              } else {
-                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Nenhum pedido correspondente ao valor '${consulta}' foi localizado.</p></div>`;
-                  window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
-              }
-              
-              window.mostrarCarregamento(false);
-          });
-      }
-
-
-      // === Botões de Navegação / Voltar ===
+      // === Event Listeners de Navegação / Botões (Mantidos) ===
       document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
