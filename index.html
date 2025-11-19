@@ -1211,8 +1211,8 @@
     .btn-editar:hover {
       background: rgba(255, 126, 95, 0.2);
     }
-    
-    /* ===== FORMULÁRIO DE EDIÇÃO / VISUALIZAÇÃO (Mantidas) ===== */
+
+    /* ===== FORMULÁRIO DE EDIÇÃO ===== */
     .edit-form {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-color);
@@ -1244,28 +1244,6 @@
       transform: translateY(-1px);
       box-shadow: var(--shadow-md);
     }
-    
-    /* === NOVO: SEÇÃO DE VISUALIZAÇÃO DE PEDIDO EXISTENTE === */
-    .visualizar-pedido {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        padding: 2rem;
-        box-shadow: var(--shadow-lg);
-        margin-top: 1rem;
-        backdrop-filter: blur(10px);
-    }
-    .visualizar-pedido h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary-color);
-        margin-bottom: 1.5rem;
-    }
-    .visualizar-pedido .pedido-info {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
-    }
 
     /* ===== RESULTADOS/ESTADOS VAZIOS (Mantidas) ===== */
     .result-container {
@@ -1289,13 +1267,11 @@
   </style>
 </head>
 <body>
-  <!-- Barra de Carregamento -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loadingText">Processando...</div>
   </div>
 
-  <!-- Card de Confirmação de Pedido -->
   <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
     <div class="pedido-confirmacao-card">
       <div class="pedido-confirmacao-header">
@@ -1323,7 +1299,6 @@
     </div>
   </div>
 
-  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -1338,10 +1313,8 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="main">
     <div class="container">
-      <!-- Seção: Home -->
       <section id="home" class="section active">
         <div class="home-screen">
           <h1 class="home-title">Sistema de Pedidos</h1>
@@ -1364,7 +1337,6 @@
         </div>
       </section>
 
-      <!-- Seção: Consultar Pedidos -->
       <section id="consultar" class="section">
         <button class="back-button" id="voltarHomeConsulta">
           <i class="fas fa-arrow-left"></i>
@@ -1373,17 +1345,32 @@
         
         <div class="section-header">
           <h2>Consultar Pedido</h2>
-          <p>Insira o número do pedido ou seu e-mail para localizar e editar seu pedido.</p>
+          <p>Localize e edite seu pedido por número ou e-mail.</p>
         </div>
 
-        <form id="formConsultar" class="modern-form">
+        <form id="formConsultarNumero" class="modern-form">
           <div class="form-group">
-            <label for="consultaInput">
+            <label for="numPedidoConsultaInput">
               <i class="fas fa-hashtag"></i>
-              Número do Pedido ou E-mail
+              Pesquise por Número do Pedido
             </label>
             <div class="input-group">
-              <input type="text" id="consultaInput" name="consulta" placeholder="Ex: UMADE-ABCD123 ou seu@email.com" required>
+              <input type="text" id="numPedidoConsultaInput" name="numPedido" placeholder="Ex: UMADE-ABCD123" required>
+              <button type="submit" class="btn-icon">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <form id="formConsultarEmail" class="modern-form" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label for="emailConsultaInput">
+              <i class="fas fa-envelope"></i>
+              Pesquise por E-mail
+            </label>
+            <div class="input-group">
+              <input type="email" id="emailConsultaInput" name="email" placeholder="seu@email.com" required>
               <button type="submit" class="btn-icon">
                 <i class="fas fa-search"></i>
               </button>
@@ -1395,7 +1382,6 @@
         <div id="mensagemConsulta" class="message-container"></div> 
       </section>
 
-      <!-- Seção: Pedido de Camiseta / Edição -->
       <section id="pedido" class="section">
         <button class="back-button" id="voltarHome1">
           <i class="fas fa-arrow-left"></i>
@@ -1437,14 +1423,12 @@
               </div>
             </div>
             
-            <!-- CORRIGIDO: Container para o campo Setor/Cidade dinâmico -->
             <div class="form-group">
                 <label for="setorInputLabel">
                     <i class="fas fa-building"></i>
                     <span id="setorCidadeLabel">Setor/Cidade</span>
                 </label>
                 <div id="setorCidadeContainer">
-                    <!-- Conteúdo será injetado pelo JavaScript -->
                     <input type="text" id="setor" name="setor" required>
                 </div>
             </div>
@@ -1569,7 +1553,6 @@
         <div id="mensagemPedido" class="message-container"></div>
       </section>
 
-      <!-- Seção: Painel Administrador -->
       <section id="admin" class="section">
         <button class="back-button" id="voltarHome3">
           <i class="fas fa-arrow-left"></i>
@@ -1582,7 +1565,6 @@
         </div>
         
         <div id="loginAdmin" class="login-container">
-          <!-- ADMINISTADOR: LOGIN POR SENHA FIXA -->
           <form id="formLoginAdmin" class="modern-form">
             <div class="form-group">
               <label for="senhaAdmin">
@@ -1609,7 +1591,6 @@
         </div>
 
         <div id="painelAdmin" class="admin-panel" style="display: none;">
-            <!-- Menu Admin -->
             <div class="admin-menu">
                 <button class="admin-menu-btn active" id="btnDashboard">
                     <i class="fas fa-chart-pie"></i>
@@ -1621,7 +1602,6 @@
                 </button>
             </div>
             
-            <!-- Dashboard - VISÃO GERAL RÁPIDA -->
             <div id="admin-dashboard" class="admin-section active">
                 <div class="dashboard-header">
                 <h3>Visão Geral Rápida</h3>
@@ -1723,7 +1703,6 @@
                 </div>
             </div>
 
-            <!-- Detalhamento por Tamanho - TELA SECUNDÁRIA (Carregamento Sob Demanda) -->
             <div id="admin-detalhes-tamanhos" class="admin-section">
                 <div class="dashboard-header">
                 <h3>Totalizadores por Tamanho</h3>
@@ -1759,8 +1738,7 @@
                         <tr><td colspan="15" style="text-align: center;">Clique em "Atualizar Detalhes" para carregar os dados.</td></tr>
                     </tbody>
                     <tfoot id="tamanhosDetalhesFooter">
-                        <!-- O total geral será injetado aqui -->
-                    </tfoot>
+                        </tfoot>
                     </table>
                 </div>
                 </div>
@@ -1773,7 +1751,6 @@
                 </div>
             </div>
 
-            <!-- Pedidos -->
             <div id="admin-pedidos" class="admin-section">
                 <div class="pedidos-header">
                 <h3>Todos os Pedidos</h3>
@@ -1789,7 +1766,6 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <p>&copy; 2023 UMADEMATS - Todos os direitos reservados</p>
@@ -2089,8 +2065,11 @@
         
         document.getElementById('pedidoDocId').value = pedido.docId; 
         document.getElementById('nome').value = pedido.nome;
+        
+        // Marca o rádio correto
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
         
+        // Atualiza e preenche o campo Setor/Cidade
         window.updateSetorCidadeInput(); 
         document.getElementById('setor').value = pedido.setor; 
         
@@ -2458,7 +2437,8 @@
       const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
       const btnAdministrador = document.getElementById('btnAdministrador');
       const formLoginAdmin = document.getElementById('formLoginAdmin');
-      const formConsultar = document.getElementById('formConsultar');
+      const formConsultarNumero = document.getElementById('formConsultarNumero');
+      const formConsultarEmail = document.getElementById('formConsultarEmail');
 
       const radioCapital = document.getElementById('radioCapital');
       const radioInterior = document.getElementById('radioInterior');
@@ -2495,32 +2475,53 @@
           formPedido.addEventListener('submit', window.handleFormSubmission);
       }
       
-      // === Fluxo de Consulta/Edição (Form Consultar) ===
-      if (formConsultar) {
-          formConsultar.addEventListener('submit', async (e) => {
+      // === Fluxo de Consulta/Edição: NÚMERO ===
+      if (formConsultarNumero) {
+          formConsultarNumero.addEventListener('submit', async (e) => {
               e.preventDefault();
-              const consulta = document.getElementById('consultaInput').value.trim();
+              const consulta = document.getElementById('numPedidoConsultaInput').value.trim();
               
               if (!consulta) {
-                  window.exibirMensagem('mensagemConsulta', 'erro', 'Insira o número do pedido ou e-mail.');
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Insira o número do pedido.');
                   return;
               }
               
-              window.mostrarCarregamento(true, 'Buscando pedido...');
+              window.mostrarCarregamento(true, 'Buscando pedido por número...');
               
-              let pedido = null;
-              
-              if (isValidEmail(consulta)) {
-                  pedido = await window.verificarPedidoPorEmail(consulta);
-              } else {
-                  pedido = await window.verificarPedidoPorNumero(consulta);
-              }
+              const pedido = await window.verificarPedidoPorNumero(consulta);
 
               if (pedido) {
                   window.displayVisualizacaoPedido(pedido);
                   window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
               } else {
-                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Nenhum pedido correspondente ao valor '${consulta}' foi localizado.</p></div>`;
+                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido correspondente ao número '${consulta}' foi localizado.</p></div>`;
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Pedido não encontrado.');
+              }
+              
+              window.mostrarCarregamento(false);
+          });
+      }
+      
+      // === Fluxo de Consulta/Edição: E-MAIL ===
+      if (formConsultarEmail) {
+          formConsultarEmail.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const consulta = document.getElementById('emailConsultaInput').value.trim();
+              
+              if (!isValidEmail(consulta)) {
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Insira um e-mail válido.');
+                  return;
+              }
+              
+              window.mostrarCarregamento(true, 'Buscando pedido por e-mail...');
+              
+              const pedido = await window.verificarPedidoPorEmail(consulta);
+
+              if (pedido) {
+                  window.displayVisualizacaoPedido(pedido);
+                  window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
+              } else {
+                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido para o e-mail '${consulta}' foi localizado.</p></div>`;
                   window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
               }
               
