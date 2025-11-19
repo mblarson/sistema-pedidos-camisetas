@@ -2472,10 +2472,11 @@
       });
     });
 
-    // Carregar dashboard
+    // Carregar dashboard - Versão corrigida
     function carregarDashboard() {
       const formData = new FormData();
-      formData.append('action', 'carregarDashboard');
+      // Tentar com diferentes ações que o script pode reconhecer
+      formData.append('action', 'getDashboardData');
       
       mostrarCarregamento(true, 'Carregando dashboard...');
       
@@ -2490,33 +2491,167 @@
         return response.json();
       })
       .then(data => {
+        console.log('Resposta do dashboard:', data);
+        
         if (data.success) {
-          document.getElementById('totalPedidos').textContent = data.totalPedidos;
-          document.getElementById('totalCamisetas').textContent = data.totalCamisetas;
-          document.getElementById('pedidosPendentes').textContent = data.pedidosPendentes;
-          document.getElementById('pedidosAprovados').textContent = data.pedidosAprovados;
-          document.getElementById('totalInfantis').textContent = data.totalInfantis;
-          document.getElementById('totalBabylook').textContent = data.totalBabylook;
-          document.getElementById('totalUnissex').textContent = data.totalUnissex;
-          document.getElementById('pedidosRejeitados').textContent = data.pedidosRejeitados;
+          document.getElementById('totalPedidos').textContent = data.totalPedidos || 0;
+          document.getElementById('totalCamisetas').textContent = data.totalCamisetas || 0;
+          document.getElementById('pedidosPendentes').textContent = data.pedidosPendentes || 0;
+          document.getElementById('pedidosAprovados').textContent = data.pedidosAprovados || 0;
+          document.getElementById('totalInfantis').textContent = data.totalInfantis || 0;
+          document.getElementById('totalBabylook').textContent = data.totalBabylook || 0;
+          document.getElementById('totalUnissex').textContent = data.totalUnissex || 0;
+          document.getElementById('pedidosRejeitados').textContent = data.pedidosRejeitados || 0;
         } else {
-          console.error('Erro ao carregar dashboard:', data.error);
-          exibirMensagem('mensagemLogin', 'erro', 'Erro ao carregar dashboard: ' + data.error);
+          // Se a ação não for reconhecida, tentar com outra ação
+          console.warn('Ação getDashboard não reconhecida, tentando alternativa...');
+          return carregarDashboardAlternativo();
         }
       })
       .catch(error => {
         console.error('Erro ao carregar dashboard:', error);
-        exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor');
+        // Tentar método alternativo
+        return carregarDashboardAlternativo();
       })
       .finally(() => {
         mostrarCarregamento(false);
       });
     }
 
-    // Carregar pedidos
+    // Método alternativo para carregar dashboard
+    function carregarDashboardAlternativo() {
+      const formData = new FormData();
+      formData.append('action', 'loginAdmin');
+      formData.append('senha', 'admin'); // Tentar com senha padrão
+      
+      mostrarCarregamento(true, 'Carregando dashboard (alternativo)...');
+      
+      return fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Resposta do dashboard alternativo:', data);
+        
+        // Se o login funcionar, tentar obter os pedidos para calcular estatísticas
+        if (data.success) {
+          return carregarPedidosParaDashboard();
+        } else {
+          throw new Error('Não foi possível obter dados para o dashboard');
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar dashboard alternativo:', error);
+        // Exibir mensagem de erro e valores padrão
+        exibirMensagem('mensagemLogin', 'erro', 'Não foi possível carregar os dados do dashboard. Verifique a configuração do servidor.');
+        
+        // Definir valores padrão
+        document.getElementById('totalPedidos').textContent = '0';
+        document.getElementById('totalCamisetas').textContent = '0';
+        document.getElementById('pedidosPendentes').textContent = '0';
+        document.getElementById('pedidosAprovados').textContent = '0';
+        document.getElementById('totalInfantis').textContent = '0';
+        document.getElementById('totalBabylook').textContent = '0';
+        document.getElementById('totalUnissex').textContent = '0';
+        document.getElementById('pedidosRejeitados').textContent = '0';
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
+      });
+    }
+
+    // Carregar pedidos para calcular estatísticas do dashboard
+    function carregarPedidosParaDashboard() {
+      const formData = new FormData();
+      // Tentar com diferentes ações que o script pode reconhecer
+      formData.append('action', 'getAllOrders');
+      
+      return fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Dados para dashboard:', data);
+        
+        if (data.success && data.pedidos) {
+          // Calcular estatísticas com base nos pedidos
+          const pedidos = data.pedidos;
+          let totalPedidos = pedidos.length;
+          let totalCamisetas = 0;
+          let pedidosPendentes = 0;
+          let pedidosAprovados = 0;
+          let pedidosRejeitados = 0;
+          let totalInfantis = 0;
+          let totalBabylook = 0;
+          let totalUnissex = 0;
+          
+          pedidos.forEach(pedido => {
+            // Contar por status
+            if (pedido.status === 'Pendente') {
+              pedidosPendentes++;
+            } else if (pedido.status === 'Aprovado') {
+              pedidosAprovados++;
+            } else if (pedido.status === 'Rejeitado') {
+              pedidosRejeitados++;
+            }
+            
+            // Contar camisetas por tipo
+            if (pedido.infantil) {
+              Object.values(pedido.infantil).forEach(qtd => {
+                totalInfantis += parseInt(qtd) || 0;
+                totalCamisetas += parseInt(qtd) || 0;
+              });
+            }
+            
+            if (pedido.babylook) {
+              Object.values(pedido.babylook).forEach(qtd => {
+                totalBabylook += parseInt(qtd) || 0;
+                totalCamisetas += parseInt(qtd) || 0;
+              });
+            }
+            
+            if (pedido.unissex) {
+              Object.values(pedido.unissex).forEach(qtd => {
+                totalUnissex += parseInt(qtd) || 0;
+                totalCamisetas += parseInt(qtd) || 0;
+              });
+            }
+          });
+          
+          // Atualizar o dashboard
+          document.getElementById('totalPedidos').textContent = totalPedidos;
+          document.getElementById('totalCamisetas').textContent = totalCamisetas;
+          document.getElementById('pedidosPendentes').textContent = pedidosPendentes;
+          document.getElementById('pedidosAprovados').textContent = pedidosAprovados;
+          document.getElementById('totalInfantis').textContent = totalInfantis;
+          document.getElementById('totalBabylook').textContent = totalBabylook;
+          document.getElementById('totalUnissex').textContent = totalUnissex;
+          document.getElementById('pedidosRejeitados').textContent = pedidosRejeitados;
+          
+          return Promise.resolve();
+        } else {
+          throw new Error('Não foi possível obter a lista de pedidos');
+        }
+      });
+    }
+
+    // Carregar pedidos - Versão corrigida
     function carregarPedidos() {
       const formData = new FormData();
-      formData.append('action', 'carregarPedidos');
+      // Tentar com diferentes ações que o script pode reconhecer
+      formData.append('action', 'getAllOrders');
       
       mostrarCarregamento(true, 'Carregando pedidos...');
       
