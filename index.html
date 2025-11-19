@@ -1,4 +1,4 @@
-]<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1907,7 +1907,7 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
 
     // Mostrar seção específica
-   window.mostrarSecao = function(secaoId) {      // Remover classe active de todas as seções
+   function mostrarSecao(secaoId) {      // Remover classe active de todas as seções
       document.querySelectorAll('.section').forEach(s => {
         s.classList.remove('active');
       });
