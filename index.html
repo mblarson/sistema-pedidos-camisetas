@@ -1891,7 +1891,10 @@
   </footer>
 
   <script>
-    // URL do seu Google Apps Script (a mesma que você forneceu)
+    // ==========================================================
+    // ** IMPORTANTE **
+    // Atualize esta URL com o link de implantação do seu Google Apps Script (Execução como 'Qualquer pessoa').
+    // ==========================================================
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
     
     // ==========================================================
@@ -2061,24 +2064,19 @@
         body: formData
       })
       .then(response => {
-        console.log('Status da resposta:', response.status);
         if (!response.ok) {
           throw new Error(`Erro HTTP: ${response.status}`);
         }
         return response.json();
       })
       .then(data => {
-        console.log('Resposta da verificação de e-mail:', data);
-        if (data.success && data.pedidoExistente) {
-          console.log('E-mail já possui pedido:', data.numPedido);
+        if (data.success && data.pedidoExistente) { // Usa a chave 'pedidoExistente'
           return data.numPedido;
         }
-        console.log('E-mail não possui pedido pendente');
         return null;
       })
       .catch(error => {
         console.error('Erro ao verificar e-mail:', error);
-        // Em caso de erro na verificação, permitimos o envio do pedido
         return null;
       })
       .finally(() => {
@@ -2087,18 +2085,18 @@
     };
 
     window.redirecionarComAnimacao = function(secao, callback) {
-      const elemento = document.querySelector('.section.active');
+      const elementoAtual = document.querySelector('.section.active');
       const proximoElemento = document.getElementById(secao);
 
-      if (!elemento || !proximoElemento) {
+      if (!elementoAtual || !proximoElemento || elementoAtual === proximoElemento) {
         window.mostrarSecao(secao);
         if(callback) callback();
         return;
       }
       
-      // Adiciona classe de animação de saída
-      elemento.style.opacity = '0';
-      elemento.style.transform = 'translateY(-20px)';
+      // Animação de saída
+      elementoAtual.style.opacity = '0';
+      elementoAtual.style.transform = 'translateY(-20px)';
       
       setTimeout(() => {
         window.mostrarSecao(secao);
@@ -2130,167 +2128,15 @@
     // FUNÇÕES DE DASHBOARD
     // ==========================================================
 
-    // Lógica para carregar dashboard quando a chamada principal falha
-    window.carregarDashboardAlternativo = async function() {
-      console.log('=== INICIANDO CARREGAMENTO DE DASHBOARD (ALTERNATIVO) ===');
-      
-      // Lista de ações alternativas para tentar
-      const acoesAlternativas = [
-        'getAllOrders',
-        'listarPedidos', 
-        'getTodosPedidos',
-        'getAllPedidos',
-        'consultarTodosPedidos',
-        'obterPedidos'
-      ];
-      
-      window.mostrarCarregamento(true, 'Carregando dashboard (alternativo)...');
-      
-      for (let i = 0; i < acoesAlternativas.length; i++) {
-        const acao = acoesAlternativas[i];
-        console.log(`Tentativa ${i + 1}/${acoesAlternativas.length}: Testando ação '${acao}'`);
-        
-        try {
-          const formData = new FormData();
-          formData.append('action', acao);
-          
-          const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: formData
-          });
-          
-          console.log(`Resposta HTTP para '${acao}':`, response.status, response.statusText);
-          
-          if (!response.ok) {
-            console.warn(`Erro HTTP ${response.status} para ação '${acao}'`);
-            continue; // Tentar próxima ação
-          }
-          
-          const data = await response.json();
-          console.log(`Dados recebidos para '${acao}':`, data);
-          
-          // Verificar se a resposta é válida
-          if (data.success && data.pedidos && Array.isArray(data.pedidos)) {
-            console.log(`✓ Ação '${acao}' funcionou! Número de pedidos:`, data.pedidos.length);
-            
-            // Início do cálculo de estatísticas
-            const pedidos = data.pedidos;
-            let totalPedidos = pedidos.length;
-            let totalCamisetas = 0;
-            let pedidosPendentes = 0;
-            let pedidosAprovados = 0;
-            let pedidosRejeitados = 0;
-            let totalInfantis = 0;
-            let totalBabylook = 0;
-            let totalUnissex = 0;
-            
-            // Inicializar totalizadores por tamanho
-            const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-            const tamanhosInfantil = Object.fromEntries(tamanhosDisponiveis.map(t => [t, 0]));
-            const tamanhosBabylook = Object.fromEntries(tamanhosDisponiveis.map(t => [t, 0]));
-            const tamanhosUnissex = Object.fromEntries(tamanhosDisponiveis.map(t => [t, 0]));
-
-            pedidos.forEach(pedido => {
-              // Contar por status
-              if (pedido.status === 'Pendente') {
-                pedidosPendentes++;
-              } else if (pedido.status === 'Aprovado') {
-                pedidosAprovados++;
-              } else if (pedido.status === 'Rejeitado') {
-                pedidosRejeitados++;
-              }
-              
-              // Funções para somar camisetas
-              const somarTamanhos = (tamanhosObj, tipoTotal, tipoTamanhos) => {
-                  if (pedido[tipoTamanhos]) {
-                      Object.entries(pedido[tipoTamanhos]).forEach(([tamanho, qtd]) => {
-                          const quantidade = parseInt(qtd) || 0;
-                          if (quantidade > 0) {
-                              tipoTotal.total += quantidade;
-                              tamanhosObj[tamanho] = (tamanhosObj[tamanho] || 0) + quantidade;
-                              totalCamisetas += quantidade;
-                          }
-                      });
-                  }
-              };
-              
-              let totalInfantilObj = { total: 0 };
-              let totalBabylookObj = { total: 0 };
-              let totalUnissexObj = { total: 0 };
-              
-              somarTamanhos(tamanhosInfantil, totalInfantilObj, 'infantil');
-              somarTamanhos(tamanhosBabylook, totalBabylookObj, 'babylook');
-              somarTamanhos(tamanhosUnissex, totalUnissexObj, 'unissex');
-
-              totalInfantis += totalInfantilObj.total;
-              totalBabylook += totalBabylookObj.total;
-              totalUnissex += totalUnissexObj.total;
-            });
-            
-            // Atualizar o dashboard
-            window.atualizarElemento('totalPedidos', totalPedidos);
-            window.atualizarElemento('totalCamisetas', totalCamisetas);
-            window.atualizarElemento('pedidosPendentes', pedidosPendentes);
-            window.atualizarElemento('pedidosAprovados', pedidosAprovados);
-            window.atualizarElemento('totalInfantis', totalInfantis);
-            window.atualizarElemento('totalBabylook', totalBabylook);
-            window.atualizarElemento('totalUnissex', totalUnissex);
-            window.atualizarElemento('pedidosRejeitados', pedidosRejeitados);
-            
-            // Atualizar totalizadores por tamanho
-            tamanhosDisponiveis.forEach(tamanho => {
-              window.atualizarElemento(`infantil_${tamanho}`, tamanhosInfantil[tamanho] || 0);
-              window.atualizarElemento(`babylook_${tamanho}`, tamanhosBabylook[tamanho] || 0);
-              window.atualizarElemento(`unissex_${tamanho}`, tamanhosUnissex[tamanho] || 0);
-              
-              const total = (tamanhosInfantil[tamanho] || 0) + 
-                            (tamanhosBabylook[tamanho] || 0) + 
-                            (tamanhosUnissex[tamanho] || 0);
-              const totalElement = document.getElementById(`total_${tamanho}`);
-              if (totalElement) totalElement.innerHTML = `<strong>${total}</strong>`;
-            });
-            
-            window.mostrarCarregamento(false);
-            return Promise.resolve(); // Sucesso, sair da função
-          } else if (data.error) {
-            console.warn(`Ação '${acao}' retornou erro:`, data.error);
-          } else {
-            console.warn(`Ação '${acao}' retornou resposta inválida:`, data);
-          }
-          
-        } catch (error) {
-          console.error(`Erro ao tentar ação '${acao}':`, error);
-        }
-      }
-      
-      // Se chegou aqui, nenhuma ação funcionou
-      console.error('❌ TODAS AS TENTATIVAS FALHARAM');
-      window.exibirMensagem('mensagemLogin', 'erro', 'Não foi possível carregar os dados do dashboard. Verifique a configuração do Apps Script.');
-      
-      window.atualizarElemento('totalPedidos', '0');
-      window.atualizarElemento('totalCamisetas', '0');
-      window.atualizarElemento('pedidosPendentes', '0');
-      window.atualizarElemento('pedidosAprovados', '0');
-      window.mostrarCarregamento(false);
-      return Promise.reject('Não foi possível carregar os dados do dashboard');
-    };
-
     window.carregarDashboard = async function() {
       console.log('=== INICIANDO CARREGAMENTO DE DASHBOARD ===');
       
-      const acoesAlternativas = [
-        'getDashboard',
-        'getAllOrders' // Se getDashboard falhar, tentamos a alternativa que retorna os dados brutos
-      ];
+      window.mostrarCarregamento(true, 'Calculando estatísticas...');
       
-      window.mostrarCarregamento(true, 'Carregando dashboard...');
-      
-      for (let i = 0; i < acoesAlternativas.length; i++) {
-        const acao = acoesAlternativas[i];
-        
-        try {
+      try {
           const formData = new FormData();
-          formData.append('action', acao);
+          // Usa a ação que retorna dados detalhados (otimizada com cache no Apps Script)
+          formData.append('action', 'getDashboard'); 
           
           const response = await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -2304,60 +2150,56 @@
           const data = await response.json();
           
           if (data.success) {
-            if (acao === 'getDashboard' && data.tamanhos) {
-                // Caso de sucesso com a ação otimizada 'getDashboard'
-                console.log(`✓ Ação '${acao}' funcionou com dados otimizados.`);
-                window.atualizarElemento('totalPedidos', data.totalPedidos || 0);
-                window.atualizarElemento('totalCamisetas', data.totalCamisetas || 0);
-                window.atualizarElemento('pedidosPendentes', data.pedidosPendentes || 0);
-                window.atualizarElemento('pedidosAprovados', data.pedidosAprovados || 0);
-                window.atualizarElemento('totalInfantis', data.totalInfantis || 0);
-                window.atualizarElemento('totalBabylook', data.totalBabylook || 0);
-                window.atualizarElemento('totalUnissex', data.totalUnissex || 0);
-                window.atualizarElemento('pedidosRejeitados', data.pedidosRejeitados || 0);
+            
+            // Atualizar os cards principais
+            window.atualizarElemento('totalPedidos', data.totalPedidos || 0);
+            window.atualizarElemento('totalCamisetas', data.totalCamisetas || 0);
+            window.atualizarElemento('pedidosPendentes', data.pedidosPendentes || 0);
+            window.atualizarElemento('pedidosAprovados', data.pedidosAprovados || 0);
+            window.atualizarElemento('totalInfantis', data.totalInfantis || 0);
+            window.atualizarElemento('totalBabylook', data.totalBabylook || 0);
+            window.atualizarElemento('totalUnissex', data.totalUnissex || 0);
+            window.atualizarElemento('pedidosRejeitados', data.pedidosRejeitados || 0);
+            
+            // Atualizar totalizadores por tamanho
+            if (data.tamanhos) {
+              const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
+              tamanhos.forEach(tamanho => {
+                const infantilQtd = data.tamanhos.infantil[tamanho] || 0;
+                const babylookQtd = data.tamanhos.babylook[tamanho] || 0;
+                const unissexQtd = data.tamanhos.unissex[tamanho] || 0;
+
+                window.atualizarElemento(`infantil_${tamanho}`, infantilQtd);
+                window.atualizarElemento(`babylook_${tamanho}`, babylookQtd);
+                window.atualizarElemento(`unissex_${tamanho}`, unissexQtd);
                 
-                // Atualizar totalizadores por tamanho
-                const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-                tamanhos.forEach(tamanho => {
-                    const infantilQtd = data.tamanhos.infantil[tamanho] || 0;
-                    const babylookQtd = data.tamanhos.babylook[tamanho] || 0;
-                    const unissexQtd = data.tamanhos.unissex[tamanho] || 0;
-
-                    window.atualizarElemento(`infantil_${tamanho}`, infantilQtd);
-                    window.atualizarElemento(`babylook_${tamanho}`, babylookQtd);
-                    window.atualizarElemento(`unissex_${tamanho}`, unissexQtd);
-                    
-                    const total = infantilQtd + babylookQtd + unissexQtd;
-                    const totalElement = document.getElementById(`total_${tamanho}`);
-                    if (totalElement) totalElement.innerHTML = `<strong>${total}</strong>`;
-                });
-
-                window.mostrarCarregamento(false);
-                return; // Sai da função carregarDashboard
-            } else if (acao === 'getAllOrders' || (acao === 'getDashboard' && !data.tamanhos)) {
-                // Se a primeira falhar ou retornar dados brutos, usamos a lógica alternativa
-                console.warn(`Ação '${acao}' não retornou formato otimizado, tentando fallback para lógica alternativa...`);
-                await window.carregarDashboardAlternativo();
-                return; // Sai da função carregarDashboard
+                const total = infantilQtd + babylookQtd + unissexQtd;
+                const totalElement = document.getElementById(`total_${tamanho}`);
+                if (totalElement) totalElement.innerHTML = `<strong>${total}</strong>`;
+              });
             }
-          } else if (data.error) {
-            console.warn(`Ação '${acao}' retornou erro:`, data.error);
+
+            window.mostrarCarregamento(false);
+            return;
+          } else {
+            throw new Error(data.error || 'Erro desconhecido no retorno do Dashboard.');
           }
           
-        } catch (error) {
-          console.error(`Erro ao tentar ação '${acao}':`, error);
-        }
+      } catch (error) {
+          console.error(`Erro ao carregar Dashboard:`, error);
+          window.exibirMensagem('mensagemLogin', 'erro', `Erro ao carregar dashboard: ${error.message}. Verifique o Apps Script.`);
+          window.mostrarCarregamento(false);
+          // Define valores padrão em caso de erro
+          window.atualizarElemento('totalPedidos', '0');
+          window.atualizarElemento('totalCamisetas', '0');
+          window.atualizarElemento('pedidosPendentes', '0');
+          window.atualizarElemento('pedidosAprovados', '0');
+          throw error;
       }
-      
-      // Se a primeira tentativa de otimizada falhar, tentamos a alternativa com o resto das ações
-      await window.carregarDashboardAlternativo();
     };
-
 
     // ==========================================================
     // FUNÇÕES DE PEDIDOS (Listagem Admin e Consulta Usuário)
-    // *Estas funções estavam ausentes no seu código original e são essenciais para o Painel Admin e Consulta.*
-    // *Abaixo estão implementações básicas que você pode expandir.*
     // ==========================================================
 
     window.carregarPedidos = async function() {
@@ -2365,31 +2207,21 @@
         const listaPedidosElement = document.getElementById('listaPedidos');
         listaPedidosElement.innerHTML = ''; // Limpar lista
 
-        const acoesAlternativas = ['getAllOrders', 'listarPedidos', 'getTodosPedidos', 'getAllPedidos'];
         window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
 
         try {
-            let pedidos = null;
+            const formData = new FormData();
+            // Usa a ação que retorna a lista de pedidos (otimizada com cache no Apps Script)
+            formData.append('action', 'listarPedidos'); 
+            
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
 
-            for (const acao of acoesAlternativas) {
-                const formData = new FormData();
-                formData.append('action', acao);
-                
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-
-                if (data.success && data.pedidos && Array.isArray(data.pedidos)) {
-                    pedidos = data.pedidos;
-                    console.log(`✓ Ação '${acao}' funcionou.`);
-                    break;
-                }
-            }
-
-            if (!pedidos || pedidos.length === 0) {
+            if (!data.success || !data.pedidos || data.pedidos.length === 0) {
                 listaPedidosElement.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-box-open"></i>
@@ -2401,7 +2233,7 @@
                 return;
             }
 
-            pedidos.forEach(pedido => {
+            data.pedidos.forEach(pedido => {
                 const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
                                     pedido.status === 'Aprovado' ? 'status-aprovado' : 
                                     'status-rejeitado';
@@ -2412,7 +2244,7 @@
                 };
 
                 const pedidoHtml = `
-                    <div class="pedido-item" data-id="${pedido.id}">
+                    <div class="pedido-item" data-id="${pedido.numPedido}">
                         <div class="pedido-header">
                             <span class="pedido-numero">#${pedido.numPedido}</span>
                             <span class="pedido-status ${statusClass}">${pedido.status}</span>
@@ -2438,9 +2270,9 @@
                             </div>
                         </div>
                         <div class="admin-actions">
-                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.id}', 'Aprovado')">Aprovar</button>
-                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.id}', 'Rejeitado')">Rejeitar</button>
-                            </div>
+                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.numPedido}', 'Aprovado')">Aprovar</button>
+                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.numPedido}', 'Rejeitado')">Rejeitar</button>
+                        </div>
                     </div>
                 `;
                 listaPedidosElement.insertAdjacentHTML('beforeend', pedidoHtml);
@@ -2457,8 +2289,8 @@
     // ==========================================================
     // MANIPULAÇÃO DE STATUS (Admin)
     // ==========================================================
-    window.atualizarStatusPedido = async function(idPedido, novoStatus) {
-        if (!confirm(`Tem certeza que deseja mudar o status do pedido ${idPedido} para '${novoStatus}'?`)) {
+    window.atualizarStatusPedido = async function(numPedido, novoStatus) {
+        if (!confirm(`Tem certeza que deseja mudar o status do pedido ${numPedido} para '${novoStatus}'?`)) {
             return;
         }
 
@@ -2466,8 +2298,8 @@
 
         try {
             const formData = new FormData();
-            formData.append('action', 'updateStatus');
-            formData.append('id', idPedido);
+            formData.append('action', 'updateStatus'); // Ação que o Apps Script reconhece
+            formData.append('numPedido', numPedido);
             formData.append('status', novoStatus);
 
             const response = await fetch(SCRIPT_URL, {
@@ -2478,7 +2310,7 @@
             const data = await response.json();
 
             if (data.success) {
-                window.exibirMensagem('mensagemLogin', 'sucesso', `Status do pedido ${idPedido} atualizado para ${novoStatus} com sucesso!`);
+                window.exibirMensagem('mensagemLogin', 'sucesso', `Status do pedido ${numPedido} atualizado para ${novoStatus} com sucesso!`);
                 await window.carregarPedidos(); // Recarrega a lista
                 await window.carregarDashboard(); // Atualiza o dashboard
             } else {
@@ -2536,7 +2368,10 @@
       }
       
       if (voltarHome2) {
-          voltarHome2.addEventListener('click', () => window.redirecionarComAnimacao('home'));
+          voltarHome2.addEventListener('click', () => {
+             document.getElementById('resultadoConsulta').innerHTML = ''; // Limpa o resultado da consulta
+             window.redirecionarComAnimacao('home');
+          });
       }
       
       if (voltarHome3) {
@@ -2584,7 +2419,10 @@
               const email = document.getElementById('email').value;
               
               // 1. Verificar se já existe um pedido
+              window.mostrarCarregamento(true, 'Verificando e-mail...');
               const pedidoExistente = await window.verificarEmailPedidoExistente(email);
+              window.mostrarCarregamento(false);
+
 
               if (pedidoExistente) {
                   window.exibirMensagem('mensagemPedido', 'erro', `Você já possui um pedido ativo (#${pedidoExistente}). Use a tela de Consultar Pedido.`);
@@ -2593,7 +2431,7 @@
 
               // 2. Coletar dados do formulário
               const formData = new FormData(formPedido);
-              formData.append('action', 'fazerPedido');
+              formData.append('action', 'fazerPedido'); // Ação que o Apps Script reconhece
               
               const totalCamisetas = Array.from(formPedido.querySelectorAll('input[type="number"]'))
                                           .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
@@ -2617,13 +2455,6 @@
                       // 3. Sucesso: Limpar formulário e mostrar card de confirmação
                       formPedido.reset();
                       
-                      // Estrutura de tamanhos para a confirmação
-                      const getTamanhos = (prefixo) => Object.fromEntries(
-                        Array.from(formPedido.elements)
-                          .filter(el => el.name.startsWith(prefixo + '_') && el.type === 'number')
-                          .map(el => [el.name.split('_')[1], data.pedido.tamanhos[el.name] || '0'])
-                      );
-                      
                       const pedidoConfirmado = {
                           numPedido: data.numPedido,
                           nome: data.pedido.nome,
@@ -2631,9 +2462,9 @@
                           setor: data.pedido.setor,
                           local: data.pedido.local,
                           data: data.pedido.data,
-                          infantil: getTamanhos('infantil'),
-                          babylook: getTamanhos('babylook'),
-                          unissex: getTamanhos('unissex')
+                          infantil: data.pedido.infantil, // Dados já formatados pelo Apps Script
+                          babylook: data.pedido.babylook, // Dados já formatados pelo Apps Script
+                          unissex: data.pedido.unissex   // Dados já formatados pelo Apps Script
                       };
 
                       window.exibirConfirmacaoPedido(pedidoConfirmado);
@@ -2662,7 +2493,7 @@
 
               try {
                   const formData = new FormData();
-                  formData.append('action', 'login');
+                  formData.append('action', 'login'); // Ação que o Apps Script reconhece
                   formData.append('senha', senha);
 
                   const response = await fetch(SCRIPT_URL, {
@@ -2676,7 +2507,7 @@
                       // Login bem-sucedido
                       document.getElementById('loginAdmin').style.display = 'none';
                       document.getElementById('painelAdmin').style.display = 'block';
-                      document.getElementById('mensagemLogin').innerHTML = ''; // Limpa a mensagem
+                      document.getElementById('mensagemLogin').innerHTML = ''; 
                       window.mostrarAdminSecao('dashboard'); // Carrega o dashboard
                   } else {
                       // Login falhou
@@ -2706,7 +2537,7 @@
                   return;
               }
 
-              window.mostrarCarregamento(true, 'Consultando pedido...');
+              window.mostrarCarregamento(true, 'Buscando o pedido...');
 
               try {
                   const formData = new FormData();
