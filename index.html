@@ -414,13 +414,6 @@
       padding: 2rem 0;
     }
 
-    .home-image {
-      margin-bottom: 2rem;
-      max-width: 300px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-lg);
-    }
-
     .home-title {
       font-size: 3rem;
       font-weight: 800;
@@ -1434,9 +1427,6 @@
       <!-- Seção: Home -->
       <section id="home" class="section active">
         <div class="home-screen">
-          <!-- Imagem adicionada aqui -->
-          <img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50-ANOS.png" alt="Logo UMADEMATS" class="home-image">
-          
           <h1 class="home-title">Sistema de Pedidos</h1>
           <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
           
@@ -2644,6 +2634,7 @@
         console.log('Resposta do dashboard:', data);
         
         if (data.success) {
+          // Atualizar os cards principais
           document.getElementById('totalPedidos').textContent = data.totalPedidos || 0;
           document.getElementById('totalCamisetas').textContent = data.totalCamisetas || 0;
           document.getElementById('pedidosPendentes').textContent = data.pedidosPendentes || 0;
@@ -2731,8 +2722,7 @@
     // Método alternativo para carregar dashboard
     function carregarDashboardAlternativo() {
       const formData = new FormData();
-      formData.append('action', 'loginAdmin');
-      formData.append('senha', 'admin'); // Tentar com senha padrão
+      formData.append('action', 'getAllOrders');
       
       mostrarCarregamento(true, 'Carregando dashboard (alternativo)...');
       
@@ -2747,62 +2737,7 @@
         return response.json();
       })
       .then(data => {
-        console.log('Resposta do dashboard alternativo:', data);
-        
-        // Se o login funcionar, tentar obter os pedidos para calcular estatísticas
-        if (data.success) {
-          return carregarPedidosParaDashboard();
-        } else {
-          throw new Error('Não foi possível obter dados para o dashboard');
-        }
-      })
-      .catch(error => {
-        console.error('Erro ao carregar dashboard alternativo:', error);
-        // Exibir mensagem de erro e valores padrão
-        exibirMensagem('mensagemLogin', 'erro', 'Não foi possível carregar os dados do dashboard. Verifique a configuração do servidor.');
-        
-        // Definir valores padrão
-        document.getElementById('totalPedidos').textContent = '0';
-        document.getElementById('totalCamisetas').textContent = '0';
-        document.getElementById('pedidosPendentes').textContent = '0';
-        document.getElementById('pedidosAprovados').textContent = '0';
-        document.getElementById('totalInfantis').textContent = '0';
-        document.getElementById('totalBabylook').textContent = '0';
-        document.getElementById('totalUnissex').textContent = '0';
-        document.getElementById('pedidosRejeitados').textContent = '0';
-        
-        // Definir valores padrão para totalizadores por tamanho
-        const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-        tamanhos.forEach(tamanho => {
-          document.getElementById(`infantil_${tamanho}`).textContent = '0';
-          document.getElementById(`babylook_${tamanho}`).textContent = '0';
-          document.getElementById(`unissex_${tamanho}`).textContent = '0';
-          document.getElementById(`total_${tamanho}`).innerHTML = '<strong>0</strong>';
-        });
-      })
-      .finally(() => {
-        mostrarCarregamento(false);
-      });
-    }
-
-    // Carregar pedidos para calcular estatísticas do dashboard
-    function carregarPedidosParaDashboard() {
-      const formData = new FormData();
-      // Tentar com diferentes ações que o script pode reconhecer
-      formData.append('action', 'getAllOrders');
-      
-      return fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Erro HTTP: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Dados para dashboard:', data);
+        console.log('Dados para dashboard (alternativo):', data);
         
         if (data.success && data.pedidos) {
           // Calcular estatísticas com base nos pedidos
@@ -2904,6 +2839,33 @@
         } else {
           throw new Error('Não foi possível obter a lista de pedidos');
         }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar dashboard alternativo:', error);
+        // Exibir mensagem de erro e valores padrão
+        exibirMensagem('mensagemLogin', 'erro', 'Não foi possível carregar os dados do dashboard. Verifique a configuração do servidor.');
+        
+        // Definir valores padrão
+        document.getElementById('totalPedidos').textContent = '0';
+        document.getElementById('totalCamisetas').textContent = '0';
+        document.getElementById('pedidosPendentes').textContent = '0';
+        document.getElementById('pedidosAprovados').textContent = '0';
+        document.getElementById('totalInfantis').textContent = '0';
+        document.getElementById('totalBabylook').textContent = '0';
+        document.getElementById('totalUnissex').textContent = '0';
+        document.getElementById('pedidosRejeitados').textContent = '0';
+        
+        // Definir valores padrão para totalizadores por tamanho
+        const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
+        tamanhos.forEach(tamanho => {
+          document.getElementById(`infantil_${tamanho}`).textContent = '0';
+          document.getElementById(`babylook_${tamanho}`).textContent = '0';
+          document.getElementById(`unissex_${tamanho}`).textContent = '0';
+          document.getElementById(`total_${tamanho}`).innerHTML = '<strong>0</strong>';
+        });
+      })
+      .finally(() => {
+        mostrarCarregamento(false);
       });
     }
 
