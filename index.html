@@ -2022,7 +2022,7 @@
     
     // Função para verificar se o ID JÁ TEM pedido (retorna o pedido se sim)
     window.verificarPedidoPorNumero = async function(numPedido) {
-        const numNormalizado = numPedido.toUpperCase().trim();
+        const numNormalizado = numPedido.trim();
         try {
             const docRef = doc(db, "pedidos", numNormalizado);
             const docSnap = await getDoc(docRef);
