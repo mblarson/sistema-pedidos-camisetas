@@ -1297,7 +1297,7 @@
           
           <div class="menu-container">
             <button class="menu-button" id="btnAcessoLideranca">
-              <i class="fab fa-google"></i>
+              <i class="fas fa-sign-in-alt"></i>
               ACESSO LIDERANÇA
             </button>
             <button class="menu-button" id="btnAdministrador">
@@ -1305,6 +1305,32 @@
               ADMINISTRADOR
             </button>
           </div>
+        </div>
+      </section>
+      
+      <section id="login-lider" class="section">
+        <button class="back-button" id="voltarHomeLider">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+        </button>
+        <div class="login-container">
+            <form id="formLoginLider" class="modern-form">
+                <div class="form-group">
+                    <label for="emailLider"><i class="fas fa-envelope"></i> E-mail</label>
+                    <input type="email" id="emailLider" name="email" placeholder="Seu e-mail de liderança" required>
+                </div>
+                <div class="form-group">
+                    <label for="senhaLider"><i class="fas fa-lock"></i> Senha</label>
+                    <input type="password" id="senhaLider" name="senha" placeholder="Sua senha" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Acessar
+                    </button>
+                </div>
+            </form>
+            <div id="mensagemLoginLider" class="message-container"></div>
         </div>
       </section>
 
@@ -1458,7 +1484,7 @@
                   <label for="unissex_GG">GG</label>
                   <input type="number" id="unissex_GG" name="unissex_GG" min="0" value="0">
                 </div>
-                <div class="tamanhos-item">
+                <div class="tamanho-item">
                   <label for="unissex_XGG">XGG</label>
                   <input type="number" id="unissex_XGG" name="unissex_XGG" min="0" value="0">
                 </div>
@@ -1717,14 +1743,14 @@
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
     const ADMIN_EMAIL = "ieadms.umademats@gmail.com"; 
-    const ADMIN_PASSWORD_FIXA = "secretariaumademats"; 
+    const ADMIN_PASSWORD_FIXA = "SUA_SENHA_FORTE_AQUI"; // <-- **INSERIR SENHA AQUI**
     
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
     // ==========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
 
     // Inicializa o Firebase
@@ -1751,16 +1777,6 @@
         }
         return quantidades;
     }
-
-    async function getDocIdByNumPedido(numPedido) {
-        const q = query(pedidosCollection, where("numPedido", "==", numPedido));
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) {
-            return snapshot.docs[0].id;
-        }
-        return null;
-    }
-
 
     // ==========================================================
     // FUNÇÕES DE UTILIDADE GERAL (Expostas no escopo global)
@@ -1921,11 +1937,10 @@
     window.buscarPedidoExistente = async function(email) {
         window.mostrarCarregamento(true, 'Buscando pedido existente...');
         
-        // CORREÇÃO CRÍTICA: Normaliza o email de busca (do Google Auth)
+        // CORREÇÃO CRÍTICA: Normaliza o email de busca
         const emailNormalizado = email.toLowerCase().trim(); 
 
         try {
-            // Busca o pedido que corresponde ao email normalizado
             const q = query(pedidosCollection, where("email", "==", emailNormalizado));
             const snapshot = await getDocs(q);
             
@@ -1967,7 +1982,6 @@
         currentLeaderPedido = null;
         document.getElementById('pedidoDocId').value = '';
         
-        // CORRIGIDO: O email do líder logado é inserido e normalizado
         document.getElementById('email').value = email ? email.toLowerCase().trim() : ''; 
         
         document.getElementById('formPedido').reset();
@@ -2113,7 +2127,6 @@
                 finalNumPedido = currentLeaderPedido.numPedido;
                 
             } else {
-                // Para o Firebase, usamos o ID do documento como o numPedido
                 const docRef = await addDoc(pedidosCollection, { ...dataToSave, numPedido: 'PENDING' });
                 await updateDoc(doc(db, "pedidos", docRef.id), { numPedido: docRef.id });
                 finalNumPedido = docRef.id;
@@ -2135,7 +2148,7 @@
 
     // Função de Login Admin (Corrigida para receber 'e')
     window.handleAdminLogin = async function(e) {
-        e.preventDefault(); 
+        e.preventDefault(); // <-- CORREÇÃO CRÍTICA PARA IMPEDIR RECARREGAMENTO
         const senha = document.getElementById('senhaAdmin').value;
         window.mostrarCarregamento(true, 'Verificando senha...');
 
@@ -2154,8 +2167,36 @@
         window.mostrarCarregamento(false);
     }
     
-    // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
+    // Função de Login Líder (Nova)
+    window.handleLoginLider = async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('emailLider').value;
+        const senha = document.getElementById('senhaLider').value;
 
+        window.mostrarCarregamento(true, 'Verificando credenciais...');
+
+        try {
+            // Tenta autenticar no Firebase Auth
+            const userCredential = await signInWithEmailAndPassword(auth, email, senha);
+            
+            // Se a autenticação foi bem-sucedida, prossegue para o fluxo de pedido
+            await window.handleAcessoLideranca(userCredential.user.email); 
+
+        } catch (error) {
+            console.error("Erro de login do Líder:", error);
+            let msg = "E-mail ou senha incorretos.";
+            if (error.code === 'auth/user-not-found') {
+                msg = "Usuário não encontrado. Verifique seu e-mail.";
+            }
+            window.exibirMensagem('mensagemLoginLider', 'erro', msg);
+
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+    
+    // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
+    
     window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
@@ -2393,6 +2434,7 @@
       const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
       const btnAdministrador = document.getElementById('btnAdministrador');
       const formLoginAdmin = document.getElementById('formLoginAdmin');
+      const formLoginLider = document.getElementById('formLoginLider'); // NOVO FORM
       const formPedido = document.getElementById('formPedido');
       
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
@@ -2401,17 +2443,9 @@
 
       // === Fluxo do Líder (ACESSO LIDERANÇA) ===
       if (btnAcessoLideranca) {
-          btnAcessoLideranca.addEventListener('click', async () => {
-             window.mostrarCarregamento(true, 'Iniciando login com Google...');
-             try {
-                const result = await signInWithPopup(auth, googleProvider);
-                window.handleAcessoLideranca(result.user.email); 
-             } catch (error) {
-                console.error("Erro de login com Google:", error);
-                window.exibirMensagem('mensagemPedido', 'erro', 'Falha no login Google. Tente novamente.');
-             } finally {
-                window.mostrarCarregamento(false);
-             }
+          btnAcessoLideranca.addEventListener('click', () => {
+             // Redireciona para a nova seção de login E-mail/Senha
+             window.redirecionarComAnimacao('login-lider');
           });
       }
       
@@ -2425,6 +2459,12 @@
           });
       }
       
+      // NOVO: Submit do Formulário de Login do Líder
+      if (formLoginLider) {
+          formLoginLider.addEventListener('submit', window.handleLoginLider);
+      }
+      
+      // Submit do Formulário de Login Admin
       if (formLoginAdmin) {
           formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
       }
@@ -2439,7 +2479,10 @@
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
       document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
+      
+      // Botões Voltar
       document.getElementById('voltarHome2').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      document.getElementById('voltarHomeLider').addEventListener('click', () => window.redirecionarComAnimacao('home')); // Botão de voltar da tela de login do líder
       
       // Outros Event Listeners do Admin Panel
       document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
