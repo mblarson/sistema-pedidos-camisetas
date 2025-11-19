@@ -326,7 +326,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--white-color);
       font-size: 1.5rem;
       font-weight: 700;
     }
@@ -1814,12 +1813,19 @@
                     </tr>
                   </thead>
                   <tbody id="tamanhosDetalhesBody">
-                    <tr><td colspan="15" style="text-align: center;">Carregando dados detalhados...</td></tr>
+                    <tr><td colspan="15" style="text-align: center;">Clique em "Atualizar" para carregar os dados detalhados.</td></tr>
                   </tbody>
                   <tfoot id="tamanhosDetalhesFooter">
                     </tfoot>
                 </table>
               </div>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn-refresh" id="atualizarDetalhesTamanho">
+                    <i class="fas fa-sync-alt"></i>
+                    Atualizar Detalhes
+                </button>
             </div>
           </div>
 
@@ -1848,7 +1854,7 @@
   <script>
     // ==========================================================
     // ** IMPORTANTE **
-    // Atualize esta URL com o link de implantação do seu Google Apps Script (Execução como 'Qualquer pessoa').
+    // Atualize esta URL com o link de implantação do seu Google Apps Script 
     // ==========================================================
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
     
@@ -1882,7 +1888,7 @@
       const botoes = document.querySelectorAll('.admin-menu-btn');
       botoes.forEach(botao => {
         const textoBotao = botao.textContent.toLowerCase().trim();
-        if (textoBotao.includes(secao)) {
+        if (textoBotao.includes(secao) && secao !== 'detalhes-tamanhos') { // Ignora o botão Detalhes no menu
           botao.classList.add('active');
         }
       });
@@ -1896,7 +1902,6 @@
           console.error('Erro ao carregar pedidos:', error);
         });
       }
-      // Não precisa de else if para 'detalhes-tamanhos' porque ela é acessada pelo botão, não pelo menu principal
     };
 
     window.exibirMensagem = function(elementoId, tipo, mensagem) {
@@ -2070,6 +2075,7 @@
       
       try {
           const formData = new FormData();
+          // Chamada otimizada no Apps Script (só calcula o essencial)
           formData.append('action', 'getDashboard'); 
           
           const response = await fetch(SCRIPT_URL, {
@@ -2085,7 +2091,7 @@
           
           if (data.success) {
             
-            // Atualizar os cards principais (TotalPedidos, TotalCamisetas, etc.)
+            // Atualizar os cards principais
             window.atualizarElemento('totalPedidos', data.totalPedidos || 0);
             window.atualizarElemento('totalCamisetas', data.totalCamisetas || 0);
             window.atualizarElemento('pedidosPendentes', data.pedidosPendentes || 0);
@@ -2114,9 +2120,14 @@
         const detalhesBody = document.getElementById('tamanhosDetalhesBody');
         const detalhesFooter = document.getElementById('tamanhosDetalhesFooter');
         
+        // Limpa a tabela e mostra mensagem de carregamento interna
+        detalhesBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Carregando dados detalhados...</td></tr>';
+        detalhesFooter.innerHTML = '';
+        
         try {
             const formData = new FormData();
-            formData.append('action', 'getDetalhesTamanho'); // Nova ação no Apps Script
+            // Nova ação que faz o cálculo pesado sob demanda
+            formData.append('action', 'getDetalhesTamanho'); 
             
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -2151,6 +2162,8 @@
                     tamanhosDisponiveis.forEach(t => {
                         const qtd = detalhes[tipo.key][t] || 0;
                         htmlBody += `<td>${qtd}</td>`;
+                        // Se o tamanho for de adulto (BU) e não estiver na lista infantil, não somamos.
+                        // Mas como o Apps Script garante que Infantils só tem (1-14) e BU tem (PP-XGG), a soma simples funciona.
                         totaisGerais[t] += qtd;
                     });
                     htmlBody += `</tr>`;
@@ -2164,14 +2177,17 @@
 
                 detalhesBody.innerHTML = htmlBody;
                 detalhesFooter.innerHTML = htmlFooter;
+                window.exibirMensagem('mensagemLogin', 'sucesso', 'Detalhes de tamanho carregados com sucesso!');
 
             } else {
                 detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">${data.error || 'Erro ao carregar detalhes por tamanho'}</td></tr>`;
+                window.exibirMensagem('mensagemLogin', 'erro', 'Falha ao carregar Detalhes de Tamanho.');
             }
 
         } catch (error) {
             console.error('Erro ao carregar detalhes de tamanho:', error);
             detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">Erro de comunicação: ${error.message}</td></tr>`;
+            window.exibirMensagem('mensagemLogin', 'erro', 'Erro de rede ao carregar Detalhes.');
         } finally {
             window.mostrarCarregamento(false);
         }
@@ -2305,6 +2321,7 @@
       
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
+      const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
 
       // === Event Listeners de Navegação Principal ===
       document.getElementById('btnNovoPedido').addEventListener('click', () => window.redirecionarComAnimacao('pedido'));
@@ -2336,15 +2353,17 @@
       // === NOVO: Detalhamento Sob Demanda ===
       if (btnVerDetalhes) {
           btnVerDetalhes.addEventListener('click', () => {
-              window.mostrarAdminSecao('detalhes-tamanhos'); // Mudar para a nova seção
+              window.mostrarAdminSecao('detalhes-tamanhos'); 
               window.carregarDetalhesTamanho(); // Carregar os dados detalhados
           });
       }
       if (voltarDashboard) {
           voltarDashboard.addEventListener('click', () => {
-              // Simplesmente volta para a seção do dashboard (os dados já estão lá)
               window.mostrarAdminSecao('dashboard');
           });
+      }
+      if (atualizarDetalhesTamanho) {
+          atualizarDetalhesTamanho.addEventListener('click', () => window.carregarDetalhesTamanho());
       }
 
       
@@ -2439,10 +2458,16 @@
                   const data = await response.json();
 
                   if (data.success) {
+                      // Login bem-sucedido: Esconde login, mostra painel e INICIA CARREGAMENTO
                       document.getElementById('loginAdmin').style.display = 'none';
                       document.getElementById('painelAdmin').style.display = 'block';
                       document.getElementById('mensagemLogin').innerHTML = ''; 
-                      window.mostrarAdminSecao('dashboard');
+                      
+                      // Força a ativação visual e inicia a carga do Dashboard (Visão Geral Rápida)
+                      document.getElementById('admin-dashboard').classList.add('active');
+                      document.getElementById('btnDashboard').classList.add('active');
+                      window.carregarDashboard(); 
+                      
                   } else {
                       window.exibirMensagem('mensagemLogin', 'erro', data.error || 'Senha incorreta. Tente novamente.');
                   }
