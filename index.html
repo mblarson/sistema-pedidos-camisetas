@@ -2491,7 +2491,8 @@
               const pedido = await window.verificarPedidoPorNumero(consulta);
 
               if (pedido) {
-                  window.displayVisualizacaoPedido(pedido);
+                  currentPedidoParaEdicao = pedido;
+                  window.setupEdicaoPedido();
                   window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
               } else {
                   document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido correspondente ao número '${consulta}' foi localizado.</p></div>`;
@@ -2518,7 +2519,8 @@
               const pedido = await window.verificarPedidoPorEmail(consulta);
 
               if (pedido) {
-                  window.displayVisualizacaoPedido(pedido);
+                  currentPedidoParaEdicao = pedido;
+                  window.setupEdicaoPedido();
                   window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
               } else {
                   document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido para o e-mail '${consulta}' foi localizado.</p></div>`;
