@@ -1968,7 +1968,6 @@
     window.buscarPedidoExistente = async function(email) {
         window.mostrarCarregamento(true, 'Buscando pedido existente...');
         try {
-            // Busca o pedido que corresponde ao email do líder
             const q = query(pedidosCollection, where("email", "==", email));
             const snapshot = await getDocs(q);
             
@@ -2174,7 +2173,6 @@
     // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
 
     window.carregarTodosPedidos = async function() {
-        // ... (Lógica mantida) ...
         try {
             const snapshot = await getDocs(pedidosCollection);
             const pedidos = snapshot.docs.map(doc => ({ 
@@ -2189,7 +2187,6 @@
     }
 
     window.carregarDashboard = async function() {
-        // ... (Lógica mantida) ...
         window.mostrarCarregamento(true, 'Calculando visão geral...');
         
         try {
@@ -2238,7 +2235,6 @@
     };
     
     window.carregarDetalhesTamanho = async function() {
-        // ... (Lógica mantida) ...
         window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
         const detalhesBody = document.getElementById('tamanhosDetalhesBody');
         const detalhesFooter = document.getElementById('tamanhosDetalhesFooter');
@@ -2310,7 +2306,6 @@
 
 
     window.carregarPedidos = async function() {
-        // ... (Lógica mantida) ...
         window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
         const listaPedidosElement = document.getElementById('listaPedidos');
         listaPedidosElement.innerHTML = ''; 
@@ -2383,7 +2378,6 @@
     };
     
     window.atualizarStatusPedido = async function(docId, novoStatus) {
-        // ... (Lógica mantida) ...
         if (!confirm(`Tem certeza que deseja mudar o status do pedido para '${novoStatus}'?`)) {
             return;
         }
@@ -2417,11 +2411,9 @@
       const formLoginAdmin = document.getElementById('formLoginAdmin');
       const formPedido = document.getElementById('formPedido');
       
-      // Botões secundários do Dashboard
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
-
 
       // === Fluxo do Líder (ACESSO LIDERANÇA) ===
       if (btnAcessoLideranca) {
@@ -2434,7 +2426,6 @@
                 // Redireciona para o fluxo de verificação de pedido
                 window.handleAcessoLideranca(result.user.email); 
              } catch (error) {
-                // Trata o erro de login (ex: pop-up bloqueado, usuário cancelou)
                 console.error("Erro de login com Google:", error);
                 window.exibirMensagem('mensagemPedido', 'erro', 'Falha no login Google. Tente novamente.');
              } finally {
@@ -2445,6 +2436,7 @@
       
       // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
       if (btnAdministrador) {
+          // Apenas muda a seção
           btnAdministrador.addEventListener('click', () => {
               document.getElementById('loginAdmin').style.display = 'block';
               document.getElementById('painelAdmin').style.display = 'none';
@@ -2475,6 +2467,7 @@
       document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
       document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
       document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
+      document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
       
       if (btnVerDetalhes) {
           btnVerDetalhes.addEventListener('click', () => {
