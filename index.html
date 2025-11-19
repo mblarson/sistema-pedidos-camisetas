@@ -1372,13 +1372,11 @@
   </style>
 </head>
 <body>
-  <!-- Barra de Carregamento -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loadingText">Processando...</div>
   </div>
 
-  <!-- Card de Confirmação de Pedido -->
   <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
     <div class="pedido-confirmacao-card">
       <div class="pedido-confirmacao-header">
@@ -1406,7 +1404,6 @@
     </div>
   </div>
 
-  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -1421,10 +1418,8 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="main">
     <div class="container">
-      <!-- Seção: Home -->
       <section id="home" class="section active">
         <div class="home-screen">
           <h1 class="home-title">Sistema de Pedidos</h1>
@@ -1447,7 +1442,6 @@
         </div>
       </section>
 
-      <!-- Seção: Pedido de Camiseta -->
       <section id="pedido" class="section">
         <button class="back-button" id="voltarHome1">
           <i class="fas fa-arrow-left"></i>
@@ -1616,7 +1610,6 @@
         <div id="mensagemPedido" class="message-container"></div>
       </section>
 
-      <!-- Seção: Consultar Pedidos -->
       <section id="consultar" class="section">
         <button class="back-button" id="voltarHome2">
           <i class="fas fa-arrow-left"></i>
@@ -1646,7 +1639,6 @@
         <div id="resultadoConsulta" class="result-container"></div>
       </section>
 
-      <!-- Seção: Painel Administrador -->
       <section id="admin" class="section">
         <button class="back-button" id="voltarHome3">
           <i class="fas fa-arrow-left"></i>
@@ -1688,7 +1680,6 @@
             </button>
           </div>
 
-          <!-- Dashboard -->
           <div id="admin-dashboard" class="admin-section active">
             <div class="dashboard-header">
               <h3>Visão Geral</h3>
@@ -1782,7 +1773,6 @@
               </div>
             </div>
 
-            <!-- Nova seção: Totalizadores por Tamanho -->
             <div class="dashboard-details">
               <h4>Totalizadores por Tamanho</h4>
               <table class="tamanhos-table">
@@ -1879,7 +1869,6 @@
             </div>
           </div>
 
-          <!-- Pedidos -->
           <div id="admin-pedidos" class="admin-section">
             <div class="pedidos-header">
               <h3>Todos os Pedidos</h3>
@@ -1895,7 +1884,6 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <p>&copy; 2023 UMADEMATS - Todos os direitos reservados</p>
@@ -1903,7 +1891,13 @@
   </footer>
 
   <script>
-    // Garantir que todas as funções estejam disponíveis globalmente
+    // URL do seu Google Apps Script (a mesma que você forneceu)
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
+    
+    // ==========================================================
+    // FUNÇÕES DE UTILIDADE GERAL
+    // ==========================================================
+    
     window.mostrarSecao = function(secao) {
       // Remover classe active de todas as seções
       document.querySelectorAll('.section').forEach(s => {
@@ -1934,7 +1928,8 @@
       // Encontrar o botão correspondente e adicionar classe active
       const botoes = document.querySelectorAll('.admin-menu-btn');
       botoes.forEach(botao => {
-        if (botao.textContent.toLowerCase().includes(secao)) {
+        const textoBotao = botao.textContent.toLowerCase().trim();
+        if (textoBotao.includes(secao)) {
           botao.classList.add('active');
         }
       });
@@ -1998,6 +1993,13 @@
       const infoElement = document.getElementById('pedidoConfirmacaoInfo');
       const tamanhosElement = document.getElementById('pedidoConfirmacaoTamanhos');
       
+      // Função auxiliar para formatar tamanhos
+      const formatarTamanhos = (tamanhos) => {
+        return Object.entries(tamanhos).map(([tamanho, qtd]) => 
+          parseInt(qtd) > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+        ).join('');
+      };
+      
       // Exibir número do pedido com botão de cópia
       numeroElement.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
@@ -2021,29 +2023,17 @@
       tamanhosElement.innerHTML = `
         <div class="pedido-confirmacao-tipo">
           <h4><i class="fas fa-child"></i> Infantis</h4>
-          <ul>
-            ${Object.entries(pedido.infantil).map(([tamanho, qtd]) => 
-              qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-            ).join('')}
-          </ul>
+          <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
         </div>
         
         <div class="pedido-confirmacao-tipo">
           <h4><i class="fas fa-female"></i> Babylook</h4>
-          <ul>
-            ${Object.entries(pedido.babylook).map(([tamanho, qtd]) => 
-              qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-            ).join('')}
-          </ul>
+          <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
         </div>
         
         <div class="pedido-confirmacao-tipo">
           <h4><i class="fas fa-tshirt"></i> Unissex</h4>
-          <ul>
-            ${Object.entries(pedido.unissex).map(([tamanho, qtd]) => 
-              qtd > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
-            ).join('')}
-          </ul>
+          <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
         </div>
       `;
       
@@ -2066,7 +2056,7 @@
       
       window.mostrarCarregamento(true, 'Verificando e-mail...');
       
-      return fetch('https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec', {
+      return fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       })
@@ -2097,11 +2087,18 @@
     };
 
     window.redirecionarComAnimacao = function(secao, callback) {
-      const elemento = document.getElementById(secao);
+      const elemento = document.querySelector('.section.active');
+      const proximoElemento = document.getElementById(secao);
+
+      if (!elemento || !proximoElemento) {
+        window.mostrarSecao(secao);
+        if(callback) callback();
+        return;
+      }
       
       // Adiciona classe de animação de saída
       elemento.style.opacity = '0';
-      elemento.style.transform = 'translateY(20px)';
+      elemento.style.transform = 'translateY(-20px)';
       
       setTimeout(() => {
         window.mostrarSecao(secao);
@@ -2110,9 +2107,12 @@
         if (callback) callback();
         
         // Animação de entrada
+        proximoElemento.style.opacity = '0';
+        proximoElemento.style.transform = 'translateY(20px)';
+
         setTimeout(() => {
-          elemento.style.opacity = '1';
-          elemento.style.transform = 'translateY(0)';
+          proximoElemento.style.opacity = '1';
+          proximoElemento.style.transform = 'translateY(0)';
         }, 50);
       }, 300);
     };
@@ -2125,11 +2125,16 @@
         console.warn(`Elemento com ID '${elementId}' não encontrado`);
       }
     };
+    
+    // ==========================================================
+    // FUNÇÕES DE DASHBOARD
+    // ==========================================================
 
+    // Lógica para carregar dashboard quando a chamada principal falha
     window.carregarDashboardAlternativo = async function() {
       console.log('=== INICIANDO CARREGAMENTO DE DASHBOARD (ALTERNATIVO) ===');
       
-      // Lista de ações alternativas para tentar (mesma usada em carregarPedidos)
+      // Lista de ações alternativas para tentar
       const acoesAlternativas = [
         'getAllOrders',
         'listarPedidos', 
@@ -2141,7 +2146,6 @@
       
       window.mostrarCarregamento(true, 'Carregando dashboard (alternativo)...');
       
-      // Tentar cada ação até encontrar uma que funcione
       for (let i = 0; i < acoesAlternativas.length; i++) {
         const acao = acoesAlternativas[i];
         console.log(`Tentativa ${i + 1}/${acoesAlternativas.length}: Testando ação '${acao}'`);
@@ -2150,7 +2154,7 @@
           const formData = new FormData();
           formData.append('action', acao);
           
-          const response = await fetch('https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec', {
+          const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             body: formData
           });
@@ -2169,7 +2173,7 @@
           if (data.success && data.pedidos && Array.isArray(data.pedidos)) {
             console.log(`✓ Ação '${acao}' funcionou! Número de pedidos:`, data.pedidos.length);
             
-            // Calcular estatísticas com base nos pedidos
+            // Início do cálculo de estatísticas
             const pedidos = data.pedidos;
             let totalPedidos = pedidos.length;
             let totalCamisetas = 0;
@@ -2181,21 +2185,11 @@
             let totalUnissex = 0;
             
             // Inicializar totalizadores por tamanho
-            const tamanhosInfantil = {
-              'PP': 0, 'P': 0, 'M': 0, 'G': 0, 'GG': 0, 'XGG': 0,
-              '1': 0, '2': 0, '4': 0, '6': 0, '8': 0, '10': 0, '12': 0, '14': 0
-            };
-            
-            const tamanhosBabylook = {
-              'PP': 0, 'P': 0, 'M': 0, 'G': 0, 'GG': 0, 'XGG': 0,
-              '1': 0, '2': 0, '4': 0, '6': 0, '8': 0, '10': 0, '12': 0, '14': 0
-            };
-            
-            const tamanhosUnissex = {
-              'PP': 0, 'P': 0, 'M': 0, 'G': 0, 'GG': 0, 'XGG': 0,
-              '1': 0, '2': 0, '4': 0, '6': 0, '8': 0, '10': 0, '12': 0, '14': 0
-            };
-            
+            const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
+            const tamanhosInfantil = Object.fromEntries(tamanhosDisponiveis.map(t => [t, 0]));
+            const tamanhosBabylook = Object.fromEntries(tamanhosDisponiveis.map(t => [t, 0]));
+            const tamanhosUnissex = Object.fromEntries(tamanhosDisponiveis.map(t => [t, 0]));
+
             pedidos.forEach(pedido => {
               // Contar por status
               if (pedido.status === 'Pendente') {
@@ -2206,36 +2200,34 @@
                 pedidosRejeitados++;
               }
               
-              // Contar camisetas por tipo
-              if (pedido.infantil) {
-                Object.entries(pedido.infantil).forEach(([tamanho, qtd]) => {
-                  const quantidade = parseInt(qtd) || 0;
-                  totalInfantis += quantidade;
-                  totalCamisetas += quantidade;
-                  tamanhosInfantil[tamanho] = (tamanhosInfantil[tamanho] || 0) + quantidade;
-                });
-              }
+              // Funções para somar camisetas
+              const somarTamanhos = (tamanhosObj, tipoTotal, tipoTamanhos) => {
+                  if (pedido[tipoTamanhos]) {
+                      Object.entries(pedido[tipoTamanhos]).forEach(([tamanho, qtd]) => {
+                          const quantidade = parseInt(qtd) || 0;
+                          if (quantidade > 0) {
+                              tipoTotal.total += quantidade;
+                              tamanhosObj[tamanho] = (tamanhosObj[tamanho] || 0) + quantidade;
+                              totalCamisetas += quantidade;
+                          }
+                      });
+                  }
+              };
               
-              if (pedido.babylook) {
-                Object.entries(pedido.babylook).forEach(([tamanho, qtd]) => {
-                  const quantidade = parseInt(qtd) || 0;
-                  totalBabylook += quantidade;
-                  totalCamisetas += quantidade;
-                  tamanhosBabylook[tamanho] = (tamanhosBabylook[tamanho] || 0) + quantidade;
-                });
-              }
+              let totalInfantilObj = { total: 0 };
+              let totalBabylookObj = { total: 0 };
+              let totalUnissexObj = { total: 0 };
               
-              if (pedido.unissex) {
-                Object.entries(pedido.unissex).forEach(([tamanho, qtd]) => {
-                  const quantidade = parseInt(qtd) || 0;
-                  totalUnissex += quantidade;
-                  totalCamisetas += quantidade;
-                  tamanhosUnissex[tamanho] = (tamanhosUnissex[tamanho] || 0) + quantidade;
-                });
-              }
+              somarTamanhos(tamanhosInfantil, totalInfantilObj, 'infantil');
+              somarTamanhos(tamanhosBabylook, totalBabylookObj, 'babylook');
+              somarTamanhos(tamanhosUnissex, totalUnissexObj, 'unissex');
+
+              totalInfantis += totalInfantilObj.total;
+              totalBabylook += totalBabylookObj.total;
+              totalUnissex += totalUnissexObj.total;
             });
             
-            // Atualizar o dashboard com verificações de existência dos elementos
+            // Atualizar o dashboard
             window.atualizarElemento('totalPedidos', totalPedidos);
             window.atualizarElemento('totalCamisetas', totalCamisetas);
             window.atualizarElemento('pedidosPendentes', pedidosPendentes);
@@ -2246,18 +2238,11 @@
             window.atualizarElemento('pedidosRejeitados', pedidosRejeitados);
             
             // Atualizar totalizadores por tamanho
-            const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-            tamanhos.forEach(tamanho => {
-              // Atualizar infantis
+            tamanhosDisponiveis.forEach(tamanho => {
               window.atualizarElemento(`infantil_${tamanho}`, tamanhosInfantil[tamanho] || 0);
-              
-              // Atualizar babylook
               window.atualizarElemento(`babylook_${tamanho}`, tamanhosBabylook[tamanho] || 0);
-              
-              // Atualizar unissex
               window.atualizarElemento(`unissex_${tamanho}`, tamanhosUnissex[tamanho] || 0);
               
-              // Calcular e atualizar total geral
               const total = (tamanhosInfantil[tamanho] || 0) + 
                             (tamanhosBabylook[tamanho] || 0) + 
                             (tamanhosUnissex[tamanho] || 0);
@@ -2269,46 +2254,23 @@
             return Promise.resolve(); // Sucesso, sair da função
           } else if (data.error) {
             console.warn(`Ação '${acao}' retornou erro:`, data.error);
-            // Continuar tentando outras ações
           } else {
             console.warn(`Ação '${acao}' retornou resposta inválida:`, data);
-            // Continuar tentando outras ações
           }
           
         } catch (error) {
           console.error(`Erro ao tentar ação '${acao}':`, error);
-          // Continuar tentando outras ações
         }
       }
       
       // Se chegou aqui, nenhuma ação funcionou
       console.error('❌ TODAS AS TENTATIVAS FALHARAM');
-      console.error('Ações tentadas:', acoesAlternativas);
+      window.exibirMensagem('mensagemLogin', 'erro', 'Não foi possível carregar os dados do dashboard. Verifique a configuração do Apps Script.');
       
-      // Exibir mensagem de erro e valores padrão
-      window.exibirMensagem('mensagemLogin', 'erro', 'Não foi possível carregar os dados do dashboard. Verifique a configuração do servidor.');
-      
-      // Definir valores padrão
       window.atualizarElemento('totalPedidos', '0');
       window.atualizarElemento('totalCamisetas', '0');
       window.atualizarElemento('pedidosPendentes', '0');
       window.atualizarElemento('pedidosAprovados', '0');
-      window.atualizarElemento('totalInfantis', '0');
-      window.atualizarElemento('totalBabylook', '0');
-      window.atualizarElemento('totalUnissex', '0');
-      window.atualizarElemento('pedidosRejeitados', '0');
-      
-      // Definir valores padrão para totalizadores por tamanho
-      const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-      tamanhos.forEach(tamanho => {
-        window.atualizarElemento(`infantil_${tamanho}`, '0');
-        window.atualizarElemento(`babylook_${tamanho}`, '0');
-        window.atualizarElemento(`unissex_${tamanho}`, '0');
-        
-        const totalElement = document.getElementById(`total_${tamanho}`);
-        if (totalElement) totalElement.innerHTML = '<strong>0</strong>';
-      });
-      
       window.mostrarCarregamento(false);
       return Promise.reject('Não foi possível carregar os dados do dashboard');
     };
@@ -2316,106 +2278,510 @@
     window.carregarDashboard = async function() {
       console.log('=== INICIANDO CARREGAMENTO DE DASHBOARD ===');
       
-      // Lista de ações alternativas para tentar
       const acoesAlternativas = [
         'getDashboard',
-        'getAllOrders',
-        'listarPedidos', 
-        'getTodosPedidos',
-        'getAllPedidos',
-        'consultarTodosPedidos',
-        'obterPedidos'
+        'getAllOrders' // Se getDashboard falhar, tentamos a alternativa que retorna os dados brutos
       ];
       
       window.mostrarCarregamento(true, 'Carregando dashboard...');
       
-      // Tentar cada ação até encontrar uma que funcione
       for (let i = 0; i < acoesAlternativas.length; i++) {
         const acao = acoesAlternativas[i];
-        console.log(`Tentativa ${i + 1}/${acoesAlternativas.length}: Testando ação '${acao}'`);
         
         try {
           const formData = new FormData();
           formData.append('action', acao);
           
-          const response = await fetch('https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec', {
+          const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             body: formData
           });
           
-          console.log(`Resposta HTTP para '${acao}':`, response.status, response.statusText);
-          
           if (!response.ok) {
-            console.warn(`Erro HTTP ${response.status} para ação '${acao}'`);
-            continue; // Tentar próxima ação
+            throw new Error(`Erro HTTP ${response.status}`);
           }
           
           const data = await response.json();
-          console.log(`Dados recebidos para '${acao}':`, data);
           
           if (data.success) {
-            // Atualizar os cards principais
-            window.atualizarElemento('totalPedidos', data.totalPedidos || 0);
-            window.atualizarElemento('totalCamisetas', data.totalCamisetas || 0);
-            window.atualizarElemento('pedidosPendentes', data.pedidosPendentes || 0);
-            window.atualizarElemento('pedidosAprovados', data.pedidosAprovados || 0);
-            window.atualizarElemento('totalInfantis', data.totalInfantis || 0);
-            window.atualizarElemento('totalBabylook', data.totalBabylook || 0);
-            window.atualizarElemento('totalUnissex', data.totalUnissex || 0);
-            window.atualizarElemento('pedidosRejeitados', data.pedidosRejeitados || 0);
-            
-            // Atualizar totalizadores por tamanho
-            if (data.tamanhos) {
-              // Infantis
-              window.atualizarElemento('infantil_PP', data.tamanhos.infantil.PP || 0);
-              window.atualizarElemento('infantil_P', data.tamanhos.infantil.P || 0);
-              window.atualizarElemento('infantil_M', data.tamanhos.infantil.M || 0);
-              window.atualizarElemento('infantil_G', data.tamanhos.infantil.G || 0);
-              window.atualizarElemento('infantil_GG', data.tamanhos.infantil.GG || 0);
-              window.atualizarElemento('infantil_XGG', data.tamanhos.infantil.XGG || 0);
-              window.atualizarElemento('infantil_1', data.tamanhos.infantil['1'] || 0);
-              window.atualizarElemento('infantil_2', data.tamanhos.infantil['2'] || 0);
-              window.atualizarElemento('infantil_4', data.tamanhos.infantil['4'] || 0);
-              window.atualizarElemento('infantil_6', data.tamanhos.infantil['6'] || 0);
-              window.atualizarElemento('infantil_8', data.tamanhos.infantil['8'] || 0);
-              window.atualizarElemento('infantil_10', data.tamanhos.infantil['10'] || 0);
-              window.atualizarElemento('infantil_12', data.tamanhos.infantil['12'] || 0);
-              window.atualizarElemento('infantil_14', data.tamanhos.infantil['14'] || 0);
+            if (acao === 'getDashboard' && data.tamanhos) {
+                // Caso de sucesso com a ação otimizada 'getDashboard'
+                console.log(`✓ Ação '${acao}' funcionou com dados otimizados.`);
+                window.atualizarElemento('totalPedidos', data.totalPedidos || 0);
+                window.atualizarElemento('totalCamisetas', data.totalCamisetas || 0);
+                window.atualizarElemento('pedidosPendentes', data.pedidosPendentes || 0);
+                window.atualizarElemento('pedidosAprovados', data.pedidosAprovados || 0);
+                window.atualizarElemento('totalInfantis', data.totalInfantis || 0);
+                window.atualizarElemento('totalBabylook', data.totalBabylook || 0);
+                window.atualizarElemento('totalUnissex', data.totalUnissex || 0);
+                window.atualizarElemento('pedidosRejeitados', data.pedidosRejeitados || 0);
+                
+                // Atualizar totalizadores por tamanho
+                const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
+                tamanhos.forEach(tamanho => {
+                    const infantilQtd = data.tamanhos.infantil[tamanho] || 0;
+                    const babylookQtd = data.tamanhos.babylook[tamanho] || 0;
+                    const unissexQtd = data.tamanhos.unissex[tamanho] || 0;
+
+                    window.atualizarElemento(`infantil_${tamanho}`, infantilQtd);
+                    window.atualizarElemento(`babylook_${tamanho}`, babylookQtd);
+                    window.atualizarElemento(`unissex_${tamanho}`, unissexQtd);
+                    
+                    const total = infantilQtd + babylookQtd + unissexQtd;
+                    const totalElement = document.getElementById(`total_${tamanho}`);
+                    if (totalElement) totalElement.innerHTML = `<strong>${total}</strong>`;
+                });
+
+                window.mostrarCarregamento(false);
+                return; // Sai da função carregarDashboard
+            } else if (acao === 'getAllOrders' || (acao === 'getDashboard' && !data.tamanhos)) {
+                // Se a primeira falhar ou retornar dados brutos, usamos a lógica alternativa
+                console.warn(`Ação '${acao}' não retornou formato otimizado, tentando fallback para lógica alternativa...`);
+                await window.carregarDashboardAlternativo();
+                return; // Sai da função carregarDashboard
+            }
+          } else if (data.error) {
+            console.warn(`Ação '${acao}' retornou erro:`, data.error);
+          }
+          
+        } catch (error) {
+          console.error(`Erro ao tentar ação '${acao}':`, error);
+        }
+      }
+      
+      // Se a primeira tentativa de otimizada falhar, tentamos a alternativa com o resto das ações
+      await window.carregarDashboardAlternativo();
+    };
+
+
+    // ==========================================================
+    // FUNÇÕES DE PEDIDOS (Listagem Admin e Consulta Usuário)
+    // *Estas funções estavam ausentes no seu código original e são essenciais para o Painel Admin e Consulta.*
+    // *Abaixo estão implementações básicas que você pode expandir.*
+    // ==========================================================
+
+    window.carregarPedidos = async function() {
+        console.log('=== INICIANDO CARREGAMENTO DE PEDIDOS ADMIN ===');
+        const listaPedidosElement = document.getElementById('listaPedidos');
+        listaPedidosElement.innerHTML = ''; // Limpar lista
+
+        const acoesAlternativas = ['getAllOrders', 'listarPedidos', 'getTodosPedidos', 'getAllPedidos'];
+        window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
+
+        try {
+            let pedidos = null;
+
+            for (const acao of acoesAlternativas) {
+                const formData = new FormData();
+                formData.append('action', acao);
+                
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+
+                if (data.success && data.pedidos && Array.isArray(data.pedidos)) {
+                    pedidos = data.pedidos;
+                    console.log(`✓ Ação '${acao}' funcionou.`);
+                    break;
+                }
+            }
+
+            if (!pedidos || pedidos.length === 0) {
+                listaPedidosElement.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h3>Nenhum Pedido Encontrado</h3>
+                        <p>Não há pedidos registrados no sistema.</p>
+                    </div>
+                `;
+                window.mostrarCarregamento(false);
+                return;
+            }
+
+            pedidos.forEach(pedido => {
+                const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
+                                    pedido.status === 'Aprovado' ? 'status-aprovado' : 
+                                    'status-rejeitado';
+
+                const formatarTamanhos = (tipos) => {
+                    return Object.entries(tipos).filter(([_, qtd]) => parseInt(qtd) > 0)
+                                .map(([t, q]) => `<li>${t}: ${q}</li>`).join('');
+                };
+
+                const pedidoHtml = `
+                    <div class="pedido-item" data-id="${pedido.id}">
+                        <div class="pedido-header">
+                            <span class="pedido-numero">#${pedido.numPedido}</span>
+                            <span class="pedido-status ${statusClass}">${pedido.status}</span>
+                        </div>
+                        <div class="pedido-info">
+                            <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
+                            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                            <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${pedido.totalCamisetas || 0}</p>
+                        </div>
+                        <div class="pedido-tamanhos">
+                            <div class="tipo-tamanhos">
+                                <h4>Infantis</h4>
+                                <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
+                            </div>
+                            <div class="tipo-tamanhos">
+                                <h4>Babylook</h4>
+                                <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
+                            </div>
+                            <div class="tipo-tamanhos">
+                                <h4>Unissex</h4>
+                                <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
+                            </div>
+                        </div>
+                        <div class="admin-actions">
+                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.id}', 'Aprovado')">Aprovar</button>
+                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.id}', 'Rejeitado')">Rejeitar</button>
+                            </div>
+                    </div>
+                `;
+                listaPedidosElement.insertAdjacentHTML('beforeend', pedidoHtml);
+            });
+
+        } catch (error) {
+            console.error('Erro ao carregar lista de pedidos:', error);
+            listaPedidosElement.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar pedidos: ${error.message}</div>`;
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+    
+    // ==========================================================
+    // MANIPULAÇÃO DE STATUS (Admin)
+    // ==========================================================
+    window.atualizarStatusPedido = async function(idPedido, novoStatus) {
+        if (!confirm(`Tem certeza que deseja mudar o status do pedido ${idPedido} para '${novoStatus}'?`)) {
+            return;
+        }
+
+        window.mostrarCarregamento(true, `Atualizando status para ${novoStatus}...`);
+
+        try {
+            const formData = new FormData();
+            formData.append('action', 'updateStatus');
+            formData.append('id', idPedido);
+            formData.append('status', novoStatus);
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.exibirMensagem('mensagemLogin', 'sucesso', `Status do pedido ${idPedido} atualizado para ${novoStatus} com sucesso!`);
+                await window.carregarPedidos(); // Recarrega a lista
+                await window.carregarDashboard(); // Atualiza o dashboard
+            } else {
+                window.exibirMensagem('mensagemLogin', 'erro', `Erro ao atualizar status: ${data.error || 'Erro desconhecido'}`);
+            }
+
+        } catch (error) {
+            console.error('Erro ao atualizar status:', error);
+            window.exibirMensagem('mensagemLogin', 'erro', `Erro de comunicação: ${error.message}`);
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+
+
+    // ==========================================================
+    // EVENT LISTENERS PRINCIPAIS (Inicialização)
+    // ==========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      // === Seleção dos Botões da Home ===
+      const btnNovoPedido = document.getElementById('btnNovoPedido');
+      const btnConsultarPedido = document.getElementById('btnConsultarPedido');
+      const btnAdministrador = document.getElementById('btnAdministrador');
+      
+      // === Seleção dos Botões de Voltar e Confirmação ===
+      const voltarHome1 = document.getElementById('voltarHome1');
+      const voltarHome2 = document.getElementById('voltarHome2');
+      const voltarHome3 = document.getElementById('voltarHome3');
+      const fecharConfirmacaoPedido = document.getElementById('fecharConfirmacaoPedido');
+      const voltarInicio = document.getElementById('voltarInicio');
+
+      // === Definição dos Event Listeners para a Navegação Principal ===
+      if (btnNovoPedido) {
+          btnNovoPedido.addEventListener('click', () => window.redirecionarComAnimacao('pedido'));
+      }
+      
+      if (btnConsultarPedido) {
+          btnConsultarPedido.addEventListener('click', () => window.redirecionarComAnimacao('consultar'));
+      }
+      
+      if (btnAdministrador) {
+          btnAdministrador.addEventListener('click', () => {
+              // Reseta o estado de login e navega para a seção admin
+              document.getElementById('loginAdmin').style.display = 'block';
+              document.getElementById('painelAdmin').style.display = 'none';
+              document.getElementById('mensagemLogin').innerHTML = ''; // Limpa a mensagem
+              window.redirecionarComAnimacao('admin');
+          });
+      }
+
+      // === Definição dos Event Listeners para Voltar ===
+      if (voltarHome1) {
+          voltarHome1.addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      }
+      
+      if (voltarHome2) {
+          voltarHome2.addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      }
+      
+      if (voltarHome3) {
+          voltarHome3.addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      }
+      
+      if (fecharConfirmacaoPedido) {
+          fecharConfirmacaoPedido.addEventListener('click', () => window.fecharConfirmacaoPedido());
+      }
+      
+      if (voltarInicio) {
+          voltarInicio.addEventListener('click', () => window.fecharConfirmacaoPedido());
+      }
+
+      // === Definição dos Event Listeners para o Menu Admin ===
+      const btnDashboard = document.getElementById('btnDashboard');
+      const btnPedidos = document.getElementById('btnPedidos');
+
+      if (btnDashboard) {
+          btnDashboard.addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
+      }
+      
+      if (btnPedidos) {
+          btnPedidos.addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
+      }
+      
+      if (document.getElementById('atualizarDashboard')) {
+          document.getElementById('atualizarDashboard').addEventListener('click', () => window.carregarDashboard());
+      }
+
+      if (document.getElementById('atualizarPedidos')) {
+          document.getElementById('atualizarPedidos').addEventListener('click', () => window.carregarPedidos());
+      }
+      
+      // ==========================================================
+      // Lógica de Formulários
+      // ==========================================================
+      
+      // Formulário de Pedido
+      const formPedido = document.getElementById('formPedido');
+      if (formPedido) {
+          formPedido.addEventListener('submit', async (e) => {
+              e.preventDefault();
               
-              // Babylook
-              window.atualizarElemento('babylook_PP', data.tamanhos.babylook.PP || 0);
-              window.atualizarElemento('babylook_P', data.tamanhos.babylook.P || 0);
-              window.atualizarElemento('babylook_M', data.tamanhos.babylook.M || 0);
-              window.atualizarElemento('babylook_G', data.tamanhos.babylook.G || 0);
-              window.atualizarElemento('babylook_GG', data.tamanhos.babylook.GG || 0);
-              window.atualizarElemento('babylook_XGG', data.tamanhos.babylook.XGG || 0);
-              window.atualizarElemento('babylook_1', data.tamanhos.babylook['1'] || 0);
-              window.atualizarElemento('babylook_2', data.tamanhos.babylook['2'] || 0);
-              window.atualizarElemento('babylook_4', data.tamanhos.babylook['4'] || 0);
-              window.atualizarElemento('babylook_6', data.tamanhos.babylook['6'] || 0);
-              window.atualizarElemento('babylook_8', data.tamanhos.babylook['8'] || 0);
-              window.atualizarElemento('babylook_10', data.tamanhos.babylook['10'] || 0);
-              window.atualizarElemento('babylook_12', data.tamanhos.babylook['12'] || 0);
-              window.atualizarElemento('babylook_14', data.tamanhos.babylook['14'] || 0);
+              const email = document.getElementById('email').value;
               
-              // Unissex
-              window.atualizarElemento('unissex_PP', data.tamanhos.unissex.PP || 0);
-              window.atualizarElemento('unissex_P', data.tamanhos.unissex.P || 0);
-              window.atualizarElemento('unissex_M', data.tamanhos.unissex.M || 0);
-              window.atualizarElemento('unissex_G', data.tamanhos.unissex.G || 0);
-              window.atualizarElemento('unissex_GG', data.tamanhos.unissex.GG || 0);
-              window.atualizarElemento('unissex_XGG', data.tamanhos.unissex.XGG || 0);
-              window.atualizarElemento('unissex_1', data.tamanhos.unissex['1'] || 0);
-              window.atualizarElemento('unissex_2', data.tamanhos.unissex['2'] || 0);
-              window.atualizarElemento('unissex_4', data.tamanhos.unissex['4'] || 0);
-              window.atualizarElemento('unissex_6', data.tamanhos.unissex['6'] || 0);
-              window.atualizarElemento('unissex_8', data.tamanhos.unissex['8'] || 0);
-              window.atualizarElemento('unissex_10', data.tamanhos.unissex['10'] || 0);
-              window.atualizarElemento('unissex_12', data.tamanhos.unissex['12'] || 0);
-              window.atualizarElemento('unissex_14', data.tamanhos.unissex['14'] || 0);
+              // 1. Verificar se já existe um pedido
+              const pedidoExistente = await window.verificarEmailPedidoExistente(email);
+
+              if (pedidoExistente) {
+                  window.exibirMensagem('mensagemPedido', 'erro', `Você já possui um pedido ativo (#${pedidoExistente}). Use a tela de Consultar Pedido.`);
+                  return;
+              }
+
+              // 2. Coletar dados do formulário
+              const formData = new FormData(formPedido);
+              formData.append('action', 'fazerPedido');
               
-              // Calcular totais por tamanho
-              const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-              tamanhos.forEach(tamanho => {
-                const total = (data.tamanhos.infantil[tamanho] || 0) + 
-                              (data.tamanhos.babylook[tamanho] || 0)
+              const totalCamisetas = Array.from(formPedido.querySelectorAll('input[type="number"]'))
+                                          .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+
+              if (totalCamisetas === 0) {
+                  window.exibirMensagem('mensagemPedido', 'erro', 'O pedido deve conter pelo menos uma camiseta.');
+                  return;
+              }
+
+              window.mostrarCarregamento(true, 'Enviando pedido...');
+
+              try {
+                  const response = await fetch(SCRIPT_URL, {
+                      method: 'POST',
+                      body: formData
+                  });
+                  
+                  const data = await response.json();
+
+                  if (data.success) {
+                      // 3. Sucesso: Limpar formulário e mostrar card de confirmação
+                      formPedido.reset();
+                      
+                      // Estrutura de tamanhos para a confirmação
+                      const getTamanhos = (prefixo) => Object.fromEntries(
+                        Array.from(formPedido.elements)
+                          .filter(el => el.name.startsWith(prefixo + '_') && el.type === 'number')
+                          .map(el => [el.name.split('_')[1], data.pedido.tamanhos[el.name] || '0'])
+                      );
+                      
+                      const pedidoConfirmado = {
+                          numPedido: data.numPedido,
+                          nome: data.pedido.nome,
+                          email: data.pedido.email,
+                          setor: data.pedido.setor,
+                          local: data.pedido.local,
+                          data: data.pedido.data,
+                          infantil: getTamanhos('infantil'),
+                          babylook: getTamanhos('babylook'),
+                          unissex: getTamanhos('unissex')
+                      };
+
+                      window.exibirConfirmacaoPedido(pedidoConfirmado);
+                      window.exibirMensagem('mensagemPedido', 'sucesso', `Pedido #${data.numPedido} enviado com sucesso!`);
+                  } else {
+                      window.exibirMensagem('mensagemPedido', 'erro', `Erro ao enviar pedido: ${data.error || 'Erro desconhecido'}`);
+                  }
+
+              } catch (error) {
+                  console.error('Erro na comunicação:', error);
+                  window.exibirMensagem('mensagemPedido', 'erro', 'Erro de comunicação com o servidor. Tente novamente.');
+              } finally {
+                  window.mostrarCarregamento(false);
+              }
+          });
+      }
+      
+      // Formulário de Login Admin
+      const formLogin = document.getElementById('formLogin');
+      if (formLogin) {
+          formLogin.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const senha = document.getElementById('senha').value;
+
+              window.mostrarCarregamento(true, 'Verificando senha...');
+
+              try {
+                  const formData = new FormData();
+                  formData.append('action', 'login');
+                  formData.append('senha', senha);
+
+                  const response = await fetch(SCRIPT_URL, {
+                      method: 'POST',
+                      body: formData
+                  });
+
+                  const data = await response.json();
+
+                  if (data.success) {
+                      // Login bem-sucedido
+                      document.getElementById('loginAdmin').style.display = 'none';
+                      document.getElementById('painelAdmin').style.display = 'block';
+                      document.getElementById('mensagemLogin').innerHTML = ''; // Limpa a mensagem
+                      window.mostrarAdminSecao('dashboard'); // Carrega o dashboard
+                  } else {
+                      // Login falhou
+                      window.exibirMensagem('mensagemLogin', 'erro', data.error || 'Senha incorreta. Tente novamente.');
+                  }
+
+              } catch (error) {
+                  console.error('Erro de login:', error);
+                  window.exibirMensagem('mensagemLogin', 'erro', 'Erro de comunicação ao tentar logar.');
+              } finally {
+                  window.mostrarCarregamento(false);
+              }
+          });
+      }
+
+      // Formulário de Consulta
+      const formConsultar = document.getElementById('formConsultar');
+      if (formConsultar) {
+          formConsultar.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const numPedido = document.getElementById('numPedidoConsulta').value.toUpperCase().trim();
+              const resultadoConsultaElement = document.getElementById('resultadoConsulta');
+              resultadoConsultaElement.innerHTML = '';
+
+              if (!numPedido) {
+                  window.exibirMensagem('resultadoConsulta', 'erro', 'Por favor, insira o número do pedido.');
+                  return;
+              }
+
+              window.mostrarCarregamento(true, 'Consultando pedido...');
+
+              try {
+                  const formData = new FormData();
+                  formData.append('action', 'consultarPedido');
+                  formData.append('numPedido', numPedido);
+
+                  const response = await fetch(SCRIPT_URL, {
+                      method: 'POST',
+                      body: formData
+                  });
+
+                  const data = await response.json();
+
+                  if (data.success && data.pedido) {
+                      const pedido = data.pedido;
+                      const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
+                                            pedido.status === 'Aprovado' ? 'status-aprovado' : 
+                                            'status-rejeitado';
+
+                      const formatarTamanhos = (tipos) => {
+                            return Object.entries(tipos).filter(([_, qtd]) => parseInt(qtd) > 0)
+                                        .map(([t, q]) => `<li>${t}: ${q}</li>`).join('');
+                      };
+
+                      resultadoConsultaElement.innerHTML = `
+                          <div class="pedido-item">
+                              <div class="pedido-header">
+                                  <span class="pedido-numero">#${pedido.numPedido}</span>
+                                  <span class="pedido-status ${statusClass}">${pedido.status}</span>
+                              </div>
+                              <div class="pedido-info">
+                                  <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                                  <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
+                                  <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                                  <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                                  <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${pedido.totalCamisetas || 0}</p>
+                              </div>
+                              <div class="pedido-tamanhos">
+                                  <div class="tipo-tamanhos">
+                                      <h4>Infantis</h4>
+                                      <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
+                                  </div>
+                                  <div class="tipo-tamanhos">
+                                      <h4>Babylook</h4>
+                                      <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
+                                  </div>
+                                  <div class="tipo-tamanhos">
+                                      <h4>Unissex</h4>
+                                      <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
+                                  </div>
+                              </div>
+                          </div>
+                      `;
+                      
+                      window.exibirMensagem('mensagemPedido', 'sucesso', `Pedido #${numPedido} encontrado.`);
+                  } else {
+                      resultadoConsultaElement.innerHTML = `
+                          <div class="empty-state">
+                              <i class="fas fa-exclamation-circle"></i>
+                              <h3>Pedido Não Encontrado</h3>
+                              <p>Verifique o número e tente novamente. Certifique-se de que o Apps Script está configurado.</p>
+                          </div>
+                      `;
+                  }
+
+              } catch (error) {
+                  console.error('Erro na consulta:', error);
+                  window.exibirMensagem('resultadoConsulta', 'erro', 'Erro de comunicação com o servidor. Tente novamente.');
+              } finally {
+                  window.mostrarCarregamento(false);
+              }
+          });
+      }
+    });
+
+  </script>
+</body>
+</html>
