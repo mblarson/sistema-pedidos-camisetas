@@ -1682,7 +1682,7 @@
 
           <div id="admin-dashboard" class="admin-section active">
             <div class="dashboard-header">
-              <h3>Visão Geral</h3>
+              <h3>Visão Geral Rápida</h3>
               <button id="atualizarDashboard" class="btn-refresh">
                 <i class="fas fa-sync-alt"></i>
                 Atualizar
@@ -1772,102 +1772,57 @@
                 </div>
               </div>
             </div>
+            
+            <div class="form-actions">
+              <button class="btn-primary" id="btnVerDetalhes">
+                <i class="fas fa-calculator"></i>
+                Verificar Detalhamento por Tamanho
+              </button>
+            </div>
+            
+          </div>
 
+          <div id="admin-detalhes-tamanhos" class="admin-section">
+            <div class="dashboard-header">
+              <h3>Totalizadores por Tamanho</h3>
+              <button id="voltarDashboard" class="btn-refresh">
+                <i class="fas fa-arrow-left"></i>
+                Voltar ao Dashboard
+              </button>
+            </div>
+            
             <div class="dashboard-details">
-              <h4>Totalizadores por Tamanho</h4>
-              <table class="tamanhos-table">
-                <thead>
-                  <tr>
-                    <th class="tipo-header">Tipo</th>
-                    <th>PP</th>
-                    <th>P</th>
-                    <th>M</th>
-                    <th>G</th>
-                    <th>GG</th>
-                    <th>XGG</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>4</th>
-                    <th>6</th>
-                    <th>8</th>
-                    <th>10</th>
-                    <th>12</th>
-                    <th>14</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="tipo-header">Infantis</td>
-                    <td id="infantil_PP">0</td>
-                    <td id="infantil_P">0</td>
-                    <td id="infantil_M">0</td>
-                    <td id="infantil_G">0</td>
-                    <td id="infantil_GG">0</td>
-                    <td id="infantil_XGG">0</td>
-                    <td id="infantil_1">0</td>
-                    <td id="infantil_2">0</td>
-                    <td id="infantil_4">0</td>
-                    <td id="infantil_6">0</td>
-                    <td id="infantil_8">0</td>
-                    <td id="infantil_10">0</td>
-                    <td id="infantil_12">0</td>
-                    <td id="infantil_14">0</td>
-                  </tr>
-                  <tr>
-                    <td class="tipo-header">Babylook</td>
-                    <td id="babylook_PP">0</td>
-                    <td id="babylook_P">0</td>
-                    <td id="babylook_M">0</td>
-                    <td id="babylook_G">0</td>
-                    <td id="babylook_GG">0</td>
-                    <td id="babylook_XGG">0</td>
-                    <td id="babylook_1">0</td>
-                    <td id="babylook_2">0</td>
-                    <td id="babylook_4">0</td>
-                    <td id="babylook_6">0</td>
-                    <td id="babylook_8">0</td>
-                    <td id="babylook_10">0</td>
-                    <td id="babylook_12">0</td>
-                    <td id="babylook_14">0</td>
-                  </tr>
-                  <tr>
-                    <td class="tipo-header">Unissex</td>
-                    <td id="unissex_PP">0</td>
-                    <td id="unissex_P">0</td>
-                    <td id="unissex_M">0</td>
-                    <td id="unissex_G">0</td>
-                    <td id="unissex_GG">0</td>
-                    <td id="unissex_XGG">0</td>
-                    <td id="unissex_1">0</td>
-                    <td id="unissex_2">0</td>
-                    <td id="unissex_4">0</td>
-                    <td id="unissex_6">0</td>
-                    <td id="unissex_8">0</td>
-                    <td id="unissex_10">0</td>
-                    <td id="unissex_12">0</td>
-                    <td id="unissex_14">0</td>
-                  </tr>
-                  <tr>
-                    <td class="tipo-header"><strong>Total Geral</strong></td>
-                    <td id="total_PP"><strong>0</strong></td>
-                    <td id="total_P"><strong>0</strong></td>
-                    <td id="total_M"><strong>0</strong></td>
-                    <td id="total_G"><strong>0</strong></td>
-                    <td id="total_GG"><strong>0</strong></td>
-                    <td id="total_XGG"><strong>0</strong></td>
-                    <td id="total_1"><strong>0</strong></td>
-                    <td id="total_2"><strong>0</strong></td>
-                    <td id="total_4"><strong>0</strong></td>
-                    <td id="total_6"><strong>0</strong></td>
-                    <td id="total_8"><strong>0</strong></td>
-                    <td id="total_10"><strong>0</strong></td>
-                    <td id="total_12"><strong>0</strong></td>
-                    <td id="total_14"><strong>0</strong></td>
-                  </tr>
-                </tbody>
-              </table>
+              <div id="tamanhosDetalhesContainer">
+                <table class="tamanhos-table">
+                  <thead>
+                    <tr>
+                      <th class="tipo-header">Tipo</th>
+                      <th>PP</th>
+                      <th>P</th>
+                      <th>M</th>
+                      <th>G</th>
+                      <th>GG</th>
+                      <th>XGG</th>
+                      <th>1</th>
+                      <th>2</th>
+                      <th>4</th>
+                      <th>6</th>
+                      <th>8</th>
+                      <th>10</th>
+                      <th>12</th>
+                      <th>14</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tamanhosDetalhesBody">
+                    <tr><td colspan="15" style="text-align: center;">Carregando dados detalhados...</td></tr>
+                  </tbody>
+                  <tfoot id="tamanhosDetalhesFooter">
+                    </tfoot>
+                </table>
+              </div>
             </div>
           </div>
+
 
           <div id="admin-pedidos" class="admin-section">
             <div class="pedidos-header">
@@ -1902,12 +1857,10 @@
     // ==========================================================
     
     window.mostrarSecao = function(secao) {
-      // Remover classe active de todas as seções
       document.querySelectorAll('.section').forEach(s => {
         s.classList.remove('active');
       });
       
-      // Adicionar classe active à seção selecionada
       const secaoElement = document.getElementById(secao);
       if (secaoElement) {
         secaoElement.classList.add('active');
@@ -1915,20 +1868,17 @@
     };
 
     window.mostrarAdminSecao = function(secao) {
-      // Remover classe active de todas as seções e botões
       document.querySelectorAll('.admin-section').forEach(s => {
         s.classList.remove('active');
       });
       
       document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
       
-      // Adicionar classe active à seção selecionada
       const secaoElement = document.getElementById(`admin-${secao}`);
       if (secaoElement) {
         secaoElement.classList.add('active');
       }
       
-      // Encontrar o botão correspondente e adicionar classe active
       const botoes = document.querySelectorAll('.admin-menu-btn');
       botoes.forEach(botao => {
         const textoBotao = botao.textContent.toLowerCase().trim();
@@ -1937,7 +1887,6 @@
         }
       });
       
-      // Carregar dados da seção
       if (secao === 'dashboard') {
         window.carregarDashboard().catch(error => {
           console.error('Erro ao carregar dashboard:', error);
@@ -1947,6 +1896,7 @@
           console.error('Erro ao carregar pedidos:', error);
         });
       }
+      // Não precisa de else if para 'detalhes-tamanhos' porque ela é acessada pelo botão, não pelo menu principal
     };
 
     window.exibirMensagem = function(elementoId, tipo, mensagem) {
@@ -1960,7 +1910,6 @@
         </div>
       `;
       
-      // Auto-remover após 5 segundos
       setTimeout(() => {
         elemento.innerHTML = '';
       }, 5000);
@@ -1996,14 +1945,12 @@
       const infoElement = document.getElementById('pedidoConfirmacaoInfo');
       const tamanhosElement = document.getElementById('pedidoConfirmacaoTamanhos');
       
-      // Função auxiliar para formatar tamanhos
       const formatarTamanhos = (tamanhos) => {
         return Object.entries(tamanhos).map(([tamanho, qtd]) => 
           parseInt(qtd) > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
         ).join('');
       };
       
-      // Exibir número do pedido com botão de cópia
       numeroElement.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
           <strong>Número do Pedido:</strong> #${pedido.numPedido}
@@ -2013,7 +1960,6 @@
         </div>
       `;
       
-      // Exibir informações do pedido
       infoElement.innerHTML = `
         <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
         <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
@@ -2022,7 +1968,6 @@
         <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
       `;
       
-      // Exibir tamanhos do pedido
       tamanhosElement.innerHTML = `
         <div class="pedido-confirmacao-tipo">
           <h4><i class="fas fa-child"></i> Infantis</h4>
@@ -2040,7 +1985,6 @@
         </div>
       `;
       
-      // Exibir o overlay
       overlay.classList.add('active');
     };
 
@@ -2055,8 +1999,6 @@
       formData.append('action', 'verificarEmailPedido');
       formData.append('email', email);
       
-      console.log('Verificando e-mail:', email);
-      
       window.mostrarCarregamento(true, 'Verificando e-mail...');
       
       return fetch(SCRIPT_URL, {
@@ -2070,7 +2012,7 @@
         return response.json();
       })
       .then(data => {
-        if (data.success && data.pedidoExistente) { // Usa a chave 'pedidoExistente'
+        if (data.success && data.pedidoExistente) {
           return data.numPedido;
         }
         return null;
@@ -2094,17 +2036,14 @@
         return;
       }
       
-      // Animação de saída
       elementoAtual.style.opacity = '0';
       elementoAtual.style.transform = 'translateY(-20px)';
       
       setTimeout(() => {
         window.mostrarSecao(secao);
         
-        // Executa o callback após a mudança de seção
         if (callback) callback();
         
-        // Animação de entrada
         proximoElemento.style.opacity = '0';
         proximoElemento.style.transform = 'translateY(20px)';
 
@@ -2119,8 +2058,6 @@
       const elemento = document.getElementById(elementId);
       if (elemento) {
         elemento.textContent = valor;
-      } else {
-        console.warn(`Elemento com ID '${elementId}' não encontrado`);
       }
     };
     
@@ -2129,13 +2066,10 @@
     // ==========================================================
 
     window.carregarDashboard = async function() {
-      console.log('=== INICIANDO CARREGAMENTO DE DASHBOARD ===');
-      
-      window.mostrarCarregamento(true, 'Calculando estatísticas...');
+      window.mostrarCarregamento(true, 'Calculando visão geral...');
       
       try {
           const formData = new FormData();
-          // Usa a ação que retorna dados detalhados (otimizada com cache no Apps Script)
           formData.append('action', 'getDashboard'); 
           
           const response = await fetch(SCRIPT_URL, {
@@ -2151,7 +2085,7 @@
           
           if (data.success) {
             
-            // Atualizar os cards principais
+            // Atualizar os cards principais (TotalPedidos, TotalCamisetas, etc.)
             window.atualizarElemento('totalPedidos', data.totalPedidos || 0);
             window.atualizarElemento('totalCamisetas', data.totalCamisetas || 0);
             window.atualizarElemento('pedidosPendentes', data.pedidosPendentes || 0);
@@ -2161,24 +2095,6 @@
             window.atualizarElemento('totalUnissex', data.totalUnissex || 0);
             window.atualizarElemento('pedidosRejeitados', data.pedidosRejeitados || 0);
             
-            // Atualizar totalizadores por tamanho
-            if (data.tamanhos) {
-              const tamanhos = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-              tamanhos.forEach(tamanho => {
-                const infantilQtd = data.tamanhos.infantil[tamanho] || 0;
-                const babylookQtd = data.tamanhos.babylook[tamanho] || 0;
-                const unissexQtd = data.tamanhos.unissex[tamanho] || 0;
-
-                window.atualizarElemento(`infantil_${tamanho}`, infantilQtd);
-                window.atualizarElemento(`babylook_${tamanho}`, babylookQtd);
-                window.atualizarElemento(`unissex_${tamanho}`, unissexQtd);
-                
-                const total = infantilQtd + babylookQtd + unissexQtd;
-                const totalElement = document.getElementById(`total_${tamanho}`);
-                if (totalElement) totalElement.innerHTML = `<strong>${total}</strong>`;
-              });
-            }
-
             window.mostrarCarregamento(false);
             return;
           } else {
@@ -2187,31 +2103,90 @@
           
       } catch (error) {
           console.error(`Erro ao carregar Dashboard:`, error);
-          window.exibirMensagem('mensagemLogin', 'erro', `Erro ao carregar dashboard: ${error.message}. Verifique o Apps Script.`);
+          window.exibirMensagem('mensagemLogin', 'erro', `Erro ao carregar dashboard: ${error.message}.`);
           window.mostrarCarregamento(false);
-          // Define valores padrão em caso de erro
-          window.atualizarElemento('totalPedidos', '0');
-          window.atualizarElemento('totalCamisetas', '0');
-          window.atualizarElemento('pedidosPendentes', '0');
-          window.atualizarElemento('pedidosAprovados', '0');
           throw error;
       }
     };
+    
+    window.carregarDetalhesTamanho = async function() {
+        window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
+        const detalhesBody = document.getElementById('tamanhosDetalhesBody');
+        const detalhesFooter = document.getElementById('tamanhosDetalhesFooter');
+        
+        try {
+            const formData = new FormData();
+            formData.append('action', 'getDetalhesTamanho'); // Nova ação no Apps Script
+            
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            });
 
-    // ==========================================================
-    // FUNÇÕES DE PEDIDOS (Listagem Admin e Consulta Usuário)
-    // ==========================================================
+            if (!response.ok) {
+                throw new Error(`Erro HTTP ${response.status}`);
+            }
 
+            const data = await response.json();
+
+            if (data.success && data.tamanhos) {
+                const detalhes = data.tamanhos;
+                const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
+                let htmlBody = '';
+                let htmlFooter = '<tfoot><tr><td class="tipo-header"><strong>Total Geral</strong></td>';
+                
+                const tipos = [
+                    { name: 'Infantis', key: 'infantil', icon: '<i class="fas fa-child"></i>' },
+                    { name: 'Babylook', key: 'babylook', icon: '<i class="fas fa-female"></i>' },
+                    { name: 'Unissex', key: 'unissex', icon: '<i class="fas fa-tshirt"></i>' }
+                ];
+
+                const totaisGerais = {};
+                tamanhosDisponiveis.forEach(t => totaisGerais[t] = 0);
+
+
+                tipos.forEach(tipo => {
+                    htmlBody += `<tr><td class="tipo-header">${tipo.name}</td>`;
+                    
+                    tamanhosDisponiveis.forEach(t => {
+                        const qtd = detalhes[tipo.key][t] || 0;
+                        htmlBody += `<td>${qtd}</td>`;
+                        totaisGerais[t] += qtd;
+                    });
+                    htmlBody += `</tr>`;
+                });
+                
+                // Gerar footer
+                tamanhosDisponiveis.forEach(t => {
+                    htmlFooter += `<td><strong>${totaisGerais[t]}</strong></td>`;
+                });
+                htmlFooter += '</tr></tfoot>';
+
+                detalhesBody.innerHTML = htmlBody;
+                detalhesFooter.innerHTML = htmlFooter;
+
+            } else {
+                detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">${data.error || 'Erro ao carregar detalhes por tamanho'}</td></tr>`;
+            }
+
+        } catch (error) {
+            console.error('Erro ao carregar detalhes de tamanho:', error);
+            detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">Erro de comunicação: ${error.message}</td></tr>`;
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+
+
+    // FUNÇÕES DE PEDIDOS (Listagem Admin e Consulta Usuário) - Inalteradas
     window.carregarPedidos = async function() {
-        console.log('=== INICIANDO CARREGAMENTO DE PEDIDOS ADMIN ===');
         const listaPedidosElement = document.getElementById('listaPedidos');
-        listaPedidosElement.innerHTML = ''; // Limpar lista
+        listaPedidosElement.innerHTML = ''; 
 
         window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
 
         try {
             const formData = new FormData();
-            // Usa a ação que retorna a lista de pedidos (otimizada com cache no Apps Script)
             formData.append('action', 'listarPedidos'); 
             
             const response = await fetch(SCRIPT_URL, {
@@ -2286,9 +2261,6 @@
         }
     };
     
-    // ==========================================================
-    // MANIPULAÇÃO DE STATUS (Admin)
-    // ==========================================================
     window.atualizarStatusPedido = async function(numPedido, novoStatus) {
         if (!confirm(`Tem certeza que deseja mudar o status do pedido ${numPedido} para '${novoStatus}'?`)) {
             return;
@@ -2298,7 +2270,7 @@
 
         try {
             const formData = new FormData();
-            formData.append('action', 'updateStatus'); // Ação que o Apps Script reconhece
+            formData.append('action', 'updateStatus'); 
             formData.append('numPedido', numPedido);
             formData.append('status', novoStatus);
 
@@ -2311,8 +2283,8 @@
 
             if (data.success) {
                 window.exibirMensagem('mensagemLogin', 'sucesso', `Status do pedido ${numPedido} atualizado para ${novoStatus} com sucesso!`);
-                await window.carregarPedidos(); // Recarrega a lista
-                await window.carregarDashboard(); // Atualiza o dashboard
+                await window.carregarPedidos(); 
+                await window.carregarDashboard();
             } else {
                 window.exibirMensagem('mensagemLogin', 'erro', `Erro ao atualizar status: ${data.error || 'Erro desconhecido'}`);
             }
@@ -2331,107 +2303,72 @@
     // ==========================================================
     document.addEventListener('DOMContentLoaded', () => {
       
-      // === Seleção dos Botões da Home ===
-      const btnNovoPedido = document.getElementById('btnNovoPedido');
-      const btnConsultarPedido = document.getElementById('btnConsultarPedido');
-      const btnAdministrador = document.getElementById('btnAdministrador');
-      
-      // === Seleção dos Botões de Voltar e Confirmação ===
-      const voltarHome1 = document.getElementById('voltarHome1');
-      const voltarHome2 = document.getElementById('voltarHome2');
-      const voltarHome3 = document.getElementById('voltarHome3');
-      const fecharConfirmacaoPedido = document.getElementById('fecharConfirmacaoPedido');
-      const voltarInicio = document.getElementById('voltarInicio');
+      const btnVerDetalhes = document.getElementById('btnVerDetalhes');
+      const voltarDashboard = document.getElementById('voltarDashboard');
 
-      // === Definição dos Event Listeners para a Navegação Principal ===
-      if (btnNovoPedido) {
-          btnNovoPedido.addEventListener('click', () => window.redirecionarComAnimacao('pedido'));
-      }
+      // === Event Listeners de Navegação Principal ===
+      document.getElementById('btnNovoPedido').addEventListener('click', () => window.redirecionarComAnimacao('pedido'));
+      document.getElementById('btnConsultarPedido').addEventListener('click', () => window.redirecionarComAnimacao('consultar'));
       
-      if (btnConsultarPedido) {
-          btnConsultarPedido.addEventListener('click', () => window.redirecionarComAnimacao('consultar'));
+      document.getElementById('btnAdministrador').addEventListener('click', () => {
+          document.getElementById('loginAdmin').style.display = 'block';
+          document.getElementById('painelAdmin').style.display = 'none';
+          document.getElementById('mensagemLogin').innerHTML = '';
+          window.redirecionarComAnimacao('admin');
+      });
+
+      // === Event Listeners de Voltar ===
+      document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      document.getElementById('voltarHome2').addEventListener('click', () => {
+         document.getElementById('resultadoConsulta').innerHTML = ''; 
+         window.redirecionarComAnimacao('home');
+      });
+      document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
+      document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
+
+      // === Event Listeners do Painel Admin ===
+      document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
+      document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
+      document.getElementById('atualizarDashboard').addEventListener('click', () => window.carregarDashboard());
+      document.getElementById('atualizarPedidos').addEventListener('click', () => window.carregarPedidos());
+
+      // === NOVO: Detalhamento Sob Demanda ===
+      if (btnVerDetalhes) {
+          btnVerDetalhes.addEventListener('click', () => {
+              window.mostrarAdminSecao('detalhes-tamanhos'); // Mudar para a nova seção
+              window.carregarDetalhesTamanho(); // Carregar os dados detalhados
+          });
       }
-      
-      if (btnAdministrador) {
-          btnAdministrador.addEventListener('click', () => {
-              // Reseta o estado de login e navega para a seção admin
-              document.getElementById('loginAdmin').style.display = 'block';
-              document.getElementById('painelAdmin').style.display = 'none';
-              document.getElementById('mensagemLogin').innerHTML = ''; // Limpa a mensagem
-              window.redirecionarComAnimacao('admin');
+      if (voltarDashboard) {
+          voltarDashboard.addEventListener('click', () => {
+              // Simplesmente volta para a seção do dashboard (os dados já estão lá)
+              window.mostrarAdminSecao('dashboard');
           });
       }
 
-      // === Definição dos Event Listeners para Voltar ===
-      if (voltarHome1) {
-          voltarHome1.addEventListener('click', () => window.redirecionarComAnimacao('home'));
-      }
-      
-      if (voltarHome2) {
-          voltarHome2.addEventListener('click', () => {
-             document.getElementById('resultadoConsulta').innerHTML = ''; // Limpa o resultado da consulta
-             window.redirecionarComAnimacao('home');
-          });
-      }
-      
-      if (voltarHome3) {
-          voltarHome3.addEventListener('click', () => window.redirecionarComAnimacao('home'));
-      }
-      
-      if (fecharConfirmacaoPedido) {
-          fecharConfirmacaoPedido.addEventListener('click', () => window.fecharConfirmacaoPedido());
-      }
-      
-      if (voltarInicio) {
-          voltarInicio.addEventListener('click', () => window.fecharConfirmacaoPedido());
-      }
-
-      // === Definição dos Event Listeners para o Menu Admin ===
-      const btnDashboard = document.getElementById('btnDashboard');
-      const btnPedidos = document.getElementById('btnPedidos');
-
-      if (btnDashboard) {
-          btnDashboard.addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
-      }
-      
-      if (btnPedidos) {
-          btnPedidos.addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
-      }
-      
-      if (document.getElementById('atualizarDashboard')) {
-          document.getElementById('atualizarDashboard').addEventListener('click', () => window.carregarDashboard());
-      }
-
-      if (document.getElementById('atualizarPedidos')) {
-          document.getElementById('atualizarPedidos').addEventListener('click', () => window.carregarPedidos());
-      }
       
       // ==========================================================
       // Lógica de Formulários
       // ==========================================================
       
-      // Formulário de Pedido
       const formPedido = document.getElementById('formPedido');
       if (formPedido) {
           formPedido.addEventListener('submit', async (e) => {
               e.preventDefault();
               
               const email = document.getElementById('email').value;
-              
-              // 1. Verificar se já existe um pedido
               window.mostrarCarregamento(true, 'Verificando e-mail...');
               const pedidoExistente = await window.verificarEmailPedidoExistente(email);
               window.mostrarCarregamento(false);
-
 
               if (pedidoExistente) {
                   window.exibirMensagem('mensagemPedido', 'erro', `Você já possui um pedido ativo (#${pedidoExistente}). Use a tela de Consultar Pedido.`);
                   return;
               }
 
-              // 2. Coletar dados do formulário
               const formData = new FormData(formPedido);
-              formData.append('action', 'fazerPedido'); // Ação que o Apps Script reconhece
+              formData.append('action', 'fazerPedido');
               
               const totalCamisetas = Array.from(formPedido.querySelectorAll('input[type="number"]'))
                                           .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
@@ -2452,7 +2389,6 @@
                   const data = await response.json();
 
                   if (data.success) {
-                      // 3. Sucesso: Limpar formulário e mostrar card de confirmação
                       formPedido.reset();
                       
                       const pedidoConfirmado = {
@@ -2462,9 +2398,9 @@
                           setor: data.pedido.setor,
                           local: data.pedido.local,
                           data: data.pedido.data,
-                          infantil: data.pedido.infantil, // Dados já formatados pelo Apps Script
-                          babylook: data.pedido.babylook, // Dados já formatados pelo Apps Script
-                          unissex: data.pedido.unissex   // Dados já formatados pelo Apps Script
+                          infantil: data.pedido.infantil,
+                          babylook: data.pedido.babylook,
+                          unissex: data.pedido.unissex
                       };
 
                       window.exibirConfirmacaoPedido(pedidoConfirmado);
@@ -2482,7 +2418,6 @@
           });
       }
       
-      // Formulário de Login Admin
       const formLogin = document.getElementById('formLogin');
       if (formLogin) {
           formLogin.addEventListener('submit', async (e) => {
@@ -2493,7 +2428,7 @@
 
               try {
                   const formData = new FormData();
-                  formData.append('action', 'login'); // Ação que o Apps Script reconhece
+                  formData.append('action', 'login');
                   formData.append('senha', senha);
 
                   const response = await fetch(SCRIPT_URL, {
@@ -2504,13 +2439,11 @@
                   const data = await response.json();
 
                   if (data.success) {
-                      // Login bem-sucedido
                       document.getElementById('loginAdmin').style.display = 'none';
                       document.getElementById('painelAdmin').style.display = 'block';
                       document.getElementById('mensagemLogin').innerHTML = ''; 
-                      window.mostrarAdminSecao('dashboard'); // Carrega o dashboard
+                      window.mostrarAdminSecao('dashboard');
                   } else {
-                      // Login falhou
                       window.exibirMensagem('mensagemLogin', 'erro', data.error || 'Senha incorreta. Tente novamente.');
                   }
 
@@ -2523,7 +2456,6 @@
           });
       }
 
-      // Formulário de Consulta
       const formConsultar = document.getElementById('formConsultar');
       if (formConsultar) {
           formConsultar.addEventListener('submit', async (e) => {
