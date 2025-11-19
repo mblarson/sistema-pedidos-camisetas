@@ -1431,15 +1431,15 @@
           <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
           
           <div class="menu-container">
-            <button class="menu-button" data-secao="pedido">
+            <button class="menu-button" onclick="mostrarSecao('pedido')">
               <i class="fas fa-plus-circle"></i>
               NOVO PEDIDO
             </button>
-            <button class="menu-button" data-secao="consultar">
+            <button class="menu-button" onclick="mostrarSecao('consultar')">
               <i class="fas fa-search"></i>
               CONSULTAR PEDIDO
             </button>
-            <button class="menu-button" data-secao="admin">
+            <button class="menu-button" onclick="mostrarSecao('admin')">
               <i class="fas fa-user-shield"></i>
               ADMINISTRADOR
             </button>
@@ -1449,7 +1449,7 @@
 
       <!-- Seção: Pedido de Camiseta -->
       <section id="pedido" class="section">
-        <button class="back-button" data-secao="home">
+        <button class="back-button" onclick="mostrarSecao('home')">
           <i class="fas fa-arrow-left"></i>
           Voltar
         </button>
@@ -1618,7 +1618,7 @@
 
       <!-- Seção: Consultar Pedidos -->
       <section id="consultar" class="section">
-        <button class="back-button" data-secao="home">
+        <button class="back-button" onclick="mostrarSecao('home')">
           <i class="fas fa-arrow-left"></i>
           Voltar
         </button>
@@ -1648,7 +1648,7 @@
 
       <!-- Seção: Painel Administrador -->
       <section id="admin" class="section">
-        <button class="back-button" data-secao="home">
+        <button class="back-button" onclick="mostrarSecao('home')">
           <i class="fas fa-arrow-left"></i>
           Voltar
         </button>
@@ -1907,42 +1907,18 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
 
     // Mostrar seção específica
-   // Função de navegação centralizada
-    function mostrarSecao(secaoId) {
+    function mostrarSecao(secao) {
       // Remover classe active de todas as seções
       document.querySelectorAll('.section').forEach(s => {
         s.classList.remove('active');
       });
       
       // Adicionar classe active à seção selecionada
-      const secaoElement = document.getElementById(secaoId);
+      const secaoElement = document.getElementById(secao);
       if (secaoElement) {
         secaoElement.classList.add('active');
       }
-      
-      // Se for a seção 'admin', carregar o dashboard se o painel estiver visível
-      if (secaoId === 'admin') {
-        const painelAdmin = document.getElementById('painelAdmin');
-        // Apenas carrega o dashboard se o painel estiver visível (ou seja, o admin está logado)
-        if (painelAdmin && painelAdmin.style.display !== 'none') {
-          mostrarAdminSecao('dashboard');
-        }
-      }
     }
-
-    // Inicialização dos Event Listeners
-    document.addEventListener('DOMContentLoaded', function() {
-      // Mostrar a seção 'home' por padrão
-      mostrarSecao('home');
-
-      // Adicionar listener aos botões de navegação
-      document.querySelectorAll('[data-secao]').forEach(button => {
-        button.addEventListener('click', function() {
-          const secaoId = this.getAttribute('data-secao');
-          mostrarSecao(secaoId);
-        });
-      });
-    });
 
     // Mostrar seção específica do admin
     function mostrarAdminSecao(secao) {
@@ -2100,7 +2076,7 @@
       
       mostrarCarregamento(true, 'Verificando e-mail...');
       
-      fetch(SCRIPT_URL, {
+      return fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       })
@@ -2639,104 +2615,12 @@
     // Carregar dashboard - Versão corrigida
     function carregarDashboard() {
       const formData = new FormData();
-      formData.append('action', 'carregarDashboard');
-      
-      mostrarCarregamento(true, 'Carregando Dashboard...');
-      
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Erro HTTP: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          document.getElementById('totalPedidos').textContent = data.dashboard.totalPedidos || 0;
-          document.getElementById('totalCamisetas').textContent = data.dashboard.totalCamisetas || 0;
-          document.getElementById('pedidosPendentes').textContent = data.dashboard.pedidosPendentes || 0;
-          document.getElementById('pedidosAprovados').textContent = data.dashboard.pedidosAprovados || 0;
-          document.getElementById('totalInfantis').textContent = data.dashboard.totalInfantis || 0;
-          document.getElementById('totalBabylook').textContent = data.dashboard.totalBabylook || 0;
-          document.getElementById('totalUnissex').textContent = data.dashboard.totalUnissex || 0;
-          
-          // Atualizar a tabela de tamanhos
-          const tabelaTamanhos = document.getElementById('tabelaTamanhosBody');
-          tabelaTamanhos.innerHTML = ''; // Limpar antes de adicionar
-          
-          // Adicionar totais de tamanhos
-          const tamanhos = data.dashboard.tamanhos || {};
-          
-          // Tipos de camiseta e seus tamanhos
-          const tipos = [
-            { nome: 'Infantil', dados: tamanhos.infantil || {} },
-            { nome: 'Babylook', dados: tamanhos.babylook || {} },
-            { nome: 'Unissex', dados: tamanhos.unissex || {} }
-          ];
-          
-          // Encontrar todos os tamanhos únicos para criar as colunas
-          const todosTamanhos = new Set();
-          tipos.forEach(tipo => {
-            Object.keys(tipo.dados).forEach(t => todosTamanhos.add(t));
-          });
-          
-          const tamanhosOrdenados = Array.from(todosTamanhos).sort((a, b) => {
-            // Lógica de ordenação: números primeiro, depois letras (PP, P, M, G, GG, XGG)
-            const isNumA = !isNaN(parseInt(a));
-            const isNumB = !isNaN(parseInt(b));
-            
-            if (isNumA && isNumB) return parseInt(a) - parseInt(b);
-            if (isNumA) return -1;
-            if (isNumB) return 1;
-            
-            // Ordenação de tamanhos adultos
-            const ordemAdulto = ['PP', 'P', 'M', 'G', 'GG', 'XGG'];
-            return ordemAdulto.indexOf(a) - ordemAdulto.indexOf(b);
-          });
-          
-          // Criar cabeçalho da tabela
-          const thead = document.getElementById('tabelaTamanhosHead');
-          thead.innerHTML = `
-            <tr>
-              <th class="tipo-header">Tipo</th>
-              ${tamanhosOrdenados.map(t => `<th>${t}</th>`).join('')}
-            </tr>
-          `;
-          
-          // Preencher o corpo da tabela
-          tipos.forEach(tipo => {
-            const row = tabelaTamanhos.insertRow();
-            row.insertCell().textContent = tipo.nome;
-            
-            tamanhosOrdenados.forEach(tamanho => {
-              const qtd = tipo.dados[tamanho] || 0;
-              row.insertCell().textContent = qtd;
-            });
-          });
-          
-          mostrarCarregamento(false);
-        } else {
-          console.error('Erro ao carregar dashboard:', data.error);
-          exibirMensagem('mensagemLogin', 'erro', 'Erro ao carregar dashboard: ' + data.error);
-          mostrarCarregamento(false);
-        }
-      })
-      .catch(error => {
-        console.error('Erro na comunicação com o servidor ao carregar dashboard:', error);
-        exibirMensagem('mensagemLogin', 'erro', 'Erro na comunicação com o servidor ao carregar dashboard');
-        mostrarCarregamento(false);
-      });
-    }
+      // Tentar com diferentes ações que o script pode reconhecer
+      formData.append('action', 'getDashboard');
       
       mostrarCarregamento(true, 'Carregando dashboard...');
       
-      const formData = new FormData();
-      formData.append('action', 'getDashboardData');
-      
-      fetch(SCRIPT_URL, {
+      return fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       })
@@ -2842,7 +2726,7 @@
       
       mostrarCarregamento(true, 'Carregando dashboard (alternativo)...');
       
-      fetch(SCRIPT_URL, {
+      return fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
       })
@@ -3218,12 +3102,9 @@
       if (!numPedido) {
         console.error('Número do pedido não fornecido');
         return;
-    }
-      
-      mostrarCarregamento(true, 'Carregando dashboard...');
-      
-      const formData = new FormData();
-      formData.append('action', 'getDashboardData');
+      }
+
+      mostrarCarregamento(true, 'Carregando pedido...');
       
       fetch(SCRIPT_URL, {
         method: 'POST',
@@ -3485,7 +3366,24 @@
       }
     }
 
-    // Inicialização dos Event Listeners - movido para a nova lógica de navegação
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM carregado');
+      
+      // Verificar se os botões existem
+      const botoes = document.querySelectorAll('.menu-button');
+      console.log('Botões encontrados:', botoes.length);
+      
+      // Adicionar evento de clique para depuração
+      botoes.forEach((botao, index) => {
+        botao.addEventListener('click', function() {
+          console.log(`Botão ${index} clicado`);
+          const secao = this.getAttribute('onclick').match(/mostrarSecao\('(.+)'\)/)[1];
+          console.log('Seção alvo:', secao);
+          console.log('Elemento da seção:', document.getElementById(secao));
+        });
+      });
+    });
 
     // Tratamento de erro global para promessas não tratadas
     window.addEventListener('unhandledrejection', function(event) {
