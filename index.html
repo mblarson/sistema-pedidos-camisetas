@@ -1458,7 +1458,7 @@
                   <label for="unissex_GG">GG</label>
                   <input type="number" id="unissex_GG" name="unissex_GG" min="0" value="0">
                 </div>
-                <div class="tamanho-item">
+                <div class="tamanhos-item">
                   <label for="unissex_XGG">XGG</label>
                   <input type="number" id="unissex_XGG" name="unissex_XGG" min="0" value="0">
                 </div>
@@ -1920,8 +1920,13 @@
     
     window.buscarPedidoExistente = async function(email) {
         window.mostrarCarregamento(true, 'Buscando pedido existente...');
+        
+        // CORREÇÃO CRÍTICA: Normaliza o email de busca (do Google Auth)
+        const emailNormalizado = email.toLowerCase().trim(); 
+
         try {
-            const q = query(pedidosCollection, where("email", "==", email));
+            // Busca o pedido que corresponde ao email normalizado
+            const q = query(pedidosCollection, where("email", "==", emailNormalizado));
             const snapshot = await getDocs(q);
             
             if (!snapshot.empty) {
@@ -1962,7 +1967,8 @@
         currentLeaderPedido = null;
         document.getElementById('pedidoDocId').value = '';
         
-        document.getElementById('email').value = email;
+        // CORRIGIDO: O email do líder logado é inserido e normalizado
+        document.getElementById('email').value = email ? email.toLowerCase().trim() : ''; 
         
         document.getElementById('formPedido').reset();
         
@@ -2084,12 +2090,15 @@
         window.mostrarCarregamento(true, isEditing ? 'Reenviando e Atualizando Pedido...' : 'Enviando Novo Pedido...');
         
         try {
+            // CORRIGIDO: Normaliza o email antes de salvar
+            const emailParaSalvar = formData.get('email').toLowerCase().trim();
+
             const dataToSave = {
                 data: new Date().toISOString(),
                 nome: formData.get('nome'),
                 local: formData.get('local'),
                 setor: formData.get('setor'),
-                email: formData.get('email'),
+                email: emailParaSalvar,
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
                 babylook: getQuantidadesFromForm(formData, 'babylook'),
                 unissex: getQuantidadesFromForm(formData, 'unissex'),
@@ -2104,6 +2113,7 @@
                 finalNumPedido = currentLeaderPedido.numPedido;
                 
             } else {
+                // Para o Firebase, usamos o ID do documento como o numPedido
                 const docRef = await addDoc(pedidosCollection, { ...dataToSave, numPedido: 'PENDING' });
                 await updateDoc(doc(db, "pedidos", docRef.id), { numPedido: docRef.id });
                 finalNumPedido = docRef.id;
@@ -2143,7 +2153,7 @@
         }
         window.mostrarCarregamento(false);
     }
-
+    
     // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
 
     window.carregarTodosPedidos = async function() {
