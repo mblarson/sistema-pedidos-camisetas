@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Pedidos - UMADEMATS</title>
+  <title>Pedido de Camisetas - UMADEMATS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -1251,6 +1251,19 @@
       margin: 0 auto;
     }
 
+    /* ===== IMAGEM PROMOCIONAL ===== */
+    .promotional-image {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .promotional-image img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+    }
+
     /* ===== FOOTER ===== */
     .footer {
       background: var(--darker-color);
@@ -1427,8 +1440,8 @@
       <!-- Seção: Home -->
       <section id="home" class="section active">
         <div class="home-screen">
-          <h1 class="home-title">Sistema de Pedidos</h1>
-          <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
+          <h1 class="home-title">Pedido de Camisetas</h1>
+          <p class="home-subtitle">Faça seu pedido de forma simples e rápida</p>
           
           <div class="menu-container">
             <button class="menu-button" onclick="mostrarSecao('pedido')">
@@ -1455,8 +1468,13 @@
         </button>
         
         <div class="section-header">
-          <h2>Fazer Pedido</h2>
-          <p>Solicite suas camisetas com elegância</p>
+          <h2>Pedido de Camisetas</h2>
+          <p>Preencha o formulário abaixo para solicitar suas camisetas</p>
+        </div>
+
+        <!-- Imagem Promocional -->
+        <div class="promotional-image">
+          <img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50-ANOS.png" alt="50 Anos UMADEMATS">
         </div>
 
         <form id="formPedido" class="modern-form">
