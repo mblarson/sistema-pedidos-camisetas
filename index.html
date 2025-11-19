@@ -588,6 +588,16 @@
         background-size: 1.5em 1.5em;
     }
     
+    .form-group select option {
+        /* Garante que o dropdown dentro da lista seja escuro */
+        background: var(--dark-color);
+        color: var(--text-primary);
+    }
+    .form-group select option[disabled] {
+        color: var(--text-muted);
+    }
+
+
     .form-group input:focus {
       outline: none;
       border-color: var(--primary-color);
@@ -1795,7 +1805,7 @@
     // ==========================================================
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
-    const ADMIN_PASSWORD_FIXA = "SUA_SENHA_FORTE_AQUI"; // <-- **INSERIR SENHA AQUI**
+    const ADMIN_PASSWORD_FIXA = "umadematssecretariaI"; // <-- **INSERIR SENHA AQUI**
     
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
@@ -1911,8 +1921,9 @@
     window.exibirMensagem = function(elementoId, tipo, mensagem) {
       const elemento = document.getElementById(elementoId);
       if (!elemento) {
+          // Se o elemento não existe (como #mensagemConsulta na tela de consulta), usa o console
           console.error(`Erro ao exibir mensagem: Elemento com ID '${elementoId}' não encontrado.`);
-          return; // Sai da função se o elemento não for encontrado
+          return; 
       }
       
       const icone = tipo === 'sucesso' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
@@ -2059,6 +2070,7 @@
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
         
+        // Garante que o rádio 'Capital' esteja checado se o formulário for novo/resetado
         document.querySelector('input[name="local"][value="Capital"]').checked = true; 
         window.updateSetorCidadeInput(); 
     }
@@ -2072,8 +2084,7 @@
         document.getElementById('nome').value = pedido.nome;
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
         
-        // Atualiza o tipo de campo antes de preencher
-        window.updateSetorCidadeInput(); 
+        window.updateSetorCidadeInput(); // Atualiza o tipo de campo antes de preencher
         document.getElementById('setor').value = pedido.setor; // Preenche o valor salvo
         
         document.getElementById('email').value = pedido.email;
@@ -2203,6 +2214,8 @@
         window.mostrarCarregamento(false);
     }
     
+    // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
+
     window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
@@ -2212,8 +2225,8 @@
             }));
             return pedidos;
         } catch (error) {
-            console.error("Erro ao carregar todos os pedidos:", error);
-            throw new Error("Falha ao carregar dados do banco de dados.");
+            console.error('Erro ao carregar todos os pedidos:', error);
+            throw new Error('Falha ao carregar dados do banco de dados.');
         }
     }
 
@@ -2493,8 +2506,10 @@
               let pedido = null;
               
               if (isValidEmail(consulta)) {
+                  // Se for e-mail, tenta buscar por e-mail
                   pedido = await window.verificarPedidoPorEmail(consulta);
               } else {
+                  // Se não for e-mail, tenta buscar por numPedido
                   pedido = await window.verificarPedidoPorNumero(consulta);
               }
 
@@ -2526,20 +2541,19 @@
               // Opção CAPITAL: Dropdown de Setores (Com estilos inline para escuro)
               container.innerHTML = `
                   <select id="setor" name="setor" required 
-                          style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%;"
-                          onchange="this.style.color = 'var(--text-primary)'">
-                      <option value="" disabled selected style="color: var(--text-muted);">Selecione seu Setor</option>
-                      <option value="Setor A">Setor A</option>
-                      <option value="Setor B">Setor B</option>
-                      <option value="Setor C1">Setor C1</option>
-                      <option value="Setor C2">Setor C2</option>
-                      <option value="Setor D">Setor D</option>
-                      <option value="Setor E">Setor E</option>
-                      <option value="Setor F">Setor F</option>
-                      <option value="Setor G">Setor G</option>
-                      <option value="Setor H">Setor H</option>
-                      <option value="Setor M">Setor M</option>
-                      <option value="Setor N">Setor N</option>
+                          style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%;">
+                      <option value="" disabled selected style="background: var(--dark-color); color: var(--text-muted);">Selecione seu Setor</option>
+                      <option value="Setor A" style="background: var(--dark-color);">Setor A</option>
+                      <option value="Setor B" style="background: var(--dark-color);">Setor B</option>
+                      <option value="Setor C1" style="background: var(--dark-color);">Setor C1</option>
+                      <option value="Setor C2" style="background: var(--dark-color);">Setor C2</option>
+                      <option value="Setor D" style="background: var(--dark-color);">Setor D</option>
+                      <option value="Setor E" style="background: var(--dark-color);">Setor E</option>
+                      <option value="Setor F" style="background: var(--dark-color);">Setor F</option>
+                      <option value="Setor G" style="background: var(--dark-color);">Setor G</option>
+                      <option value="Setor H" style="background: var(--dark-color);">Setor H</option>
+                      <option value="Setor M" style="background: var(--dark-color);">Setor M</option>
+                      <option value="Setor N" style="background: var(--dark-color);">Setor N</option>
                   </select>
               `;
               // Tenta restaurar o valor, se for um dos setores
