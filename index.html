@@ -544,25 +544,6 @@
       transition: var(--transition);
     }
     
-    /* CORREÇÃO DO SELECIONE */
-    .form-group select {
-        appearance: none; 
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 1.5em 1.5em;
-    }
-    
-    .form-group select option {
-        background: var(--dark-color);
-        color: var(--text-primary);
-    }
-    .form-group select option[disabled] {
-        color: var(--text-muted);
-    }
-    
     /* NOVO: Estiliza o campo de senha com ícone */
     .form-group .input-with-icon {
         display: flex;
@@ -590,7 +571,25 @@
         color: var(--primary-color);
     }
 
-
+    /* CORREÇÃO DO SELECIONE */
+    .form-group select {
+        appearance: none; 
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.5em 1.5em;
+    }
+    
+    .form-group select option {
+        background: var(--dark-color);
+        color: var(--text-primary);
+    }
+    .form-group select option[disabled] {
+        color: var(--text-muted);
+    }
+    
     .form-group input:focus {
       outline: none;
       border-color: var(--primary-color);
@@ -1290,11 +1289,13 @@
   </style>
 </head>
 <body>
+  <!-- Barra de Carregamento -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loadingText">Processando...</div>
   </div>
 
+  <!-- Card de Confirmação de Pedido -->
   <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
     <div class="pedido-confirmacao-card">
       <div class="pedido-confirmacao-header">
@@ -1322,6 +1323,7 @@
     </div>
   </div>
 
+  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -1336,8 +1338,10 @@
     </div>
   </header>
 
+  <!-- Main Content -->
   <main class="main">
     <div class="container">
+      <!-- Seção: Home -->
       <section id="home" class="section active">
         <div class="home-screen">
           <h1 class="home-title">Sistema de Pedidos</h1>
@@ -1360,6 +1364,7 @@
         </div>
       </section>
 
+      <!-- Seção: Consultar Pedidos -->
       <section id="consultar" class="section">
         <button class="back-button" id="voltarHomeConsulta">
           <i class="fas fa-arrow-left"></i>
@@ -1390,6 +1395,7 @@
         <div id="mensagemConsulta" class="message-container"></div> 
       </section>
 
+      <!-- Seção: Pedido de Camiseta / Edição -->
       <section id="pedido" class="section">
         <button class="back-button" id="voltarHome1">
           <i class="fas fa-arrow-left"></i>
@@ -1431,12 +1437,14 @@
               </div>
             </div>
             
+            <!-- CORRIGIDO: Container para o campo Setor/Cidade dinâmico -->
             <div class="form-group">
                 <label for="setorInputLabel">
                     <i class="fas fa-building"></i>
                     <span id="setorCidadeLabel">Setor/Cidade</span>
                 </label>
                 <div id="setorCidadeContainer">
+                    <!-- Conteúdo será injetado pelo JavaScript -->
                     <input type="text" id="setor" name="setor" required>
                 </div>
             </div>
@@ -1561,6 +1569,7 @@
         <div id="mensagemPedido" class="message-container"></div>
       </section>
 
+      <!-- Seção: Painel Administrador -->
       <section id="admin" class="section">
         <button class="back-button" id="voltarHome3">
           <i class="fas fa-arrow-left"></i>
@@ -1573,6 +1582,7 @@
         </div>
         
         <div id="loginAdmin" class="login-container">
+          <!-- ADMINISTADOR: LOGIN POR SENHA FIXA -->
           <form id="formLoginAdmin" class="modern-form">
             <div class="form-group">
               <label for="senhaAdmin">
@@ -1599,6 +1609,7 @@
         </div>
 
         <div id="painelAdmin" class="admin-panel" style="display: none;">
+            <!-- Menu Admin -->
             <div class="admin-menu">
                 <button class="admin-menu-btn active" id="btnDashboard">
                     <i class="fas fa-chart-pie"></i>
@@ -1610,6 +1621,7 @@
                 </button>
             </div>
             
+            <!-- Dashboard - VISÃO GERAL RÁPIDA -->
             <div id="admin-dashboard" class="admin-section active">
                 <div class="dashboard-header">
                 <h3>Visão Geral Rápida</h3>
@@ -1711,6 +1723,7 @@
                 </div>
             </div>
 
+            <!-- Detalhamento por Tamanho - TELA SECUNDÁRIA (Carregamento Sob Demanda) -->
             <div id="admin-detalhes-tamanhos" class="admin-section">
                 <div class="dashboard-header">
                 <h3>Totalizadores por Tamanho</h3>
@@ -1746,7 +1759,8 @@
                         <tr><td colspan="15" style="text-align: center;">Clique em "Atualizar Detalhes" para carregar os dados.</td></tr>
                     </tbody>
                     <tfoot id="tamanhosDetalhesFooter">
-                        </tfoot>
+                        <!-- O total geral será injetado aqui -->
+                    </tfoot>
                     </table>
                 </div>
                 </div>
@@ -1759,6 +1773,7 @@
                 </div>
             </div>
 
+            <!-- Pedidos -->
             <div id="admin-pedidos" class="admin-section">
                 <div class="pedidos-header">
                 <h3>Todos os Pedidos</h3>
@@ -1774,6 +1789,7 @@
     </div>
   </main>
 
+  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <p>&copy; 2023 UMADEMATS - Todos os direitos reservados</p>
@@ -1914,7 +1930,6 @@
     window.exibirMensagem = function(elementoId, tipo, mensagem) {
       const elemento = document.getElementById(elementoId);
       if (!elemento) {
-          // Se o elemento não existe (como #mensagemConsulta na tela de consulta), usa o console
           console.error(`Erro ao exibir mensagem: Elemento com ID '${elementoId}' não encontrado.`);
           return; 
       }
@@ -2076,8 +2091,8 @@
         document.getElementById('nome').value = pedido.nome;
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
         
-        window.updateSetorCidadeInput(); // Atualiza o tipo de campo antes de preencher
-        document.getElementById('setor').value = pedido.setor; // Preenche o valor salvo
+        window.updateSetorCidadeInput(); 
+        document.getElementById('setor').value = pedido.setor; 
         
         document.getElementById('email').value = pedido.email;
         
@@ -2108,7 +2123,7 @@
         
         const formData = new FormData(document.getElementById('formPedido'));
         const emailInput = formData.get('email');
-        const setorInput = formData.get('setor'); // Captura o valor do campo dinâmico
+        const setorInput = formData.get('setor');
         
         // 1. Validação de E-mail
         if (!isValidEmail(emailInput)) {
