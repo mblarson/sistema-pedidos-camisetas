@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ... (CSS mantido) ... */
+    /* ===== CSS (Mantido) ===== */
     :root {
       --primary-color: #ff7e5f; 
       --primary-dark: #ff6b47; 
@@ -47,6 +47,15 @@
       padding: 0;
       box-sizing: border-box;
     }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--dark-color);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
     
     /* ... (Restante do CSS) ... */
 
@@ -74,6 +83,27 @@
     }
     .input-with-icon .btn-toggle-password:hover {
         color: var(--primary-color);
+    }
+    
+    .visualizar-pedido {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        margin-top: 1rem;
+        backdrop-filter: blur(10px);
+    }
+    .visualizar-pedido h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    .visualizar-pedido .pedido-info {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
     }
   </style>
 </head>
@@ -132,9 +162,13 @@
           <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
           
           <div class="menu-container">
-            <button class="menu-button" id="btnAcessoLideranca">
-              <i class="fas fa-sign-in-alt"></i>
-              ACESSO LIDERANÇA
+            <button class="menu-button" id="btnNovoPedido">
+              <i class="fas fa-plus-circle"></i>
+              NOVO PEDIDO
+            </button>
+            <button class="menu-button" id="btnConsultarPedido">
+              <i class="fas fa-search"></i>
+              CONSULTAR PEDIDO
             </button>
             <button class="menu-button" id="btnAdministrador">
               <i class="fas fa-user-shield"></i>
@@ -144,82 +178,6 @@
         </div>
       </section>
       
-      <section id="login-lider" class="section">
-        <button class="back-button" id="voltarHomeLider">
-            <i class="fas fa-arrow-left"></i>
-            Voltar
-        </button>
-        <div class="login-container">
-            <form id="formLoginLider" class="modern-form">
-                <div class="form-group">
-                    <label for="emailLider"><i class="fas fa-envelope"></i> E-mail</label>
-                    <input type="email" id="emailLider" name="email" placeholder="Seu e-mail de liderança" required>
-                </div>
-                <div class="form-group">
-                    <label for="senhaLider"><i class="fas fa-lock"></i> Senha</label>
-                    <div class="input-with-icon">
-                        <input type="password" id="senhaLider" name="senha" placeholder="Sua senha" required>
-                        <button type="button" class="btn-toggle-password" 
-                                onclick="window.togglePasswordVisibility('senhaLider', this.querySelector('i'))">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group" style="text-align: center; margin-top: 1rem;">
-                    <a href="#" id="linkCadastroLider" style="color: var(--secondary-color); font-size: 0.875rem;">Não tem acesso? Clique para criar sua conta.</a>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-arrow-right"></i>
-                        Acessar
-                    </button>
-                </div>
-            </form>
-            <div id="mensagemLoginLider" class="message-container"></div>
-        </div>
-      </section>
-
-      <section id="cadastro-lider" class="section">
-        <button class="back-button" id="voltarLoginLiderCadastro">
-            <i class="fas fa-arrow-left"></i>
-            Voltar
-        </button>
-        <div class="section-header">
-            <h2>Criação de Acesso</h2>
-            <p>Seu e-mail será seu login no sistema de pedidos.</p>
-        </div>
-        <div class="login-container">
-            <form id="formCadastroLider" class="modern-form">
-                <div class="form-group">
-                    <label for="cadastroNome"><i class="fas fa-user"></i> Nome Completo</label>
-                    <input type="text" id="cadastroNome" name="nome" required>
-                </div>
-                <div class="form-group">
-                    <label for="cadastroEmail"><i class="fas fa-envelope"></i> E-mail</label>
-                    <input type="email" id="cadastroEmail" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="cadastroSenha"><i class="fas fa-lock"></i> Senha</label>
-                    <div class="input-with-icon">
-                        <input type="password" id="cadastroSenha" name="senha" required minlength="6">
-                        <button type="button" class="btn-toggle-password" 
-                                onclick="window.togglePasswordVisibility('cadastroSenha', this.querySelector('i'))">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Mínimo de 6 caracteres.</p>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-user-plus"></i>
-                        Cadastrar e Acessar
-                    </button>
-                </div>
-            </form>
-            <div id="mensagemCadastroLider" class="message-container"></div>
-        </div>
-      </section>
-
       <section id="pedido" class="section">
         <button class="back-button" id="voltarHome1">
           <i class="fas fa-arrow-left"></i>
@@ -272,9 +230,9 @@
             <div class="form-group">
               <label for="email">
                 <i class="fas fa-envelope"></i>
-                E-mail (Não Editável)
+                E-mail (Seu Identificador)
               </label>
-              <input type="email" id="email" name="email" required readonly style="background: rgba(255, 255, 255, 0.05);">
+              <input type="email" id="email" name="email" required>
             </div>
           </div>
 
@@ -389,15 +347,35 @@
         <div id="mensagemPedido" class="message-container"></div>
       </section>
       
-      <section id="visualizar-pedido-lider" class="section">
-        <button class="back-button" id="voltarHome2">
+      <section id="consultar" class="section">
+        <button class="back-button" id="voltarHomeConsulta">
           <i class="fas fa-arrow-left"></i>
           Voltar
         </button>
+        
+        <div class="section-header">
+          <h2>Consultar Pedido</h2>
+          <p>Insira o número do pedido ou seu e-mail para localizar e editar seu pedido.</p>
+        </div>
 
-        <div id="visualizacaoContainer" class="visualizar-pedido">
-             </div>
+        <form id="formConsultar" class="modern-form">
+          <div class="form-group">
+            <label for="consultaInput">
+              <i class="fas fa-hashtag"></i>
+              Número do Pedido ou E-mail
+            </label>
+            <div class="input-group">
+              <input type="text" id="consultaInput" name="consulta" placeholder="Ex: UMADE-ABCD123 ou seu@email.com" required>
+              <button type="submit" class="btn-icon">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div id="resultadoConsulta" class="result-container"></div>
       </section>
+
 
       <section id="admin" class="section">
         <button class="back-button" id="voltarHome3">
@@ -636,7 +614,6 @@
     // ==========================================================
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
-    const ADMIN_EMAIL = "ieadms.umademats@gmail.com"; 
     const ADMIN_PASSWORD_FIXA = "umadematssecretaria2026"; // <-- **INSERIR SENHA AQUI**
     
     // ==========================================================
@@ -651,13 +628,10 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const pedidosCollection = collection(db, "pedidos"); 
-    const lideresCollection = collection(db, "lideres"); // Coleção de perfis de líderes
     const auth = getAuth(app); 
-    const googleProvider = new GoogleAuthProvider(); 
 
     // VARIÁVEIS GLOBAIS DE ESTADO
-    let currentLeaderEmail = null; 
-    let currentLeaderPedido = null; 
+    let currentPedidoParaEdicao = null; 
 
     // ==========================================================
     // FUNÇÕES AUXILIARES
@@ -671,6 +645,12 @@
             }
         }
         return quantidades;
+    }
+
+    // Função de utilidade: verifica se o valor é um e-mail válido
+    function isValidEmail(value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value);
     }
 
     // ==========================================================
@@ -822,18 +802,12 @@
     };
     
     // ==========================================================
-    // FUNÇÕES FIREBASE: FLUXO DO LÍDER E ADMIN
+    // FUNÇÕES FIREBASE: FLUXO DE ACESSO E PEDIDOS
     // ==========================================================
     
-    // ----------------------------------------------------------
-    // FLUXO DO LÍDER (ACESSO)
-    // ----------------------------------------------------------
-    
-    window.buscarPedidoExistente = async function(email) {
-        window.mostrarCarregamento(true, 'Buscando pedido existente...');
-        
+    // Função para verificar se o e-mail JÁ TEM pedido (retorna o pedido se sim)
+    window.verificarPedidoPorEmail = async function(email) {
         const emailNormalizado = email.toLowerCase().trim(); 
-
         try {
             const q = query(pedidosCollection, where("email", "==", emailNormalizado));
             const snapshot = await getDocs(q);
@@ -846,47 +820,37 @@
             }
             return null;
         } catch (error) {
-            console.error("Erro ao buscar pedido no Firestore:", error);
-            window.exibirMensagem('visualizacaoContainer', 'erro', 'Erro ao consultar banco de dados.');
+            console.error("Erro ao buscar pedido por email:", error);
             return null;
-        } finally {
-            window.mostrarCarregamento(false);
         }
     };
     
-    // Função 2: Redireciona e configura a tela (Novo Pedido ou Edição)
-    window.handleAcessoLideranca = async function(email) {
-        currentLeaderEmail = email;
-        const pedido = await window.buscarPedidoExistente(email);
-        
-        if (pedido) {
-            // CASO A: PEDIDO EXISTENTE
-            currentLeaderPedido = pedido; 
-            window.displayVisualizacaoPedido(pedido);
-            window.redirecionarComAnimacao('visualizar-pedido-lider');
-        } else {
-            // CASO B: NOVO PEDIDO
-            window.setupNovoPedido(email);
-            window.redirecionarComAnimacao('pedido');
+    // Função para verificar se o ID JÁ TEM pedido (retorna o pedido se sim)
+    window.verificarPedidoPorNumero = async function(numPedido) {
+        const numNormalizado = numPedido.toUpperCase().trim();
+        try {
+            const q = query(pedidosCollection, where("numPedido", "==", numNormalizado));
+            const snapshot = await getDocs(q);
+            
+            if (!snapshot.empty) {
+                const docData = snapshot.docs[0].data();
+                const docId = snapshot.docs[0].id;
+                
+                return { docId, ...docData }; 
+            }
+            return null;
+        } catch (error) {
+            console.error("Erro ao buscar pedido por número:", error);
+            return null;
         }
     };
 
-    // Função 3: Preenche o formulário para Novo Pedido
-    window.setupNovoPedido = async function(email) {
-        currentLeaderPedido = null;
+    // Função 3: Preenche o formulário para Novo Pedido (Simples)
+    window.setupNovoPedido = async function() {
+        currentPedidoParaEdicao = null; // Reinicia o estado de edição
         document.getElementById('pedidoDocId').value = '';
-        
-        const emailNormalizado = email ? email.toLowerCase().trim() : ''; 
-        
-        document.getElementById('email').value = emailNormalizado; 
-        
-        // CORRIGIDO: Pré-preenchimento do Nome (busca o perfil)
-        const profile = await window.getLeaderProfile(emailNormalizado);
-        if (profile && profile.nome) {
-            document.getElementById('nome').value = profile.nome;
-        } else {
-            document.getElementById('nome').value = '';
-        }
+        document.getElementById('email').value = ''; 
+        document.getElementById('nome').value = '';
         
         document.getElementById('formPedido').reset();
         
@@ -894,13 +858,15 @@
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
         
-        // CORREÇÃO FINAL PARA O ERRO DE VALIDAÇÃO DO RÁDIO
+        // Garante que o rádio 'Capital' esteja checado se o formulário for novo/resetado
         document.querySelector('input[name="local"][value="Capital"]').checked = true; 
     }
 
-    // Função 4: Exibe a tela de visualização (se pedido existe)
-    window.displayVisualizacaoPedido = function(pedido) {
-        const container = document.getElementById('visualizacaoContainer');
+    // Função 4: Exibe a tela de consulta para o Líder (usada no fluxo de consulta)
+    window.displayVisualizacaoPedido = function(pedido, containerId = 'resultadoConsulta') {
+        currentPedidoParaEdicao = pedido;
+        const container = document.getElementById(containerId);
+        
         const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
                             pedido.status === 'Aprovado' ? 'status-aprovado' : 
                             'status-rejeitado';
@@ -915,50 +881,59 @@
             }
             return list || '<li>Nenhuma</li>';
         };
+        
+        const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                 Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                 Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
 
         container.innerHTML = `
-            <h2>Seu Pedido Enviado</h2>
-            <div class="pedido-header">
-                <span class="pedido-numero">#${pedido.numPedido}</span>
-                ${statusDisplay}
-            </div>
-            
-            <div class="pedido-info">
-                <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
-                <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local} / ${pedido.setor}</p>
-                <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
-                <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-            </div>
-            
-            <div class="pedido-tamanhos">
-                <div class="pedido-confirmacao-tipo">
-                    <h4><i class="fas fa-child"></i> Infantis</h4>
-                    <ul>${formatarTamanhos(pedido.infantil)}</ul>
+            <div class="pedido-item" data-id="${pedido.docId}">
+                <div class="pedido-header">
+                    <span class="pedido-numero">#${pedido.numPedido}</span>
+                    ${statusDisplay}
                 </div>
-                <div class="pedido-confirmacao-tipo">
-                    <h4><i class="fas fa-female"></i> Babylook</h4>
-                    <ul>${formatarTamanhos(pedido.babylook)}</ul>
+                
+                <div class="pedido-info">
+                    <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local} / ${pedido.setor}</p>
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                    <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas}</p>
                 </div>
-                <div class="pedido-confirmacao-tipo">
-                    <h4><i class="fas fa-tshirt"></i> Unissex</h4>
-                    <ul>${formatarTamanhos(pedido.unissex)}</ul>
+                
+                <div class="pedido-tamanhos">
+                    <div class="tipo-tamanhos">
+                        <h4>Infantis</h4>
+                        <ul>${formatarTamanhos(pedido.infantil)}</ul>
+                    </div>
+                    <div class="tipo-tamanhos">
+                        <h4>Babylook</h4>
+                        <ul>${formatarTamanhos(pedido.babylook)}</ul>
+                    </div>
+                    <div class="tipo-tamanhos">
+                        <h4>Unissex</h4>
+                        <ul>${formatarTamanhos(pedido.unissex)}</ul>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-actions" style="margin-top: 1rem;">
-                <button class="btn-primary" id="btnIniciarEdicao">
-                    <i class="fas fa-edit"></i>
-                    EDITAR PEDIDO
-                </button>
+                <div class="form-actions" style="margin-top: 1rem;">
+                    <button class="btn-primary" id="btnIniciarEdicao">
+                        <i class="fas fa-edit"></i>
+                        EDITAR E REENVIAR
+                    </button>
+                </div>
             </div>
+            <div id="mensagemConsulta" class="message-container"></div>
         `;
         
+        // Listener para iniciar a edição (o que fará o preenchimento do formulário)
         document.getElementById('btnIniciarEdicao').addEventListener('click', window.setupEdicaoPedido);
     };
 
     // Função 5: Preenche o formulário para Edição
     window.setupEdicaoPedido = function() {
-        const pedido = currentLeaderPedido;
+        const pedido = currentPedidoParaEdicao;
         if (!pedido) return;
         
         document.getElementById('pedidoDocId').value = pedido.docId; 
@@ -997,8 +972,16 @@
             if (!confirmacao) {
                 return;
             }
+        } else {
+            // VERIFICAÇÃO CRÍTICA PARA NOVOS PEDIDOS: O e-mail já existe?
+            const emailExistente = await window.verificarPedidoPorEmail(document.getElementById('email').value);
+            if (emailExistente) {
+                window.exibirMensagem('mensagemPedido', 'erro', `O e-mail ${emailExistente.email} já possui um pedido (#${emailExistente.numPedido}). Consulte seu pedido para editar.`);
+                return;
+            }
         }
         
+        // ... (Verificação de camisetas e carregamento mantidos) ...
         const formData = new FormData(document.getElementById('formPedido'));
         const totalCamisetas = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]'))
                                     .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
@@ -1018,7 +1001,7 @@
                 nome: formData.get('nome'),
                 local: formData.get('local'),
                 setor: formData.get('setor'),
-                email: emailParaSalvar, // USA O EMAIL NORMALIZADO
+                email: emailParaSalvar, 
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
                 babylook: getQuantidadesFromForm(formData, 'babylook'),
                 unissex: getQuantidadesFromForm(formData, 'unissex'),
@@ -1030,12 +1013,11 @@
             if (isEditing) {
                 const pedidoRef = doc(db, "pedidos", docId);
                 await updateDoc(pedidoRef, dataToSave);
-                finalNumPedido = currentLeaderPedido.numPedido;
+                finalNumPedido = currentPedidoParaEdicao.numPedido;
                 
             } else {
-                // CRIAÇÃO: Cria o documento e usa seu ID como numPedido (Uma única operação de escrita)
                 const docRef = doc(pedidosCollection); 
-                dataToSave.numPedido = docRef.id; // Define o numPedido com o ID do documento
+                dataToSave.numPedido = docRef.id; 
                 
                 await setDoc(docRef, dataToSave); 
                 finalNumPedido = docRef.id;
@@ -1045,7 +1027,6 @@
             
             const pedidoConfirmado = { numPedido: finalNumPedido, ...dataToSave };
             window.exibirConfirmacaoPedido(pedidoConfirmado);
-            window.exibirMensagem('mensagemPedido', 'sucesso', `Pedido #${finalNumPedido} enviado com sucesso!`);
             
         } catch (error) {
             console.error('Erro ao submeter pedido:', error);
@@ -1054,7 +1035,7 @@
             window.mostrarCarregamento(false);
         }
     };
-
+    
     // Função de Login Admin (Corrigida para receber 'e')
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
@@ -1076,93 +1057,9 @@
         window.mostrarCarregamento(false);
     }
     
-    // Função de Login Líder (Nova)
-    window.handleLoginLider = async function(e) {
-        e.preventDefault();
-        const email = document.getElementById('emailLider').value;
-        const senha = document.getElementById('senhaLider').value;
-
-        window.mostrarCarregamento(true, 'Verificando credenciais...');
-
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, senha);
-            
-            // Se a autenticação foi bem-sucedida, prossegue para o fluxo de pedido
-            await window.handleAcessoLideranca(userCredential.user.email); 
-
-        } catch (error) {
-            console.error("Erro de login do Líder:", error);
-            let msg = "E-mail ou senha incorretos.";
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                msg = "E-mail ou senha incorretos. Por favor, verifique.";
-            } else if (error.code === 'auth/invalid-email') {
-                msg = "Formato de e-mail inválido.";
-            }
-            window.exibirMensagem('mensagemLoginLider', 'erro', msg);
-            
-            // 🛑 CRÍTICO: Mantém o usuário na tela de login após a falha
-            // Não há redirecionamento para a home, o usuário fica para corrigir o erro.
-
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
     
-    // Função de Cadastro do Líder
-    window.handleCadastroLider = async function(e) {
-        e.preventDefault();
-        const nome = document.getElementById('cadastroNome').value;
-        const email = document.getElementById('cadastroEmail').value;
-        const senha = document.getElementById('cadastroSenha').value;
-
-        window.mostrarCarregamento(true, 'Criando acesso...');
-
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-
-            // 2. Salva o nome e e-mail no Firestore (para referência)
-            const uid = userCredential.user.uid;
-            await setDoc(doc(db, "lideres", uid), {
-                nome: nome,
-                email: email.toLowerCase().trim(),
-                dataCadastro: new Date().toISOString()
-            });
-
-            window.exibirMensagem('mensagemCadastroLider', 'sucesso', 'Cadastro realizado! Redirecionando...');
-            setTimeout(() => {
-                window.handleAcessoLideranca(email);
-            }, 1000);
-
-        } catch (error) {
-            console.error("Erro no cadastro:", error);
-            let msg = "Falha no cadastro.";
-            if (error.code === 'auth/email-already-in-use') {
-                msg = "Este e-mail já está em uso. Tente fazer o login.";
-            } else if (error.code === 'auth/weak-password') {
-                msg = "A senha deve ter pelo menos 6 caracteres.";
-            }
-            window.exibirMensagem('mensagemCadastroLider', 'erro', msg);
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    }
-
-    // Função para buscar o perfil do líder (Nome)
-    window.getLeaderProfile = async function(email) {
-        try {
-            const q = query(collection(db, "lideres"), where("email", "==", email));
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty) {
-                return snapshot.docs[0].data();
-            }
-            return null;
-        } catch (error) {
-            console.error("Erro ao buscar perfil do líder:", error);
-            return null;
-        }
-    }
-
-
+    // (As funções de Dashboard, Carregar Pedidos e Atualizar Status são mantidas)
+    
     window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
@@ -1403,50 +1300,30 @@
       const formLoginLider = document.getElementById('formLoginLider');
       const formCadastroLider = document.getElementById('formCadastroLider'); 
       const formPedido = document.getElementById('formPedido');
+      const formConsultar = document.getElementById('formConsultar'); // NOVO: Form Consultar
       
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
 
-      // === Fluxo do Líder (ACESSO LIDERANÇA) ===
-      if (btnAcessoLideranca) {
-          btnAcessoLideranca.addEventListener('click', () => {
-             window.redirecionarComAnimacao('login-lider');
-          });
-      }
-      
-      // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
-      if (btnAdministrador) {
-          btnAdministrador.addEventListener('click', () => {
-              document.getElementById('loginAdmin').style.display = 'block';
-              document.getElementById('painelAdmin').style.display = 'none';
-              document.getElementById('mensagemLogin').innerHTML = '';
-              window.redirecionarComAnimacao('admin');
-          });
-      }
-      
-      // NOVO: Clique no link de Cadastro
-      document.getElementById('linkCadastroLider').addEventListener('click', (e) => {
-          e.preventDefault();
-          window.redirecionarComAnimacao('cadastro-lider');
+      // === Fluxo Home ===
+      document.getElementById('btnAcessoLideranca').addEventListener('click', () => window.redirecionarComAnimacao('login-lider'));
+      document.getElementById('btnAdministrador').addEventListener('click', () => {
+          document.getElementById('loginAdmin').style.display = 'block';
+          document.getElementById('painelAdmin').style.display = 'none';
+          document.getElementById('mensagemLogin').innerHTML = '';
+          window.redirecionarComAnimacao('admin');
       });
-      
-      // Botão Voltar da tela de Cadastro para a tela de Login
-      document.getElementById('voltarLoginLiderCadastro').addEventListener('click', () => window.redirecionarComAnimacao('login-lider'));
-      
-      
-      // Submit do Formulário de Login do Líder
-      if (formLoginLider) {
-          formLoginLider.addEventListener('submit', window.handleLoginLider);
-      }
-      
-      // Submit do Formulário de Cadastro do Líder
-      if (formCadastroLider) {
-          formCadastroLider.addEventListener('submit', window.handleCadastroLider);
-      }
+      document.getElementById('btnNovoPedido').addEventListener('click', () => {
+          window.setupNovoPedido('');
+          window.redirecionarComAnimacao('pedido');
+      });
+      document.getElementById('btnConsultarPedido').addEventListener('click', () => {
+          window.redirecionarComAnimacao('consultar');
+      });
 
 
-      // Submit do Formulário de Login Admin
+      // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
       if (formLoginAdmin) {
           formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
       }
@@ -1456,12 +1333,47 @@
           formPedido.addEventListener('submit', window.handleFormSubmission);
       }
       
-      // === Event Listeners de Navegação / Botões (Mantidos) ===
+      // === Fluxo de Consulta/Edição (Form Consultar) ===
+      if (formConsultar) {
+          formConsultar.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const consulta = document.getElementById('consultaInput').value.toLowerCase().trim();
+              
+              if (!consulta) {
+                  window.exibirMensagem('mensagemPedido', 'erro', 'Insira o número do pedido ou e-mail.');
+                  return;
+              }
+              
+              window.mostrarCarregamento(true, 'Buscando pedido...');
+              
+              let pedido = null;
+              
+              if (isValidEmail(consulta)) {
+                  pedido = await window.verificarPedidoPorEmail(consulta);
+              } else {
+                  // Se não for e-mail, tenta buscar por numPedido
+                  pedido = await window.verificarPedidoPorNumero(consulta);
+              }
+
+              if (pedido) {
+                  window.displayVisualizacaoPedido(pedido);
+                  window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
+              } else {
+                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Nenhum pedido correspondente ao valor '${consulta}' foi localizado.</p></div>`;
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
+              }
+              
+              window.mostrarCarregamento(false);
+          });
+      }
+
+
+      // === Botões de Navegação / Voltar ===
       document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
       document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
-      document.getElementById('voltarHome2').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      document.getElementById('voltarHomeConsulta').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       
       // Outros Event Listeners do Admin Panel
       document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
