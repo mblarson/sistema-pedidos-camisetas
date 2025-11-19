@@ -1431,15 +1431,15 @@
           <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
           
           <div class="menu-container">
-            <button class="menu-button" onclick="mostrarSecao('pedido')">
+            <button class="menu-button" data-secao="pedido">
               <i class="fas fa-plus-circle"></i>
               NOVO PEDIDO
             </button>
-            <button class="menu-button" onclick="mostrarSecao('consultar')">
+            <button class="menu-button" data-secao="consultar">
               <i class="fas fa-search"></i>
               CONSULTAR PEDIDO
             </button>
-            <button class="menu-button" onclick="mostrarSecao('admin')">
+            <button class="menu-button" data-secao="admin">
               <i class="fas fa-user-shield"></i>
               ADMINISTRADOR
             </button>
@@ -1449,7 +1449,7 @@
 
       <!-- Seção: Pedido de Camiseta -->
       <section id="pedido" class="section">
-        <button class="back-button" onclick="mostrarSecao('home')">
+        <button class="back-button" data-secao="home">
           <i class="fas fa-arrow-left"></i>
           Voltar
         </button>
@@ -1618,7 +1618,7 @@
 
       <!-- Seção: Consultar Pedidos -->
       <section id="consultar" class="section">
-        <button class="back-button" onclick="mostrarSecao('home')">
+        <button class="back-button" data-secao="home">
           <i class="fas fa-arrow-left"></i>
           Voltar
         </button>
@@ -1648,7 +1648,7 @@
 
       <!-- Seção: Painel Administrador -->
       <section id="admin" class="section">
-        <button class="back-button" onclick="mostrarSecao('home')">
+        <button class="back-button" data-secao="home">
           <i class="fas fa-arrow-left"></i>
           Voltar
         </button>
@@ -1907,19 +1907,21 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx82zfVu54YravUjot_qh8QNofLfoyVDJ-bSczYd_2g0upErfxwX26Dljj6dZ_1gg7X/exec';
 
     // Mostrar seção específica
-   function mostrarSecao(secaoId) {      // Remover classe active de todas as seções
+   // Função de navegação centralizada
+    function mostrarSecao(secaoId) {
+      // Remover classe active de todas as seções
       document.querySelectorAll('.section').forEach(s => {
         s.classList.remove('active');
       });
       
       // Adicionar classe active à seção selecionada
-      const secaoElement = document.getElementById(secao);
+      const secaoElement = document.getElementById(secaoId);
       if (secaoElement) {
         secaoElement.classList.add('active');
       }
       
       // Se for a seção 'admin', carregar o dashboard se o painel estiver visível
-      if (secao === 'admin') {
+      if (secaoId === 'admin') {
         const painelAdmin = document.getElementById('painelAdmin');
         // Apenas carrega o dashboard se o painel estiver visível (ou seja, o admin está logado)
         if (painelAdmin && painelAdmin.style.display !== 'none') {
@@ -1927,6 +1929,20 @@
         }
       }
     }
+
+    // Inicialização dos Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mostrar a seção 'home' por padrão
+      mostrarSecao('home');
+
+      // Adicionar listener aos botões de navegação
+      document.querySelectorAll('[data-secao]').forEach(button => {
+        button.addEventListener('click', function() {
+          const secaoId = this.getAttribute('data-secao');
+          mostrarSecao(secaoId);
+        });
+      });
+    });
 
     // Mostrar seção específica do admin
     function mostrarAdminSecao(secao) {
@@ -3469,13 +3485,7 @@
       }
     }
 
-    // Inicialização
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM carregado');
-      
-      // Mostrar a seção 'home' por padrão
-      mostrarSecao('home');
-    });
+    // Inicialização dos Event Listeners - movido para a nova lógica de navegação
 
     // Tratamento de erro global para promessas não tratadas
     window.addEventListener('unhandledrejection', function(event) {
