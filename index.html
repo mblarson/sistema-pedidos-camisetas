@@ -530,8 +530,28 @@
       color: var(--primary-color);
       font-size: 0.875rem;
     }
-
-    .form-group input, .form-group select { /* Adicionado select */
+    
+    /* ESTILOS CORRIGIDOS PARA SELECT (Dropdown) */
+    .form-group select { 
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary); /* Garante que o texto seja branco */
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1rem;
+        border-radius: var(--border-radius);
+        width: 100%;
+        -webkit-appearance: none; /* Remove seta padrão em Safari/Chrome */
+        -moz-appearance: none; /* Remove seta padrão em Firefox */
+        appearance: none; /* Remove seta padrão */
+        /* Adiciona um ícone de seta customizado no fundo */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23e2e8f0'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.5em; /* Tamanho do ícone de seta */
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .form-group input, .form-group select { 
       padding: 0.75rem 1rem;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-color);
@@ -539,17 +559,30 @@
       font-size: 1rem;
       color: var(--text-primary);
       transition: var(--transition);
-      width: 100%; /* Garantir que o select ocupe 100% */
-      -webkit-appearance: none; /* Remover estilo padrão em Safari/Chrome */
-      -moz-appearance: none; /* Remover estilo padrão em Firefox */
-      appearance: none; /* Remover estilo padrão */
+      width: 100%; 
+      /* Estilos para SELECT foram movidos acima */
     }
 
-    .form-group input:focus, .form-group select:focus {
+    .form-group input:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
       background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+        background: rgba(255, 255, 255, 0.15);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ff7e5f'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E"); /* Muda a cor da seta no foco */
+    }
+    
+    /* Estiliza as opções dentro do dropdown para o modo escuro */
+    .form-group select option {
+        background: var(--darker-color); /* Fundo da opção na lista */
+        color: var(--text-primary); /* Cor do texto da opção */
+        padding: 0.5rem;
     }
 
     .form-group input::placeholder {
@@ -713,6 +746,8 @@
       display: flex;
       justify-content: center;
       margin-top: 2rem;
+      flex-wrap: wrap; /* Adicionado para quebrar em mobile */
+      gap: 1rem; /* Espaço entre os botões */
     }
 
     .btn-primary {
@@ -1295,11 +1330,7 @@
             <span>Pedidos</span>
           </div>
         </div>
-        <a href="https://wa.me/5567981480039" target="_blank" 
-           style="font-size: 1.5rem; color: var(--success-color); transition: var(--transition); padding: 0.5rem; border-radius: 50%;">
-           <i class="fab fa-whatsapp"></i>
-        </a>
-        </div>
+      </div>
     </div>
   </header>
 
@@ -1692,8 +1723,7 @@
                 <div class="form-actions">
                 <button class="btn-primary" id="btnVerDetalhes">
                     <i class="fas fa-calculator"></i>
-                    Verificar Detalhamento por Tamanho
-                </button>
+                    DETALHAMENTO POR TAMANHO </button>
                 </div>
             </div>
 
@@ -1738,6 +1768,10 @@
                 </div>
                 
                 <div class="form-actions">
+                    <button class="btn-primary" id="btnGerarPdf">
+                        <i class="fas fa-file-pdf"></i>
+                        Gerar Relatório em PDF
+                    </button>
                     <button class="btn-refresh" id="atualizarDetalhesTamanho">
                         <i class="fas fa-sync-alt"></i>
                         Atualizar Detalhes
@@ -1798,6 +1832,9 @@
       <p>&copy; 2023 UMADEMATS - Todos os direitos reservados</p>
     </div>
   </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
   <script type="module">
     // ==========================================================
@@ -1969,8 +2006,7 @@
     
     window.fecharConfirmacaoPedido = function() {
         document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
-        // FIX: Usa redirecionarComAnimacao para garantir que os botões da Home reapareçam
-        window.redirecionarComAnimacao('home'); 
+        window.mostrarSecao('home');
     };
 
     window.copiarNumeroPedido = function(numPedido) {
@@ -2049,6 +2085,107 @@
         window.carregarDashboard();
         window.carregarDetalhesFinanceiros();
     }
+    
+    // ==========================================================
+    // FUNÇÃO GERAR RELATÓRIO PDF (INCLUÍDA)
+    // ==========================================================
+    
+    // Função para gerar PDF (usa jsPDF e AutoTable)
+    window.gerarRelatorioPdf = function() {
+        window.mostrarCarregamento(true, 'Gerando PDF...');
+        
+        // Certifique-se de que o objeto jsPDF esteja disponível globalmente
+        const { jsPDF } = window.jspdf;
+        if (typeof jsPDF === 'undefined') {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Biblioteca jsPDF não carregada. Verifique as tags script.');
+            window.mostrarCarregamento(false);
+            return;
+        }
+
+        const doc = new jsPDF('l', 'mm', 'a4'); // 'l' para layout paisagem (melhor para tabelas largas)
+        const dataAtual = new Date().toLocaleDateString('pt-BR');
+
+        // Cabeçalho e Título
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 0); // Preto
+        doc.text("Relatório de Detalhamento por Tamanho - UMADEMATS", 148.5, 20, null, null, "center"); // Centralizado na folha A4 paisagem
+
+        doc.setFontSize(10);
+        doc.setTextColor(50, 50, 50); // Cinza Escuro
+        doc.text(`Data do Relatório: ${dataAtual}`, 10, 25);
+        doc.text(`Valor da Camiseta (Cálculo): R$ ${PRECO_CAMISETA.toFixed(2).replace('.', ',')}`, 287, 25, null, null, "right");
+
+
+        // 1. Preparar Cabeçalhos e Corpo da Tabela
+        const tableElement = document.getElementById('tamanhosDetalhesBody').closest('table');
+        if (!tableElement || tableElement.rows.length <= 1) {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Tabela de Detalhes de Tamanho vazia. Atualize antes de gerar o PDF.');
+            window.mostrarCarregamento(false);
+            return;
+        }
+        
+        // Obter cabeçalhos (os <th> do thead)
+        const head = Array.from(tableElement.querySelector('thead tr').children).map(th => th.textContent);
+        
+        // Obter corpo (os <td> do tbody e tfoot)
+        let body = [];
+        const tbodyRows = Array.from(tableElement.querySelector('tbody').rows);
+        const tfootRow = tableElement.querySelector('tfoot tr');
+        
+        // Verifica se o tbody tem a linha de placeholder antes de mapear
+        if (tbodyRows.length === 1 && tbodyRows[0].children[0].textContent.includes('Clique em "Atualizar Detalhes"')) {
+             window.exibirMensagem('mensagemLogin', 'erro', 'Tabela de Detalhes de Tamanho vazia. Atualize antes de gerar o PDF.');
+             window.mostrarCarregamento(false);
+             return;
+        }
+
+
+        tbodyRows.forEach(row => {
+            body.push(Array.from(row.children).map(td => td.textContent));
+        });
+        
+        // Adicionar a linha de Total Geral (do tfoot) com estilo
+        let totalRow = tfootRow ? Array.from(tfootRow.children).map(td => td.textContent) : null;
+
+
+        // 2. Configuração e Geração da Tabela (usando autoTable)
+        doc.autoTable({
+            head: [head],
+            body: body,
+            foot: totalRow ? [totalRow] : [], // Adiciona o total no rodapé da tabela
+            startY: 30, // Posição inicial da tabela
+            theme: 'grid', // Estilo de grade
+            styles: {
+                fontSize: 8,
+                cellPadding: 1.5,
+                textColor: [0, 0, 0], // Cor da fonte em PRETO (para impressão/gráfica)
+            },
+            headStyles: {
+                fillColor: [200, 200, 200], // Fundo Cinza Claro para o cabeçalho
+                textColor: [0, 0, 0],
+                fontStyle: 'bold',
+            },
+            footStyles: {
+                fillColor: [180, 180, 180], // Fundo Cinza um pouco mais escuro para o rodapé
+                textColor: [0, 0, 0],
+                fontStyle: 'bold',
+            },
+            columnStyles: {
+                0: { fontStyle: 'bold' } // Coluna "Tipo" em negrito
+            },
+            didDrawPage: function(data) {
+                // Rodapé com número da página
+                doc.setFontSize(8);
+                doc.text(`Página ${data.pageNumber}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+            }
+        });
+        
+        // 3. Salvar o PDF
+        doc.save(`Relatorio_Camisetas_${dataAtual.replace('/', '-')}.pdf`);
+        
+        window.mostrarCarregamento(false);
+        window.exibirMensagem('mensagemLogin', 'sucesso', 'PDF gerado com sucesso!');
+    };
     
     // ==========================================================
     // FUNÇÕES FIREBASE: FLUXO DE ACESSO E PEDIDOS
@@ -2446,7 +2583,7 @@
             const pedidos = await window.carregarTodosPedidos();
             const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
             let htmlBody = '';
-            let htmlFooter = '<tfoot><tr><td class="tipo-header"><strong>Total Geral</strong></td>';
+            let htmlFooter = '<tr><td class="tipo-header"><strong>Total Geral</strong></td>';
             
             const tipos = [
                 { name: 'Infantis', key: 'infantil', displaySizes: ['1', '2', '4', '6', '8', '10', '12', '14'] },
@@ -2477,6 +2614,7 @@
             tipos.forEach(tipo => {
                 htmlBody += `<tr><td class="tipo-header">${tipo.name}</td>`;
                 
+                // Mapeia por todos os tamanhos (incluindo os não usados para o tipo)
                 tamanhosDisponiveis.forEach(t => {
                     const qtd = detalhes[tipo.key][t] || 0;
                     htmlBody += `<td>${qtd}</td>`;
@@ -2489,7 +2627,7 @@
             tamanhosDisponiveis.forEach(t => {
                 htmlFooter += `<td><strong>${totaisGerais[t]}</strong></td>`;
             });
-            htmlFooter += '</tr></tfoot>';
+            htmlFooter += '</tr>';
 
             detalhesBody.innerHTML = htmlBody;
             detalhesFooter.innerHTML = htmlFooter;
@@ -2692,6 +2830,7 @@
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
       const btnFinanceiro = document.getElementById('btnFinanceiro');
+      const btnGerarPdf = document.getElementById('btnGerarPdf'); // NOVO
 
 
       // === Fluxo Home ===
@@ -2842,7 +2981,6 @@
       // === Botões de Navegação / Voltar ===
       document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
-      // A função fecharConfirmacaoPedido foi alterada para usar redirecionarComAnimacao
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
       document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
       document.getElementById('voltarHomeConsulta').addEventListener('click', () => window.redirecionarComAnimacao('home'));
@@ -2866,6 +3004,9 @@
       }
       if (atualizarDetalhesTamanho) {
           atualizarDetalhesTamanho.addEventListener('click', window.carregarDetalhesTamanho);
+      }
+      if (btnGerarPdf) {
+          btnGerarPdf.addEventListener('click', window.gerarRelatorioPdf); // NOVO: Listener para o PDF
       }
       
       // Fluxo Financeiro (Confirmar Valor Camiseta)
