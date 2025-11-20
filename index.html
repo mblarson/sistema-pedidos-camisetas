@@ -311,19 +311,22 @@
   width: 80px; /* Aumentado para melhor visualização do logo */
   height: 80px; /* Aumentado para melhor visualização do logo */
   
-  /* --- Novo estilo para o ícone 50 ANOS --- */
-  background-image: url('https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50-ANOS.png');
-  background-size: contain; /* Garante que o ícone inteiro seja visível */
-  background-repeat: no-repeat; /* Evita repetição */
-  background-position: center; /* Centraliza a imagem */
+  /* --- NOVO: Usando o link raw do GitHub --- */
+  background-image: url('https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50-ANOS.png'); 
   
-  /* As propriedades abaixo anulam o visual anterior para o logo */
-  background-color: transparent; /* Fundo transparente */
+  /* --- MUDANÇA CRÍTICA: Estica a imagem, ignorando o espaço vazio --- */
+  background-size: cover; 
+  /* OU background-size: 100% 100%; */
+
+  background-repeat: no-repeat; 
+  background-position: center; 
+  
+  background-color: transparent; 
   border-radius: var(--border-radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0; /* Oculta a letra 'U' */
+  font-size: 0; 
   font-weight: 700;
 }
 
