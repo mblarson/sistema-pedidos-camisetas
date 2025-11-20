@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,33 +6,7 @@
   <title>Sistema de Pedidos - UMADEMATS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-	  <style>
-    /* ===== MEDIA QUERIES (Responsividade) ===== */
-    @media (max-width: 768px) {
-        .dashboard-cards {
-            grid-template-columns: 1fr;
-        }
-
-        .details-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .pedido-info {
-            grid-template-columns: 1fr;
-        }
-
-        .pedido-tamanhos {
-            grid-template-columns: 1fr;
-        }
-
-        .tipo-tamanhos {
-            margin-bottom: 1rem;
-        }
-
-        .tamanhos-table {
-            min-width: 700px; /* Garante que a tabela não quebre */
-        }
-    }
+  <style>
     /* ===== VARIÁVEIS E RESET (Mantidas) ===== */
     :root {
       --primary-color: #ff7e5f; 
@@ -380,7 +353,7 @@
     /* ===== MAIN ===== */
     .main {
       min-height: calc(100vh - 140px);
-      padding: 1rem 0;
+      padding: 3rem 0;
       position: relative;
     }
 
@@ -437,14 +410,14 @@
       justify-content: center;
       min-height: calc(100vh - 140px);
       text-align: center;
-      padding: 1rem 0;
+      padding: 2rem 0;
     }
 
     .home-title {
       font-size: 3rem;
       font-weight: 800;
       color: var(--text-primary);
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
       line-height: 1.2;
     }
 
@@ -1048,10 +1021,6 @@
     }
 
     /* ===== TABELA DE TAMANHOS ===== */
-    .tamanhos-table-container {
-        overflow-x: auto;
-        width: 100%;
-    }
     .tamanhos-table {
       width: 100%;
       border-collapse: collapse;
@@ -1352,15 +1321,15 @@
           <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
           
           <div class="menu-container">
-            <button class="menu-button" id="btnNovoPedido" onclick="window.setupNovoPedido(); window.redirecionarComAnimacao('pedido');">
+            <button class="menu-button" id="btnNovoPedido">
               <i class="fas fa-plus-circle"></i>
               NOVO PEDIDO
             </button>
-            <button class="menu-button" id="btnConsultarPedido" onclick="document.getElementById('resultadoConsulta').innerHTML = ''; window.redirecionarComAnimacao('consultar');">
+            <button class="menu-button" id="btnConsultarPedido">
               <i class="fas fa-search"></i>
               CONSULTAR PEDIDO
             </button>
-            <button class="menu-button" id="btnAdministrador" onclick="document.getElementById('loginAdmin').style.display = 'block'; document.getElementById('painelAdmin').style.display = 'none'; document.getElementById('mensagemLogin').innerHTML = ''; window.redirecionarComAnimacao('admin');">
+            <button class="menu-button" id="btnAdministrador">
               <i class="fas fa-user-shield"></i>
               ADMINISTRADOR
             </button>
@@ -1631,10 +1600,6 @@
                     <i class="fas fa-list"></i>
                     Pedidos
                 </button>
-                <button class="admin-menu-btn" id="btnFinanceiro">
-                    <i class="fas fa-dollar-sign"></i>
-                    Financeiro
-                </button>
             </div>
             
             <div id="admin-dashboard" class="admin-section active">
@@ -1684,15 +1649,6 @@
                         <div class="card-content">
                         <h4>Pedidos Aprovados</h4>
                         <p class="card-value" id="pedidosAprovados">0</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fas fa-hand-holding-usd"></i>
-                        </div>
-                        <div class="card-content">
-                            <h4>Valor Total Arrecadado</h4>
-                            <p class="card-value" id="valorTotalArrecadado">R$ 0,00</p>
                         </div>
                     </div>
                 </div>
@@ -1757,7 +1713,7 @@
                 </div>
                 
                 <div class="dashboard-details">
-                <div id="tamanhosDetalhesContainer" class="tamanhos-table-container">
+                <div id="tamanhosDetalhesContainer">
                     <table class="tamanhos-table">
                     <thead>
                         <tr>
@@ -1805,29 +1761,6 @@
                 </div>
                 <div id="listaPedidos" class="pedidos-list"></div>
             </div>
-
-            <div id="admin-financeiro" class="admin-section">
-                <div class="dashboard-header">
-                    <h3>Gestão Financeira</h3>
-                </div>
-
-                <div class="modern-form" style="margin-bottom: 2rem;">
-                    <h4>Definir Valor da Camiseta</h4>
-                    <div class="form-group">
-                        <label for="valorCamisetaInput">Valor Unitário (R$)</label>
-                        <input type="number" id="valorCamisetaInput" placeholder="Ex: 25.00" step="0.01">
-                    </div>
-                    <div class="form-actions">
-                        <button class="btn-primary" id="btnSalvarValorCamiseta">Salvar Valor</button>
-                    </div>
-                    <div id="mensagemFinanceiro" class="message-container"></div>
-                </div>
-
-                <div class="dashboard-details">
-                    <h4>Arrecadação por Localidade</h4>
-                    <div id="arrecadacaoPorLocal"></div>
-                </div>
-            </div>
         </div>
       </section>
     </div>
@@ -1857,13 +1790,7 @@
     // ==========================================================
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
-    const ADMIN_PASSWORD_FIXA = "umademats"; // <-- **INSERIR SENHA AQUI**
-    const VALOR_CAMISETA_FIXO = 25.00; // Valor padrão inicial (será sobrescrito pelo Firebase)
-    
-    // ==========================================================
-    // VARIÁVEIS FINANCEIRAS
-    // ==========================================================
-    let valorCamiseta = VALOR_CAMISETA_FIXO; // Variável que armazena o valor atual da camiseta
+    const ADMIN_PASSWORD_FIXA = "SUA_SENHA_FORTE_AQUI"; // <-- **INSERIR SENHA AQUI**
     
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
@@ -1876,43 +1803,15 @@
     // Inicializa o Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const pedidosCollection = collection(db, "pedidos");
-    const configDocRef = doc(db, "config", "financeiro"); // Documento para armazenar o valor da camiseta 
+    const pedidosCollection = collection(db, "pedidos"); 
     const auth = getAuth(app); 
 
     // VARIÁVEIS GLOBAIS DE ESTADO
     let currentPedidoParaEdicao = null; 
 
-  // ==========================================================
-    // FUNÇÕES DE UTILIDADE
     // ==========================================================
-    
-    // Função para carregar o valor da camiseta do Firebase
-    window.carregarValorCamiseta = async function() {
-        try {
-            const docSnap = await getDoc(configDocRef);
-            if (docSnap.exists() && docSnap.data().valorCamiseta) {
-                valorCamiseta = parseFloat(docSnap.data().valorCamiseta);
-                console.log("Valor da camiseta carregado:", valorCamiseta);
-            } else {
-                // Se não existir, cria o documento com o valor padrão
-                await setDoc(configDocRef, { valorCamiseta: VALOR_CAMISETA_FIXO });
-                valorCamiseta = VALOR_CAMISETA_FIXO;
-                console.log("Documento de configuração financeira criado com valor padrão:", valorCamiseta);
-            }
-        } catch (error) {
-            console.error("Erro ao carregar/criar valor da camiseta:", error);
-            // Mantém o valor padrão em caso de erro
-        }
-    };
-    
-    // Função para formatar o valor como moeda BRL
-    window.formatarMoeda = function(valor) {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(valor);
-    };
+    // FUNÇÕES AUXILIARES
+    // ==========================================================
     
     function getQuantidadesFromForm(formData, prefix) {
         const quantidades = {};
@@ -1953,16 +1852,30 @@
       const secaoElement = document.getElementById(secao);
       if (secaoElement) secaoElement.classList.add('active');
     };
-    
-   window.mostrarAdminSecao = function(secao) {
-        document.querySelectorAll(".admin-section").forEach(el => el.classList.remove("active"));
-        document.querySelectorAll(".admin-menu-btn").forEach(el => el.classList.remove("active"));
 
-        document.getElementById(`admin-${secao}`).classList.add("active");
-        document.getElementById(`btn${secao.charAt(0).toUpperCase() + secao.slice(1)}`).classList.add("active");
+    window.mostrarAdminSecao = function(secao) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
+      
+      const secaoElement = document.getElementById(`admin-${secao}`);
+      if (secaoElement) secaoElement.classList.add('active');
+      
+      const botoes = document.querySelectorAll('.admin-menu-btn');
+      botoes.forEach(botao => {
+        const textoBotao = botao.textContent.toLowerCase().trim();
+        if (textoBotao.includes(secao) && secao !== 'detalhes-tamanhos') {
+          botao.classList.add('active');
+        }
+      });
+      
+      if (secao === 'dashboard') {
+        window.carregarDashboard();
+      } else if (secao === 'pedidos') {
+        window.carregarPedidos();
+      }
     };
-
-  window.redirecionarComAnimacao = function(secao, callback) {
+    
+    window.redirecionarComAnimacao = function(secao, callback) {
         const elementoAtual = document.querySelector('.section.active');
         const proximoElemento = document.getElementById(secao);
   
@@ -1977,9 +1890,16 @@
         
         setTimeout(() => {
           window.mostrarSecao(secao);
-          proximoElemento.style.opacity = '1';
-          proximoElemento.style.transform = 'translateY(0)';
-          if(callback) callback();
+          
+          if (callback) callback();
+          
+          proximoElemento.style.opacity = '0';
+          proximoElemento.style.transform = 'translateY(20px)';
+  
+          setTimeout(() => {
+            proximoElemento.style.opacity = '1';
+            proximoElemento.style.transform = 'translateY(0)';
+          }, 50);
         }, 300);
     };
 
@@ -2056,17 +1976,6 @@
             <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date().toLocaleString()}</p>
         `; 
         
-        const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
-                                 Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
-                                 Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
-        const valorTotalPedido = totalCamisetas * valorCamiseta;
-
-        infoElement.innerHTML += `
-            <p style="grid-column: 1 / -1; font-size: 1.25rem; font-weight: 700; color: var(--primary-color); margin-top: 1rem;">
-                <i class="fas fa-hand-holding-usd"></i> <strong>Valor Total a Pagar:</strong> ${window.formatarMoeda(valorTotalPedido)}
-            </p>
-        `;
-
         tamanhosElement.innerHTML = `
             <div class="pedido-confirmacao-tipo">
             <h4><i class="fas fa-child"></i> Infantis</h4>
@@ -2113,19 +2022,19 @@
     
     // Função para verificar se o ID JÁ TEM pedido (retorna o pedido se sim)
     window.verificarPedidoPorNumero = async function(numPedido) {
-        let numNormalizado = numPedido.trim();
-        if (numNormalizado.startsWith('UMADE-')) {
-            numNormalizado = numNormalizado.substring(6); // Remove 'UMADE-' (6 caracteres)
-        }
+        const docId = numPedido.trim();
         try {
-            const docRef = doc(db, "pedidos", numNormalizado);
+            // Busca o documento diretamente pelo DocId (que é o numPedido no seu caso)
+            const docRef = doc(db, "pedidos", docId);
             const docSnap = await getDoc(docRef);
             
             if (docSnap.exists()) {
                 const docData = docSnap.data();
                 const docId = docSnap.id;
                 
-                return { docId, ...docData }; 
+                const finalNumPedido = docData.numPedido || docId; 
+                
+                return { docId, numPedido: finalNumPedido, ...docData }; 
             }
             return null;
         } catch (error) {
@@ -2163,9 +2072,8 @@
         // Marca o rádio correto
         document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
         
-        // Atualiza e preenche o campo Setor/Cidade
-        window.updateSetorCidadeInput(); 
-        document.getElementById('setor').value = pedido.setor; 
+        window.updateSetorCidadeInput(); // Atualiza e preenche o campo Setor/Cidade
+        document.getElementById('setor').value = pedido.setor; // Preenche o valor salvo
         
         document.getElementById('email').value = pedido.email;
         
@@ -2274,33 +2182,6 @@
     };
 
     // Função de Login Admin (Corrigida para receber 'e')
-    window.handleSalvarValorCamiseta = async function() {
-        const novoValor = parseFloat(document.getElementById('valorCamisetaInput').value);
-
-        if (isNaN(novoValor) || novoValor <= 0) {
-            window.exibirMensagem('mensagemFinanceiro', 'erro', 'Por favor, insira um valor numérico válido e positivo.');
-            return;
-        }
-
-        if (!confirm(`Tem certeza que deseja definir o valor da camiseta para ${window.formatarMoeda(novoValor)}? Esta ação recalculará todos os totais.`)) {
-            return;
-        }
-
-        window.mostrarCarregamento(true, 'Salvando novo valor...');
-
-        try {
-            await setDoc(configDocRef, { valorCamiseta: novoValor });
-            valorCamiseta = novoValor;
-            window.exibirMensagem('mensagemFinanceiro', 'sucesso', `Valor da camiseta atualizado para ${window.formatarMoeda(novoValor)}.`);
-            await window.carregarDashboard(); // Recarrega o dashboard para refletir o novo valor
-        } catch (error) {
-            console.error("Erro ao salvar valor da camiseta:", error);
-            window.exibirMensagem('mensagemFinanceiro', 'erro', `Erro ao salvar: ${error.message}`);
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
-
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
         const senha = document.getElementById('senhaAdmin').value;
@@ -2373,39 +2254,6 @@
             window.atualizarElemento('totalBabylook', totalBabylook);
             window.atualizarElemento('totalUnissex', totalUnissex);
             window.atualizarElemento('pedidosRejeitados', pedidosRejeitados);
-
-            // Cálculo Financeiro
-            const valorTotalArrecadado = totalCamisetas * valorCamiseta;
-            window.atualizarElemento('valorTotalArrecadado', window.formatarMoeda(valorTotalArrecadado));
-
-            // Arrecadação por localidade
-            const arrecadacaoPorLocal = {};
-            pedidos.forEach(pedido => {
-                const local = pedido.local === 'Capital' ? `Setor ${pedido.setor}` : pedido.setor;
-                const totalPedido = (Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
-                                   Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
-                                   Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0)) * valorCamiseta;
-
-                if (arrecadacaoPorLocal[local]) {
-                    arrecadacaoPorLocal[local] += totalPedido;
-                } else {
-                    arrecadacaoPorLocal[local] = totalPedido;
-                }
-            });
-
-            const arrecadacaoContainer = document.getElementById('arrecadacaoPorLocal');
-            arrecadacaoContainer.innerHTML = '';
-            for (const local in arrecadacaoPorLocal) {
-                const item = document.createElement('div');
-                item.className = 'detail-item';
-                item.innerHTML = `
-                    <div class="detail-content">
-                        <span>${local}</span>
-                        <strong>${window.formatarMoeda(arrecadacaoPorLocal[local])}</strong>
-                    </div>
-                `;
-                arrecadacaoContainer.appendChild(item);
-            }
             
             window.mostrarCarregamento(false);
             
@@ -2514,7 +2362,6 @@
                 const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
                                              Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
                                              Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
-                const valorTotalPedido = totalCamisetas * valorCamiseta;
 
 
                 const pedidoHtml = `
@@ -2528,7 +2375,6 @@
                             <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
                             <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
                             <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
-                            <p><i class="fas fa-dollar-sign"></i> <strong>Valor a Pagar:</strong> ${window.formatarMoeda(valorTotalPedido)}</p>
                         </div>
                         <div class="pedido-tamanhos">
                             <div class="tipo-tamanhos">
@@ -2588,10 +2434,8 @@
     // ==========================================================
     // EVENT LISTENERS PRINCIPAIS (Inicialização)
     // ==========================================================
-    document.addEventListener('DOMContentLoaded', async () => {
-        await window.carregarValorCamiseta(); // Carrega o valor da camiseta ao iniciar
+    document.addEventListener('DOMContentLoaded', () => {
       
-      const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
       const btnAdministrador = document.getElementById('btnAdministrador');
       const formLoginAdmin = document.getElementById('formLoginAdmin');
       const formConsultarNumero = document.getElementById('formConsultarNumero');
@@ -2603,13 +2447,22 @@
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
-      const btnFinanceiro = document.getElementById('btnFinanceiro');
-      const btnSalvarValorCamiseta = document.getElementById('btnSalvarValorCamiseta');
 
-      // === Fluxo Home (Listeners Adicionados Diretamente no HTML com onclick) ===
-      // document.getElementById('btnNovoPedido').addEventListener('click', () => { ... });
-      // document.getElementById('btnConsultarPedido').addEventListener('click', () => { ... });
-      // document.getElementById('btnAdministrador').addEventListener('click', () => { ... });
+      // === Fluxo Home ===
+      document.getElementById('btnNovoPedido').addEventListener('click', () => {
+          window.setupNovoPedido(); 
+          window.redirecionarComAnimacao('pedido');
+      });
+      document.getElementById('btnConsultarPedido').addEventListener('click', () => {
+          document.getElementById('resultadoConsulta').innerHTML = '';
+          window.redirecionarComAnimacao('consultar');
+      });
+      document.getElementById('btnAdministrador').addEventListener('click', () => {
+          document.getElementById('loginAdmin').style.display = 'block';
+          document.getElementById('painelAdmin').style.display = 'none';
+          document.getElementById('mensagemLogin').innerHTML = '';
+          window.redirecionarComAnimacao('admin');
+      });
 
 
       // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
@@ -2640,11 +2493,11 @@
 
               if (pedido) {
                   currentPedidoParaEdicao = pedido;
-                  window.setupEdicaoPedido();
+                  window.displayVisualizacaoPedido(pedido);
                   window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
               } else {
                   document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido correspondente ao número '${consulta}' foi localizado.</p></div>`;
-                  window.exibirMensagem('mensagemConsulta', 'erro', 'Pedido não encontrado.');
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
               }
               
               window.mostrarCarregamento(false);
@@ -2668,7 +2521,7 @@
 
               if (pedido) {
                   currentPedidoParaEdicao = pedido;
-                  window.setupEdicaoPedido();
+                  window.displayVisualizacaoPedido(pedido);
                   window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
               } else {
                   document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido para o e-mail '${consulta}' foi localizado.</p></div>`;
@@ -2736,7 +2589,6 @@
       // Outros Event Listeners do Admin Panel
       document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
       document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
-      document.getElementById('btnFinanceiro').addEventListener('click', () => window.mostrarAdminSecao('financeiro'));
       document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
       document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
       
@@ -2751,17 +2603,11 @@
               window.mostrarAdminSecao('dashboard');
           });
       }
-      if (btnSalvarValorCamiseta) {
-          btnSalvarValorCamiseta.addEventListener('click', window.handleSalvarValorCamiseta);
-      }
-
       if (atualizarDetalhesTamanho) {
           atualizarDetalhesTamanho.addEventListener('click', window.carregarDetalhesTamanho);
       }
     });
 
-		  </script>
-		  
-		  <script type="module">
-
-}
+  </script>
+</body>
+</html>
