@@ -1927,9 +1927,12 @@
     };
     
     window.fecharConfirmacaoPedido = function() {
-        document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
-        window.mostrarSecao('home');
-    };
+    document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
+    // Adicionando a limpeza da área de resultados de consulta
+    document.getElementById('resultadoConsulta').innerHTML = ''; 
+    // Mudando o destino de 'home' para 'consultar'
+    window.redirecionarComAnimacao('consultar'); 
+};
 
     window.copiarNumeroPedido = function(numPedido) {
         navigator.clipboard.writeText(numPedido)
