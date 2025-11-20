@@ -801,7 +801,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.75rem 1rem; /* Reduzido o padding vertical */
+      padding: 0.75rem 1rem;
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
@@ -894,7 +894,331 @@
       margin: 0;
     }
 
-    /* O restante do CSS foi omitido para brevidade, mas está incluso no arquivo final */
+    /* ===== ADMIN PANEL (Mantidas) ===== */
+    .dashboard-details {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-details h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+    }
+
+    .detail-item:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .detail-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--white-color);
+    }
+
+    .detail-content {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-content span {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .detail-content strong {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* ===== TABELA DE TAMANHOS (Mantidas) ===== */
+    .tamanhos-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .tamanhos-table th,
+    .tamanhos-table td {
+      padding: 0.75rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tamanhos-table th {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .tamanhos-table td {
+      color: var(--text-primary);
+    }
+
+    .tamanhos-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .tamanhos-table .tipo-header {
+      text-align: left;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    /* ===== PEDIDOS (Mantidas) ===== */
+    .pedidos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .pedidos-header h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .pedidos-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .pedido-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .pedido-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .pedido-header {
+      display: flex;
+      align-items: flex-start; 
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .pedido-numero {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .pedido-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    .status-pendente {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+    }
+
+    .status-aprovado {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+
+    .status-rejeitado {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger-color);
+    }
+
+    .pedido-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .pedido-info p {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .pedido-info strong {
+      color: var(--text-primary);
+    }
+
+    .pedido-tamanhos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .tipo-tamanhos h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .tipo-tamanhos ul {
+      list-style: none;
+    }
+
+    .tipo-tamanhos li {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      padding: 0.25rem 0;
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .admin-actions button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-aprovar {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+
+    .btn-aprovar:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-rejeitar {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger-color);
+    }
+
+    .btn-rejeitar:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-editar {
+      background: rgba(255, 126, 95, 0.1);
+      color: var(--primary-color);
+    }
+
+    .btn-editar:hover {
+      background: rgba(255, 126, 95, 0.2);
+    }
+
+    /* ===== FORMULÁRIO DE EDIÇÃO ===== */
+    .edit-form {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      margin-top: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .edit-form h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .form-actions button {
+      flex: 1;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .form-actions button[type="submit"] {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: var(--white-color);
+    }
+
+    .form-actions button[type="submit"]:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== RESULTADOS/ESTADOS VAZIOS (Mantidas) ===== */
+    .result-container {
+      margin-top: 2rem;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+
+    /* ===== FOOTER (Mantidas) ===== */
+    .footer {
+      background: var(--darker-color);
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 2rem 0;
+      margin-top: 4rem;
+    }
   </style>
 </head>
 <body>
@@ -1451,7 +1775,6 @@
       authDomain: "pedidosumademats.firebaseapp.com",
       projectId: "pedidosumademats",
       storageBucket: "pedidosumademats.firebasestorage.app",
-      messagingSenderId: "604273766416",
       appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
     };
 
@@ -1694,7 +2017,6 @@
     
     // Função para verificar se o ID JÁ TEM pedido (retorna o pedido se sim)
     window.verificarPedidoPorNumero = async function(numPedido) {
-        // CORRIGIDO: O numPedido no Firestore é o ID do documento.
         const docId = numPedido.trim();
         try {
             const docRef = doc(db, "pedidos", docId);
@@ -1766,6 +2088,78 @@
         
         window.redirecionarComAnimacao('pedido');
     };
+
+    // Função 4: Exibe a tela de consulta para o Líder (usada no fluxo de consulta)
+    window.displayVisualizacaoPedido = function(pedido, containerId = 'resultadoConsulta') {
+        currentPedidoParaEdicao = pedido;
+        const container = document.getElementById(containerId);
+        
+        const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
+                            pedido.status === 'Aprovado' ? 'status-aprovado' : 
+                            'status-rejeitado';
+        const statusDisplay = pedido.status === 'Aprovado' ? 
+                              '<strong style="color: var(--success-color);">APROVADO</strong>' : 
+                              `<span class="pedido-status ${statusClass}">${pedido.status}</span>`;
+
+        const formatarTamanhos = (tamanhos) => {
+            let list = '';
+            for (const [t, q] of Object.entries(tamanhos || {})) {
+                if (q > 0) list += `<li>${t}: ${q}</li>`;
+            }
+            return list || '<li>Nenhuma</li>';
+        };
+
+        const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                 Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                 Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+        
+        const valorPagar = totalCamisetas * PRECO_CAMISETA;
+
+
+        container.innerHTML = `
+            <div class="pedido-item" data-id="${pedido.docId}">
+                <div class="pedido-header">
+                    <span class="pedido-numero">#${pedido.numPedido}</span>
+                    ${statusDisplay}
+                </div>
+                
+                <div class="pedido-info">
+                    <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local} / ${pedido.setor}</p>
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                    <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas}</p>
+                    <p><i class="fas fa-money-bill-wave"></i> <strong>Valor a Pagar:</strong> R$ ${valorPagar.toFixed(2).replace('.', ',')}</p>
+                </div>
+                
+                <div class="pedido-tamanhos">
+                    <div class="tipo-tamanhos">
+                        <h4>Infantis</h4>
+                        <ul>${formatarTamanhos(pedido.infantil)}</ul>
+                    </div>
+                    <div class="tipo-tamanhos">
+                        <h4>Babylook</h4>
+                        <ul>${formatarTamanhos(pedido.babylook)}</ul>
+                    </div>
+                    <div class="tipo-tamanhos">
+                        <h4>Unissex</h4>
+                        <ul>${formatarTamanhos(pedido.unissex)}</ul>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top: 1rem;">
+                    <button class="btn-primary" id="btnIniciarEdicao">
+                        <i class="fas fa-edit"></i>
+                        EDITAR E REENVIAR
+                    </button>
+                </div>
+            </div>
+            <div id="mensagemConsulta" class="message-container"></div>
+        `;
+        
+        document.getElementById('btnIniciarEdicao').addEventListener('click', window.setupEdicaoPedido);
+    };
+
     
     // Função 6: Lógica de Submissão Única (Novo ou Edição)
     window.handleFormSubmission = async function(e) {
@@ -2043,7 +2437,6 @@
             html += '</ul>';
             resumoContainer.innerHTML = html;
 
-            // Atualiza o valor no formulário
             document.getElementById('valorCamisetaInput').value = PRECO_CAMISETA.toFixed(2);
 
 
@@ -2350,9 +2743,7 @@
           }
       });
       
-      // Inicializa o valor da camiseta no input
       document.getElementById('valorCamisetaInput').value = PRECO_CAMISETA.toFixed(2);
-      // Inicializa os detalhes financeiros ao entrar na seção
       document.getElementById('atualizarFinanceiro').addEventListener('click', window.carregarDetalhesFinanceiros);
       
     });
