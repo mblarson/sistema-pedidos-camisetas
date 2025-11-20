@@ -1929,20 +1929,6 @@
       
       const secaoElement = document.getElementById(`admin-${secao}`);
       if (secaoElement) secaoElement.classList.add('active');
-      
-      const botoes = document.querySelectorAll('.admin-menu-btn');
-      botoes.forEach(botao => {
-        const textoBotao = botao.textContent.toLowerCase().trim();
-        if (textoBotao.includes(secao) && secao !== 'detalhes-tamanhos') {
-          botao.classList.add('active');
-        }
-      });
-      
-      if (secao === 'dashboard') {
-        window.carregarDashboard();
-      } else if (secao === 'pedidos') {
-        window.carregarPedidos();
-      }
     };
     
    window.mostrarAdminSecao = function(secao) {
