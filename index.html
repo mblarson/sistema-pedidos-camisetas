@@ -6,7 +6,33 @@
   <title>Sistema de Pedidos - UMADEMATS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
+	  <style>
+    /* ===== MEDIA QUERIES (Responsividade) ===== */
+    @media (max-width: 768px) {
+        .dashboard-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pedido-info {
+            grid-template-columns: 1fr;
+        }
+
+        .pedido-tamanhos {
+            grid-template-columns: 1fr;
+        }
+
+        .tipo-tamanhos {
+            margin-bottom: 1rem;
+        }
+
+        .tamanhos-table {
+            min-width: 700px; /* Garante que a tabela não quebre */
+        }
+    }
     /* ===== VARIÁVEIS E RESET (Mantidas) ===== */
     :root {
       --primary-color: #ff7e5f; 
@@ -1021,6 +1047,10 @@
     }
 
     /* ===== TABELA DE TAMANHOS ===== */
+    .tamanhos-table-container {
+        overflow-x: auto;
+        width: 100%;
+    }
     .tamanhos-table {
       width: 100%;
       border-collapse: collapse;
@@ -1726,7 +1756,7 @@
                 </div>
                 
                 <div class="dashboard-details">
-                <div id="tamanhosDetalhesContainer">
+                <div id="tamanhosDetalhesContainer" class="tamanhos-table-container">
                     <table class="tamanhos-table">
                     <thead>
                         <tr>
@@ -2740,6 +2770,6 @@
       }
     });
 
-  </script>
-</body>
-</html>
+		  </style>
+		  
+		  <script type="module">
