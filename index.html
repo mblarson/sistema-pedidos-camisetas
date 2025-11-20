@@ -63,7 +63,7 @@
       padding: 0 20px;
     }
 
-    /* ===== BARRA DE CARREGAMENTO ===== */
+    /* ===== BARRA DE CARREGAMENTO (Mantido) ===== */
     .loading-overlay {
       position: fixed;
       top: 0;
@@ -101,7 +101,7 @@
       }
     }
 
-    /* ===== CARD DE CONFIRMAÇÃO DE PEDIDO ===== */
+    /* ===== CARD DE CONFIRMAÇÃO DE PEDIDO (Ajustes para Mobile) ===== */
     .pedido-confirmacao-overlay {
       position: fixed;
       top: 0;
@@ -248,6 +248,11 @@
       font-weight: 600;
       color: var(--primary-color);
     }
+    
+    .pedido-confirmacao-numero > div { /* NOVO: centralizar botão de copiar */
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
 
     .mensagem-importante {
       margin-top: 1.5rem;
@@ -279,6 +284,7 @@
       align-items: center;
       gap: 0.5rem;
       transition: var(--transition);
+      font-size: 0.875rem; /* Ajuste para mobile */
     }
 
     .btn-copiar:hover {
@@ -287,7 +293,7 @@
       color: var(--primary-color);
     }
 
-    /* ===== HEADER ===== */
+    /* ===== HEADER (Ajustes para Mobile) ===== */
     .header {
       background: var(--darker-color);
       border-bottom: 1px solid var(--border-color);
@@ -298,37 +304,30 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 0;
+      padding: 1rem 0; /* Reduzido o padding */
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem; /* Reduzido o gap */
     }
 
-.logo-icon {
-  width: 60px; /* Aumentado para melhor visualização do logo */
-  height: 60px; /* Aumentado para melhor visualização do logo */
-  
-  /* --- NOVO: Usando o link raw do GitHub --- */
-  background-image: url('https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png'); 
-  
-  /* --- MUDANÇA CRÍTICA: Estica a imagem, ignorando o espaço vazio --- */
-  background-size: cover; 
-  /* OU background-size: 100% 100%; */
-
-  background-repeat: no-repeat; 
-  background-position: center; 
-  
-  background-color: transparent; 
-  border-radius: var(--border-radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0; 
-  font-weight: 700;
-}
+    .logo-icon {
+      width: 48px; /* Reduzido para mobile */
+      height: 48px; /* Reduzido para mobile */
+      background-image: url('https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png'); 
+      background-size: cover; 
+      background-repeat: no-repeat; 
+      background-position: center; 
+      background-color: transparent; 
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0; 
+      font-weight: 700;
+    }
 
     .logo-text {
       display: flex;
@@ -336,21 +335,21 @@
     }
 
     .logo-text h1 {
-      font-size: 1.875rem;
+      font-size: 1.5rem; /* Reduzido para mobile */
       font-weight: 800;
       color: var(--text-primary);
       line-height: 1.2;
     }
 
     .logo-text span {
-      font-size: 0.875rem;
+      font-size: 0.75rem; /* Reduzido para mobile */
       color: var(--text-secondary);
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
-    /* ===== MAIN ===== */
+    /* ===== MAIN (Mantido) ===== */
     .main {
       min-height: calc(100vh - 140px);
       padding: 3rem 0;
@@ -370,7 +369,7 @@
       transform: translateY(0);
     }
 
-    /* ===== BOTÃO VOLTAR ===== */
+    /* ===== BOTÃO VOLTAR (Mantido) ===== */
     .back-button {
       position: absolute;
       top: -2.5rem;
@@ -401,8 +400,8 @@
     .back-button i {
       font-size: 1rem;
     }
-
-    /* ===== HOME SCREEN ===== */
+    
+    /* ===== HOME SCREEN (Ajustes para Mobile) ===== */
     .home-screen {
       display: flex;
       flex-direction: column;
@@ -413,17 +412,17 @@
     }
 
     .home-title {
-      font-size: 2rem;
+      font-size: 1.75rem; /* Reduzido para mobile */
       font-weight: 800;
       color: var(--text-primary);
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem; /* Reduzido */
       line-height: 1.2;
     }
 
     .home-subtitle {
-      font-size: 1.25rem;
+      font-size: 1rem; /* Reduzido para mobile */
       color: var(--text-secondary);
-      margin-bottom: 3rem;
+      margin-bottom: 2rem; /* Reduzido */
       max-width: 600px;
       font-weight: 400;
     }
@@ -432,13 +431,13 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 2rem;
+      padding: 1.5rem; /* Reduzido o padding */
       box-shadow: var(--shadow-lg);
       display: flex;
       flex-direction: column;
       gap: 1rem;
       width: 100%;
-      max-width: 400px;
+      max-width: 350px; /* Reduzido o max-width */
       backdrop-filter: blur(10px);
     }
 
@@ -447,12 +446,12 @@
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      padding: 1rem 1.5rem;
+      padding: 0.875rem 1.5rem; /* Ajustado o padding */
       background: rgba(255, 255, 255, 0.05);
       color: var(--text-primary);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      font-size: 1rem;
+      font-size: 0.9rem; /* Ajustado o font-size */
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
@@ -486,7 +485,7 @@
     }
 
     .menu-button i {
-      font-size: 1.25rem;
+      font-size: 1.125rem; /* Ajustado o font-size */
       transition: var(--transition);
     }
 
@@ -494,12 +493,12 @@
       transform: scale(1.1);
     }
 
-    /* ===== FORMULÁRIOS ===== */
+    /* ===== FORMULÁRIOS (Ajustes para Mobile) ===== */
     .modern-form {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 2rem;
+      padding: 1.5rem; /* Reduzido o padding */
       box-shadow: var(--shadow-lg);
       margin-top: 1rem;
       backdrop-filter: blur(10px);
@@ -507,9 +506,9 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: 1fr; /* Força uma coluna em mobile */
       gap: 1.5rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem; /* Reduzido */
     }
 
     .form-group {
@@ -532,7 +531,7 @@
       font-size: 0.875rem;
     }
 
-    .form-group input {
+    .form-group input, .form-group select { /* Adicionado select */
       padding: 0.75rem 1rem;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-color);
@@ -540,9 +539,13 @@
       font-size: 1rem;
       color: var(--text-primary);
       transition: var(--transition);
+      width: 100%; /* Garantir que o select ocupe 100% */
+      -webkit-appearance: none; /* Remover estilo padrão em Safari/Chrome */
+      -moz-appearance: none; /* Remover estilo padrão em Firefox */
+      appearance: none; /* Remover estilo padrão */
     }
 
-    .form-group input:focus {
+    .form-group input:focus, .form-group select:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
@@ -555,7 +558,7 @@
 
     .radio-group {
       display: flex;
-      gap: 2rem;
+      gap: 1.5rem; /* Reduzido o gap */
       margin-top: 0.5rem;
     }
 
@@ -566,6 +569,7 @@
       cursor: pointer;
       font-weight: 500;
       color: var(--text-primary);
+      font-size: 0.875rem; /* Ajustado para mobile */
     }
 
     .radio-label input[type="radio"] {
@@ -573,8 +577,8 @@
     }
 
     .radio-custom {
-      width: 20px;
-      height: 20px;
+      width: 18px; /* Reduzido */
+      height: 18px; /* Reduzido */
       border: 2px solid var(--border-color);
       border-radius: 50%;
       position: relative;
@@ -591,8 +595,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 10px;
-      height: 10px;
+      width: 8px; /* Reduzido */
+      height: 8px; /* Reduzido */
       background: var(--primary-color);
       border-radius: 50%;
     }
@@ -632,13 +636,14 @@
       padding: 0.75rem 1rem;
       cursor: pointer;
       transition: var(--transition);
+      flex-shrink: 0; /* NOVO: Não encolher o botão de ícone */
     }
 
     .btn-icon:hover {
       background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
     }
 
-    /* ===== CAMISETAS ===== */
+    /* ===== CAMISETAS (Ajustes para Mobile) ===== */
     .camisetas-section {
       display: flex;
       flex-direction: column;
@@ -649,14 +654,14 @@
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 1.5rem;
+      padding: 1rem; /* Reduzido o padding */
     }
 
     .tipo-camiseta h3 {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 1.125rem;
+      font-size: 1rem; /* Reduzido o font-size */
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 1rem;
@@ -668,8 +673,8 @@
 
     .tamanhos-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Reduzido o minmax */
+      gap: 0.75rem; /* Reduzido o gap */
     }
 
     .tamanho-item {
@@ -681,18 +686,19 @@
     .tamanho-item label {
       font-weight: 500;
       color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
+      margin-bottom: 0.25rem; /* Reduzido o margin-bottom */
+      font-size: 0.75rem; /* Reduzido o font-size */
     }
 
     .tamanho-item input {
-      width: 60px;
-      padding: 0.5rem;
+      width: 100%; /* Ajustado para 100% da coluna */
+      max-width: 50px; /* Definido um máximo */
+      padding: 0.4rem; /* Reduzido o padding */
       text-align: center;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      font-size: 1rem;
+      font-size: 0.9rem; /* Reduzido o font-size */
       color: var(--text-primary);
       transition: var(--transition);
     }
@@ -702,7 +708,7 @@
       box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
     }
 
-    /* ===== BOTÕES ===== */
+    /* ===== BOTÕES (Mantidos) ===== */
     .form-actions {
       display: flex;
       justify-content: center;
@@ -713,12 +719,12 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.875rem 2rem;
+      padding: 0.75rem 1.5rem; /* Ajustado o padding */
       background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
       color: var(--white-color);
       border: none;
       border-radius: var(--border-radius);
-      font-size: 1rem;
+      font-size: 0.9rem; /* Ajustado o font-size */
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
@@ -736,12 +742,12 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 1rem;
+      padding: 0.4rem 0.8rem; /* Ajustado o padding */
       background: rgba(255, 255, 255, 0.1);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      font-size: 0.875rem;
+      font-size: 0.75rem; /* Ajustado o font-size */
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
@@ -755,19 +761,20 @@
       border-color: var(--primary-color);
     }
 
-    /* ===== MENSAGENS ===== */
+    /* ===== MENSAGENS (Mantidos) ===== */
     .message-container {
-      margin-top: 2rem;
+      margin-top: 1rem; /* Reduzido o margin-top */
     }
 
     .mensagem {
-      padding: 1rem 1.5rem;
+      padding: 0.75rem 1rem; /* Reduzido o padding */
       border-radius: var(--border-radius);
       font-weight: 500;
       display: flex;
       align-items: center;
       gap: 0.5rem;
       backdrop-filter: blur(10px);
+      font-size: 0.875rem;
     }
 
     .sucesso {
@@ -782,19 +789,43 @@
       border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
-    /* ===== LOGIN ===== */
+    /* ===== LOGIN (Mantido) ===== */
     .login-container {
       max-width: 400px;
       margin: 0 auto;
       margin-top: 1rem;
     }
+    
+    .input-with-icon {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: var(--transition);
+    }
+    
+    .input-with-icon input[type="password"], 
+    .input-with-icon input[type="text"] {
+        flex: 1;
+        border: none;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        background: transparent;
+        color: var(--text-primary);
+    }
+    
+    .btn-toggle-password {
+        flex-shrink: 0;
+    }
 
-    /* ===== ADMIN PANEL ===== */
+    /* ===== ADMIN PANEL (Mantidos) ===== */
     .admin-panel {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 2rem;
+      padding: 1.5rem; /* Reduzido o padding */
       box-shadow: var(--shadow-lg);
       margin-top: 1rem;
       backdrop-filter: blur(10px);
@@ -802,16 +833,18 @@
 
     .admin-menu {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
+      gap: 0.5rem; /* Reduzido o gap */
+      margin-bottom: 1.5rem; /* Reduzido o margin-bottom */
       border-bottom: 1px solid var(--border-color);
+      overflow-x: auto; /* Adicionado para menus horizontais em mobile */
+      padding-bottom: 0.5rem;
     }
 
     .admin-menu-btn {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.75rem 1rem;
+      padding: 0.5rem 0.75rem; /* Reduzido o padding */
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
@@ -819,6 +852,8 @@
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
+      font-size: 0.875rem; /* Ajustado o font-size */
+      white-space: nowrap; /* Evitar quebra de linha */
     }
 
     .admin-menu-btn:hover {
@@ -839,150 +874,112 @@
       display: block;
     }
 
-    /* ===== DASHBOARD ===== */
+    /* ===== DASHBOARD (Ajustes para Mobile) ===== */
     .dashboard-header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
+      flex-direction: column; /* Empilha em mobile */
+      align-items: flex-start;
+      margin-bottom: 1.5rem; /* Reduzido */
+    }
+    
+    .dashboard-header .btn-refresh {
+        margin-top: 0.5rem;
     }
 
     .dashboard-header h3 {
-      font-size: 1.5rem;
+      font-size: 1.25rem; /* Reduzido */
       font-weight: 700;
       color: var(--text-primary);
     }
 
     .dashboard-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: 1fr; /* Uma coluna em mobile */
+      gap: 1rem; /* Reduzido o gap */
+      margin-bottom: 1.5rem; /* Reduzido */
     }
 
     .card {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 1.5rem;
+      padding: 1rem; /* Reduzido o padding */
       display: flex;
       align-items: center;
       gap: 1rem;
       transition: var(--transition);
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
     }
 
     .card-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      width: 40px; /* Reduzido */
+      height: 40px; /* Reduzido */
       border-radius: var(--border-radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      color: var(--white-color);
+      font-size: 1rem; /* Reduzido */
     }
 
     .card-content h4 {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.25rem;
-      font-weight: 500;
+      font-size: 0.75rem; /* Reduzido */
+      margin-bottom: 0.1rem; /* Reduzido */
     }
 
     .card-value {
-      font-size: 1.875rem;
+      font-size: 1.5rem; /* Reduzido */
       font-weight: 700;
-      color: var(--text-primary);
-      margin: 0;
     }
 
-    /* ===== ADMIN PANEL (Mantidas) ===== */
+    /* ===== DETALHES ADMIN (Ajustes para Mobile) ===== */
     .dashboard-details {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      backdrop-filter: blur(10px);
-      margin-bottom: 2rem;
+      padding: 1rem; /* Reduzido o padding */
+      margin-bottom: 1.5rem; /* Reduzido */
     }
 
     .dashboard-details h4 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
+      font-size: 1rem; /* Reduzido */
+      margin-bottom: 0.75rem; /* Reduzido */
     }
 
     .details-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
+      grid-template-columns: 1fr; /* Uma coluna em mobile */
+      gap: 0.75rem; /* Reduzido o gap */
     }
 
     .detail-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      transition: var(--transition);
-    }
-
-    .detail-item:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow);
+      padding: 0.75rem; /* Reduzido o padding */
     }
 
     .detail-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      border-radius: var(--border-radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      color: var(--white-color);
-    }
-
-    .detail-content {
-      flex: 1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      width: 36px; /* Reduzido */
+      height: 36px; /* Reduzido */
+      font-size: 0.875rem; /* Reduzido */
     }
 
     .detail-content span {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
+      font-size: 0.8rem; /* Reduzido */
     }
 
     .detail-content strong {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-primary);
+      font-size: 1rem; /* Reduzido */
     }
 
-    /* ===== TABELA DE TAMANHOS (Mantidas) ===== */
+    /* ===== TABELA DE TAMANHOS (Ajustes Específicos para Tabela em Mobile) ===== */
+    .tamanhos-table-container { /* NOVO: Envolve a tabela para melhor scroll */
+        overflow-x: auto;
+        width: 100%;
+    }
+
     .tamanhos-table {
       width: 100%;
+      min-width: 600px; /* Garante que a tabela não encolha demais, forçando o scroll */
       border-collapse: collapse;
-      margin-top: 1rem;
+      margin-top: 0.75rem; /* Reduzido */
     }
 
     .tamanhos-table th,
     .tamanhos-table td {
-      padding: 0.75rem;
+      padding: 0.5rem; /* Reduzido o padding */
+      font-size: 0.75rem; /* Reduzido o font-size */
       text-align: center;
       border-bottom: 1px solid var(--border-color);
     }
@@ -997,237 +994,151 @@
       color: var(--text-primary);
     }
 
-    .tamanhos-table tr:last-child td {
-      border-bottom: none;
-    }
-
     .tamanhos-table .tipo-header {
       text-align: left;
       font-weight: 600;
       color: var(--primary-color);
+      font-size: 0.875rem; /* Ajustado */
+      position: sticky;
+      left: 0;
+      background: var(--darker-color);
+      z-index: 10;
+    }
+    
+    /* FIX: Fundo do footer para scroll da tabela */
+    .tamanhos-table tfoot .tipo-header {
+        background: var(--dark-color);
     }
 
-    /* ===== PEDIDOS (Mantidas) ===== */
+
+    /* ===== PEDIDOS (Ajustes para Mobile) ===== */
     .pedidos-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
+      flex-direction: column; /* Empilha em mobile */
+      align-items: flex-start;
+      margin-bottom: 1.5rem; /* Reduzido */
+    }
+    
+    .pedidos-header .btn-refresh {
+        margin-top: 0.5rem;
     }
 
     .pedidos-header h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-primary);
+      font-size: 1.25rem; /* Reduzido */
     }
 
     .pedidos-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem; /* Reduzido o gap */
     }
 
     .pedido-item {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      transition: var(--transition);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-
-    .pedido-item:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      padding: 1rem; /* Reduzido o padding */
     }
 
     .pedido-header {
       display: flex;
+      flex-direction: column; 
       align-items: flex-start; 
-      justify-content: space-between;
       margin-bottom: 0.5rem;
     }
 
     .pedido-numero {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary-color);
+      font-size: 1.25rem; /* Reduzido */
     }
 
     .pedido-status {
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 4px;
-      display: inline-block;
-    }
-
-    .status-pendente {
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--warning-color);
-    }
-
-    .status-aprovado {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success-color);
-    }
-
-    .status-rejeitado {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger-color);
+      padding: 0.2rem 0.6rem; /* Reduzido o padding */
+      font-size: 0.7rem; /* Reduzido o font-size */
     }
 
     .pedido-info {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
+      grid-template-columns: 1fr; /* Uma coluna em mobile */
+      gap: 0.5rem; /* Reduzido o gap */
+      margin-bottom: 0.75rem; /* Reduzido */
     }
 
     .pedido-info p {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-
-    .pedido-info strong {
-      color: var(--text-primary);
+      font-size: 0.875rem; /* Ajustado */
     }
 
     .pedido-tamanhos {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Mais flexível */
+      gap: 0.75rem; /* Reduzido o gap */
+      margin-bottom: 0.75rem; /* Reduzido */
     }
 
     .tipo-tamanhos h4 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-    }
-
-    .tipo-tamanhos ul {
-      list-style: none;
+      font-size: 0.8rem; /* Reduzido */
     }
 
     .tipo-tamanhos li {
-      font-size: 0.875rem;
-      color: var(--text-primary);
-      padding: 0.25rem 0;
+      font-size: 0.8rem; /* Reduzido */
     }
 
     .admin-actions {
-      display: flex;
       gap: 0.5rem;
-      margin-top: 1rem;
+      margin-top: 0.75rem; /* Reduzido */
     }
 
     .admin-actions button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: var(--border-radius);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
+      padding: 0.4rem 0.75rem; /* Reduzido o padding */
+      font-size: 0.75rem; /* Reduzido o font-size */
     }
 
-    .btn-aprovar {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success-color);
-    }
+    /* ===== MEDIA QUERIES GERAIS (Garantir o ajuste para telas maiores que mobile) ===== */
+    @media (min-width: 640px) {
+        .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        
+        .pedido-confirmacao-info {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .dashboard-cards {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        
+        .details-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .dashboard-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-header .btn-refresh {
+            margin-top: 0;
+        }
 
-    .btn-aprovar:hover {
-      background: rgba(16, 185, 129, 0.2);
-    }
-
-    .btn-rejeitar {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger-color);
-    }
-
-    .btn-rejeitar:hover {
-      background: rgba(239, 68, 68, 0.2);
-    }
-
-    .btn-editar {
-      background: rgba(255, 126, 95, 0.1);
-      color: var(--primary-color);
-    }
-
-    .btn-editar:hover {
-      background: rgba(255, 126, 95, 0.2);
-    }
-
-    /* ===== FORMULÁRIO DE EDIÇÃO ===== */
-    .edit-form {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      margin-top: 1rem;
-      backdrop-filter: blur(10px);
-    }
-
-    .edit-form h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .form-actions button {
-      flex: 1;
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: var(--border-radius);
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .form-actions button[type="submit"] {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      color: var(--white-color);
-    }
-
-    .form-actions button[type="submit"]:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-
-    /* ===== RESULTADOS/ESTADOS VAZIOS (Mantidas) ===== */
-    .result-container {
-      margin-top: 2rem;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--text-secondary);
-    }
-
-    /* ===== FOOTER (Mantidas) ===== */
-    .footer {
-      background: var(--darker-color);
-      border-top: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      text-align: center;
-      padding: 2rem 0;
-      margin-top: 4rem;
+        .pedidos-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pedidos-header .btn-refresh {
+            margin-top: 0;
+        }
+        
+        .pedido-confirmacao-numero > div {
+            flex-direction: row !important;
+            gap: 1rem !important;
+        }
+        
+        .logo-icon {
+            width: 60px; 
+            height: 60px;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.875rem;
+        }
+        
+        .logo-text span {
+            font-size: 0.875rem;
+        }
     }
   </style>
 </head>
@@ -1355,7 +1266,6 @@
         
         <div class="section-header">
           <h2 id="pedidoTitulo">Fazer Novo Pedido</h2>
-          <p id="pedidoSubtitulo">Solicite suas camisetas com elegância</p>
         </div>
 
         <form id="formPedido" class="modern-form">
@@ -1682,7 +1592,7 @@
                 </div>
                 
                 <div class="dashboard-details">
-                <div id="tamanhosDetalhesContainer">
+                <div id="tamanhosDetalhesContainer" class="tamanhos-table-container">
                     <table class="tamanhos-table">
                     <thead>
                         <tr>
@@ -2000,6 +1910,23 @@
         
         overlay.classList.add('active');
     };
+    
+    // Função para recalcular e salvar o novo preço da camiseta
+    window.recalcularValores = function(novoValorString) {
+        const novoValor = parseFloat(novoValorString);
+        if (isNaN(novoValor) || novoValor <= 0) {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Valor inválido. Insira um número positivo.');
+            return;
+        }
+        
+        PRECO_CAMISETA = novoValor;
+        localStorage.setItem('PRECO_CAMISETA', novoValor.toFixed(2));
+        window.exibirMensagem('mensagemLogin', 'sucesso', `Valor da camiseta atualizado para R$ ${novoValor.toFixed(2).replace('.', ',')}!`);
+        
+        // Atualiza o dashboard e financeiro com o novo valor
+        window.carregarDashboard();
+        window.carregarDetalhesFinanceiros();
+    }
     
     // ==========================================================
     // FUNÇÕES FIREBASE: FLUXO DE ACESSO E PEDIDOS
@@ -2359,9 +2286,9 @@
             let htmlFooter = '<tfoot><tr><td class="tipo-header"><strong>Total Geral</strong></td>';
             
             const tipos = [
-                { name: 'Infantis', key: 'infantil' },
-                { name: 'Babylook', key: 'babylook' },
-                { name: 'Unissex', key: 'unissex' }
+                { name: 'Infantis', key: 'infantil', displaySizes: ['1', '2', '4', '6', '8', '10', '12', '14'] },
+                { name: 'Babylook', key: 'babylook', displaySizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG'] },
+                { name: 'Unissex', key: 'unissex', displaySizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG'] }
             ];
 
             const totaisGerais = {};
@@ -2437,14 +2364,24 @@
             });
 
             let html = '<ul style="list-style: none; padding-left: 0;">';
-            for (const [chave, dados] of Object.entries(resumo)) {
+            
+            // Ordena o resumo por Local/Setor para exibição
+            const chavesOrdenadas = Object.keys(resumo).sort();
+
+            for (const chave of chavesOrdenadas) {
+                const dados = resumo[chave];
                 html += `
-                    <li style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
+                    <li style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 4px; font-size: 0.875rem;">
                         <strong>${chave}</strong>: ${dados.totalCamisetas} camisetas = R$ ${dados.valor.toFixed(2).replace('.', ',')}
                     </li>
                 `;
             }
             html += '</ul>';
+            
+            if (chavesOrdenadas.length === 0) {
+                 html = `<div class="empty-state" style="padding: 1rem 0;"><p>Nenhum dado financeiro para exibir.</p></div>`;
+            }
+            
             resumoContainer.innerHTML = html;
 
             document.getElementById('valorCamisetaInput').value = PRECO_CAMISETA.toFixed(2);
@@ -2466,14 +2403,21 @@
 
         try {
             const pedidos = await window.carregarTodosPedidos();
+            
+            // Ordena os pedidos para mostrar Pendentes primeiro
+            const pedidosOrdenados = pedidos.sort((a, b) => {
+                if (a.status === 'Pendente' && b.status !== 'Pendente') return -1;
+                if (a.status !== 'Pendente' && b.status === 'Pendente') return 1;
+                return new Date(b.data) - new Date(a.data); // Mais recentes primeiro
+            });
 
-            if (pedidos.length === 0) {
+            if (pedidosOrdenados.length === 0) {
                 listaPedidosElement.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Não há pedidos registrados no sistema.</p></div>`;
                 window.mostrarCarregamento(false);
                 return;
             }
 
-            pedidos.forEach(pedido => {
+            pedidosOrdenados.forEach(pedido => {
                 const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
                                     pedido.status === 'Aprovado' ? 'status-aprovado' : 
                                     'status-rejeitado';
@@ -2488,6 +2432,12 @@
                                              Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
 
                 const valorPagar = totalCamisetas * PRECO_CAMISETA;
+                
+                // Formata a data para um formato mais legível
+                const dataFormatada = new Date(pedido.data).toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit'
+                });
 
 
                 const pedidoHtml = `
@@ -2500,7 +2450,8 @@
                         <div class="pedido-info">
                             <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
                             <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
-                            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${dataFormatada}</p>
                             <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
                             <p><i class="fas fa-money-bill-wave"></i> <strong>Valor a Pagar:</strong> R$ ${valorPagar.toFixed(2).replace('.', ',')}</p>
                         </div>
@@ -2680,17 +2631,17 @@
                   <select id="setor" name="setor" required 
                           style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%;">
                       <option value="" disabled selected style="background: var(--dark-color); color: var(--text-muted);">Selecione seu Setor</option>
-                      <option value="Setor A" style="background: var(--dark-color);">Setor A</option>
-                      <option value="Setor B" style="background: var(--dark-color);">Setor B</option>
-                      <option value="Setor C1" style="background: var(--dark-color);">Setor C1</option>
-                      <option value="Setor C2" style="background: var(--dark-color);">Setor C2</option>
-                      <option value="Setor D" style="background: var(--dark-color);">Setor D</option>
-                      <option value="Setor E" style="background: var(--dark-color);">Setor E</option>
-                      <option value="Setor F" style="background: var(--dark-color);">Setor F</option>
-                      <option value="Setor G" style="background: var(--dark-color);">Setor G</option>
-                      <option value="Setor H" style="background: var(--dark-color);">Setor H</option>
-                      <option value="Setor M" style="background: var(--dark-color);">Setor M</option>
-                      <option value="Setor N" style="background: var(--dark-color);">Setor N</option>
+                      <option value="Setor A" style="background: var(--dark-color);" ${currentValue === 'Setor A' ? 'selected' : ''}>Setor A</option>
+                      <option value="Setor B" style="background: var(--dark-color);" ${currentValue === 'Setor B' ? 'selected' : ''}>Setor B</option>
+                      <option value="Setor C1" style="background: var(--dark-color);" ${currentValue === 'Setor C1' ? 'selected' : ''}>Setor C1</option>
+                      <option value="Setor C2" style="background: var(--dark-color);" ${currentValue === 'Setor C2' ? 'selected' : ''}>Setor C2</option>
+                      <option value="Setor D" style="background: var(--dark-color);" ${currentValue === 'Setor D' ? 'selected' : ''}>Setor D</option>
+                      <option value="Setor E" style="background: var(--dark-color);" ${currentValue === 'Setor E' ? 'selected' : ''}>Setor E</option>
+                      <option value="Setor F" style="background: var(--dark-color);" ${currentValue === 'Setor F' ? 'selected' : ''}>Setor F</option>
+                      <option value="Setor G" style="background: var(--dark-color);" ${currentValue === 'Setor G' ? 'selected' : ''}>Setor G</option>
+                      <option value="Setor H" style="background: var(--dark-color);" ${currentValue === 'Setor H' ? 'selected' : ''}>Setor H</option>
+                      <option value="Setor M" style="background: var(--dark-color);" ${currentValue === 'Setor M' ? 'selected' : ''}>Setor M</option>
+                      <option value="Setor N" style="background: var(--dark-color);" ${currentValue === 'Setor N' ? 'selected' : ''}>Setor N</option>
                   </select>
               `;
               const selectElement = document.getElementById('setor');
