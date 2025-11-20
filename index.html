@@ -1951,6 +1951,13 @@
           if(callback) callback();
         }, 300);
     };
+
+    window.exibirMensagem = function(elementoId, tipo, mensagem) {
+      const elemento = document.getElementById(elementoId);
+      if (!elemento) {
+          console.error(`Erro ao exibir mensagem: Elemento com ID '${elementoId}' não encontrado.`);
+          return; 
+      }
       
       const icone = tipo === 'sucesso' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
       elemento.innerHTML = `<div class="mensagem ${tipo}"><i class="${icone}"></i>${mensagem}</div>`;
