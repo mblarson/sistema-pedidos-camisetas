@@ -1295,7 +1295,11 @@
             <span>Pedidos</span>
           </div>
         </div>
-      </div>
+        <a href="https://wa.me/5567981480039" target="_blank" 
+           style="font-size: 1.5rem; color: var(--success-color); transition: var(--transition); padding: 0.5rem; border-radius: 50%;">
+           <i class="fab fa-whatsapp"></i>
+        </a>
+        </div>
     </div>
   </header>
 
@@ -1965,7 +1969,8 @@
     
     window.fecharConfirmacaoPedido = function() {
         document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
-        window.mostrarSecao('home');
+        // FIX: Usa redirecionarComAnimacao para garantir que os botões da Home reapareçam
+        window.redirecionarComAnimacao('home'); 
     };
 
     window.copiarNumeroPedido = function(numPedido) {
@@ -2837,6 +2842,7 @@
       // === Botões de Navegação / Voltar ===
       document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
       document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      // A função fecharConfirmacaoPedido foi alterada para usar redirecionarComAnimacao
       document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
       document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
       document.getElementById('voltarHomeConsulta').addEventListener('click', () => window.redirecionarComAnimacao('home'));
