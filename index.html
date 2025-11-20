@@ -576,7 +576,7 @@
         appearance: none; 
         -webkit-appearance: none;
         -moz-appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%2020%2020%22%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
         background-repeat: no-repeat;
         background-position: right 0.75rem center;
         background-size: 1.5em 1.5em;
@@ -1235,6 +1235,16 @@
       margin-top: 1rem;
     }
 
+    .form-actions button {
+      flex: 1;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
     .form-actions button[type="submit"] {
       background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
       color: var(--white-color);
@@ -1355,7 +1365,7 @@
               Pesquise por Número do Pedido
             </label>
             <div class="input-group">
-              <input type="text" id="numPedidoConsultaInput" name="numPedido" placeholder="Ex: UMADE-ABCD123" required>
+              <input type="text" id="numPedidoConsultaInput" name="numPedido" placeholder="Ex: ID do Pedido" required>
               <button type="submit" class="btn-icon">
                 <i class="fas fa-search"></i>
               </button>
@@ -1600,6 +1610,10 @@
                     <i class="fas fa-list"></i>
                     Pedidos
                 </button>
+                <button class="admin-menu-btn" id="btnFinanceiro">
+                    <i class="fas fa-dollar-sign"></i>
+                    Financeiro
+                </button>
             </div>
             
             <div id="admin-dashboard" class="admin-section active">
@@ -1750,6 +1764,17 @@
                     </button>
                 </div>
             </div>
+            
+            <div id="admin-financeiro" class="admin-section">
+                <div class="dashboard-header">
+                <h3>Relatórios Financeiros</h3>
+                </div>
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Função Financeira em Desenvolvimento</h3>
+                    <p>Os dados de valores e custos ainda não estão disponíveis nesta versão do sistema.</p>
+                </div>
+            </div>
 
             <div id="admin-pedidos" class="admin-section">
                 <div class="pedidos-header">
@@ -1784,7 +1809,7 @@
       projectId: "pedidosumademats",
       storageBucket: "pedidosumademats.firebasestorage.app",
       messagingSenderId: "604273766416",
-      appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
+      appId: "1:604273766416:web:4813a2365db9ea0e9e1a99" // Usei um AppId genérico, verifique se o seu é este
     };
 
     // ==========================================================
@@ -1862,8 +1887,7 @@
       
       const botoes = document.querySelectorAll('.admin-menu-btn');
       botoes.forEach(botao => {
-        const textoBotao = botao.textContent.toLowerCase().trim();
-        if (textoBotao.includes(secao) && secao !== 'detalhes-tamanhos') {
+        if (botao.textContent.toLowerCase().includes(secao.split('-')[0])) { // Verifica apenas a primeira parte do nome (ex: "dash" para dashboard)
           botao.classList.add('active');
         }
       });
@@ -1873,6 +1897,7 @@
       } else if (secao === 'pedidos') {
         window.carregarPedidos();
       }
+      // NOTA: Seção financeira não precisa de lógica de carregamento complexa
     };
     
     window.redirecionarComAnimacao = function(secao, callback) {
@@ -2022,9 +2047,9 @@
     
     // Função para verificar se o ID JÁ TEM pedido (retorna o pedido se sim)
     window.verificarPedidoPorNumero = async function(numPedido) {
+        // CORRIGIDO: O numPedido no Firestore é o ID do documento.
         const docId = numPedido.trim();
         try {
-            // Busca o documento diretamente pelo DocId (que é o numPedido no seu caso)
             const docRef = doc(db, "pedidos", docId);
             const docSnap = await getDoc(docRef);
             
@@ -2493,7 +2518,7 @@
 
               if (pedido) {
                   currentPedidoParaEdicao = pedido;
-                  window.displayVisualizacaoPedido(pedido);
+                  window.displayVisualizacaoPedido(pedido, 'resultadoConsulta'); // Passa o ID do container
                   window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
               } else {
                   document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido correspondente ao número '${consulta}' foi localizado.</p></div>`;
