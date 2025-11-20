@@ -299,8 +299,7 @@
     .header {
       background: var(--darker-color);
       border-bottom: 1px solid var(--border-color);
-      /* CORRIGIDO: Remove padding superior desnecessário que causava o espaço */
-      padding: 0; 
+      padding: 0; /* CORRIGIDO: Remove padding superior desnecessário que causava o espaço */
     }
 
     .header-content {
@@ -714,7 +713,7 @@
 
     .tamanhos-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
       gap: 1rem;
     }
 
@@ -1762,15 +1761,28 @@
                     </button>
                 </div>
             </div>
-            
+
             <div id="admin-financeiro" class="admin-section">
                 <div class="dashboard-header">
                 <h3>Relatórios Financeiros</h3>
                 </div>
+                
+                <div class="dashboard-cards" style="grid-template-columns: 1fr;">
+                    <div class="card">
+                        <div class="card-icon" style="background: var(--success-color);">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="card-content">
+                            <h4>Valor Arrecadado Estimado (@R$ 30,00/Unid.)</h4>
+                            <p class="card-value" id="valorArrecadado">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="empty-state">
                     <i class="fas fa-chart-line"></i>
-                    <h3>Função Financeira em Desenvolvimento</h3>
-                    <p>Os dados de valores e custos ainda não estão disponíveis nesta versão do sistema.</p>
+                    <h3>Detalhes Financeiros</h3>
+                    <p>Os dados de custos e detalhes ainda não estão disponíveis nesta versão do sistema.</p>
                 </div>
             </div>
 
@@ -1800,6 +1812,7 @@
     // 1. CONFIGURAÇÃO DO FIREBASE
     // ==========================================================
     
+    // OBJETO FIREBASE (Com suas chaves inseridas)
     const firebaseConfig = {
       apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
       authDomain: "pedidosumademats.firebaseapp.com",
@@ -1812,7 +1825,9 @@
     // ==========================================================
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
-    const ADMIN_PASSWORD_FIXA = "umademats"; 
+    const ADMIN_PASSWORD_FIXA = "umademats
+    "; // <-- **INSERIR SENHA AQUI**
+    const PRECO_CAMISETA = 30.00; // Assunção de preço para cálculo financeiro
     
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
@@ -2268,6 +2283,9 @@
                 else if (pedido.status === 'Rejeitado') pedidosRejeitados++;
             });
             
+            // Assume 30.00 R$ por camiseta
+            const valorArrecadado = totalCamisetas * 30.00; 
+
             window.atualizarElemento('totalPedidos', totalPedidos);
             window.atualizarElemento('totalCamisetas', totalCamisetas);
             window.atualizarElemento('pedidosPendentes', pedidosPendentes);
@@ -2277,6 +2295,9 @@
             window.atualizarElemento('totalUnissex', totalUnissex);
             window.atualizarElemento('pedidosRejeitados', pedidosRejeitados);
             
+            // Atualiza o valor arrecadado
+            document.getElementById('valorArrecadado').textContent = `R$ ${valorArrecadado.toFixed(2).replace('.', ',')}`;
+
             window.mostrarCarregamento(false);
             
         } catch (error) {
@@ -2470,6 +2491,8 @@
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
+      const btnFinanceiro = document.getElementById('btnFinanceiro');
+
 
       // === Fluxo Home ===
       document.getElementById('btnNovoPedido').addEventListener('click', () => {
@@ -2615,6 +2638,9 @@
       document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
       document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
       
+      // CORRIGIDO: Botão Financeiro
+      document.getElementById('btnFinanceiro').addEventListener('click', () => window.mostrarAdminSecao('financeiro'));
+
       if (btnVerDetalhes) {
           btnVerDetalhes.addEventListener('click', () => {
               window.mostrarAdminSecao('detalhes-tamanhos'); 
