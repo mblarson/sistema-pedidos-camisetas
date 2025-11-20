@@ -1922,14 +1922,6 @@
       const secaoElement = document.getElementById(secao);
       if (secaoElement) secaoElement.classList.add('active');
     };
-
-    
-      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
-      
-      const secaoElement = document.getElementById(`admin-${secao}`);
-      if (secaoElement) secaoElement.classList.add('active');
-    };
     
    window.mostrarAdminSecao = function(secao) {
         document.querySelectorAll(".admin-section").forEach(el => el.classList.remove("active"));
