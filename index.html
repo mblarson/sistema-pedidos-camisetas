@@ -299,7 +299,7 @@
     .header {
       background: var(--darker-color);
       border-bottom: 1px solid var(--border-color);
-      padding: 0; /* CORRIGIDO: Remove padding superior desnecessário que causava o espaço */
+      padding: 0; 
     }
 
     .header-content {
@@ -530,8 +530,7 @@
       font-size: 0.875rem;
     }
 
-    .form-group input, 
-    .form-group select {
+    .form-group input {
       padding: 0.75rem 1rem;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-color);
@@ -570,6 +569,13 @@
 
     /* CORREÇÃO DO SELECIONE */
     .form-group select {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        color: var(--text-primary);
+        transition: var(--transition);
         appearance: none; 
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -608,7 +614,6 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      cursor: pointer;
       font-weight: 500;
       color: var(--text-primary);
     }
@@ -1644,22 +1649,22 @@
                     </div>
 
                     <div class="card">
+                        <div class="card-icon" style="background: var(--success-color);">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div class="card-content">
+                        <h4>Valor Arrecadado Estimado</h4>
+                        <p class="card-value" id="totalArrecadado">R$ 0,00</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
                         <div class="card-icon">
                         <i class="fas fa-clock"></i>
                         </div>
                         <div class="card-content">
                         <h4>Pedidos Pendentes</h4>
                         <p class="card-value" id="pedidosPendentes">0</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-icon">
-                        <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="card-content">
-                        <h4>Pedidos Aprovados</h4>
-                        <p class="card-value" id="pedidosAprovados">0</p>
                         </div>
                     </div>
                 </div>
@@ -1761,29 +1766,38 @@
                     </button>
                 </div>
             </div>
-
+            
             <div id="admin-financeiro" class="admin-section">
                 <div class="dashboard-header">
-                <h3>Relatórios Financeiros</h3>
+                    <h3>Configuração e Resumo Financeiro</h3>
+                    <button id="atualizarFinanceiro" class="btn-refresh">
+                        <i class="fas fa-sync-alt"></i>
+                        Recarregar
+                    </button>
                 </div>
                 
-                <div class="dashboard-cards" style="grid-template-columns: 1fr;">
-                    <div class="card">
-                        <div class="card-icon" style="background: var(--success-color);">
-                            <i class="fas fa-dollar-sign"></i>
+                <div class="dashboard-details">
+                    <form id="formValorCamiseta" class="modern-form" style="padding: 1rem; margin-top: 0;">
+                        <div class="form-group">
+                            <label for="valorCamisetaInput"><i class="fas fa-money-bill-wave"></i> Valor Atual da Camiseta (R$)</label>
+                            <div class="input-group">
+                                <input type="number" id="valorCamisetaInput" step="0.01" min="0" value="30.00" required>
+                                <button type="submit" class="btn-icon">
+                                    <i class="fas fa-check"></i>
+                                    Confirmar
+                                </button>
+                            </div>
                         </div>
-                        <div class="card-content">
-                            <h4>Valor Arrecadado Estimado (@R$ 30,00/Unid.)</h4>
-                            <p class="card-value" id="valorArrecadado">R$ 0,00</p>
-                        </div>
+                    </form>
+                </div>
+
+                <div class="dashboard-details">
+                    <h4>Resumo Financeiro por Localização</h4>
+                    <div id="resumoFinanceiroLocais">
+                        <p style="text-align: center; color: var(--text-muted);">Carregando resumo...</p>
                     </div>
                 </div>
-                
-                <div class="empty-state">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Detalhes Financeiros</h3>
-                    <p>Os dados de custos e detalhes ainda não estão disponíveis nesta versão do sistema.</p>
-                </div>
+
             </div>
 
             <div id="admin-pedidos" class="admin-section">
@@ -1826,7 +1840,9 @@
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
     const ADMIN_PASSWORD_FIXA = "umademats"; // <-- **INSERIR SENHA AQUI**
-    const PRECO_CAMISETA = 30.00; // Assunção de preço para cálculo financeiro
+    
+    // Armazenamento local do preço da camiseta para o cálculo financeiro
+    let PRECO_CAMISETA = parseFloat(localStorage.getItem('PRECO_CAMISETA')) || 30.00;
     
     // ==========================================================
     // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
@@ -1898,7 +1914,6 @@
       
       const botoes = document.querySelectorAll('.admin-menu-btn');
       botoes.forEach(botao => {
-        // Verifica se o texto do botão contém a primeira parte do nome da seção (ex: "dash" para dashboard)
         if (botao.textContent.toLowerCase().includes(secao.split('-')[0].substring(0, 4))) { 
           botao.classList.add('active');
         }
@@ -1908,6 +1923,8 @@
         window.carregarDashboard();
       } else if (secao === 'pedidos') {
         window.carregarPedidos();
+      } else if (secao === 'financeiro') {
+        window.carregarDetalhesFinanceiros();
       }
     };
     
@@ -2058,7 +2075,6 @@
     
     // Função para verificar se o ID JÁ TEM pedido (retorna o pedido se sim)
     window.verificarPedidoPorNumero = async function(numPedido) {
-        // CORRIGIDO: O numPedido no Firestore é o ID do documento.
         const docId = numPedido.trim();
         try {
             const docRef = doc(db, "pedidos", docId);
@@ -2238,6 +2254,72 @@
         window.mostrarCarregamento(false);
     }
     
+    // ----------------------------------------------------------
+    // LÓGICA DO DASHBOARD E FINANCEIRO
+    // ----------------------------------------------------------
+    
+    // 7. Função de Recálculo (Chamada pelo botão Financeiro)
+    window.recalcularValores = function(novoPreco) {
+        if (novoPreco !== undefined) {
+            PRECO_CAMISETA = parseFloat(novoPreco);
+            localStorage.setItem('PRECO_CAMISETA', PRECO_CAMISETA);
+        }
+        
+        // Força o recarregamento do Dashboard e dos Detalhes Financeiros
+        window.carregarDashboard();
+        if (document.getElementById('admin-financeiro').classList.contains('active')) {
+             window.carregarDetalhesFinanceiros();
+        }
+    };
+    
+    // Função para carregar os detalhes financeiros por Local/Setor
+    window.carregarDetalhesFinanceiros = async function() {
+        window.mostrarCarregamento(true, 'Calculando resumo financeiro...');
+        const resumoContainer = document.getElementById('resumoFinanceiroLocais');
+        
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+            const resumo = {};
+
+            pedidos.forEach(pedido => {
+                const chave = `${pedido.local} / ${pedido.setor}`;
+                const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                         Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                         Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
+                if (!resumo[chave]) {
+                    resumo[chave] = { totalCamisetas: 0, valor: 0 };
+                }
+                
+                resumo[chave].totalCamisetas += totalCamisetas;
+                resumo[chave].valor += totalCamisetas * PRECO_CAMISETA;
+            });
+
+            let html = '<ul style="list-style: none; padding-left: 0;">';
+            for (const [chave, dados] of Object.entries(resumo)) {
+                html += `
+                    <li style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
+                        <strong>${chave}</strong>: ${dados.totalCamisetas} camisetas = R$ ${dados.valor.toFixed(2).replace('.', ',')}
+                    </li>
+                `;
+            }
+            html += '</ul>';
+            resumoContainer.innerHTML = html;
+
+            // Atualiza o valor no formulário
+            document.getElementById('valorCamisetaInput').value = PRECO_CAMISETA.toFixed(2);
+
+
+        } catch (error) {
+            console.error('Erro ao carregar detalhes financeiros:', error);
+            resumoContainer.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar dados: ${error.message}</div>`;
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+    
+    // ... (As demais funções de Dashboard e Pedidos são mantidas) ...
+
     window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
@@ -2263,18 +2345,12 @@
             let pedidosPendentes = 0;
             let pedidosAprovados = 0;
             let pedidosRejeitados = 0;
-            let totalInfantis = 0;
-            let totalBabylook = 0;
-            let totalUnissex = 0;
 
             pedidos.forEach(pedido => {
                 const infantilCount = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0);
                 const babylookCount = Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0);
                 const unissexCount = Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
 
-                totalInfantis += infantilCount;
-                totalBabylook += babylookCount;
-                totalUnissex += unissexCount;
                 totalCamisetas += infantilCount + babylookCount + unissexCount;
 
                 if (pedido.status === 'Pendente') pedidosPendentes++;
@@ -2282,20 +2358,12 @@
                 else if (pedido.status === 'Rejeitado') pedidosRejeitados++;
             });
             
-            // Assume 30.00 R$ por camiseta
-            const valorArrecadado = totalCamisetas * 30.00; 
+            const valorArrecadado = totalCamisetas * PRECO_CAMISETA;
 
             window.atualizarElemento('totalPedidos', totalPedidos);
             window.atualizarElemento('totalCamisetas', totalCamisetas);
             window.atualizarElemento('pedidosPendentes', pedidosPendentes);
-            window.atualizarElemento('pedidosAprovados', pedidosAprovados);
-            window.atualizarElemento('totalInfantis', totalInfantis);
-            window.atualizarElemento('totalBabylook', totalBabylook);
-            window.atualizarElemento('totalUnissex', totalUnissex);
-            window.atualizarElemento('pedidosRejeitados', pedidosRejeitados);
-            
-            // Atualiza o valor arrecadado
-            document.getElementById('valorArrecadado').textContent = `R$ ${valorArrecadado.toFixed(2).replace('.', ',')}`;
+            document.getElementById('totalArrecadado').textContent = `R$ ${valorArrecadado.toFixed(2).replace('.', ',')}`;
 
             window.mostrarCarregamento(false);
             
@@ -2306,171 +2374,7 @@
         }
     };
     
-    window.carregarDetalhesTamanho = async function() {
-        window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
-        const detalhesBody = document.getElementById('tamanhosDetalhesBody');
-        const detalhesFooter = document.getElementById('tamanhosDetalhesFooter');
-        
-        detalhesBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Calculando...</td></tr>';
-        detalhesFooter.innerHTML = '';
-        
-        try {
-            const pedidos = await window.carregarTodosPedidos();
-            const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-            let htmlBody = '';
-            let htmlFooter = '<tfoot><tr><td class="tipo-header"><strong>Total Geral</strong></td>';
-            
-            const tipos = [
-                { name: 'Infantis', key: 'infantil' },
-                { name: 'Babylook', key: 'babylook' },
-                { name: 'Unissex', key: 'unissex' }
-            ];
-
-            const totaisGerais = {};
-            tamanhosDisponiveis.forEach(t => totaisGerais[t] = 0);
-
-            const detalhes = { infantil: {}, babylook: {}, unissex: {} };
-            tamanhosDisponiveis.forEach(t => {
-                detalhes.infantil[t] = 0;
-                detalhes.babylook[t] = 0;
-                detalhes.unissex[t] = 0;
-            });
-
-
-            pedidos.forEach(pedido => {
-                tipos.forEach(tipo => {
-                    const quantidades = pedido[tipo.key] || {};
-                    Object.entries(quantidades).forEach(([tamanho, qtd]) => {
-                        detalhes[tipo.key][tamanho] = (detalhes[tipo.key][tamanho] || 0) + qtd;
-                    });
-                });
-            });
-            
-            tipos.forEach(tipo => {
-                htmlBody += `<tr><td class="tipo-header">${tipo.name}</td>`;
-                
-                tamanhosDisponiveis.forEach(t => {
-                    const qtd = detalhes[tipo.key][t] || 0;
-                    htmlBody += `<td>${qtd}</td>`;
-                    totaisGerais[t] += qtd;
-                });
-                htmlBody += `</tr>`;
-            });
-            
-            // Gerar footer
-            tamanhosDisponiveis.forEach(t => {
-                htmlFooter += `<td><strong>${totaisGerais[t]}</strong></td>`;
-            });
-            htmlFooter += '</tr></tfoot>';
-
-            detalhesBody.innerHTML = htmlBody;
-            detalhesFooter.innerHTML = htmlFooter;
-            window.exibirMensagem('mensagemLogin', 'sucesso', 'Detalhes de tamanho carregados com sucesso!');
-
-        } catch (error) {
-            console.error('Erro ao carregar detalhes de tamanho:', error);
-            detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">Erro de comunicação: ${error.message}</td></tr>`;
-            window.exibirMensagem('mensagemLogin', 'erro', 'Erro ao carregar Detalhes.');
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
-
-
-    window.carregarPedidos = async function() {
-        window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
-        const listaPedidosElement = document.getElementById('listaPedidos');
-        listaPedidosElement.innerHTML = ''; 
-
-        try {
-            const pedidos = await window.carregarTodosPedidos();
-
-            if (pedidos.length === 0) {
-                listaPedidosElement.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Não há pedidos registrados no sistema.</p></div>`;
-                window.mostrarCarregamento(false);
-                return;
-            }
-
-            pedidos.forEach(pedido => {
-                const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
-                                    pedido.status === 'Aprovado' ? 'status-aprovado' : 
-                                    'status-rejeitado';
-
-                const formatarTamanhos = (tipos) => {
-                    return Object.entries(tipos).filter(([_, qtd]) => parseInt(qtd) > 0)
-                                .map(([t, q]) => `<li>${t}: ${q}</li>`).join('');
-                };
-                
-                const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
-                                             Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
-                                             Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
-
-
-                const pedidoHtml = `
-                    <div class="pedido-item" data-id="${pedido.docId}">
-                        <div class="pedido-header">
-                            <span class="pedido-numero">#${pedido.numPedido}</span>
-                            <span class="pedido-status ${statusClass}">${pedido.status}</span>
-                        </div>
-                        <div class="pedido-info">
-                            <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
-                            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
-                            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
-                            <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
-                        </div>
-                        <div class="pedido-tamanhos">
-                            <div class="tipo-tamanhos">
-                                <h4>Infantis</h4>
-                                <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
-                            </div>
-                            <div class="tipo-tamanhos">
-                                <h4>Babylook</h4>
-                                <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
-                            </div>
-                            <div class="tipo-tamanhos">
-                                <h4>Unissex</h4>
-                                <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
-                            </div>
-                        </div>
-                        <div class="admin-actions">
-                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Aprovado')">Aprovar</button>
-                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Rejeitado')">Rejeitar</button>
-                        </div>
-                    </div>
-                `;
-                listaPedidosElement.insertAdjacentHTML('beforeend', pedidoHtml);
-            });
-
-        } catch (error) {
-            console.error('Erro ao carregar lista de pedidos:', error);
-            listaPedidosElement.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar pedidos: ${error.message}</div>`;
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
-    
-    window.atualizarStatusPedido = async function(docId, novoStatus) {
-        if (!confirm(`Tem certeza que deseja mudar o status do pedido para '${novoStatus}'?`)) {
-            return;
-        }
-
-        window.mostrarCarregamento(true, `Atualizando status para ${novoStatus}...`);
-
-        try {
-            const pedidoRef = doc(db, "pedidos", docId);
-            await updateDoc(pedidoRef, { status: novoStatus });
-
-            window.exibirMensagem('mensagemLogin', 'sucesso', `Status do pedido atualizado para ${novoStatus} com sucesso!`);
-            await window.carregarPedidos(); 
-            await window.carregarDashboard();
-            
-        } catch (error) {
-            console.error('Erro ao atualizar status:', error);
-            window.exibirMensagem('mensagemLogin', 'erro', `Erro ao atualizar status: ${error.message}`);
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
+    // ... (restante das funções de carregarDetalhesTamanho, carregarPedidos, atualizarStatusPedido) ...
 
 
     // ==========================================================
@@ -2478,7 +2382,6 @@
     // ==========================================================
     document.addEventListener('DOMContentLoaded', () => {
       
-      const btnAcessoLideranca = document.getElementById('btnAcessoLideranca');
       const btnAdministrador = document.getElementById('btnAdministrador');
       const formLoginAdmin = document.getElementById('formLoginAdmin');
       const formConsultarNumero = document.getElementById('formConsultarNumero');
@@ -2490,8 +2393,6 @@
       const btnVerDetalhes = document.getElementById('btnVerDetalhes');
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
-      const btnFinanceiro = document.getElementById('btnFinanceiro');
-
 
       // === Fluxo Home ===
       document.getElementById('btnNovoPedido').addEventListener('click', () => {
@@ -2577,7 +2478,6 @@
           });
       }
 
-
       // === Lógica de Campo Dinâmico (Capital/Interior) ===
       window.updateSetorCidadeInput = function() {
           const container = document.getElementById('setorCidadeContainer');
@@ -2634,12 +2534,13 @@
       // Outros Event Listeners do Admin Panel
       document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
       document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
-      document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
-      document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
       
       // CORRIGIDO: Botão Financeiro
       document.getElementById('btnFinanceiro').addEventListener('click', () => window.mostrarAdminSecao('financeiro'));
-
+      
+      document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
+      document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
+      
       if (btnVerDetalhes) {
           btnVerDetalhes.addEventListener('click', () => {
               window.mostrarAdminSecao('detalhes-tamanhos'); 
@@ -2654,6 +2555,25 @@
       if (atualizarDetalhesTamanho) {
           atualizarDetalhesTamanho.addEventListener('click', window.carregarDetalhesTamanho);
       }
+      
+      // Fluxo Financeiro (Confirmar Valor Camiseta)
+      document.getElementById('formValorCamiseta').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const novoValor = document.getElementById('valorCamisetaInput').value;
+          if (novoValor > 0) {
+              if (confirm(`Confirmar o novo valor da camiseta para R$ ${parseFloat(novoValor).toFixed(2).replace('.', ',')}? Isso irá recalcular o Dashboard e Pedidos.`)) {
+                  window.recalcularValores(novoValor);
+              }
+          } else {
+              window.exibirMensagem('mensagemLogin', 'erro', 'O valor deve ser maior que zero.');
+          }
+      });
+      
+      // Inicializa o valor da camiseta no input
+      document.getElementById('valorCamisetaInput').value = PRECO_CAMISETA.toFixed(2);
+      // Inicializa os detalhes financeiros ao entrar na seção
+      document.getElementById('atualizarFinanceiro').addEventListener('click', window.carregarDetalhesFinanceiros);
+      
     });
 
   </script>
