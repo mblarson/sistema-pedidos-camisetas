@@ -1923,13 +1923,7 @@
       if (secaoElement) secaoElement.classList.add('active');
     };
 
-    window.mostrarAdminSecao = function(secao) {
-        document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.admin-menu-btn').forEach(el => el.classList.remove('active'));
-
-        document.getElementById(`admin-${secao}`).classList.add('active');
-        document.getElementById(`btn${secao.charAt(0).toUpperCase() + secao.slice(1)}`).classList.add('active');
-    };
+    
       document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.admin-menu-btn').forEach(b => b.classList.remove('active'));
       
@@ -1951,7 +1945,15 @@
       }
     };
     
-    window.redirecionarComAnimacao = function(secao, callback) {
+   window.mostrarAdminSecao = function(secao) {
+        document.querySelectorAll(".admin-section").forEach(el => el.classList.remove("active"));
+        document.querySelectorAll(".admin-menu-btn").forEach(el => el.classList.remove("active"));
+
+        document.getElementById(`admin-${secao}`).classList.add("active");
+        document.getElementById(`btn${secao.charAt(0).toUpperCase() + secao.slice(1)}`).classList.add("active");
+    };
+
+  window.redirecionarComAnimacao = function(secao, callback) {
         const elementoAtual = document.querySelector('.section.active');
         const proximoElemento = document.getElementById(secao);
   
@@ -1966,22 +1968,11 @@
         
         setTimeout(() => {
           window.mostrarSecao(secao);
-          
-          if (callback) callback();
-          
-          proximoElemento.style.opacity = '0';
-          proximoElemento.style.transform = 'translateY(20px)';
-  
-          setTimeout(() => {
-            proximoElemento.style.opacity = '1';
-            proximoElemento.style.transform = 'translateY(0)';
-          }, 50);
+          proximoElemento.style.opacity = '1';
+          proximoElemento.style.transform = 'translateY(0)';
+          if(callback) callback();
         }, 300);
-    };
-
-    window.exibirMensagem = function(elementoId, tipo, mensagem) {
-      const elemento = document.getElementById(elementoId);
-      if (!elemento) {
+    };emento) {
           console.error(`Erro ao exibir mensagem: Elemento com ID '${elementoId}' não encontrado.`);
           return; 
       }
