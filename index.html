@@ -530,8 +530,7 @@
       font-size: 0.875rem;
     }
 
-    .form-group input, 
-    .form-group select {
+    .form-group input {
       padding: 0.75rem 1rem;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-color);
@@ -570,6 +569,13 @@
 
     /* CORREÇÃO DO SELECIONE */
     .form-group select {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        color: var(--text-primary);
+        transition: var(--transition);
         appearance: none; 
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -712,7 +718,7 @@
 
     .tamanhos-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
       gap: 1rem;
     }
 
@@ -1087,17 +1093,26 @@
 
     .pedido-header {
       display: flex;
+      /* CORRIGIDO: Força o alinhamento para topo */
+      align-items: flex-start; 
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .pedido-header .titulo-status {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        line-height: 1.1;
     }
 
     .pedido-numero {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--primary-color);
     }
-
+    
+    /* CORRIGIDO: ESTILO DO STATUS */
     .pedido-status {
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
@@ -1105,6 +1120,9 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      /* Novo: Garante que a pill não se quebre */
+      margin-top: 4px;
+      display: inline-block;
     }
 
     .status-pendente {
@@ -1820,6 +1838,7 @@
     // 1. CONFIGURAÇÃO DO FIREBASE
     // ==========================================================
     
+    // OBJETO FIREBASE (Com suas chaves inseridas)
     const firebaseConfig = {
       apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
       authDomain: "pedidosumademats.firebaseapp.com",
@@ -1832,7 +1851,7 @@
     // ==========================================================
     // VARIÁVEIS CRÍTICAS
     // ==========================================================
-    const ADMIN_PASSWORD_FIXA = "umademats"; 
+    const ADMIN_PASSWORD_FIXA = "umademats"; // <-- **INSERIR SENHA AQUI**
     
     // Armazenamento local do preço da camiseta para o cálculo financeiro
     let PRECO_CAMISETA = parseFloat(localStorage.getItem('PRECO_CAMISETA')) || 30.00;
@@ -1907,7 +1926,6 @@
       
       const botoes = document.querySelectorAll('.admin-menu-btn');
       botoes.forEach(botao => {
-        // Verifica se o texto do botão contém a primeira parte do nome da seção (ex: "dash" para dashboard)
         if (botao.textContent.toLowerCase().includes(secao.split('-')[0].substring(0, 4))) { 
           botao.classList.add('active');
         }
@@ -2300,7 +2318,8 @@
             window.atualizarElemento('totalPedidos', totalPedidos);
             window.atualizarElemento('totalCamisetas', totalCamisetas);
             window.atualizarElemento('pedidosPendentes', pedidosPendentes);
-            window.atualizarElemento('totalArrecadado', `R$ ${valorArrecadado.toFixed(2).replace('.', ',')}`);
+            document.getElementById('totalArrecadado').textContent = `R$ ${valorArrecadado.toFixed(2).replace('.', ',')}`;
+
             window.atualizarElemento('pedidosAprovados', pedidosAprovados);
             window.atualizarElemento('totalInfantis', totalInfantis);
             window.atualizarElemento('totalBabylook', totalBabylook);
@@ -2386,51 +2405,6 @@
         }
     };
 
-    window.carregarDetalhesFinanceiros = async function() {
-        window.mostrarCarregamento(true, 'Calculando resumo financeiro...');
-        const resumoContainer = document.getElementById('resumoFinanceiroLocais');
-        
-        try {
-            const pedidos = await window.carregarTodosPedidos();
-            const resumo = {};
-
-            pedidos.forEach(pedido => {
-                const chave = `${pedido.local} / ${pedido.setor}`;
-                const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
-                                         Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
-                                         Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
-
-                if (!resumo[chave]) {
-                    resumo[chave] = { totalCamisetas: 0, valor: 0 };
-                }
-                
-                resumo[chave].totalCamisetas += totalCamisetas;
-                resumo[chave].valor += totalCamisetas * PRECO_CAMISETA;
-            });
-
-            let html = '<ul style="list-style: none; padding-left: 0;">';
-            for (const [chave, dados] of Object.entries(resumo)) {
-                html += `
-                    <li style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
-                        <strong>${chave}</strong>: ${dados.totalCamisetas} camisetas = R$ ${dados.valor.toFixed(2).replace('.', ',')}
-                    </li>
-                `;
-            }
-            html += '</ul>';
-            resumoContainer.innerHTML = html;
-
-            // Atualiza o valor no formulário
-            document.getElementById('valorCamisetaInput').value = PRECO_CAMISETA.toFixed(2);
-
-
-        } catch (error) {
-            console.error('Erro ao carregar detalhes financeiros:', error);
-            resumoContainer.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar dados: ${error.message}</div>`;
-        } finally {
-            window.mostrarCarregamento(false);
-        }
-    };
-
 
     window.carregarPedidos = async function() {
         window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
@@ -2460,19 +2434,25 @@
                                              Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
                                              Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
 
+                // Cálculo do valor a pagar (R$ 30.00 fixo)
+                const valorPagar = totalCamisetas * PRECO_CAMISETA;
+
 
                 const pedidoHtml = `
                     <div class="pedido-item" data-id="${pedido.docId}">
-                        <div class="pedido-header">
+                        <div class="pedido-header" style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 0.5rem;">
                             <span class="pedido-numero">#${pedido.numPedido}</span>
-                            <span class="pedido-status ${statusClass}">${pedido.status}</span>
+                            <span class="pedido-status ${statusClass}" style="margin-top: 4px;">${pedido.status}</span>
                         </div>
+                        
                         <div class="pedido-info">
                             <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
                             <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
                             <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
                             <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
+                            <p><i class="fas fa-money-bill-wave"></i> <strong>Valor a Pagar:</strong> R$ ${valorPagar.toFixed(2).replace('.', ',')}</p>
                         </div>
+                        
                         <div class="pedido-tamanhos">
                             <div class="tipo-tamanhos">
                                 <h4>Infantis</h4>
@@ -2707,6 +2687,8 @@
       }
       
       // Fluxo Financeiro (Confirmar Valor Camiseta)
+      document.getElementById('btnFinanceiro').addEventListener('click', () => window.mostrarAdminSecao('financeiro'));
+      
       document.getElementById('formValorCamiseta').addEventListener('submit', (e) => {
           e.preventDefault();
           const novoValor = document.getElementById('valorCamisetaInput').value;
@@ -2724,8 +2706,6 @@
       // Inicializa os detalhes financeiros ao entrar na seção
       document.getElementById('atualizarFinanceiro').addEventListener('click', window.carregarDetalhesFinanceiros);
       
-      // Adiciona o listener para o botão Financeiro
-      document.getElementById('btnFinanceiro').addEventListener('click', () => window.mostrarAdminSecao('financeiro'));
     });
 
   </script>
