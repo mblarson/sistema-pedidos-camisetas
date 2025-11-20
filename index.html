@@ -6,6 +6,9 @@
   <title>Sistema de Pedidos - UMADEMATS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> 
   <style>
     /* ===== VARIÁVEIS E RESET (Mantidas) ===== */
     :root {
@@ -368,6 +371,24 @@
       opacity: 1;
       transform: translateY(0);
     }
+    
+    .section-header {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .section-header h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .section-header p {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
 
     /* ===== BOTÃO VOLTAR (Mantido) ===== */
     .back-button {
@@ -1250,6 +1271,187 @@
              min-width: 100px;
         }
     }
+    
+    /* ========================================================== */
+    /* ===== MEDIA QUERIES PARA PC/DESKTOP (A PARTIR DE 1024PX) ===== */
+    /* ========================================================== */
+    @media (min-width: 1024px) {
+        /* 1. Layout Base e Container */
+        .container {
+            max-width: 1400px; /* Aumenta a largura máxima no desktop */
+            padding: 0 40px;
+        }
+
+        .main {
+            padding: 5rem 0; /* Mais espaço vertical */
+        }
+        
+        .section-header {
+             max-width: 900px; /* Limita a largura do cabeçalho da seção */
+             margin: 0 auto 2rem auto;
+             text-align: center;
+        }
+        
+        .section-header h2 {
+            font-size: 2.25rem;
+        }
+        
+        .section-header p {
+            font-size: 1.125rem;
+        }
+
+        /* 2. HOME SCREEN: Mais espaçosa e centralizada */
+        .home-screen {
+            justify-content: center;
+            padding: 6rem 0;
+        }
+
+        .home-title {
+            font-size: 2.8rem; /* Título maior */
+            margin-bottom: 2rem;
+        }
+
+        .home-subtitle {
+            font-size: 1.125rem;
+            max-width: 700px;
+        }
+
+        .menu-container {
+            max-width: 480px; /* Aumenta o menu centralizado */
+            padding: 3rem;
+            gap: 1.75rem;
+        }
+
+        .menu-button {
+            padding: 1.25rem 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* 3. FORMULÁRIOS (Pedido, Consulta, Login): Centralizados e em 2 colunas */
+        .modern-form {
+            max-width: 900px; /* Largura ideal para formulários em PC */
+            margin-left: auto;
+            margin-right: auto;
+            padding: 3rem;
+            margin-top: 2rem;
+        }
+
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+        
+        /* 4. SEÇÃO DE CAMISETAS: Distribuição em 3 colunas */
+        .camisetas-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .tipo-camiseta {
+            padding: 1.5rem;
+        }
+        
+        .tipo-camiseta h3 {
+             font-size: 1.125rem;
+        }
+
+        .tamanhos-grid {
+            /* Ajusta a grade para usar 4 colunas internas de forma eficiente */
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); 
+            gap: 0.85rem;
+        }
+        
+        .tamanho-item label {
+            font-size: 0.875rem;
+        }
+        
+        .tamanho-item input {
+            max-width: 60px; 
+            padding: 0.6rem;
+            font-size: 1rem;
+        }
+        
+        /* 5. ADMIN PANEL: Otimizado para visualização de dados */
+        .admin-panel {
+            max-width: 100%;
+            padding: 2.5rem;
+        }
+        
+        /* Centraliza o menu do admin para ficar mais elegante */
+        .admin-menu {
+             justify-content: center;
+        }
+        
+        .dashboard-cards {
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 1.5rem;
+        }
+        
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-details {
+            padding: 1.5rem;
+        }
+        
+        .details-grid {
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 1.5rem;
+        }
+        
+        .card-value {
+            font-size: 2rem;
+        }
+
+        /* 6. ADMIN - LISTA DE PEDIDOS: 2 Colunas de cards */
+        .pedidos-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Cards maiores */
+            gap: 2rem; /* Mais espaçamento entre os cards */
+        }
+        
+        .pedido-item {
+            margin-bottom: 0; 
+            padding: 1.75rem; /* Padding maior */
+        }
+
+        .pedido-info {
+            grid-template-columns: 1fr 1fr; 
+        }
+        
+        .pedido-tamanhos {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .admin-actions button {
+             flex: 1 1 auto; /* Permite que os botões se expandam um pouco */
+             min-width: 120px;
+        }
+
+        /* 7. CONFIRMAÇÃO DE PEDIDO (Overlay) */
+        .pedido-confirmacao-card {
+            max-width: 800px;
+            padding: 3rem;
+        }
+        
+        .pedido-confirmacao-tamanhos {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .pedido-confirmacao-header h2 {
+            font-size: 1.8rem;
+        }
+
+        .btn-primary {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+    }
   </style>
 </head>
 <body>
@@ -1734,6 +1936,10 @@
                 </div>
                 
                 <div class="form-actions">
+                    <button class="btn-primary" id="gerarPDFGrafica" style="margin-right: 1rem;">
+                        <i class="fas fa-file-pdf"></i>
+                        Gerar PDF para Gráfica
+                    </button>
                     <button class="btn-refresh" id="atualizarDetalhesTamanho">
                         <i class="fas fa-sync-alt"></i>
                         Atualizar Detalhes
@@ -2453,7 +2659,115 @@
             window.mostrarCarregamento(false);
         }
     };
+    
+    // NOVO: Função para gerar o PDF de Detalhamento por Tamanho, otimizada para A4 e cor preta
+    window.gerarRelatorioPDF = async function() {
+        // Acesso à biblioteca jsPDF no escopo global
+        const { jsPDF } = window.jspdf;
+        const tabelaContainer = document.getElementById('tamanhosDetalhesContainer');
+        
+        if (!tabelaContainer) {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Tabela de detalhes não encontrada.');
+            return;
+        }
 
+        window.mostrarCarregamento(true, 'Gerando PDF otimizado...');
+        
+        // --- 1. CONFIGURAÇÃO E CLONAGEM DA TABELA PARA RENDERIZAÇÃO ---
+        const tabelaClone = tabelaContainer.cloneNode(true);
+        tabelaClone.style.backgroundColor = '#ffffff'; // Fundo branco
+        tabelaClone.style.color = '#000000'; // Força cor da fonte principal para preto
+        tabelaClone.style.padding = '20px';
+        
+        // Estilos para forçar todos os textos dentro do clone a serem pretos
+        // Aplica estilos CSS diretamente no clone
+        const styles = `
+            .tamanhos-table, .tamanhos-table th, .tamanhos-table td {
+                color: #000000 !important;
+                border: 1px solid #333333 !important; /* Bordas visíveis na impressão */
+            }
+            .tamanhos-table th {
+                background-color: #f0f0f0 !important;
+                color: #000000 !important;
+            }
+            .tamanhos-table .tipo-header {
+                color: #000000 !important;
+                background-color: #e0e0e0 !important;
+            }
+            .tamanhos-table tfoot .tipo-header {
+                background-color: #d0d0d0 !important;
+            }
+        `;
+        const styleElement = document.createElement('style');
+        styleElement.innerHTML = styles;
+        tabelaClone.prepend(styleElement);
+
+
+        // Cria o título (Cabeçalho do PDF)
+        const titulo = document.createElement('h1');
+        titulo.textContent = 'UMADEMATS - PEDIDOS DE CAMISETA';
+        titulo.style.textAlign = 'center';
+        titulo.style.marginBottom = '20px';
+        titulo.style.color = '#000000'; // Título preto
+        titulo.style.fontSize = '24px';
+        
+        // Cria um container para renderizar o clone, oculto da tela
+        const renderContainer = document.createElement('div');
+        renderContainer.style.width = '297mm'; // Largura total de uma folha A4 paisagem (297mm)
+        renderContainer.style.position = 'absolute';
+        renderContainer.style.left = '-9999px'; 
+        renderContainer.style.backgroundColor = '#ffffff'; // Garante fundo branco para o container
+
+        renderContainer.appendChild(titulo);
+        renderContainer.appendChild(tabelaClone);
+        document.body.appendChild(renderContainer);
+
+        try {
+            // --- 2. GERAÇÃO DO CANVAS E PDF ---
+            
+            // Renderiza o container, forçando o fundo branco
+            const canvas = await html2canvas(renderContainer, { 
+                scale: 3, // Alta resolução para impressão
+                logging: false,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            
+            // Configurações A4 Paisagem para maximizar o uso da largura
+            const doc = new jsPDF('l', 'mm', 'a4'); // 'l' para Landscape (Paisagem)
+            const pdfWidth = doc.internal.pageSize.getWidth() - 10; // Largura do PDF (297mm - 10mm margem)
+            const pdfHeight = doc.internal.pageSize.getHeight() - 10; // Altura do PDF (210mm - 10mm margem)
+            
+            const imgHeight = canvas.height * pdfWidth / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 5; // Posição inicial (margem superior)
+
+            // Adiciona a imagem da tabela ao PDF, tratando múltiplas páginas
+            doc.addImage(imgData, 'PNG', 5, position, pdfWidth, imgHeight);
+            heightLeft -= pdfHeight;
+
+            while (heightLeft >= -5) { // Loop para quebrar a página
+                position = position - pdfHeight;
+                doc.addPage();
+                doc.addImage(imgData, 'PNG', 5, position, pdfWidth, imgHeight);
+                heightLeft -= pdfHeight;
+            }
+
+            // --- 3. SALVA O ARQUIVO ---
+            doc.save('UMADEMATS_Relatorio_Tamanhos_' + new Date().toISOString().slice(0, 10) + '.pdf');
+            window.exibirMensagem('mensagemLogin', 'sucesso', 'PDF gerado com sucesso!');
+
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            window.exibirMensagem('mensagemLogin', 'erro', `Erro ao gerar PDF: ${error.message}. Tente novamente.`);
+        } finally {
+            document.body.removeChild(renderContainer); // Remove o clone
+            window.mostrarCarregamento(false);
+        }
+    };
+    
     window.carregarDetalhesFinanceiros = async function() {
         window.mostrarCarregamento(true, 'Calculando resumo financeiro...');
         const resumoContainer = document.getElementById('resumoFinanceiroLocais');
@@ -2641,6 +2955,12 @@
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
       const btnFinanceiro = document.getElementById('btnFinanceiro');
+      
+      // NOVO: Listener para o botão Gerar PDF
+      const gerarPDFGrafica = document.getElementById('gerarPDFGrafica');
+      if (gerarPDFGrafica) {
+          gerarPDFGrafica.addEventListener('click', window.gerarRelatorioPDF);
+      }
 
 
       // === Fluxo Home ===
