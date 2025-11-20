@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1351,15 +1352,15 @@
           <p class="home-subtitle">Solicite suas camisetas com elegância e praticidade</p>
           
           <div class="menu-container">
-            <button class="menu-button" id="btnNovoPedido">
+            <button class="menu-button" id="btnNovoPedido" onclick="window.setupNovoPedido(); window.redirecionarComAnimacao('pedido');">
               <i class="fas fa-plus-circle"></i>
               NOVO PEDIDO
             </button>
-            <button class="menu-button" id="btnConsultarPedido">
+            <button class="menu-button" id="btnConsultarPedido" onclick="document.getElementById('resultadoConsulta').innerHTML = ''; window.redirecionarComAnimacao('consultar');">
               <i class="fas fa-search"></i>
               CONSULTAR PEDIDO
             </button>
-            <button class="menu-button" id="btnAdministrador">
+            <button class="menu-button" id="btnAdministrador" onclick="document.getElementById('loginAdmin').style.display = 'block'; document.getElementById('painelAdmin').style.display = 'none'; document.getElementById('mensagemLogin').innerHTML = ''; window.redirecionarComAnimacao('admin');">
               <i class="fas fa-user-shield"></i>
               ADMINISTRADOR
             </button>
@@ -2605,21 +2606,10 @@
       const btnFinanceiro = document.getElementById('btnFinanceiro');
       const btnSalvarValorCamiseta = document.getElementById('btnSalvarValorCamiseta');
 
-      // === Fluxo Home ===
-      document.getElementById('btnNovoPedido').addEventListener('click', () => {
-          window.setupNovoPedido(); 
-          window.redirecionarComAnimacao('pedido');
-      });
-      document.getElementById('btnConsultarPedido').addEventListener('click', () => {
-          document.getElementById('resultadoConsulta').innerHTML = '';
-          window.redirecionarComAnimacao('consultar');
-      });
-      document.getElementById('btnAdministrador').addEventListener('click', () => {
-          document.getElementById('loginAdmin').style.display = 'block';
-          document.getElementById('painelAdmin').style.display = 'none';
-          document.getElementById('mensagemLogin').innerHTML = '';
-          window.redirecionarComAnimacao('admin');
-      });
+      // === Fluxo Home (Listeners Adicionados Diretamente no HTML com onclick) ===
+      // document.getElementById('btnNovoPedido').addEventListener('click', () => { ... });
+      // document.getElementById('btnConsultarPedido').addEventListener('click', () => { ... });
+      // document.getElementById('btnAdministrador').addEventListener('click', () => { ... });
 
 
       // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
@@ -2770,6 +2760,8 @@
       }
     });
 
-		  </style>
+		  </script>
 		  
 		  <script type="module">
+
+}
