@@ -415,7 +415,7 @@
       font-size: 1.75rem; /* Reduzido para mobile */
       font-weight: 800;
       color: var(--text-primary);
-      margin-bottom: 0.5rem; /* Reduzido */
+      margin-bottom: 1.5rem; /* Reduzido */
       line-height: 1.2;
     }
 
@@ -844,7 +844,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 0.75rem; /* Reduzido o padding */
+      padding: 0.3rem 0.3rem; /* Reduzido o padding */
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
@@ -1035,9 +1035,11 @@
     }
 
     .pedido-header {
+      /* Ajuste para que o número e o status fiquem em cima */
       display: flex;
       flex-direction: column; 
       align-items: flex-start; 
+      justify-content: flex-start; /* Ajuste para não ter espaço entre eles */
       margin-bottom: 0.5rem;
     }
 
@@ -1051,38 +1053,64 @@
     }
 
     .pedido-info {
-      grid-template-columns: 1fr; /* Uma coluna em mobile */
-      gap: 0.5rem; /* Reduzido o gap */
-      margin-bottom: 0.75rem; /* Reduzido */
+      /* FIX: Força empilhamento em mobile e garante que os textos não quebrem feio */
+      display: grid;
+      grid-template-columns: 1fr; 
+      gap: 0.5rem; 
+      margin-bottom: 0.75rem;
     }
 
     .pedido-info p {
-      font-size: 0.875rem; /* Ajustado */
+      font-size: 0.875rem; 
+      /* Adicionado para que o texto não quebre o layout */
+      word-break: break-word; 
+      overflow-wrap: break-word;
+    }
+
+    .pedido-info strong {
+        /* Adicionado para garantir que o valor fique logo após o label */
+        margin-left: auto;
     }
 
     .pedido-tamanhos {
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Mais flexível */
-      gap: 0.75rem; /* Reduzido o gap */
-      margin-bottom: 0.75rem; /* Reduzido */
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Reduzido o minmax para caber em 3 colunas */
+      gap: 0.5rem; /* Reduzido o gap */
+      margin-bottom: 0.75rem; 
+      padding-top: 0.5rem; /* Espaçamento da seção de tamanhos */
+      border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separador sutil */
     }
 
     .tipo-tamanhos h4 {
-      font-size: 0.8rem; /* Reduzido */
+      font-size: 0.8rem; 
+      margin-bottom: 0.25rem;
+    }
+
+    .tipo-tamanhos ul {
+        padding-left: 0.5rem;
     }
 
     .tipo-tamanhos li {
-      font-size: 0.8rem; /* Reduzido */
+      font-size: 0.75rem; /* Reduzido */
+      line-height: 1.3;
     }
 
     .admin-actions {
+      display: flex; /* Garante que os botões fiquem lado a lado */
+      flex-wrap: wrap; /* Permite que quebrem para a linha de baixo se necessário */
       gap: 0.5rem;
-      margin-top: 0.75rem; /* Reduzido */
+      margin-top: 0.75rem; 
     }
 
     .admin-actions button {
-      padding: 0.4rem 0.75rem; /* Reduzido o padding */
-      font-size: 0.75rem; /* Reduzido o font-size */
+      flex: 1 1 auto; /* Permite que os botões cresçam e encolham, mas não fiquem minúsculos */
+      padding: 0.4rem 0.75rem; 
+      font-size: 0.75rem; 
     }
+    
+    .btn-aprovar, .btn-rejeitar {
+        min-width: 80px; /* Garante um tamanho mínimo para clique */
+    }
+
 
     /* ===== MEDIA QUERIES GERAIS (Garantir o ajuste para telas maiores que mobile) ===== */
     @media (min-width: 640px) {
@@ -1138,6 +1166,26 @@
         
         .logo-text span {
             font-size: 0.875rem;
+        }
+
+        /* Ajuste para telas maiores na lista de pedidos */
+        .pedido-info {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .pedido-tamanhos {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .pedido-header {
+             flex-direction: row;
+             align-items: center;
+             justify-content: space-between;
+        }
+
+        .admin-actions button {
+             flex: 0 1 auto; /* Volta ao padrão */
+             min-width: 100px;
         }
     }
   </style>
@@ -1266,6 +1314,7 @@
         
         <div class="section-header">
           <h2 id="pedidoTitulo">Fazer Novo Pedido</h2>
+          <p id="pedidoSubtitulo">Solicite suas camisetas com elegância</p>
         </div>
 
         <form id="formPedido" class="modern-form">
@@ -1980,7 +2029,6 @@
         document.getElementById('pedidoDocId').value = '';
         document.getElementById('email').value = ''; 
         document.getElementById('nome').value = '';
-        document.getElementById('setor').value = ''; 
         
         document.getElementById('formPedido').reset();
         
@@ -1988,8 +2036,11 @@
         document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
         
-        document.querySelector('input[name="local"][value="Capital"]').checked = true; 
+        // Define o default e atualiza o campo Setor/Cidade
+        const radioCapital = document.querySelector('input[name="local"][value="Capital"]');
+        if (radioCapital) radioCapital.checked = true;
         window.updateSetorCidadeInput(); 
+        document.getElementById('setor').value = ''; 
     }
 
     // Função 5: Preenche o formulário para Edição
@@ -2001,10 +2052,10 @@
         document.getElementById('nome').value = pedido.nome;
         
         // Marca o rádio correto
-        document.querySelector(`input[name="local"][value="${pedido.local}"]`).checked = true;
+        const radioLocal = document.querySelector(`input[name="local"][value="${pedido.local}"]`);
+        if (radioLocal) radioLocal.checked = true;
         
-        window.updateSetorCidadeInput(); // Atualiza e preenche o campo Setor/Cidade
-        document.getElementById('setor').value = pedido.setor; // Preenche o valor salvo
+        window.updateSetorCidadeInput(pedido.setor); // Atualiza e preenche o campo Setor/Cidade
         
         document.getElementById('email').value = pedido.email;
         
@@ -2442,7 +2493,7 @@
 
                 const pedidoHtml = `
                     <div class="pedido-item" data-id="${pedido.docId}">
-                        <div class="pedido-header" style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 0.5rem;">
+                        <div class="pedido-header" style="display: flex; flex-direction: column; align-items: flex-start;">
                             <span class="pedido-numero">#${pedido.numPedido}</span>
                             <span class="pedido-status ${statusClass}" style="margin-top: 4px;">${pedido.status}</span>
                         </div>
@@ -2616,36 +2667,44 @@
 
 
       // === Lógica de Campo Dinâmico (Capital/Interior) ===
-      window.updateSetorCidadeInput = function() {
+      window.updateSetorCidadeInput = function(currentValue = '') {
           const container = document.getElementById('setorCidadeContainer');
           const labelElement = document.getElementById('setorCidadeLabel');
           const radioCapitalChecked = document.querySelector('input[name="local"][value="Capital"]:checked');
           
-          const currentValue = document.getElementById('setor') ? document.getElementById('setor').value : '';
-
+          // Se não houver currentValue, tenta pegar o valor atual do input/select, se existir
+          if (currentValue === '') {
+            const currentElement = document.getElementById('setor');
+            if (currentElement) currentValue = currentElement.value;
+          }
 
           if (radioCapitalChecked) {
               labelElement.textContent = 'Setor';
-              // Opção CAPITAL: Dropdown de Setores (Com estilos inline para escuro)
+              // Opção CAPITAL: Dropdown de Setores. Estilos de input/select são aplicados via CSS.
               container.innerHTML = `
-                  <select id="setor" name="setor" required 
-                          style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%;">
-                      <option value="" disabled selected style="background: var(--dark-color); color: var(--text-muted);">Selecione seu Setor</option>
-                      <option value="Setor A" style="background: var(--dark-color);" ${currentValue === 'Setor A' ? 'selected' : ''}>Setor A</option>
-                      <option value="Setor B" style="background: var(--dark-color);" ${currentValue === 'Setor B' ? 'selected' : ''}>Setor B</option>
-                      <option value="Setor C1" style="background: var(--dark-color);" ${currentValue === 'Setor C1' ? 'selected' : ''}>Setor C1</option>
-                      <option value="Setor C2" style="background: var(--dark-color);" ${currentValue === 'Setor C2' ? 'selected' : ''}>Setor C2</option>
-                      <option value="Setor D" style="background: var(--dark-color);" ${currentValue === 'Setor D' ? 'selected' : ''}>Setor D</option>
-                      <option value="Setor E" style="background: var(--dark-color);" ${currentValue === 'Setor E' ? 'selected' : ''}>Setor E</option>
-                      <option value="Setor F" style="background: var(--dark-color);" ${currentValue === 'Setor F' ? 'selected' : ''}>Setor F</option>
-                      <option value="Setor G" style="background: var(--dark-color);" ${currentValue === 'Setor G' ? 'selected' : ''}>Setor G</option>
-                      <option value="Setor H" style="background: var(--dark-color);" ${currentValue === 'Setor H' ? 'selected' : ''}>Setor H</option>
-                      <option value="Setor M" style="background: var(--dark-color);" ${currentValue === 'Setor M' ? 'selected' : ''}>Setor M</option>
-                      <option value="Setor N" style="background: var(--dark-color);" ${currentValue === 'Setor N' ? 'selected' : ''}>Setor N</option>
+                  <select id="setor" name="setor" required>
+                      <option value="" disabled selected>Selecione seu Setor</option>
+                      <option value="Setor A">Setor A</option>
+                      <option value="Setor B">Setor B</option>
+                      <option value="Setor C1">Setor C1</option>
+                      <option value="Setor C2">Setor C2</option>
+                      <option value="Setor D">Setor D</option>
+                      <option value="Setor E">Setor E</option>
+                      <option value="Setor F">Setor F</option>
+                      <option value="Setor G">Setor G</option>
+                      <option value="Setor H">Setor H</option>
+                      <option value="Setor M">Setor M</option>
+                      <option value="Setor N">Setor N</option>
                   </select>
               `;
+              // Tenta restaurar o valor, garantindo que a opção exista
               const selectElement = document.getElementById('setor');
-              if (selectElement) selectElement.value = currentValue || "";
+              if (selectElement && currentValue) {
+                const optionExists = Array.from(selectElement.options).some(opt => opt.value === currentValue);
+                selectElement.value = optionExists ? currentValue : '';
+              } else if (selectElement) {
+                selectElement.value = "";
+              }
               
           } else {
               labelElement.textContent = 'Cidade/Setor';
@@ -2656,9 +2715,10 @@
           }
       }
       
-      if (radioCapital) radioCapital.addEventListener('change', window.updateSetorCidadeInput);
-      if (radioInterior) radioInterior.addEventListener('change', window.updateSetorCidadeInput);
+      if (radioCapital) radioCapital.addEventListener('change', () => window.updateSetorCidadeInput());
+      if (radioInterior) radioInterior.addEventListener('change', () => window.updateSetorCidadeInput());
       
+      // Chama no carregamento para configurar o campo Setor/Cidade inicial
       window.updateSetorCidadeInput(); 
 
       // === Botões de Navegação / Voltar ===
