@@ -528,6 +528,16 @@
       padding: 2rem 0;
     }
 
+    /* ===== NOVA LOGO MASCOTE ===== */
+    .home-logo {
+      max-width: 150px; 
+      width: 100%;
+      height: auto;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
     .home-title {
       font-size: 1.75rem;
       font-weight: 800;
@@ -1077,7 +1087,7 @@
       font-weight: 700;
     }
 
-    /* ===== DETALHES ADMIN (Ajustes para Mobile) ===== */
+    /* ===== DETALHES ADMIN (Ajustes MELHORIA 2) ===== */
     .dashboard-details {
       padding: 1rem;
       margin-bottom: 1.5rem;
@@ -1093,22 +1103,39 @@
       gap: 0.75rem;
     }
 
+    /* MELHORIA 2: Detalhamento por Tipo Horizontal */
     .detail-item {
       padding: 0.75rem;
+      display: flex !important; 
+      flex-direction: row !important;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 1rem;
     }
 
     .detail-icon {
       width: 36px;
       height: 36px;
       font-size: 0.875rem;
+      flex-shrink: 0; /* impede o ícone de encolher */
+    }
+
+    .detail-content {
+        display: flex;
+        flex-direction: row; /* Ícone e texto na mesma linha */
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 0.5rem;
     }
 
     .detail-content span {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
+      margin-bottom: 0 !important;
     }
 
     .detail-content strong {
-      font-size: 1rem;
+      font-size: 1.1rem;
     }
 
     /* ===== TABELA DE TAMANHOS (Ajustes Específicos para Tabela em Mobile) ===== */
@@ -1159,7 +1186,7 @@
     }
 
 
-    /* ===== PEDIDOS (Ajustes para Mobile) ===== */
+    /* ===== PEDIDOS (Ajustes MELHORIA 1) ===== */
     .pedidos-header {
       flex-direction: column;
       align-items: flex-start;
@@ -1194,6 +1221,50 @@
         box-shadow: var(--shadow-md);
     }
 
+    /* MELHORIA 1: Estilos Minimizados */
+    .pedido-header-minimized {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .pedido-resumo-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+        flex-wrap: wrap;
+    }
+    
+    .btn-toggle-pedido {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        padding: 0.5rem;
+    }
+    
+    .btn-toggle-pedido.rotacionado {
+        transform: rotate(180deg);
+    }
+    
+    /* Container que esconde os detalhes */
+    .pedido-detalhes-wrapper {
+        display: none;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .pedido-detalhes-wrapper.aberto {
+        display: block;
+    }
+
 
     .pedido-header {
       display: flex;
@@ -1205,6 +1276,8 @@
 
     .pedido-numero {
       font-size: 1.25rem;
+      color: var(--primary-color);
+      font-weight: bold;
     }
 
     .pedido-status {
@@ -1313,6 +1386,48 @@
     .btn-rejeitar:hover {
         background: #d43b3b;
         transform: translateY(-1px);
+    }
+    
+    /* MELHORIA 3: Estilos Financeiros */
+    .financeiro-item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .financeiro-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .status-pgto {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--warning-color);
+        text-transform: uppercase;
+    }
+    .status-pgto.pago {
+        color: var(--success-color);
+    }
+    .btn-pago {
+        background: var(--success-color);
+        color: white;
+        border: none;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: var(--transition);
+    }
+    .btn-pago:hover {
+        background: #0c9b6e;
+    }
+    .btn-pago:disabled {
+        background: var(--gray-600);
+        cursor: not-allowed;
+        opacity: 0.7;
     }
     
     /* ===== MEDIA QUERIES GERAIS ===== */
@@ -1425,7 +1540,7 @@
     </div>
   </div>
 
-  <!-- MUDANÇA 4: Modal Esqueceu ID -->
+  <!-- Modal Esqueceu ID -->
   <div id="esqueceuIdOverlay" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card">
           <div class="pedido-confirmacao-header">
@@ -1452,7 +1567,7 @@
       </div>
   </div>
   
-  <!-- NOVO: Modal Análise IA (Admin) -->
+  <!-- Modal Análise IA (Admin) -->
   <div id="analiseIAOverlay" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card ai-modal-card">
           <div class="pedido-confirmacao-header">
@@ -1492,9 +1607,11 @@
 
   <main class="main">
     <div class="container">
-      <!-- MUDANÇA 3: Classes de animação adicionadas -->
       <section id="home" class="section active">
         <div class="home-screen">
+          <!-- Image inserted here -->
+          <img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/logomascote.png" alt="Mascote UMADEMATS" class="home-logo animate-fade-in-up" style="max-width: 150px; margin-bottom: 1rem;">
+          
           <h3 class="home-title animate-fade-in-up delay-100">PEDIDOS DE CAMISETA</h3>
           <h4 class="home-subtitle animate-fade-in-up delay-200" style="margin-bottom: 1.5rem;">Sistema Integrado de Encomendas</h4>
           
@@ -1541,7 +1658,6 @@
           </div>
         </form>
 
-        <!-- MUDANÇA 4: Link Esqueceu ID -->
         <div style="max-width: 400px; margin: 0 auto 1rem auto;">
             <a id="btnEsqueceuId" class="forgot-id-link">Esqueceu seu ID?</a>
         </div>
@@ -1850,41 +1966,34 @@
                 <div class="dashboard-details">
                     <h4>Detalhamento por Tipo</h4>
                     <div class="details-grid">
+                        <!-- MELHORIA 2: Itens com Layout Horizontal -->
                         <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-child"></i>
-                        </div>
-                        <div class="detail-content">
-                            <span>Infantis</span>
-                            <strong id="totalInfantis">0</strong>
-                        </div>
-                        </div>
-                        <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-female"></i>
-                        </div>
-                        <div class="detail-content">
-                            <span>Babylook</span>
-                            <strong id="totalBabylook">0</strong>
-                        </div>
+                            <div class="detail-icon"><i class="fas fa-child"></i></div>
+                            <div class="detail-content">
+                                <span>Infantis</span>
+                                <strong id="totalInfantis">0</strong>
+                            </div>
                         </div>
                         <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-tshirt"></i>
-                        </div>
-                        <div class="detail-content">
-                            <span>Unissex</span>
-                            <strong id="totalUnissex">0</strong>
-                        </div>
+                            <div class="detail-icon"><i class="fas fa-female"></i></div>
+                            <div class="detail-content">
+                                <span>Babylook</span>
+                                <strong id="totalBabylook">0</strong>
+                            </div>
                         </div>
                         <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-times-circle"></i>
+                            <div class="detail-icon"><i class="fas fa-tshirt"></i></div>
+                            <div class="detail-content">
+                                <span>Unissex</span>
+                                <strong id="totalUnissex">0</strong>
+                            </div>
                         </div>
-                        <div class="detail-content">
-                            <span>Rejeitados</span>
-                            <strong id="pedidosRejeitados">0</strong>
-                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-times-circle"></i></div>
+                            <div class="detail-content">
+                                <span>Rejeitados</span>
+                                <strong id="pedidosRejeitados">0</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1896,7 +2005,6 @@
                 </div>
             </div>
 
-            <!-- MUDANÇA 2: Separação em Duas Tabelas -->
             <div id="admin-detalhes-tamanhos" class="admin-section">
                 <div class="dashboard-header">
                     <h3>Totalizadores por Tamanho</h3>
@@ -2290,7 +2398,6 @@
       if (elemento) elemento.textContent = valor;
     };
     
-    // ===== MUDANÇA 1: Correção Voltar ao Inicio =====
     window.fecharConfirmacaoPedido = function() {
         const overlay = document.getElementById('pedidoConfirmacaoOverlay');
         overlay.classList.remove('active');
@@ -2306,18 +2413,51 @@
             homeSection.style.visibility = "visible";
         }
     };
-    // ================================================
 
+    // CORREÇÃO DO ERRO CLIPBOARD: Implementação de fallback para document.execCommand('copy')
     window.copiarNumeroPedido = function(numPedido) {
-        navigator.clipboard.writeText(numPedido)
-        .then(() => {
-          window.exibirMensagem('mensagemPedido', 'sucesso', 'Número do pedido copiado para a área de transferência!');
-        })
-        .catch(err => {
-          console.error('Erro ao copiar número do pedido:', err);
-          window.exibirMensagem('mensagemPedido', 'erro', 'Não foi possível copiar o número do pedido');
-        });
+        // Tenta método moderno (navigator.clipboard) se disponível e seguro
+        if (navigator.clipboard && window.isSecureContext) {
+             navigator.clipboard.writeText(numPedido).then(() => {
+                 window.exibirMensagem('mensagemPedido', 'sucesso', 'Número do pedido copiado para a área de transferência!');
+             }).catch(err => {
+                 console.warn("Falha na API Clipboard moderna, tentando fallback...", err);
+                 // Se falhar (ex: permissão negada no iframe), usa fallback
+                 fallbackCopy(numPedido);
+             });
+        } else {
+            // Fallback para contextos não seguros ou navegadores antigos
+            fallbackCopy(numPedido);
+        }
     };
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // Garante que o elemento não afete o layout visualmente
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            const successful = document.execCommand('copy');
+            if(successful) {
+                window.exibirMensagem('mensagemPedido', 'sucesso', 'Número do pedido copiado para a área de transferência!');
+            } else {
+                window.exibirMensagem('mensagemPedido', 'erro', 'Não foi possível copiar o número (fallback falhou).');
+            }
+        } catch (err) {
+            console.error('Erro fatal ao copiar', err);
+            window.exibirMensagem('mensagemPedido', 'erro', 'Erro ao copiar número.');
+        }
+        
+        document.body.removeChild(textArea);
+    }
 
     window.exibirConfirmacaoPedido = function(pedido) {
         const overlay = document.getElementById('pedidoConfirmacaoOverlay');
@@ -2485,7 +2625,7 @@
         }
     };
 
-    // ===== MUDANÇA 4: Função Recuperar IDs =====
+    // Função Recuperar IDs
     window.recuperarIdsPorEmail = async function(e) {
         e.preventDefault();
         const emailInput = document.getElementById('emailRecuperacao');
@@ -2526,7 +2666,6 @@
             window.mostrarCarregamento(false);
         }
     };
-    // ===========================================
     
     // Função para verificar se o SETOR JÁ TEM pedido (retorna o pedido se sim)
     window.verificarPedidoPorSetor = async function(setor) {
@@ -2596,6 +2735,10 @@
         const pedido = currentPedidoParaEdicao;
         if (!pedido) return;
         
+        // LOG: Informa que está iniciando a edição e preenchendo o formulário
+        console.log(`[SETUP EDICAO] Iniciando edição do Pedido #${pedido.numPedido}. DocId: ${pedido.docId}`);
+
+        // Garante que o docId (identificador único no Firebase) seja preenchido
         document.getElementById('pedidoDocId').value = pedido.docId; 
         document.getElementById('nome').value = pedido.nome;
         
@@ -2625,12 +2768,19 @@
         document.getElementById('submitButtonText').textContent = 'Reenviar Pedido';
         
         window.redirecionarComAnimacao('pedido');
+        
+        // LOG: Confirma o docId preenchido no campo hidden
+        console.log(`[SETUP EDICAO] docId no formulário após preenchimento: ${document.getElementById('pedidoDocId').value}`);
     };
 
     // Função 4: Exibe a tela de consulta para o Líder (usada no fluxo de consulta)
     window.displayVisualizacaoPedido = function(pedido, containerId = 'resultadoConsulta') {
+        // ESSENCIAL: Armazena o pedido no estado global para que setupEdicaoPedido possa acessá-lo
         currentPedidoParaEdicao = pedido;
         const container = document.getElementById(containerId);
+        
+        // LOG: Confirma que o pedido foi carregado para visualização
+        console.log(`[CONSULTA] Pedido #${pedido.numPedido} carregado. DocId: ${pedido.docId}`);
         
         const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
                             pedido.status === 'Aprovado' ? 'status-aprovado' : 
@@ -2695,6 +2845,7 @@
             <div id="mensagemConsulta" class="message-container"></div>
         `;
         
+        // Anexa o listener *após* a injeção do HTML
         document.getElementById('btnIniciarEdicao').addEventListener('click', window.setupEdicaoPedido);
     };
 
@@ -2703,8 +2854,12 @@
     window.handleFormSubmission = async function(e) {
         e.preventDefault();
         
+        // Verifica se é uma edição olhando o campo hidden
         const docId = document.getElementById('pedidoDocId').value;
         const isEditing = !!docId;
+        
+        // LOG: Estado inicial da submissão
+        console.log(`[SUBMISSAO] Passo 1: Tentativa de submissão. docId: ${docId}, isEditing: ${isEditing}`);
         
         const formData = new FormData(document.getElementById('formPedido'));
         const emailInput = formData.get('email');
@@ -2720,7 +2875,10 @@
             return;
         }
 
+        console.log("[SUBMISSAO] Passo 2: Validação de email ok");
+
         // 2. Validação de Pedido Duplicado (POR E-MAIL - APENAS PARA NOVOS PEDIDOS)
+        // Se estiver editando, pula esta verificação para o próprio e-mail
         if (!isEditing) {
             const pedidoExistenteEmail = await window.verificarPedidoPorEmail(emailParaSalvar);
             if (pedidoExistenteEmail) {
@@ -2729,22 +2887,37 @@
             }
         }
         
-        // 3. Validação de Setor Duplicado (APENAS PARA NOVOS PEDIDOS) <--- NOVA VALIDAÇÃO
-        if (!isEditing) {
+        // 3. Validação de Setor Duplicado (CORRIGIDA)
+        // ESSENCIAL: Garante que o setor original seja normalizado (em MAIÚSCULAS) para comparação,
+        // evitando o erro de capitalização. Usa o operador condicional para evitar erro se currentPedidoParaEdicao for null.
+        const setorOriginalNormalizado = currentPedidoParaEdicao ? normalizeString(currentPedidoParaEdicao.setor) : null;
+        
+        // LOG: Verificação de duplicidade de Setor
+        console.log(`[SUBMISSAO] Passo 3: Setor atual: ${setorParaSalvar}, Setor original: ${setorOriginalNormalizado}`);
+        
+        // Se for um novo pedido OU se o setor foi alterado na edição
+        if (!isEditing || setorParaSalvar !== setorOriginalNormalizado) {
+            console.log("[SUBMISSAO] Passo 3.1: Verificando duplicidade de setor no banco...");
             const pedidoExistenteSetor = await window.verificarPedidoPorSetor(setorParaSalvar);
-            if (pedidoExistenteSetor) {
+            
+            // Verifica se o setor já existe E se não é o próprio pedido sendo editado
+            if (pedidoExistenteSetor && (isEditing ? (pedidoExistenteSetor.docId !== docId) : true)) {
+                
+                // LOG: Falha na validação de setor
+                console.error(`[SUBMISSAO] FALHA: Setor duplicado encontrado para DocId: ${pedidoExistenteSetor.docId}`);
+                
                 window.exibirMensagem('mensagemPedido', 'erro', `O Setor/Cidade **${setorParaSalvar}** já possui um pedido (#${pedidoExistenteSetor.numPedido}) registrado por ${pedidoExistenteSetor.nome}. Um setor só pode ter um pedido.`);
                 return;
             }
         }
         
-        if (isEditing) {
-            const confirmacao = confirm("ATENÇÃO: Você está prestes a substituir seu pedido anterior. Deseja continuar com o reenvio?");
-            if (!confirmacao) {
-                return;
-            }
-        }
+        console.log("[SUBMISSAO] Passo 4: Validações de duplicidade passaram");
+
+        // === REMOÇÃO DO CONFIRM BLOQUEANTE ===
+        // A submissão agora prossegue sem tentar exibir o alerta nativo que estava retornando false.
         
+        console.log("[SUBMISSAO] Passo 5: Calculando totais");
+
         const totalCamisetas = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]'))
                                     .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
 
@@ -2755,6 +2928,8 @@
 
         window.mostrarCarregamento(true, isEditing ? 'Reenviando e Atualizando Pedido...' : 'Enviando Novo Pedido...');
         
+        console.log("[SUBMISSAO] Passo 6: Iniciando gravação no Firebase");
+
         try {
             const dataToSave = {
                 data: new Date().toISOString(),
@@ -2771,16 +2946,27 @@
             let finalNumPedido = '';
 
             if (isEditing) {
-                const pedidoRef = doc(db, "pedidos", docId);
+                // Lógica de Edição
+                // GARANTE que o docId seja uma string válida e sem espaços
+                const cleanDocId = String(docId).trim();
+                console.log(`[SUBMISSAO] Atualizando documento ID: ${cleanDocId}`);
+                
+                const pedidoRef = doc(db, "pedidos", cleanDocId);
                 await updateDoc(pedidoRef, dataToSave);
                 finalNumPedido = currentPedidoParaEdicao.numPedido;
                 
+                console.log(`[SUBMISSAO] SUCESSO: Pedido #${finalNumPedido} atualizado.`);
+                
             } else {
+                // Lógica de Novo Pedido
+                console.log("[SUBMISSAO] Criando novo documento");
                 const docRef = doc(pedidosCollection); 
                 dataToSave.numPedido = docRef.id;
                 
                 await setDoc(docRef, dataToSave); 
                 finalNumPedido = docRef.id;
+                
+                console.log(`[SUBMISSAO] SUCESSO: Novo pedido #${finalNumPedido} criado.`);
             }
 
             document.getElementById('formPedido').reset();
@@ -2789,8 +2975,8 @@
             window.exibirConfirmacaoPedido(pedidoConfirmado);
             
         } catch (error) {
-            console.error('Erro ao submeter pedido:', error);
-            window.exibirMensagem('mensagemPedido', 'erro', `Erro ao se comunicar com o Firebase. Verifique suas Regras de Criação. (${error.message})`);
+            console.error('Erro fatal ao submeter pedido:', error);
+            window.exibirMensagem('mensagemPedido', 'erro', `Erro ao se comunicar com o Firebase: ${error.message}`);
         } finally {
             window.mostrarCarregamento(false);
         }
@@ -2883,7 +3069,6 @@
         }
     };
     
-    // ===== MUDANÇA 2: Função para carregar DUAS tabelas =====
     window.carregarDetalhesTamanho = async function() {
         window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
         
@@ -2956,7 +3141,18 @@
             window.mostrarCarregamento(false);
         }
     };
-    // ========================================================
+
+    // ===== MELHORIA 3: Função de Toggle de Pagamento (Visual apenas) =====
+    window.togglePagamento = function(id, btn) {
+        const label = document.getElementById(`status-${id}`);
+        if(label) {
+            label.textContent = 'pago';
+            label.classList.add('pago');
+            label.innerHTML = '<i class="fas fa-check"></i> PAGO';
+        }
+        btn.disabled = true;
+        btn.textContent = 'Pago';
+    }
 
     window.carregarDetalhesFinanceiros = async function() {
         window.mostrarCarregamento(true, 'Calculando resumo financeiro...');
@@ -2988,9 +3184,21 @@
 
             for (const chave of chavesOrdenadas) {
                 const dados = resumo[chave];
+                // Gera ID único para controle visual do botão
+                const uniqueId = `fin-${chave.replace(/[^a-zA-Z0-9]/g, '')}`;
+                
+                // MELHORIA 3: Item Financeiro com Botão PAGO
                 html += `
-                    <li style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 4px; font-size: 0.875rem;">
-                        <strong>${chave}</strong>: ${dados.totalCamisetas} camisetas = R$ ${dados.valor.toFixed(2).replace('.', ',')}
+                    <li class="financeiro-item-row" style="margin-bottom: 0.5rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 4px; font-size: 0.875rem;">
+                        <div>
+                            <strong>${chave}</strong>: ${dados.totalCamisetas} camisetas = R$ ${dados.valor.toFixed(2).replace('.', ',')}
+                        </div>
+                        <div class="financeiro-actions">
+                            <span id="status-${uniqueId}" class="status-pgto">pagamento pendente</span>
+                            <button class="btn-pago" onclick="togglePagamento('${uniqueId}', this)">
+                                PAGO
+                            </button>
+                        </div>
                     </li>
                 `;
             }
@@ -3014,6 +3222,19 @@
     };
 
 
+    // ===== MELHORIA 1: Função Toggle Card Pedido =====
+    window.togglePedidoDetalhes = function(id) {
+        const detalhes = document.getElementById(`detalhes-${id}`);
+        const icon = document.getElementById(`icon-${id}`);
+        if (detalhes.classList.contains('aberto')) {
+            detalhes.classList.remove('aberto');
+            icon.classList.remove('rotacionado');
+        } else {
+            detalhes.classList.add('aberto');
+            icon.classList.add('rotacionado');
+        }
+    }
+
     window.carregarPedidos = async function() {
         window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
         const listaPedidosElement = document.getElementById('listaPedidos');
@@ -3022,11 +3243,10 @@
         try {
             const pedidos = await window.carregarTodosPedidos();
             
-            // Ordena os pedidos para mostrar Pendentes primeiro
             const pedidosOrdenados = pedidos.sort((a, b) => {
                 if (a.status === 'Pendente' && b.status !== 'Pendente') return -1;
                 if (a.status !== 'Pendente' && b.status === 'Pendente') return 1;
-                return new Date(b.data) - new Date(a.data); // Mais recentes primeiro
+                return new Date(b.data) - new Date(a.data); 
             });
 
             if (pedidosOrdenados.length === 0) {
@@ -3051,46 +3271,52 @@
 
                 const valorPagar = totalCamisetas * PRECO_CAMISETA;
                 
-                // Formata a data para um formato mais legível
                 const dataFormatada = new Date(pedido.data).toLocaleDateString('pt-BR', {
                     day: '2-digit', month: '2-digit', year: 'numeric', 
                     hour: '2-digit', minute: '2-digit'
                 });
 
-
+                // MELHORIA 1: Estrutura HTML Modificada para Card Expansível
                 const pedidoHtml = `
-                    <div class="pedido-item" data-id="${pedido.docId}">
-                        <div class="pedido-header" style="display: flex; flex-direction: column; align-items: flex-start;">
-                            <span class="pedido-numero">#${pedido.numPedido}</span>
-                            <span class="pedido-status ${statusClass}" style="margin-top: 4px;">${pedido.status}</span>
-                        </div>
+                    <div class="pedido-item ${statusClass}" data-id="${pedido.docId}">
                         
-                        <div class="pedido-info">
-                            <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
-                            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
-                            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
-                            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${dataFormatada}</p>
-                            <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
-                            <p><i class="fas fa-money-bill-wave"></i> <strong>Valor a Pagar:</strong> R$ ${valorPagar.toFixed(2).replace('.', ',')}</p>
+                        <div class="pedido-header-minimized" onclick="togglePedidoDetalhes('${pedido.docId}')">
+                            <div class="pedido-resumo-info">
+                                <span class="pedido-numero">#${pedido.numPedido}</span>
+                                <span style="font-weight:600; font-size:0.9rem; color:var(--text-secondary)">${pedido.setor} (${pedido.local})</span>
+                                <span class="pedido-status ${statusClass}" style="font-size: 0.7rem;">${pedido.status}</span>
+                            </div>
+                            <i class="fas fa-chevron-down btn-toggle-pedido" id="icon-${pedido.docId}"></i>
                         </div>
-                        
-                        <div class="pedido-tamanhos">
-                            <div class="tipo-tamanhos">
-                                <h4>Infantis</h4>
-                                <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
+
+                        <div id="detalhes-${pedido.docId}" class="pedido-detalhes-wrapper">
+                            
+                            <div class="pedido-info">
+                                <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                                <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                                <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${dataFormatada}</p>
+                                <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
+                                <p><i class="fas fa-money-bill-wave"></i> <strong>Valor a Pagar:</strong> R$ ${valorPagar.toFixed(2).replace('.', ',')}</p>
                             </div>
-                            <div class="tipo-tamanhos">
-                                <h4>Babylook</h4>
-                                <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
+                            
+                            <div class="pedido-tamanhos">
+                                <div class="tipo-tamanhos">
+                                    <h4>Infantis</h4>
+                                    <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
+                                </div>
+                                <div class="tipo-tamanhos">
+                                    <h4>Babylook</h4>
+                                    <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
+                                </div>
+                                <div class="tipo-tamanhos">
+                                    <h4>Unissex</h4>
+                                    <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
+                                </div>
                             </div>
-                            <div class="tipo-tamanhos">
-                                <h4>Unissex</h4>
-                                <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
+                            <div class="admin-actions">
+                                <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Aprovado')">Aprovar</button>
+                                <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Rejeitado')">Rejeitar</button>
                             </div>
-                        </div>
-                        <div class="admin-actions">
-                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Aprovado')">Aprovar</button>
-                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Rejeitado')">Rejeitar</button>
                         </div>
                     </div>
                 `;
@@ -3148,7 +3374,7 @@
       const btnFinanceiro = document.getElementById('btnFinanceiro');
       const btnGerarPdf = document.getElementById('btnGerarPdf'); 
 
-      // MUDANÇA 4: Listeners do Modal Recuperar ID
+      // Listeners do Modal Recuperar ID
       const btnEsqueceuId = document.getElementById('btnEsqueceuId');
       const fecharEsqueceuId = document.getElementById('fecharEsqueceuId');
       const formEsqueceuId = document.getElementById('formEsqueceuId');
@@ -3206,6 +3432,7 @@
       // === Submissão Única (NOVO / EDITAR) ===
       const formPedido = document.getElementById('formPedido');
       if (formPedido) {
+          // CORREÇÃO: O evento de submit do formulário que lida com o "REENVIAR PEDIDO" foi preservado
           formPedido.addEventListener('submit', window.handleFormSubmission);
       }
       
@@ -3315,7 +3542,7 @@
               container.innerHTML = `
                   <input type="text" id="setor" name="setor" placeholder="Digite sua Cidade/Setor" required>
               `;
-              // Ao preencher com um valor vindo do banco (que estará em MAIÚSCULAS), ele é mantido.
+              // Ao preencher com um valor vinda do banco (que estará em MAIÚSCULAS), ele é mantido.
               document.getElementById('setor').value = currentValue;
           }
       }
