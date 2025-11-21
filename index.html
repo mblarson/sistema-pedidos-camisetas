@@ -1609,10 +1609,11 @@
     <div class="container">
       <section id="home" class="section active">
         <div class="home-screen">
-        
+          <!-- Image inserted here -->
+          <img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/logomascote.png" alt="Mascote UMADEMATS" class="home-logo animate-fade-in-up" style="max-width: 200px; margin-bottom: 1rem;">
           
-        <h3 class="home-title animate-fade-in-up delay-100">PEDIDOS DE CAMISETA</h3>
-       
+          <h3 class="home-title animate-fade-in-up delay-100">PEDIDOS DE CAMISETA</h3>
+          
           
           <div class="menu-container animate-fade-in-up delay-300">
             <button class="menu-button" id="btnNovoPedido">
@@ -2525,7 +2526,7 @@
     }
     
     // ==========================================================
-    // FUNÇÃO GERAR RELATÓRIO PDF (INCLUÍDA)
+    // FUNÇÃO GERAR RELATÓRIO PDF (ATUALIZADA)
     // ==========================================================
     
     // Função para gerar PDF (usa jsPDF e AutoTable)
@@ -2551,8 +2552,9 @@
         doc.setFontSize(10);
         doc.setTextColor(50, 50, 50); // Cinza Escuro
         doc.text(`Data do Relatório: ${dataAtual}`, 10, 25);
-        doc.text(`Valor da Camiseta (Cálculo): R$ ${PRECO_CAMISETA.toFixed(2).replace('.', ',')}`, 287, 25, null, null, "right");
-
+        
+        // --- ALTERAÇÃO 1: REMOVIDO O TEXTO DO VALOR DA CAMISETA ---
+        // A linha referente ao valor da camiseta foi removida conforme solicitado.
 
         // 1. Preparar Cabeçalhos e Corpo da Tabela - Adaptação para duas tabelas
         // Como temos duas tabelas agora, vamos gerar sequencialmente
@@ -2592,6 +2594,53 @@
         let nextY = 35;
         nextY = addTableToPdf('tabelaAdultos', nextY, "Adultos (Babylook & Unissex)");
         addTableToPdf('tabelaInfantil', nextY, "Infantil");
+
+        // --- ALTERAÇÃO 2: ADICIONAR BLOCO DE TOTAIS NO FINAL ---
+        
+        // Função auxiliar para calcular totais da tabela HTML existente
+        const getRowSum = (tableId, rowIndex) => {
+            const table = document.getElementById(tableId);
+            if (!table) return 0;
+            const tbody = table.querySelector('tbody');
+            if (!tbody || tbody.rows.length <= rowIndex) return 0; // Se não houver linha suficiente
+            
+            // Verifica se é linha de placeholder
+            if(tbody.rows.length === 1 && tbody.rows[0].cells.length === 1) return 0;
+
+            const row = tbody.rows[rowIndex];
+            let sum = 0;
+            // Começa do índice 1 para pular o cabeçalho da linha ("Babylook", "Unissex", etc.)
+            for (let i = 1; i < row.cells.length; i++) {
+                sum += parseInt(row.cells[i].textContent) || 0;
+            }
+            return sum;
+        };
+
+        // Calcula os totais baseados nas linhas das tabelas HTML
+        // Tabela Adultos: Linha 0 = Babylook, Linha 1 = Unissex
+        // Tabela Infantil: Linha 0 = Infantil
+        const totBaby = getRowSum('tabelaAdultos', 0); 
+        const totUni = getRowSum('tabelaAdultos', 1);
+        const totInf = getRowSum('tabelaInfantil', 0);
+        const totGeral = totBaby + totUni + totInf;
+
+        // Define a posição Y após as tabelas (com um espaçamento extra)
+        let finalY = doc.lastAutoTable.finalY + 10; 
+
+        // Desenha o bloco de totais
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0); // Preto
+        
+        doc.text(`Total de Babylooks: ${totBaby}`, 14, finalY);
+        doc.text(`Total de Unissex: ${totUni}`, 14, finalY + 6);
+        doc.text(`Total Infantil: ${totInf}`, 14, finalY + 12);
+        
+        // Total Geral em destaque
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold'); // Negrito
+        doc.text(`Total geral: ${totGeral}`, 14, finalY + 20);
+
+        // -------------------------------------------------------
         
         // 3. Salvar o PDF
         doc.save(`Relatorio_Camisetas_${dataAtual.replace('/', '-')}.pdf`);
