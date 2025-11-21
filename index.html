@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ===== VARIÁVEIS E RESET ===== */
+    /* ===== VARIÁVEIS E RESET (Mantidas) ===== */
     :root {
       --primary-color: #ff7e5f; 
       --primary-dark: #ff6b47; 
@@ -20,6 +21,16 @@
       --darker-color: #042035; 
       --light-color: #f8fafc; 
       --white-color: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
       --text-primary: #ffffff;
       --text-secondary: #e2e8f0;
       --text-muted: #94a3b8;
@@ -53,43 +64,14 @@
       padding: 0 20px;
     }
 
-    /* ===== ANIMAÇÕES (NOVO) ===== */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translate3d(0, 40px, 0);
-      }
-      to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-      }
-    }
-
-    @keyframes pulse-soft {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-      100% { transform: scale(1); }
-    }
-
-    .fade-in-up {
-      animation-name: fadeInUp;
-      animation-duration: 0.8s;
-      animation-fill-mode: both;
-    }
-
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-
-    /* ===== BARRA DE CARREGAMENTO ===== */
+    /* ===== BARRA DE CARREGAMENTO (Mantido) ===== */
     .loading-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(6, 44, 63, 0.9);
+      background: rgba(6, 44, 63, 0.8);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -115,17 +97,19 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
-    /* ===== OVERLAY DE CONFIRMAÇÃO ===== */
+    /* ===== CARD DE CONFIRMAÇÃO DE PEDIDO (Ajustes para Mobile) ===== */
     .pedido-confirmacao-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(6, 44, 63, 0.95); /* Mais escuro para cobrir bem */
+      background: rgba(6, 44, 63, 0.85);
       backdrop-filter: blur(5px);
       display: flex;
       justify-content: center;
@@ -159,7 +143,6 @@
       transform: scale(1);
     }
 
-    /* Demais estilos do card de confirmação mantidos... */
     .pedido-confirmacao-header {
       display: flex;
       justify-content: space-between;
@@ -168,111 +151,1140 @@
       padding-bottom: 1rem;
       border-bottom: 1px solid var(--border-color);
     }
+
+    .pedido-confirmacao-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pedido-confirmacao-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pedido-confirmacao-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--primary-color);
+    }
+
+    .pedido-confirmacao-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pedido-confirmacao-info p {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .pedido-confirmacao-info strong {
+      color: var(--text-primary);
+    }
+
+    .pedido-confirmacao-tamanhos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pedido-confirmacao-tipo {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1rem;
+    }
+
+    .pedido-confirmacao-tipo h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pedido-confirmacao-tipo ul {
+      list-style: none;
+    }
+
+    .pedido-confirmacao-tipo li {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      padding: 0.25rem 0;
+    }
+
+    .pedido-confirmacao-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .pedido-confirmacao-numero {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
     
-    .pedido-confirmacao-header h2 { font-size: 1.5rem; color: var(--primary-color); display: flex; gap: 0.5rem; }
-    .pedido-confirmacao-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem; }
-    .pedido-confirmacao-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .pedido-confirmacao-tamanhos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .pedido-confirmacao-numero > div { /* NOVO: centralizar botão de copiar */
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+
+    .mensagem-importante {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(255, 126, 95, 0.1);
+      border: 1px solid var(--primary-color);
+      border-radius: var(--border-radius);
+      text-align: center;
+    }
+
+    .mensagem-importante p {
+      color: var(--primary-color);
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-copiar {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 0.5rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+      font-size: 0.875rem; /* Ajuste para mobile */
+    }
+
+    .btn-copiar:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    /* ===== HEADER (Ajustes para Mobile) ===== */
+    .header {
+      background: var(--darker-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0; 
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0; /* Reduzido o padding */
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem; /* Reduzido o gap */
+    }
+
+    .logo-icon {
+      width: 48px; /* Reduzido para mobile */
+      height: 48px; /* Reduzido para mobile */
+      background-image: url('https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png'); 
+      background-size: cover; 
+      background-repeat: no-repeat; 
+      background-position: center; 
+      background-color: transparent; 
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0; 
+      font-weight: 700;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-text h1 {
+      font-size: 1.5rem; /* Reduzido para mobile */
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .logo-text span {
+      font-size: 0.75rem; /* Reduzido para mobile */
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== MAIN (Mantido) ===== */
+    .main {
+      min-height: calc(100vh - 140px);
+      padding: 3rem 0;
+      position: relative;
+    }
+
+    .section {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .section.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== BOTÃO VOLTAR (Mantido) ===== */
+    .back-button {
+      position: absolute;
+      top: -2.5rem;
+      left: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      transform: translateY(-1px);
+    }
+
+    .back-button i {
+      font-size: 1rem;
+    }
     
-    .pedido-confirmacao-tipo { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 1rem; }
-    .pedido-confirmacao-tipo h4 { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
-    .pedido-confirmacao-tipo ul { list-style: none; font-size: 0.875rem; color: var(--text-primary); }
+    /* ===== HOME SCREEN (Ajustes para Mobile) ===== */
+    .home-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: calc(100vh - 140px);
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .home-title {
+      font-size: 1.75rem; /* Reduzido para mobile */
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem; /* Reduzido */
+      line-height: 1.2;
+    }
+
+    .home-subtitle {
+      font-size: 1rem; /* Reduzido para mobile */
+      color: var(--text-secondary);
+      margin-bottom: 2rem; /* Reduzido */
+      max-width: 600px;
+      font-weight: 400;
+    }
+
+    .menu-container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem; /* Reduzido o padding */
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 350px; /* Reduzido o max-width */
+      backdrop-filter: blur(10px);
+    }
+
+    .menu-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.5rem; /* Ajustado o padding */
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 0.9rem; /* Ajustado o font-size */
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      opacity: 0;
+      transition: var(--transition);
+      z-index: -1;
+    }
+
+    .menu-button:hover {
+      color: var(--white-color);
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .menu-button:hover::before {
+      opacity: 1;
+    }
+
+    .menu-button i {
+      font-size: 1.125rem; /* Ajustado o font-size */
+      transition: var(--transition);
+    }
+
+    .menu-button:hover i {
+      transform: scale(1.1);
+    }
+
+    /* ===== FORMULÁRIOS (Ajustes para Mobile) ===== */
+    .modern-form {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem; /* Reduzido o padding */
+      box-shadow: var(--shadow-lg);
+      margin-top: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr; /* Força uma coluna em mobile */
+      gap: 1.5rem;
+      margin-bottom: 1.5rem; /* Reduzido */
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .form-group label i {
+      color: var(--primary-color);
+      font-size: 0.875rem;
+    }
     
-    .pedido-confirmacao-numero { text-align: center; margin-bottom: 1rem; font-size: 1.125rem; color: var(--primary-color); font-weight: bold; }
-    .mensagem-importante { margin-top: 1.5rem; padding: 1rem; background: rgba(255, 126, 95, 0.1); border: 1px solid var(--primary-color); border-radius: var(--border-radius); text-align: center; color: var(--primary-color); }
+    /* ESTILOS CORRIGIDOS PARA SELECT (Dropdown) */
+    .form-group select { 
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary); /* Garante que o texto seja branco */
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1rem;
+        border-radius: var(--border-radius);
+        width: 100%;
+        -webkit-appearance: none; /* Remove seta padrão em Safari/Chrome */
+        -moz-appearance: none; /* Remove seta padrão em Firefox */
+        appearance: none; /* Remove seta padrão */
+        /* Adiciona um ícone de seta customizado no fundo */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23e2e8f0'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.5em; /* Tamanho do ícone de seta */
+        cursor: pointer;
+        transition: var(--transition);
+    }
     
-    .btn-copiar { background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); padding: 0.5rem; color: var(--text-primary); cursor: pointer; border-radius: var(--border-radius); display: inline-flex; align-items: center; gap: 0.5rem; }
+    .form-group input, .form-group select { 
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      color: var(--text-primary);
+      transition: var(--transition);
+      width: 100%; 
+      /* Estilos para SELECT foram movidos acima */
+    }
 
-    /* ===== HEADER ===== */
-    .header { background: var(--darker-color); border-bottom: 1px solid var(--border-color); padding: 0; }
-    .header-content { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
-    .logo { display: flex; align-items: center; gap: 0.75rem; }
-    .logo-icon { width: 48px; height: 48px; background-image: url('https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png'); background-size: cover; border-radius: var(--border-radius); }
-    .logo-text h1 { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; }
-    .logo-text span { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
-
-    /* ===== MAIN & SECTIONS ===== */
-    .main { min-height: calc(100vh - 140px); padding: 3rem 0; position: relative; }
-    .section { display: none; opacity: 0; transform: translateY(20px); transition: opacity 0.3s ease, transform 0.3s ease; }
-    .section.active { display: block; opacity: 1; transform: translateY(0); }
-
-    .back-button { position: absolute; top: -2.5rem; left: 0; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius); cursor: pointer; text-decoration: none; backdrop-filter: blur(10px); }
-    .back-button:hover { background: rgba(255, 255, 255, 0.15); color: var(--primary-color); border-color: var(--primary-color); }
-
-    /* ===== HOME SCREEN ===== */
-    .home-screen { display: flex; flex-direction: column; align-items: center; min-height: calc(100vh - 140px); text-align: center; padding: 2rem 0; }
-    .home-title { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin-bottom: 1.5rem; line-height: 1.2; }
-    .home-subtitle { font-size: 1rem; color: var(--text-secondary); margin-bottom: 2rem; max-width: 600px; font-weight: 400; }
-
-    .menu-container { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 1.5rem; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 350px; backdrop-filter: blur(10px); }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
     
-    .menu-button { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.875rem 1.5rem; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: var(--transition); text-decoration: none; position: relative; overflow: hidden; }
-    .menu-button::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); opacity: 0; transition: var(--transition); z-index: -1; }
-    .menu-button:hover { color: var(--white-color); border-color: var(--primary-color); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .menu-button:hover::before { opacity: 1; }
-
-    /* ===== FORMULÁRIOS ===== */
-    .modern-form { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 1.5rem; box-shadow: var(--shadow-lg); margin-top: 1rem; backdrop-filter: blur(10px); }
-    .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-    .form-group { display: flex; flex-direction: column; }
-    .form-group label { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; }
-    .form-group input, .form-group select { padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; color: var(--text-primary); width: 100%; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2); background: rgba(255, 255, 255, 0.15); }
-    .form-group select option { background: var(--darker-color); color: var(--text-primary); }
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+        background: rgba(255, 255, 255, 0.15);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ff7e5f'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E"); /* Muda a cor da seta no foco */
+    }
     
-    /* Link "Esqueceu ID" */
-    .forgot-id-link { display: inline-block; margin-top: 0.5rem; color: var(--primary-color); font-size: 0.85rem; text-decoration: none; cursor: pointer; transition: var(--transition); }
-    .forgot-id-link:hover { color: var(--secondary-color); text-decoration: underline; }
+    /* Estiliza as opções dentro do dropdown para o modo escuro */
+    .form-group select option {
+        background: var(--darker-color); /* Fundo da opção na lista */
+        color: var(--text-primary); /* Cor do texto da opção */
+        padding: 0.5rem;
+    }
 
-    /* ===== CAMISETAS ===== */
-    .camisetas-section { display: flex; flex-direction: column; gap: 1.5rem; }
-    .tipo-camiseta { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 1rem; }
-    .tamanhos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 0.75rem; }
-    .tamanho-item { display: flex; flex-direction: column; align-items: center; }
-    .tamanho-item input { width: 100%; max-width: 50px; text-align: center; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); color: var(--text-primary); }
+    .form-group input::placeholder {
+      color: var(--text-muted);
+    }
 
-    /* ===== BOTÕES ===== */
-    .form-actions { display: flex; justify-content: center; margin-top: 2rem; flex-wrap: wrap; gap: 1rem; }
-    .btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: var(--white-color); border: none; border-radius: var(--border-radius); font-weight: 600; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-md); }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)); }
-    .btn-refresh { padding: 0.4rem 0.8rem; background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius); cursor: pointer; }
+    .radio-group {
+      display: flex;
+      gap: 1.5rem; /* Reduzido o gap */
+      margin-top: 0.5rem;
+    }
 
-    /* ===== ADMIN PANEL ===== */
-    .admin-panel { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 1.5rem; margin-top: 1rem; backdrop-filter: blur(10px); }
-    .admin-menu { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); overflow-x: auto; padding-bottom: 0.5rem; }
-    .admin-menu-btn { padding: 0.5rem 1rem; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-weight: 500; border-bottom: 2px solid transparent; white-space: nowrap; }
-    .admin-menu-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
-    .admin-section { display: none; animation: fadeIn 0.5s ease; }
-    .admin-section.active { display: block; }
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 0.875rem; /* Ajustado para mobile */
+    }
 
-    /* ===== DASHBOARD ===== */
-    .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .card { background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: var(--border-radius); display: flex; align-items: center; gap: 1rem; border: 1px solid var(--border-color); }
-    .card-icon { width: 40px; height: 40px; border-radius: var(--border-radius); display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.1); }
-    .card-value { font-size: 1.5rem; font-weight: 700; }
+    .radio-label input[type="radio"] {
+      display: none;
+    }
 
-    /* ===== TABELAS (SEPARADAS) ===== */
-    .tamanhos-table-container { overflow-x: auto; width: 100%; margin-bottom: 2rem; }
-    .tabela-titulo { color: var(--primary-color); font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; }
-    .tamanhos-table { width: 100%; min-width: 600px; border-collapse: collapse; }
-    .tamanhos-table th, .tamanhos-table td { padding: 0.75rem; text-align: center; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; }
-    .tamanhos-table th { background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); font-weight: 600; }
-    .tamanhos-table .tipo-header { text-align: left; color: var(--accent-color); font-weight: 700; background: var(--darker-color); position: sticky; left: 0; z-index: 1; }
+    .radio-custom {
+      width: 18px; /* Reduzido */
+      height: 18px; /* Reduzido */
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      position: relative;
+      transition: var(--transition);
+    }
 
-    /* ===== PEDIDOS LISTA ===== */
-    .pedido-item { background: var(--darker-color); border: 1px solid var(--border-color); border-left: 5px solid var(--primary-color); border-radius: var(--border-radius); padding: 1rem; margin-bottom: 1rem; }
-    .pedido-status { padding: 0.2rem 0.6rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-    .status-pendente { background: rgba(245, 158, 11, 0.15); color: var(--warning-color); border: 1px solid var(--warning-color); }
-    .status-aprovado { background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid var(--success-color); }
-    .status-rejeitado { background: rgba(239, 68, 68, 0.15); color: var(--danger-color); border: 1px solid var(--danger-color); }
+    .radio-label input[type="radio"]:checked + .radio-custom {
+      border-color: var(--primary-color);
+    }
 
-    /* Responsividade Ajustes */
+    .radio-label input[type="radio"]:checked + .radio-custom::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px; /* Reduzido */
+      height: 8px; /* Reduzido */
+      background: var(--primary-color);
+      border-radius: 50%;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .input-group:focus-within {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+    }
+
+    .input-group input {
+      flex: 1;
+      border: none;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      background: transparent;
+      color: var(--text-primary);
+    }
+
+    .input-group input:focus {
+      outline: none;
+    }
+
+    .btn-icon {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: var(--white-color);
+      border: none;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0; /* NOVO: Não encolher o botão de ícone */
+    }
+
+    .btn-icon:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    }
+
+    /* ===== CAMISETAS (Ajustes para Mobile) ===== */
+    .camisetas-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .tipo-camiseta {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1rem; /* Reduzido o padding */
+    }
+
+    .tipo-camiseta h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem; /* Reduzido o font-size */
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .tipo-camiseta h3 i {
+      color: var(--primary-color);
+    }
+
+    .tamanhos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Reduzido o minmax */
+      gap: 0.75rem; /* Reduzido o gap */
+    }
+
+    .tamanho-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tamanho-item label {
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem; /* Reduzido o margin-bottom */
+      font-size: 0.75rem; /* Reduzido o font-size */
+    }
+
+    .tamanho-item input {
+      width: 100%; /* Ajustado para 100% da coluna */
+      max-width: 50px; /* Definido um máximo */
+      padding: 0.4rem; /* Reduzido o padding */
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 0.9rem; /* Reduzido o font-size */
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    .tamanho-item input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+    }
+
+    /* ===== BOTÕES (Mantidos) ===== */
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap; /* Adicionado para quebrar em mobile */
+      gap: 1rem; /* Espaço entre os botões */
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem; /* Ajustado o padding */
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: var(--white-color);
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 0.9rem; /* Ajustado o font-size */
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    }
+
+    .btn-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem; /* Ajustado o padding */
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 0.75rem; /* Ajustado o font-size */
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-refresh:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    /* ===== MENSAGENS (Mantidos) ===== */
+    .message-container {
+      margin-top: 1rem; /* Reduzido o margin-top */
+    }
+
+    .mensagem {
+      padding: 0.75rem 1rem; /* Reduzido o padding */
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+      font-size: 0.875rem;
+    }
+
+    .sucesso {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .erro {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger-color);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* ===== LOGIN (Mantido) ===== */
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      margin-top: 1rem;
+    }
+    
+    .input-with-icon {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: var(--transition);
+    }
+    
+    .input-with-icon input[type="password"], 
+    .input-with-icon input[type="text"] {
+        flex: 1;
+        border: none;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        background: transparent;
+        color: var(--text-primary);
+    }
+    
+    .btn-toggle-password {
+        flex-shrink: 0;
+    }
+
+    /* ===== ADMIN PANEL (Mantidos) ===== */
+    .admin-panel {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem; /* Reduzido o padding */
+      box-shadow: var(--shadow-lg);
+      margin-top: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .admin-menu {
+      display: flex;
+      gap: 0.5rem; /* Reduzido o gap */
+      margin-bottom: 1.5rem; /* Reduzido o margin-bottom */
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto; /* Adicionado para menus horizontais em mobile */
+      padding-bottom: 0.5rem;
+    }
+
+    .admin-menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.3rem; /* Reduzido o padding */
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.875rem; /* Ajustado o font-size */
+      white-space: nowrap; /* Evitar quebra de linha */
+    }
+
+    .admin-menu-btn:hover {
+      color: var(--primary-color);
+    }
+
+    .admin-menu-btn.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .admin-section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .admin-section.active {
+      display: block;
+    }
+
+    /* ===== DASHBOARD (Ajustes para Mobile) ===== */
+    .dashboard-header {
+      display: flex;
+      flex-direction: column; /* Empilha em mobile */
+      align-items: flex-start;
+      margin-bottom: 1.5rem; /* Reduzido */
+    }
+    
+    .dashboard-header .btn-refresh {
+        margin-top: 0.5rem;
+    }
+
+    .dashboard-header h3 {
+      font-size: 1.25rem; /* Reduzido */
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: 1fr; /* Uma coluna em mobile */
+      gap: 1rem; /* Reduzido o gap */
+      margin-bottom: 1.5rem; /* Reduzido */
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1rem; /* Reduzido o padding */
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-icon {
+      width: 40px; /* Reduzido */
+      height: 40px; /* Reduzido */
+      border-radius: var(--border-radius);
+      font-size: 1rem; /* Reduzido */
+    }
+
+    .card-content h4 {
+      font-size: 0.75rem; /* Reduzido */
+      margin-bottom: 0.1rem; /* Reduzido */
+    }
+
+    .card-value {
+      font-size: 1.5rem; /* Reduzido */
+      font-weight: 700;
+    }
+
+    /* ===== DETALHES ADMIN (Ajustes para Mobile) ===== */
+    .dashboard-details {
+      padding: 1rem; /* Reduzido o padding */
+      margin-bottom: 1.5rem; /* Reduzido */
+    }
+
+    .dashboard-details h4 {
+      font-size: 1rem; /* Reduzido */
+      margin-bottom: 0.75rem; /* Reduzido */
+    }
+
+    .details-grid {
+      grid-template-columns: 1fr; /* Uma coluna em mobile */
+      gap: 0.75rem; /* Reduzido o gap */
+    }
+
+    .detail-item {
+      padding: 0.75rem; /* Reduzido o padding */
+    }
+
+    .detail-icon {
+      width: 36px; /* Reduzido */
+      height: 36px; /* Reduzido */
+      font-size: 0.875rem; /* Reduzido */
+    }
+
+    .detail-content span {
+      font-size: 0.8rem; /* Reduzido */
+    }
+
+    .detail-content strong {
+      font-size: 1rem; /* Reduzido */
+    }
+
+    /* ===== TABELA DE TAMANHOS (Ajustes Específicos para Tabela em Mobile) ===== */
+    .tamanhos-table-container { /* NOVO: Envolve a tabela para melhor scroll */
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .tamanhos-table {
+      width: 100%;
+      min-width: 600px; /* Garante que a tabela não encolha demais, forçando o scroll */
+      border-collapse: collapse;
+      margin-top: 0.75rem; /* Reduzido */
+    }
+
+    .tamanhos-table th,
+    .tamanhos-table td {
+      padding: 0.5rem; /* Reduzido o padding */
+      font-size: 0.75rem; /* Reduzido o font-size */
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tamanhos-table th {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .tamanhos-table td {
+      color: var(--text-primary);
+    }
+
+    .tamanhos-table .tipo-header {
+      text-align: left;
+      font-weight: 600;
+      color: var(--primary-color);
+      font-size: 0.875rem; /* Ajustado */
+      position: sticky;
+      left: 0;
+      background: var(--darker-color);
+      z-index: 10;
+    }
+    
+    /* FIX: Fundo do footer para scroll da tabela */
+    .tamanhos-table tfoot .tipo-header {
+        background: var(--dark-color);
+    }
+
+
+    /* ===== PEDIDOS (Ajustes para Mobile) ===== */
+    .pedidos-header {
+      flex-direction: column; /* Empilha em mobile */
+      align-items: flex-start;
+      margin-bottom: 1.5rem; /* Reduzido */
+    }
+    
+    .pedidos-header .btn-refresh {
+        margin-top: 0.5rem;
+    }
+
+    .pedidos-header h3 {
+      font-size: 1.25rem; /* Reduzido */
+    }
+
+    .pedidos-list {
+      gap: 0.75rem; /* Reduzido o gap */
+    }
+
+    .pedido-item {
+      /* Estilo do Card de Pedido Individual no Admin - NOVO */
+      background: var(--darker-color);
+      border: 1px solid var(--border-color);
+      border-left: 5px solid var(--primary-color); /* Destaque Laranja */
+      border-radius: var(--border-radius);
+      padding: 1rem;
+      margin-bottom: 0.75rem; /* Separar os cards */
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    
+    .pedido-item:hover {
+        border-color: var(--primary-dark);
+        box-shadow: var(--shadow-md);
+    }
+
+
+    .pedido-header {
+      /* Ajuste para que o número e o status fiquem em cima */
+      display: flex;
+      flex-direction: column; 
+      align-items: flex-start; 
+      justify-content: flex-start; /* Ajuste para não ter espaço entre eles */
+      margin-bottom: 0.5rem;
+    }
+
+    .pedido-numero {
+      font-size: 1.25rem; /* Reduzido */
+    }
+
+    /* Estilos para Status - NOVO/MELHORADO */
+    .pedido-status {
+        padding: 0.2rem 0.6rem;
+        border-radius: 0.5rem;
+        font-weight: 700;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        text-transform: uppercase;
+    }
+
+    .status-pendente {
+        background: rgba(255, 165, 0, 0.15); /* Laranja sutil */
+        color: var(--warning-color); 
+        border: 1px solid var(--warning-color);
+    }
+
+    .status-aprovado {
+        background: rgba(16, 185, 129, 0.15); /* Verde sutil */
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+    }
+
+    .status-rejeitado {
+        background: rgba(239, 68, 68, 0.15); /* Vermelho sutil */
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+    }
+
+
+    .pedido-info {
+      /* FIX: Força empilhamento em mobile e garante que os textos não quebrem feio */
+      display: grid;
+      grid-template-columns: 1fr; 
+      gap: 0.5rem; 
+      margin-bottom: 0.75rem;
+    }
+
+    .pedido-info p {
+      font-size: 0.875rem; 
+      /* Adicionado para que o texto não quebre o layout */
+      word-break: break-word; 
+      overflow-wrap: break-word;
+    }
+
+    .pedido-info strong {
+        /* Adicionado para garantir que o valor fique logo após o label */
+        margin-left: auto;
+    }
+
+    .pedido-tamanhos {
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Reduzido o minmax para caber em 3 colunas */
+      gap: 0.5rem; /* Reduzido o gap */
+      margin-bottom: 0.75rem; 
+      padding-top: 0.5rem; /* Espaçamento da seção de tamanhos */
+      border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separador sutil */
+    }
+
+    .tipo-tamanhos h4 {
+      font-size: 0.8rem; 
+      margin-bottom: 0.25rem;
+    }
+
+    .tipo-tamanhos ul {
+        padding-left: 0.5rem;
+    }
+
+    .tipo-tamanhos li {
+      font-size: 0.75rem; /* Reduzido */
+      line-height: 1.3;
+    }
+
+    /* Botões de Ação - NOVO/MELHORADO */
+    .admin-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .admin-actions button {
+        flex: 1 1 auto;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
+        min-width: 90px;
+    }
+
+    .btn-aprovar {
+        background: var(--success-color); /* Verde */
+        color: var(--white-color);
+    }
+
+    .btn-aprovar:hover {
+        background: #0c9b6e;
+        transform: translateY(-1px);
+    }
+
+    .btn-rejeitar {
+        background: var(--danger-color); /* Vermelho */
+        color: var(--white-color);
+    }
+
+    .btn-rejeitar:hover {
+        background: #d43b3b;
+        transform: translateY(-1px);
+    }
+    
+    /* ===== MEDIA QUERIES GERAIS (Garantir o ajuste para telas maiores que mobile) ===== */
     @media (min-width: 640px) {
-        .form-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-        .pedido-tamanhos { grid-template-columns: repeat(3, 1fr); }
-        .dashboard-header, .pedidos-header { flex-direction: row; justify-content: space-between; }
-        .logo-icon { width: 60px; height: 60px; }
-        .logo-text h1 { font-size: 1.875rem; }
+        .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        
+        .pedido-confirmacao-info {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .dashboard-cards {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        
+        .details-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .dashboard-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-header .btn-refresh {
+            margin-top: 0;
+        }
+
+        .pedidos-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pedidos-header .btn-refresh {
+            margin-top: 0;
+        }
+        
+        .pedido-confirmacao-numero > div {
+            flex-direction: row !important;
+            gap: 1rem !important;
+        }
+        
+        .logo-icon {
+            width: 60px; 
+            height: 60px;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.875rem;
+        }
+        
+        .logo-text span {
+            font-size: 0.875rem;
+        }
+
+        /* Ajuste para telas maiores na lista de pedidos */
+        .pedido-info {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .pedido-tamanhos {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .pedido-header {
+             flex-direction: row;
+             align-items: center;
+             justify-content: space-between;
+        }
+
+        .admin-actions button {
+             flex: 0 1 auto; /* Volta ao padrão */
+             min-width: 100px;
+        }
     }
   </style>
 </head>
@@ -285,18 +1297,20 @@
   <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
     <div class="pedido-confirmacao-card">
       <div class="pedido-confirmacao-header">
-        <h2><i class="fas fa-check-circle"></i> Pedido Enviado!</h2>
+        <h2><i class="fas fa-check-circle"></i> Pedido Enviado com Sucesso!</h2>
         <button class="pedido-confirmacao-close" id="fecharConfirmacaoPedido">
           <i class="fas fa-times"></i>
         </button>
       </div>
       
       <div id="pedidoConfirmacaoNumero" class="pedido-confirmacao-numero"></div>
+      
       <div id="pedidoConfirmacaoInfo" class="pedido-confirmacao-info"></div>
+      
       <div id="pedidoConfirmacaoTamanhos" class="pedido-confirmacao-tamanhos"></div>
       
       <div class="mensagem-importante">
-        <p><i class="fas fa-exclamation-triangle"></i> GUARDE O NÚMERO DO PEDIDO PARA CONSULTA.</p>
+        <p><i class="fas fa-exclamation-triangle"></i> CARO LÍDER, GUARDE O NÚMERO DO PEDIDO PARA QUE POSSA CONSULTAR OU EDITAR POSTERIORMENTE.</p>
       </div>
       
       <div class="pedido-confirmacao-actions">
@@ -323,13 +1337,12 @@
 
   <main class="main">
     <div class="container">
-      
       <section id="home" class="section active">
         <div class="home-screen">
-          <h3 class="home-title fade-in-up">PEDIDOS DE CAMISETA</h3>
-          <p class="home-subtitle fade-in-up delay-1">Sistema oficial de encomendas para o evento de 50 Anos.</p>
+          <h3 class="home-title">PEDIDOS DE CAMISETA</h3>
           
-          <div class="menu-container fade-in-up delay-2">
+          
+          <div class="menu-container">
             <button class="menu-button" id="btnNovoPedido">
               <i class="fas fa-plus-circle"></i>
               NOVO PEDIDO
@@ -348,42 +1361,53 @@
 
       <section id="consultar" class="section">
         <button class="back-button" id="voltarHomeConsulta">
-          <i class="fas fa-arrow-left"></i> Voltar
+          <i class="fas fa-arrow-left"></i>
+          Voltar
         </button>
         
         <div class="section-header">
           <h2>Consultar Pedido</h2>
-          <p>Visualize e edite seu pedido.</p>
+          <p>Localize e edite seu pedido por número ou e-mail.</p>
         </div>
 
         <form id="formConsultarNumero" class="modern-form">
           <div class="form-group">
-            <label for="numPedidoConsultaInput"><i class="fas fa-hashtag"></i> Número do Pedido</label>
-            <div class="input-group" style="display:flex; gap:0.5rem;">
-              <input type="text" id="numPedidoConsultaInput" placeholder="Ex: ID do Pedido" required>
-              <button type="submit" class="btn-icon" style="background: var(--primary-color); border:none; color:white; padding:0 1rem; border-radius: var(--border-radius);"><i class="fas fa-search"></i></button>
+            <label for="numPedidoConsultaInput">
+              <i class="fas fa-hashtag"></i>
+              Pesquise por Número do Pedido
+            </label>
+            <div class="input-group">
+              <input type="text" id="numPedidoConsultaInput" name="numPedido" placeholder="Ex: ID do Pedido" required>
+              <button type="submit" class="btn-icon">
+                <i class="fas fa-search"></i>
+              </button>
             </div>
-            <a id="btnEsqueciId" class="forgot-id-link"><i class="fas fa-question-circle"></i> Esqueceu seu ID?</a>
           </div>
         </form>
 
-        <form id="formConsultarEmail" class="modern-form" style="display: none; margin-top: 1rem; border-color: var(--primary-color);">
+        <form id="formConsultarEmail" class="modern-form" style="margin-top: 1rem;">
           <div class="form-group">
-            <label for="emailConsultaInput" style="color: var(--primary-color);"><i class="fas fa-envelope"></i> Recuperar ID por E-mail</label>
-            <div class="input-group" style="display:flex; gap:0.5rem;">
-              <input type="email" id="emailConsultaInput" placeholder="seu@email.com" required>
-              <button type="submit" class="btn-icon" style="background: var(--primary-color); border:none; color:white; padding:0 1rem; border-radius: var(--border-radius);"><i class="fas fa-search"></i></button>
+            <label for="emailConsultaInput">
+              <i class="fas fa-envelope"></i>
+              Pesquise por E-mail
+            </label>
+            <div class="input-group">
+              <input type="email" id="emailConsultaInput" name="email" placeholder="seu@email.com" required>
+              <button type="submit" class="btn-icon">
+                <i class="fas fa-search"></i>
+              </button>
             </div>
           </div>
         </form>
 
-        <div id="resultadoConsulta" class="result-container" style="margin-top: 1.5rem;"></div>
+        <div id="resultadoConsulta" class="result-container"></div>
         <div id="mensagemConsulta" class="message-container"></div> 
       </section>
 
       <section id="pedido" class="section">
         <button class="back-button" id="voltarHome1">
-          <i class="fas fa-arrow-left"></i> Voltar
+          <i class="fas fa-arrow-left"></i>
+          Voltar
         </button>
         
         <div class="section-header">
@@ -395,27 +1419,47 @@
           <input type="hidden" id="pedidoDocId" name="docId" value="">
           <div class="form-grid">
             <div class="form-group">
-              <label for="nome"><i class="fas fa-user"></i> Nome do Líder/Coordenador</label>
+              <label for="nome">
+                <i class="fas fa-user"></i>
+                Nome do Líder/Coordenador
+              </label>
               <input type="text" id="nome" name="nome" required>
             </div>
             
             <div class="form-group">
-              <label><i class="fas fa-map-marker-alt"></i> Localização</label>
-              <div class="radio-group" style="display:flex; gap:1rem;">
-                <label class="radio-label"><input type="radio" name="local" value="Capital" required id="radioCapital"> Capital</label>
-                <label class="radio-label"><input type="radio" name="local" value="Interior" required id="radioInterior"> Interior</label>
+              <label>
+                <i class="fas fa-map-marker-alt"></i>
+                Localização
+              </label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="local" value="Capital" required id="radioCapital">
+                  <span class="radio-custom"></span>
+                  Capital
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="local" value="Interior" required id="radioInterior">
+                  <span class="radio-custom"></span>
+                  Interior
+                </label>
               </div>
             </div>
             
             <div class="form-group">
-                <label for="setorInputLabel"><i class="fas fa-building"></i> <span id="setorCidadeLabel">Setor/Cidade</span></label>
+                <label for="setorInputLabel">
+                    <i class="fas fa-building"></i>
+                    <span id="setorCidadeLabel">Setor/Cidade</span>
+                </label>
                 <div id="setorCidadeContainer">
                     <input type="text" id="setor" name="setor" required>
                 </div>
             </div>
             
             <div class="form-group">
-              <label for="email"><i class="fas fa-envelope"></i> E-mail (Identificador)</label>
+              <label for="email">
+                <i class="fas fa-envelope"></i>
+                E-mail (Seu Identificador)
+              </label>
               <input type="email" id="email" name="email" required>
             </div>
           </div>
@@ -424,38 +1468,98 @@
             <div class="tipo-camiseta">
               <h3><i class="fas fa-child"></i> Pedidos Infantis</h3>
               <div class="tamanhos-grid">
-                <div class="tamanho-item"><label>1</label><input type="number" id="infantil_1" name="infantil_1" min="0" value="0"></div>
-                <div class="tamanho-item"><label>2</label><input type="number" id="infantil_2" name="infantil_2" min="0" value="0"></div>
-                <div class="tamanho-item"><label>4</label><input type="number" id="infantil_4" name="infantil_4" min="0" value="0"></div>
-                <div class="tamanho-item"><label>6</label><input type="number" id="infantil_6" name="infantil_6" min="0" value="0"></div>
-                <div class="tamanho-item"><label>8</label><input type="number" id="infantil_8" name="infantil_8" min="0" value="0"></div>
-                <div class="tamanho-item"><label>10</label><input type="number" id="infantil_10" name="infantil_10" min="0" value="0"></div>
-                <div class="tamanho-item"><label>12</label><input type="number" id="infantil_12" name="infantil_12" min="0" value="0"></div>
-                <div class="tamanho-item"><label>14</label><input type="number" id="infantil_14" name="infantil_14" min="0" value="0"></div>
+                <div class="tamanho-item">
+                  <label for="infantil_1">1</label>
+                  <input type="number" id="infantil_1" name="infantil_1" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_2">2</label>
+                  <input type="number" id="infantil_2" name="infantil_2" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_4">4</label>
+                  <input type="number" id="infantil_4" name="infantil_4" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_6">6</label>
+                  <input type="number" id="infantil_6" name="infantil_6" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_8">8</label>
+                  <input type="number" id="infantil_8" name="infantil_8" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_10">10</label>
+                  <input type="number" id="infantil_10" name="infantil_10" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_12">12</label>
+                  <input type="number" id="infantil_12" name="infantil_12" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="infantil_14">14</label>
+                  <input type="number" id="infantil_14" name="infantil_14" min="0" value="0">
+                </div>
               </div>
             </div>
 
             <div class="tipo-camiseta">
               <h3><i class="fas fa-female"></i> Adultos Babylook</h3>
               <div class="tamanhos-grid">
-                 <div class="tamanho-item"><label>PP</label><input type="number" id="babylook_PP" name="babylook_PP" min="0" value="0"></div>
-                 <div class="tamanho-item"><label>P</label><input type="number" id="babylook_P" name="babylook_P" min="0" value="0"></div>
-                 <div class="tamanho-item"><label>M</label><input type="number" id="babylook_M" name="babylook_M" min="0" value="0"></div>
-                 <div class="tamanho-item"><label>G</label><input type="number" id="babylook_G" name="babylook_G" min="0" value="0"></div>
-                 <div class="tamanho-item"><label>GG</label><input type="number" id="babylook_GG" name="babylook_GG" min="0" value="0"></div>
-                 <div class="tamanho-item"><label>XGG</label><input type="number" id="babylook_XGG" name="babylook_XGG" min="0" value="0"></div>
+                <div class="tamanho-item">
+                  <label for="babylook_PP">PP</label>
+                  <input type="number" id="babylook_PP" name="babylook_PP" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_P">P</label>
+                  <input type="number" id="babylook_P" name="babylook_P" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_M">M</label>
+                  <input type="number" id="babylook_M" name="babylook_M" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_G">G</label>
+                  <input type="number" id="babylook_G" name="babylook_G" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_GG">GG</label>
+                  <input type="number" id="babylook_GG" name="babylook_GG" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="babylook_XGG">XGG</label>
+                  <input type="number" id="babylook_XGG" name="babylook_XGG" min="0" value="0">
+                </div>
               </div>
             </div>
 
             <div class="tipo-camiseta">
               <h3><i class="fas fa-tshirt"></i> Adultos Unissex</h3>
               <div class="tamanhos-grid">
-                <div class="tamanho-item"><label>PP</label><input type="number" id="unissex_PP" name="unissex_PP" min="0" value="0"></div>
-                <div class="tamanho-item"><label>P</label><input type="number" id="unissex_P" name="unissex_P" min="0" value="0"></div>
-                <div class="tamanho-item"><label>M</label><input type="number" id="unissex_M" name="unissex_M" min="0" value="0"></div>
-                <div class="tamanho-item"><label>G</label><input type="number" id="unissex_G" name="unissex_G" min="0" value="0"></div>
-                <div class="tamanho-item"><label>GG</label><input type="number" id="unissex_GG" name="unissex_GG" min="0" value="0"></div>
-                <div class="tamanho-item"><label>XGG</label><input type="number" id="unissex_XGG" name="unissex_XGG" min="0" value="0"></div>
+                <div class="tamanho-item">
+                  <label for="unissex_PP">PP</label>
+                  <input type="number" id="unissex_PP" name="unissex_PP" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_P">P</label>
+                  <input type="number" id="unissex_P" name="unissex_P" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_M">M</label>
+                  <input type="number" id="unissex_M" name="unissex_M" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_G">G</label>
+                  <input type="number" id="unissex_G" name="unissex_G" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_GG">GG</label>
+                  <input type="number" id="unissex_GG" name="unissex_GG" min="0" value="0">
+                </div>
+                <div class="tamanho-item">
+                  <label for="unissex_XGG">XGG</label>
+                  <input type="number" id="unissex_XGG" name="unissex_XGG" min="0" value="0">
+                </div>
               </div>
             </div>
           </div>
@@ -467,11 +1571,15 @@
             </button>
           </div>
         </form>
+
         <div id="mensagemPedido" class="message-container"></div>
       </section>
 
       <section id="admin" class="section">
-        <button class="back-button" id="voltarHome3"><i class="fas fa-arrow-left"></i> Voltar</button>
+        <button class="back-button" id="voltarHome3">
+          <i class="fas fa-arrow-left"></i>
+          Voltar
+        </button>
         
         <div class="section-header">
           <h2>Painel Administrativo</h2>
@@ -481,11 +1589,24 @@
         <div id="loginAdmin" class="login-container">
           <form id="formLoginAdmin" class="modern-form">
             <div class="form-group">
-              <label for="senhaAdmin"><i class="fas fa-lock"></i> Senha de Acesso</label>
-              <input type="password" id="senhaAdmin" required placeholder="Senha">
+              <label for="senhaAdmin">
+                <i class="fas fa-lock"></i>
+                Senha de Acesso Admin
+              </label>
+              <div class="input-with-icon">
+                <input type="password" id="senhaAdmin" name="senha" placeholder="Digite sua senha" required>
+                <button type="button" class="btn-toggle-password" 
+                        onclick="window.togglePasswordVisibility('senhaAdmin', this.querySelector('i'))" 
+                        style="background: none; border: none; padding: 0.75rem 1rem;">
+                    <i class="fas fa-eye" style="color: var(--text-secondary);"></i>
+                </button>
+              </div>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn-primary">Acessar</button>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-arrow-right"></i>
+                    Acessar
+                </button>
             </div>
           </form>
           <div id="mensagemLogin" class="message-container"></div>
@@ -493,100 +1614,212 @@
 
         <div id="painelAdmin" class="admin-panel" style="display: none;">
             <div class="admin-menu">
-                <button class="admin-menu-btn active" id="btnDashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
-                <button class="admin-menu-btn" id="btnPedidos"><i class="fas fa-list"></i> Pedidos</button>
-                <button class="admin-menu-btn" id="btnFinanceiro"><i class="fas fa-dollar-sign"></i> Financeiro</button>
+                <button class="admin-menu-btn active" id="btnDashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    Dashboard
+                </button>
+                <button class="admin-menu-btn" id="btnPedidos">
+                    <i class="fas fa-list"></i>
+                    Pedidos
+                </button>
+                <button class="admin-menu-btn" id="btnFinanceiro">
+                    <i class="fas fa-dollar-sign"></i>
+                    Financeiro
+                </button>
             </div>
             
             <div id="admin-dashboard" class="admin-section active">
-                <div class="dashboard-header" style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-                    <h3>Visão Geral</h3>
-                    <button id="atualizarDashboard" class="btn-refresh"><i class="fas fa-sync-alt"></i></button>
+                <div class="dashboard-header">
+                <h3>Visão Geral Rápida</h3>
+                <button id="atualizarDashboard" class="btn-refresh">
+                    <i class="fas fa-sync-alt"></i>
+                    Atualizar
+                </button>
                 </div>
+
                 <div class="dashboard-cards">
-                    <div class="card"><div class="card-content"><h4>Total Pedidos</h4><p class="card-value" id="totalPedidos">0</p></div></div>
-                    <div class="card"><div class="card-content"><h4>Total Peças</h4><p class="card-value" id="totalCamisetas">0</p></div></div>
-                    <div class="card"><div class="card-content"><h4>Valor Est.</h4><p class="card-value" id="totalArrecadado">R$ 0,00</p></div></div>
-                    <div class="card"><div class="card-content"><h4>Pendentes</h4><p class="card-value" id="pedidosPendentes">0</p></div></div>
+                    <div class="card">
+                        <div class="card-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="card-content">
+                        <h4>Total de Pedidos</h4>
+                        <p class="card-value" id="totalPedidos">0</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">
+                        <i class="fas fa-tshirt"></i>
+                        </div>
+                        <div class="card-content">
+                        <h4>Total de Camisetas</h4>
+                        <p class="card-value" id="totalCamisetas">0</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon" style="background: var(--success-color);">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div class="card-content">
+                        <h4>Valor Arrecadado Estimado</h4>
+                        <p class="card-value" id="totalArrecadado">R$ 0,00</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">
+                        <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="card-content">
+                        <h4>Pedidos Pendentes</h4>
+                        <p class="card-value" id="pedidosPendentes">0</p>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="dashboard-details">
-                   <h4>Por Tipo</h4>
-                   <div class="details-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem; text-align:center;">
-                       <div><span>Infantil:</span> <strong id="totalInfantis">0</strong></div>
-                       <div><span>Babylook:</span> <strong id="totalBabylook">0</strong></div>
-                       <div><span>Unissex:</span> <strong id="totalUnissex">0</strong></div>
-                   </div>
+                    <h4>Detalhamento por Tipo</h4>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-child"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span>Infantis</span>
+                            <strong id="totalInfantis">0</strong>
+                        </div>
+                        </div>
+                        <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-female"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span>Babylook</span>
+                            <strong id="totalBabylook">0</strong>
+                        </div>
+                        </div>
+                        <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span>Unissex</span>
+                            <strong id="totalUnissex">0</strong>
+                        </div>
+                        </div>
+                        <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="detail-content">
+                            <span>Rejeitados</span>
+                            <strong id="pedidosRejeitados">0</strong>
+                        </div>
+                        </div>
+                    </div>
                 </div>
+                
                 <div class="form-actions">
-                    <button class="btn-primary" id="btnVerDetalhes"><i class="fas fa-calculator"></i> DETALHAMENTO POR TAMANHO</button>
+                <button class="btn-primary" id="btnVerDetalhes">
+                    <i class="fas fa-calculator"></i>
+                    DETALHAMENTO POR TAMANHO </button>
                 </div>
             </div>
 
             <div id="admin-detalhes-tamanhos" class="admin-section">
-                <div class="dashboard-header" style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-                    <h3>Totalizadores por Tamanho</h3>
-                    <button id="voltarDashboard" class="btn-refresh"><i class="fas fa-arrow-left"></i> Voltar</button>
+                <div class="dashboard-header">
+                <h3>Totalizadores por Tamanho</h3>
+                <button id="voltarDashboard" class="btn-refresh">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar ao Dashboard
+                </button>
                 </div>
                 
-                <h4 class="tabela-titulo"><i class="fas fa-user"></i> Tamanhos Adulto</h4>
-                <div class="tamanhos-table-container">
-                    <table class="tamanhos-table" id="tabelaAdulto">
-                        <thead>
-                            <tr>
-                                <th class="tipo-header">Tipo</th>
-                                <th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bodyAdulto"></tbody>
-                        <tfoot id="footerAdulto"></tfoot>
+                <div class="dashboard-details">
+                <div id="tamanhosDetalhesContainer" class="tamanhos-table-container">
+                    <table class="tamanhos-table">
+                    <thead>
+                        <tr>
+                        <th class="tipo-header">Tipo</th>
+                        <th>PP</th>
+                        <th>P</th>
+                        <th>M</th>
+                        <th>G</th>
+                        <th>GG</th>
+                        <th>XGG</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>4</th>
+                        <th>6</th>
+                        <th>8</th>
+                        <th>10</th>
+                        <th>12</th>
+                        <th>14</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tamanhosDetalhesBody">
+                        <tr><td colspan="15" style="text-align: center;">Clique em "Atualizar Detalhes" para carregar os dados.</td></tr>
+                    </tbody>
+                    <tfoot id="tamanhosDetalhesFooter">
+                        </tfoot>
                     </table>
                 </div>
-
-                <h4 class="tabela-titulo"><i class="fas fa-child"></i> Tamanhos Infantil</h4>
-                <div class="tamanhos-table-container">
-                    <table class="tamanhos-table" id="tabelaInfantil">
-                        <thead>
-                            <tr>
-                                <th class="tipo-header">Tipo</th>
-                                <th>1</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th><th>12</th><th>14</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bodyInfantil"></tbody>
-                        <tfoot id="footerInfantil"></tfoot>
-                    </table>
                 </div>
                 
                 <div class="form-actions">
-                    <button class="btn-refresh" id="atualizarDetalhesTamanho"><i class="fas fa-sync-alt"></i> Atualizar Dados</button>
+                    <button class="btn-primary" id="btnGerarPdf">
+                        <i class="fas fa-file-pdf"></i>
+                        Gerar Relatório em PDF
+                    </button>
+                    <button class="btn-refresh" id="atualizarDetalhesTamanho">
+                        <i class="fas fa-sync-alt"></i>
+                        Atualizar Detalhes
+                    </button>
                 </div>
             </div>
 
             <div id="admin-financeiro" class="admin-section">
                 <div class="dashboard-header">
-                    <h3>Financeiro</h3>
-                    <button id="atualizarFinanceiro" class="btn-refresh"><i class="fas fa-sync-alt"></i></button>
+                    <h3>Configuração e Resumo Financeiro</h3>
+                    <button id="atualizarFinanceiro" class="btn-refresh">
+                        <i class="fas fa-sync-alt"></i>
+                        Recarregar
+                    </button>
                 </div>
+                
                 <div class="dashboard-details">
                     <form id="formValorCamiseta" class="modern-form" style="padding: 1rem; margin-top: 0;">
                         <div class="form-group">
-                            <label for="valorCamisetaInput">Valor Unitário (R$)</label>
-                            <div style="display:flex; gap:1rem;">
+                            <label for="valorCamisetaInput"><i class="fas fa-money-bill-wave"></i> Valor Atual da Camiseta (R$)</label>
+                            <div class="input-group">
                                 <input type="number" id="valorCamisetaInput" step="0.01" min="0" value="30.00" required>
-                                <button type="submit" class="btn-primary">Salvar</button>
+                                <button type="submit" class="btn-icon">
+                                    <i class="fas fa-check"></i>
+                                    Confirmar
+                                </button>
                             </div>
                         </div>
                     </form>
                 </div>
+
                 <div class="dashboard-details">
-                    <h4>Resumo por Setor</h4>
-                    <div id="resumoFinanceiroLocais"></div>
+                    <h4>Resumo Financeiro por Localização</h4>
+                    <div id="resumoFinanceiroLocais">
+                        <p style="text-align: center; color: var(--text-muted);">Carregando resumo...</p>
+                    </div>
                 </div>
+
             </div>
 
             <div id="admin-pedidos" class="admin-section">
-                <div class="pedidos-header" style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-                    <h3>Todos os Pedidos</h3>
-                    <button id="atualizarPedidos" class="btn-refresh"><i class="fas fa-sync-alt"></i></button>
+                <div class="pedidos-header">
+                <h3>Todos os Pedidos</h3>
+                <button id="atualizarPedidos" class="btn-refresh">
+                    <i class="fas fa-sync-alt"></i>
+                    Atualizar
+                </button>
                 </div>
                 <div id="listaPedidos" class="pedidos-list"></div>
             </div>
@@ -595,9 +1828,9 @@
     </div>
   </main>
 
-  <footer class="footer" style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.8rem;">
+  <footer class="footer">
     <div class="container">
-      <p>&copy; 2025 UMADEMATS</p>
+      <p>&copy; 2023 UMADEMATS - Todos os direitos reservados</p>
     </div>
   </footer>
 
@@ -606,8 +1839,10 @@
 
   <script type="module">
     // ==========================================================
-    // CONFIGURAÇÃO DO FIREBASE
+    // 1. CONFIGURAÇÃO DO FIREBASE
     // ==========================================================
+    
+    // OBJETO FIREBASE (Com suas chaves inseridas)
     const firebaseConfig = {
       apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
       authDomain: "pedidosumademats.firebaseapp.com",
@@ -616,20 +1851,33 @@
       appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
     };
 
-    const ADMIN_PASSWORD_FIXA = "umademats";
+    // ==========================================================
+    // VARIÁVEIS CRÍTICAS
+    // ==========================================================
+    const ADMIN_PASSWORD_FIXA = "umademats"; // <-- **INSERIR SENHA AQUI**
+    
+    // Armazenamento local do preço da camiseta para o cálculo financeiro
     let PRECO_CAMISETA = parseFloat(localStorage.getItem('PRECO_CAMISETA')) || 30.00;
-
+    
+    // ==========================================================
+    // IMPORTAÇÃO DAS BIBLIOTECAS FIREBASE
+    // ==========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
+
+    // Inicializa o Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const pedidosCollection = collection(db, "pedidos"); 
+    const auth = getAuth(app); 
 
+    // VARIÁVEIS GLOBAIS DE ESTADO
     let currentPedidoParaEdicao = null; 
 
     // ==========================================================
-    // FUNÇÕES AUXILIARES & GERAIS
+    // FUNÇÕES AUXILIARES
     // ==========================================================
     
     function getQuantidadesFromForm(formData, prefix) {
@@ -642,75 +1890,40 @@
         return quantidades;
     }
 
+    // Função para alternar a visibilidade da senha
+    window.togglePasswordVisibility = function(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            iconElement.classList.remove('fa-eye');
+            iconElement.classList.add('fa-eye-slash');
+        } else {
+            input.type = "password";
+            iconElement.classList.remove('fa-eye-slash');
+            iconElement.classList.add('fa-eye');
+        }
+    };
+    
+    // Função para verificar se o valor é um e-mail válido
     function isValidEmail(value) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(value);
     }
     
+    // Função de normalização para consultas (Maiúsculas e sem espaços extras)
     function normalizeString(str) {
         if (typeof str !== 'string') return '';
         return str.toUpperCase().trim();
     }
     
-    // --- 1. CORREÇÃO DA TELA AZUL (BUG DO BOTÃO VOLTAR) ---
+    // ==========================================================
+    // FUNÇÕES DE UTILIDADE GERAL (Expostas no escopo global)
+    // ==========================================================
+    
     window.mostrarSecao = function(secao) {
-        // Remove active de todos
-        document.querySelectorAll('.section').forEach(s => {
-            s.classList.remove('active');
-            s.style.display = 'none'; // Garante que some
-            s.style.opacity = '0';
-        });
-
-        const secaoElement = document.getElementById(secao);
-        if (secaoElement) {
-            secaoElement.style.display = 'block'; // Garante display block primeiro
-            // Pequeno timeout para permitir transição CSS se houver
-            setTimeout(() => {
-                secaoElement.classList.add('active');
-                secaoElement.style.opacity = '1';
-                secaoElement.style.transform = 'translateY(0)';
-            }, 10);
-        }
-    };
-
-    window.fecharConfirmacaoPedido = function() {
-        const overlay = document.getElementById('pedidoConfirmacaoOverlay');
-        overlay.classList.remove('active');
-        
-        // Espera a transição do overlay acabar antes de mostrar a home
-        setTimeout(() => {
-            overlay.style.visibility = 'hidden'; // Garante que não bloqueie cliques
-            window.mostrarSecao('home');
-        }, 300);
-    };
-
-    window.redirecionarComAnimacao = function(secao, callback) {
-        const elementoAtual = document.querySelector('.section.active');
-        const proximoElemento = document.getElementById(secao);
-  
-        if (!elementoAtual || !proximoElemento) {
-            window.mostrarSecao(secao);
-            if(callback) callback();
-            return;
-        }
-        
-        elementoAtual.style.opacity = '0';
-        elementoAtual.style.transform = 'translateY(-20px)';
-        
-        setTimeout(() => {
-            elementoAtual.classList.remove('active');
-            elementoAtual.style.display = 'none';
-
-            proximoElemento.style.display = 'block';
-            
-            if (callback) callback();
-            
-            setTimeout(() => {
-                proximoElemento.classList.add('active');
-                proximoElemento.style.opacity = '1';
-                proximoElemento.style.transform = 'translateY(0)';
-            }, 50);
-        }, 300);
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      const secaoElement = document.getElementById(secao);
+      if (secaoElement) secaoElement.classList.add('active');
     };
 
     window.mostrarAdminSecao = function(secao) {
@@ -720,123 +1933,350 @@
       const secaoElement = document.getElementById(`admin-${secao}`);
       if (secaoElement) secaoElement.classList.add('active');
       
-      const btnId = secao === 'detalhes-tamanhos' ? 'btnDashboard' : `btn${secao.charAt(0).toUpperCase() + secao.slice(1)}`;
-      const btn = document.getElementById(btnId);
-      if(btn) btn.classList.add('active');
-
-      if (secao === 'dashboard') window.carregarDashboard();
-      if (secao === 'pedidos') window.carregarPedidos();
-      if (secao === 'financeiro') window.carregarDetalhesFinanceiros();
+      const botoes = document.querySelectorAll('.admin-menu-btn');
+      botoes.forEach(botao => {
+        if (botao.textContent.toLowerCase().includes(secao.split('-')[0].substring(0, 4))) { 
+          botao.classList.add('active');
+        }
+      });
+      
+      if (secao === 'dashboard') {
+        window.carregarDashboard();
+      } else if (secao === 'pedidos') {
+        window.carregarPedidos();
+      } else if (secao === 'financeiro') {
+        window.carregarDetalhesFinanceiros();
+      }
     };
     
+    window.redirecionarComAnimacao = function(secao, callback) {
+        const elementoAtual = document.querySelector('.section.active');
+        const proximoElemento = document.getElementById(secao);
+  
+        if (!elementoAtual || !proximoElemento || elementoAtual === proximoElemento) {
+          window.mostrarSecao(secao);
+          if(callback) callback();
+          return;
+        }
+        
+        elementoAtual.style.opacity = '0';
+        elementoAtual.style.transform = 'translateY(-20px)';
+        
+        setTimeout(() => {
+          window.mostrarSecao(secao);
+          
+          if (callback) callback();
+          
+          proximoElemento.style.opacity = '0';
+          proximoElemento.style.transform = 'translateY(20px)';
+  
+          setTimeout(() => {
+            proximoElemento.style.opacity = '1';
+            proximoElemento.style.transform = 'translateY(0)';
+          }, 50);
+        }, 300);
+    };
+
     window.exibirMensagem = function(elementoId, tipo, mensagem) {
       const elemento = document.getElementById(elementoId);
-      if (!elemento) return;
+      if (!elemento) {
+          console.error(`Erro ao exibir mensagem: Elemento com ID '${elementoId}' não encontrado.`);
+          return; 
+      }
+      
       const icone = tipo === 'sucesso' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-      elemento.innerHTML = `<div class="mensagem ${tipo}" style="padding:0.5rem; border-radius:0.5rem; background:${tipo === 'sucesso' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}; color:${tipo === 'sucesso' ? '#10b981' : '#ef4444'}; margin-top:0.5rem;"><i class="${icone}"></i> ${mensagem}</div>`;
+      elemento.innerHTML = `<div class="mensagem ${tipo}"><i class="${icone}"></i>${mensagem}</div>`;
       setTimeout(() => { elemento.innerHTML = ''; }, 5000);
     };
 
     window.mostrarCarregamento = function(mostrar = true, texto = 'Processando...') {
-      const overlay = document.getElementById('loadingOverlay');
-      document.getElementById('loadingText').textContent = texto;
-      mostrar ? overlay.classList.add('active') : overlay.classList.remove('active');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const loadingText = document.getElementById('loadingText');
+      loadingText.textContent = texto;
+      if (mostrar) {
+        loadingOverlay.classList.add('active');
+      } else {
+        loadingOverlay.classList.remove('active');
+      }
+    };
+
+    window.atualizarElemento = function(elementId, valor) {
+      const elemento = document.getElementById(elementId);
+      if (elemento) elemento.textContent = valor;
+    };
+    
+    window.fecharConfirmacaoPedido = function() {
+        document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
+        window.mostrarSecao('home');
+    };
+
+    window.copiarNumeroPedido = function(numPedido) {
+        navigator.clipboard.writeText(numPedido)
+        .then(() => {
+          window.exibirMensagem('mensagemPedido', 'sucesso', 'Número do pedido copiado para a área de transferência!');
+        })
+        .catch(err => {
+          console.error('Erro ao copiar número do pedido:', err);
+          window.exibirMensagem('mensagemPedido', 'erro', 'Não foi possível copiar o número do pedido');
+        });
     };
 
     window.exibirConfirmacaoPedido = function(pedido) {
         const overlay = document.getElementById('pedidoConfirmacaoOverlay');
-        document.getElementById('pedidoConfirmacaoNumero').innerHTML = `PEDIDO #${pedido.numPedido}`;
-        document.getElementById('pedidoConfirmacaoInfo').innerHTML = `
-            <p><strong>Nome:</strong> ${pedido.nome}</p>
-            <p><strong>Setor:</strong> ${pedido.setor}</p>
-            <p><strong>Email:</strong> ${pedido.email}</p>
+        const numeroElement = document.getElementById('pedidoConfirmacaoNumero');
+        const infoElement = document.getElementById('pedidoConfirmacaoInfo');
+        const tamanhosElement = document.getElementById('pedidoConfirmacaoTamanhos');
+        
+        const formatarTamanhos = (tamanhos) => {
+            return Object.entries(tamanhos).map(([tamanho, qtd]) => 
+            parseInt(qtd) > 0 ? `<li>${tamanho}: ${qtd}</li>` : ''
+            ).join('');
+        };
+        
+        numeroElement.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+            <strong>Número do Pedido:</strong> #${pedido.numPedido}
+            <button onclick="window.copiarNumeroPedido('${pedido.numPedido}')" class="btn-copiar">
+                <i class="fas fa-copy"></i> Copiar
+            </button>
+            </div>
         `;
         
-        // Formata tamanhos para exibição simples no modal
-        const format = (obj) => Object.entries(obj || {}).filter(([k,v])=>v>0).map(([k,v])=>`${k}: ${v}`).join(', ');
+        infoElement.innerHTML = `
+            <p><i class="fas fa-user"></i> <strong>Nome:</strong> ${pedido.nome}</p>
+            <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local}</p>
+            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor}</p>
+            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date().toLocaleString()}</p>
+        `; 
         
-        document.getElementById('pedidoConfirmacaoTamanhos').innerHTML = `
-            <div class="pedido-confirmacao-tipo"><h4>Infantil</h4>${format(pedido.infantil) || 'Nenhum'}</div>
-            <div class="pedido-confirmacao-tipo"><h4>Babylook</h4>${format(pedido.babylook) || 'Nenhum'}</div>
-            <div class="pedido-confirmacao-tipo"><h4>Unissex</h4>${format(pedido.unissex) || 'Nenhum'}</div>
+        tamanhosElement.innerHTML = `
+            <div class="pedido-confirmacao-tipo">
+            <h4><i class="fas fa-child"></i> Infantis</h4>
+            <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
+            </div>
+            
+            <div class="pedido-confirmacao-tipo">
+            <h4><i class="fas fa-female"></i> Babylook</h4>
+            <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
+            </div>
+            
+            <div class="pedido-confirmacao-tipo">
+            <h4><i class="fas fa-tshirt"></i> Unissex</h4>
+            <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
+            </div>
         `;
         
         overlay.classList.add('active');
     };
     
-    window.copiarNumeroPedido = function(num) {
-        navigator.clipboard.writeText(num).then(() => alert("Copiado!"));
+    // Função para recalcular e salvar o novo preço da camiseta
+    window.recalcularValores = function(novoValorString) {
+        const novoValor = parseFloat(novoValorString);
+        if (isNaN(novoValor) || novoValor <= 0) {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Valor inválido. Insira um número positivo.');
+            return;
+        }
+        
+        PRECO_CAMISETA = novoValor;
+        localStorage.setItem('PRECO_CAMISETA', novoValor.toFixed(2));
+        window.exibirMensagem('mensagemLogin', 'sucesso', `Valor da camiseta atualizado para R$ ${novoValor.toFixed(2).replace('.', ',')}!`);
+        
+        // Atualiza o dashboard e financeiro com o novo valor
+        window.carregarDashboard();
+        window.carregarDetalhesFinanceiros();
     }
-
+    
     // ==========================================================
-    // LÓGICA DO SISTEMA
+    // FUNÇÃO GERAR RELATÓRIO PDF (INCLUÍDA)
     // ==========================================================
+    
+    // Função para gerar PDF (usa jsPDF e AutoTable)
+    window.gerarRelatorioPdf = function() {
+        window.mostrarCarregamento(true, 'Gerando PDF...');
+        
+        // Certifique-se de que o objeto jsPDF esteja disponível globalmente
+        const { jsPDF } = window.jspdf;
+        if (typeof jsPDF === 'undefined') {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Biblioteca jsPDF não carregada. Verifique as tags script.');
+            window.mostrarCarregamento(false);
+            return;
+        }
 
-    window.verificarPedidoPorEmail = async function(email) {
-        try {
-            const q = query(pedidosCollection, where("email", "==", email.toLowerCase().trim()));
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty) return { docId: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-            return null;
-        } catch (e) { return null; }
+        const doc = new jsPDF('l', 'mm', 'a4'); // 'l' para layout paisagem (melhor para tabelas largas)
+        const dataAtual = new Date().toLocaleDateString('pt-BR');
+
+        // Cabeçalho e Título
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 0); // Preto
+        doc.text("Relatório de Detalhamento por Tamanho - UMADEMATS", 148.5, 20, null, null, "center"); // Centralizado na folha A4 paisagem
+
+        doc.setFontSize(10);
+        doc.setTextColor(50, 50, 50); // Cinza Escuro
+        doc.text(`Data do Relatório: ${dataAtual}`, 10, 25);
+        doc.text(`Valor da Camiseta (Cálculo): R$ ${PRECO_CAMISETA.toFixed(2).replace('.', ',')}`, 287, 25, null, null, "right");
+
+
+        // 1. Preparar Cabeçalhos e Corpo da Tabela
+        const tableElement = document.getElementById('tamanhosDetalhesBody').closest('table');
+        if (!tableElement || tableElement.rows.length <= 1) {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Tabela de Detalhes de Tamanho vazia. Atualize antes de gerar o PDF.');
+            window.mostrarCarregamento(false);
+            return;
+        }
+        
+        // Obter cabeçalhos (os <th> do thead)
+        const head = Array.from(tableElement.querySelector('thead tr').children).map(th => th.textContent);
+        
+        // Obter corpo (os <td> do tbody e tfoot)
+        let body = [];
+        const tbodyRows = Array.from(tableElement.querySelector('tbody').rows);
+        const tfootRow = tableElement.querySelector('tfoot tr');
+        
+        // Verifica se o tbody tem a linha de placeholder antes de mapear
+        if (tbodyRows.length === 1 && tbodyRows[0].children[0].textContent.includes('Clique em "Atualizar Detalhes"')) {
+             window.exibirMensagem('mensagemLogin', 'erro', 'Tabela de Detalhes de Tamanho vazia. Atualize antes de gerar o PDF.');
+             window.mostrarCarregamento(false);
+             return;
+        }
+
+
+        tbodyRows.forEach(row => {
+            body.push(Array.from(row.children).map(td => td.textContent));
+        });
+        
+        // Adicionar a linha de Total Geral (do tfoot) com estilo
+        let totalRow = tfootRow ? Array.from(tfootRow.children).map(td => td.textContent) : null;
+
+
+        // 2. Configuração e Geração da Tabela (usando autoTable)
+        doc.autoTable({
+            head: [head],
+            body: body,
+            foot: totalRow ? [totalRow] : [], // Adiciona o total no rodapé da tabela
+            startY: 30, // Posição inicial da tabela
+            theme: 'grid', // Estilo de grade
+            styles: {
+                fontSize: 8,
+                cellPadding: 1.5,
+                textColor: [0, 0, 0], // Cor da fonte em PRETO (para impressão/gráfica)
+            },
+            headStyles: {
+                fillColor: [200, 200, 200], // Fundo Cinza Claro para o cabeçalho
+                textColor: [0, 0, 0],
+                fontStyle: 'bold',
+            },
+            footStyles: {
+                fillColor: [180, 180, 180], // Fundo Cinza um pouco mais escuro para o rodapé
+                textColor: [0, 0, 0],
+                fontStyle: 'bold',
+            },
+            columnStyles: {
+                0: { fontStyle: 'bold' } // Coluna "Tipo" em negrito
+            },
+            didDrawPage: function(data) {
+                // Rodapé com número da página
+                doc.setFontSize(8);
+                doc.text(`Página ${data.pageNumber}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+            }
+        });
+        
+        // 3. Salvar o PDF
+        doc.save(`Relatorio_Camisetas_${dataAtual.replace('/', '-')}.pdf`);
+        
+        window.mostrarCarregamento(false);
+        window.exibirMensagem('mensagemLogin', 'sucesso', 'PDF gerado com sucesso!');
     };
     
-    window.verificarPedidoPorSetor = async function(setor) {
+    // ==========================================================
+    // FUNÇÕES FIREBASE: FLUXO DE ACESSO E PEDIDOS
+    // ==========================================================
+    
+    // Função para verificar se o e-mail JÁ TEM pedido (retorna o pedido se sim)
+    window.verificarPedidoPorEmail = async function(email) {
+        const emailNormalizado = email.toLowerCase().trim(); 
         try {
-            const q = query(pedidosCollection, where("setor", "==", normalizeString(setor)));
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty) return { docId: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-            return null;
-        } catch (e) { return null; }
-    };
-
-    window.verificarPedidoPorNumero = async function(numPedido) {
-        try {
-            const docRef = doc(db, "pedidos", numPedido.trim());
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) return { docId: docSnap.id, numPedido: docSnap.data().numPedido || docSnap.id, ...docSnap.data() };
-            return null;
-        } catch (e) { return null; }
-    };
-
-    // --- 4. ESQUECEU ID (Recuperar por Email) ---
-    // Essa função busca TODOS os pedidos com esse email e exibe os IDs
-    window.recuperarIdPorEmail = async function(email) {
-        window.mostrarCarregamento(true, 'Buscando IDs...');
-        try {
-            const q = query(pedidosCollection, where("email", "==", email.toLowerCase().trim()));
+            const q = query(pedidosCollection, where("email", "==", emailNormalizado));
             const snapshot = await getDocs(q);
             
-            if (snapshot.empty) {
-                window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado para este e-mail.');
-            } else {
-                let html = '<div style="background: rgba(255,255,255,0.1); padding:1rem; border-radius:0.5rem; text-align:center;"><h4>IDs Encontrados:</h4><ul style="list-style:none; margin-top:0.5rem;">';
-                snapshot.forEach(doc => {
-                    const d = doc.data();
-                    const id = d.numPedido || doc.id;
-                    html += `<li style="font-size:1.2rem; color:var(--primary-color); font-weight:bold; margin-bottom:5px;">#${id} <button class="btn-refresh" onclick="navigator.clipboard.writeText('${id}')"><i class="fas fa-copy"></i></button></li>`;
-                });
-                html += '</ul><p style="font-size:0.8rem; margin-top:1rem;">Copie o ID acima e use na busca principal.</p></div>';
-                document.getElementById('resultadoConsulta').innerHTML = html;
+            if (!snapshot.empty) {
+                const docData = snapshot.docs[0].data();
+                const docId = snapshot.docs[0].id;
+                
+                return { docId, ...docData }; 
             }
+            return null;
         } catch (error) {
-            console.error(error);
-            window.exibirMensagem('mensagemConsulta', 'erro', 'Erro ao buscar.');
-        } finally {
-            window.mostrarCarregamento(false);
+            console.error("Erro ao buscar pedido por email:", error);
+            return null;
+        }
+    };
+    
+    // Função para verificar se o SETOR JÁ TEM pedido (retorna o pedido se sim) <--- NOVA FUNÇÃO
+    window.verificarPedidoPorSetor = async function(setor) {
+        const setorNormalizado = normalizeString(setor); 
+        try {
+            // OBS: O campo 'setor' no banco DEVE ser salvo normalizado (em maiúsculas)
+            const q = query(pedidosCollection, where("setor", "==", setorNormalizado));
+            const snapshot = await getDocs(q);
+            
+            if (!snapshot.empty) {
+                const docData = snapshot.docs[0].data();
+                const docId = snapshot.docs[0].id;
+                
+                return { docId, ...docData }; 
+            }
+            return null;
+        } catch (error) {
+            console.error("Erro ao buscar pedido por setor:", error);
+            return null;
         }
     };
 
-    window.setupNovoPedido = function() {
+    
+    // Função para verificar se o ID JÁ TEM pedido (retorna o pedido se sim)
+    window.verificarPedidoPorNumero = async function(numPedido) {
+        const docId = numPedido.trim();
+        try {
+            const docRef = doc(db, "pedidos", docId);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                const docData = docSnap.data();
+                const docId = docSnap.id;
+                
+                const finalNumPedido = docData.numPedido || docId; 
+                
+                return { docId, numPedido: finalNumPedido, ...docData }; 
+            }
+            return null;
+        } catch (error) {
+            console.error("Erro ao buscar pedido por número:", error);
+            return null;
+        }
+    };
+
+    // Função 3: Preenche o formulário para Novo Pedido (Simples)
+    window.setupNovoPedido = async function() {
         currentPedidoParaEdicao = null; 
         document.getElementById('pedidoDocId').value = '';
+        document.getElementById('email').value = ''; 
+        document.getElementById('nome').value = '';
+        
         document.getElementById('formPedido').reset();
+        
         document.getElementById('pedidoTitulo').textContent = 'Fazer Novo Pedido';
+        document.getElementById('pedidoSubtitulo').textContent = 'Solicite suas camisetas com elegância';
         document.getElementById('submitButtonText').textContent = 'Enviar Pedido';
-        document.getElementById('radioCapital').checked = true;
+        
+        // Define o default e atualiza o campo Setor/Cidade
+        const radioCapital = document.querySelector('input[name="local"][value="Capital"]');
+        if (radioCapital) radioCapital.checked = true;
         window.updateSetorCidadeInput(); 
+        document.getElementById('setor').value = ''; 
     }
 
+    // Função 5: Preenche o formulário para Edição
     window.setupEdicaoPedido = function() {
         const pedido = currentPedidoParaEdicao;
         if (!pedido) return;
@@ -844,246 +2284,661 @@
         document.getElementById('pedidoDocId').value = pedido.docId; 
         document.getElementById('nome').value = pedido.nome;
         
+        // Marca o rádio correto
         const radioLocal = document.querySelector(`input[name="local"][value="${pedido.local}"]`);
         if (radioLocal) radioLocal.checked = true;
-        window.updateSetorCidadeInput(pedido.setor); 
         
+        // O valor do setor/cidade armazenado no banco está em MAIÚSCULAS
+        window.updateSetorCidadeInput(pedido.setor); // Atualiza e preenche o campo Setor/Cidade
+        
+        // O valor do e-mail armazenado no banco está em minúsculas
         document.getElementById('email').value = pedido.email;
         
-        const preencher = (obj, prefix) => {
-            for (const [t, q] of Object.entries(obj || {})) {
-                const el = document.getElementById(`${prefix}_${t}`);
-                if(el) el.value = q;
+        const preencherTamanhos = (tamanhos, prefix) => {
+            for (const [t, q] of Object.entries(tamanhos || {})) {
+                const input = document.getElementById(`${prefix}_${t}`);
+                if (input) input.value = q;
             }
         };
-        preencher(pedido.infantil, 'infantil');
-        preencher(pedido.babylook, 'babylook');
-        preencher(pedido.unissex, 'unissex');
+
+        preencherTamanhos(pedido.infantil, 'infantil');
+        preencherTamanhos(pedido.babylook, 'babylook');
+        preencherTamanhos(pedido.unissex, 'unissex');
         
         document.getElementById('pedidoTitulo').textContent = `Editar Pedido #${pedido.numPedido}`;
-        document.getElementById('submitButtonText').textContent = 'Atualizar Pedido';
+        document.getElementById('pedidoSubtitulo').textContent = 'Revise as quantidades e confirme o reenvio.';
+        document.getElementById('submitButtonText').textContent = 'Reenviar Pedido';
+        
         window.redirecionarComAnimacao('pedido');
     };
 
+    // Função 4: Exibe a tela de consulta para o Líder (usada no fluxo de consulta)
+    window.displayVisualizacaoPedido = function(pedido, containerId = 'resultadoConsulta') {
+        currentPedidoParaEdicao = pedido;
+        const container = document.getElementById(containerId);
+        
+        const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
+                            pedido.status === 'Aprovado' ? 'status-aprovado' : 
+                            'status-rejeitado';
+        const statusDisplay = pedido.status === 'Aprovado' ? 
+                              '<strong style="color: var(--success-color);">APROVADO</strong>' : 
+                              `<span class="pedido-status ${statusClass}">${pedido.status}</span>`;
+
+        const formatarTamanhos = (tamanhos) => {
+            let list = '';
+            for (const [t, q] of Object.entries(tamanhos || {})) {
+                if (q > 0) list += `<li>${t}: ${q}</li>`;
+            }
+            return list || '<li>Nenhuma</li>';
+        };
+
+        const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                 Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                 Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+        
+        const valorPagar = totalCamisetas * PRECO_CAMISETA;
+
+
+        container.innerHTML = `
+            <div class="pedido-item" data-id="${pedido.docId}">
+                <div class="pedido-header">
+                    <span class="pedido-numero">#${pedido.numPedido}</span>
+                    ${statusDisplay}
+                </div>
+                
+                <div class="pedido-info">
+                    <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Local:</strong> ${pedido.local} / ${pedido.setor}</p>
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                    <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${new Date(pedido.data).toLocaleString()}</p>
+                    <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas}</p>
+                    <p><i class="fas fa-money-bill-wave"></i> <strong>Valor a Pagar:</strong> R$ ${valorPagar.toFixed(2).replace('.', ',')}</p>
+                </div>
+                
+                <div class="pedido-tamanhos">
+                    <div class="tipo-tamanhos">
+                        <h4>Infantis</h4>
+                        <ul>${formatarTamanhos(pedido.infantil)}</ul>
+                    </div>
+                    <div class="tipo-tamanhos">
+                        <h4>Babylook</h4>
+                        <ul>${formatarTamanhos(pedido.babylook)}</ul>
+                    </div>
+                    <div class="tipo-tamanhos">
+                        <h4>Unissex</h4>
+                        <ul>${formatarTamanhos(pedido.unissex)}</ul>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top: 1rem;">
+                    <button class="btn-primary" id="btnIniciarEdicao">
+                        <i class="fas fa-edit"></i>
+                        EDITAR E REENVIAR
+                    </button>
+                </div>
+            </div>
+            <div id="mensagemConsulta" class="message-container"></div>
+        `;
+        
+        document.getElementById('btnIniciarEdicao').addEventListener('click', window.setupEdicaoPedido);
+    };
+
+    
+    // Função 6: Lógica de Submissão Única (Novo ou Edição)
     window.handleFormSubmission = async function(e) {
         e.preventDefault();
+        
         const docId = document.getElementById('pedidoDocId').value;
         const isEditing = !!docId;
+        
         const formData = new FormData(document.getElementById('formPedido'));
-        const email = formData.get('email').toLowerCase().trim();
-        const setor = normalizeString(formData.get('setor'));
-
-        if (!isEditing) {
-            const existeEmail = await window.verificarPedidoPorEmail(email);
-            if (existeEmail) return window.exibirMensagem('mensagemPedido', 'erro', `E-mail já possui pedido (#${existeEmail.numPedido}). Consulte para editar.`);
-            
-            const existeSetor = await window.verificarPedidoPorSetor(setor);
-            if (existeSetor) return window.exibirMensagem('mensagemPedido', 'erro', `Setor ${setor} já possui pedido (#${existeSetor.numPedido}).`);
+        const emailInput = formData.get('email');
+        const setorInput = formData.get('setor'); // Pega o setor/cidade
+        
+        // Normaliza os valores para checagem e salvamento
+        const emailParaSalvar = emailInput.toLowerCase().trim();
+        const setorParaSalvar = normalizeString(setorInput);
+        
+        // 1. Validação de E-mail
+        if (!isValidEmail(emailInput)) {
+            window.exibirMensagem('mensagemPedido', 'erro', 'O e-mail inserido é inválido.');
+            return;
         }
 
-        const total = Array.from(document.querySelectorAll('#formPedido input[type="number"]')).reduce((acc, el) => acc + (parseInt(el.value)||0), 0);
-        if (total === 0) return window.exibirMensagem('mensagemPedido', 'erro', 'Adicione pelo menos uma camiseta.');
+        // 2. Validação de Pedido Duplicado (POR E-MAIL - APENAS PARA NOVOS PEDIDOS)
+        if (!isEditing) {
+            const pedidoExistenteEmail = await window.verificarPedidoPorEmail(emailParaSalvar);
+            if (pedidoExistenteEmail) {
+                window.exibirMensagem('mensagemPedido', 'erro', `O e-mail ${emailParaSalvar} já possui um pedido (#${pedidoExistenteEmail.numPedido}). Consulte seu pedido para editar.`);
+                return;
+            }
+        }
+        
+        // 3. Validação de Setor Duplicado (APENAS PARA NOVOS PEDIDOS) <--- NOVA VALIDAÇÃO
+        if (!isEditing) {
+            const pedidoExistenteSetor = await window.verificarPedidoPorSetor(setorParaSalvar);
+            if (pedidoExistenteSetor) {
+                window.exibirMensagem('mensagemPedido', 'erro', `O Setor/Cidade **${setorParaSalvar}** já possui um pedido (#${pedidoExistenteSetor.numPedido}) registrado por ${pedidoExistenteSetor.nome}. Um setor só pode ter um pedido.`);
+                return;
+            }
+        }
+        // FIM NOVA VALIDAÇÃO
+        
+        if (isEditing) {
+            const confirmacao = confirm("ATENÇÃO: Você está prestes a substituir seu pedido anterior. Deseja continuar com o reenvio?");
+            if (!confirmacao) {
+                return;
+            }
+            
+            // Checagem extra de setor/email em caso de edição, para garantir que o setor/email não foi trocado para um que já existe com OUTRO docId.
+            // Para simplificar, manteremos o foco na unicidade do E-MAIL para edição, pois é o identificador do líder.
+        }
+        
+        const totalCamisetas = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]'))
+                                    .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
 
-        window.mostrarCarregamento(true, 'Enviando...');
+        if (totalCamisetas === 0) {
+            window.exibirMensagem('mensagemPedido', 'erro', 'O pedido deve conter pelo menos uma camiseta.');
+            return;
+        }
+
+        window.mostrarCarregamento(true, isEditing ? 'Reenviando e Atualizando Pedido...' : 'Enviando Novo Pedido...');
         
         try {
-            const data = {
+            const dataToSave = {
                 data: new Date().toISOString(),
                 nome: formData.get('nome'),
                 local: formData.get('local'),
-                setor: setor,
-                email: email,
+                setor: setorParaSalvar, // SALVA O SETOR NORMALIZADO (MAIÚSCULAS)
+                email: emailParaSalvar, // SALVA O E-MAIL NORMALIZADO (minúsculas)
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
                 babylook: getQuantidadesFromForm(formData, 'babylook'),
                 unissex: getQuantidadesFromForm(formData, 'unissex'),
-                status: 'Pendente'
+                status: 'Pendente' 
             };
 
-            let finalId = '';
+            let finalNumPedido = '';
+
             if (isEditing) {
-                await updateDoc(doc(db, "pedidos", docId), data);
-                finalId = currentPedidoParaEdicao.numPedido;
+                const pedidoRef = doc(db, "pedidos", docId);
+                await updateDoc(pedidoRef, dataToSave);
+                finalNumPedido = currentPedidoParaEdicao.numPedido;
+                
             } else {
-                const newDoc = doc(pedidosCollection);
-                data.numPedido = newDoc.id;
-                await setDoc(newDoc, data);
-                finalId = newDoc.id;
+                const docRef = doc(pedidosCollection); 
+                dataToSave.numPedido = docRef.id;
+                
+                await setDoc(docRef, dataToSave); 
+                finalNumPedido = docRef.id;
             }
 
             document.getElementById('formPedido').reset();
-            window.exibirConfirmacaoPedido({ numPedido: finalId, ...data });
-
-        } catch (err) {
-            window.exibirMensagem('mensagemPedido', 'erro', 'Erro ao salvar: ' + err.message);
+            
+            const pedidoConfirmado = { numPedido: finalNumPedido, ...dataToSave };
+            window.exibirConfirmacaoPedido(pedidoConfirmado);
+            
+        } catch (error) {
+            console.error('Erro ao submeter pedido:', error);
+            window.exibirMensagem('mensagemPedido', 'erro', `Erro ao se comunicar com o Firebase. Verifique suas Regras de Criação. (${error.message})`);
         } finally {
             window.mostrarCarregamento(false);
         }
     };
 
-    // --- 2. ADMIN: DETALHES DE TAMANHO SEPARADOS ---
-    window.carregarDetalhesTamanho = async function() {
-        window.mostrarCarregamento(true);
-        
+    // Função de Login Admin (Corrigida para receber 'e')
+    window.handleAdminLogin = async function(e) {
+        e.preventDefault(); 
+        const senha = document.getElementById('senhaAdmin').value;
+        window.mostrarCarregamento(true, 'Verificando senha...');
+
+        if (senha === ADMIN_PASSWORD_FIXA) { 
+            document.getElementById('loginAdmin').style.display = 'none';
+            document.getElementById('painelAdmin').style.display = 'block';
+            document.getElementById('mensagemLogin').innerHTML = ''; 
+            
+            document.getElementById('admin-dashboard').classList.add('active');
+            document.getElementById('btnDashboard').classList.add('active');
+            window.carregarDashboard(); 
+            
+        } else {
+            window.exibirMensagem('mensagemLogin', 'erro', 'Senha incorreta.');
+        }
+        window.mostrarCarregamento(false);
+    }
+    
+    window.carregarTodosPedidos = async function() {
         try {
             const snapshot = await getDocs(pedidosCollection);
-            const pedidos = snapshot.docs.map(d => d.data());
+            const pedidos = snapshot.docs.map(doc => ({ 
+                docId: doc.id, 
+                ...doc.data() 
+            }));
+            return pedidos;
+        } catch (error) {
+            console.error("Erro ao carregar todos os pedidos:", error);
+            throw new Error("Falha ao carregar dados do banco de dados.");
+        }
+    }
+
+    window.carregarDashboard = async function() {
+        window.mostrarCarregamento(true, 'Calculando visão geral...');
+        
+        try {
+            const pedidos = await window.carregarTodosPedidos();
             
-            // Arrays de tamanhos para iteração
-            const sizesAdulto = ['PP', 'P', 'M', 'G', 'GG', 'XGG'];
-            const sizesInfantil = ['1', '2', '4', '6', '8', '10', '12', '14'];
+            let totalPedidos = pedidos.length;
+            let totalCamisetas = 0;
+            let pedidosPendentes = 0;
+            let pedidosAprovados = 0;
+            let pedidosRejeitados = 0;
+            let totalInfantis = 0;
+            let totalBabylook = 0;
+            let totalUnissex = 0;
+
+            pedidos.forEach(pedido => {
+                const infantilCount = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0);
+                const babylookCount = Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0);
+                const unissexCount = Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
+                totalInfantis += infantilCount;
+                totalBabylook += babylookCount;
+                totalUnissex += unissexCount;
+                totalCamisetas += infantilCount + babylookCount + unissexCount;
+
+                if (pedido.status === 'Pendente') pedidosPendentes++;
+                else if (pedido.status === 'Aprovado') pedidosAprovados++;
+                else if (pedido.status === 'Rejeitado') pedidosRejeitados++;
+            });
             
-            // Estrutura de dados acumulada
-            const accAdulto = { 'Babylook': {}, 'Unissex': {} };
-            const accInfantil = { 'Infantil': {} }; // Única linha
+            const valorArrecadado = totalCamisetas * PRECO_CAMISETA;
 
-            // Inicializa zerado
-            sizesAdulto.forEach(s => { accAdulto['Babylook'][s]=0; accAdulto['Unissex'][s]=0; });
-            sizesInfantil.forEach(s => accInfantil['Infantil'][s]=0);
+            window.atualizarElemento('totalPedidos', totalPedidos);
+            window.atualizarElemento('totalCamisetas', totalCamisetas);
+            window.atualizarElemento('pedidosPendentes', pedidosPendentes);
+            document.getElementById('totalArrecadado').textContent = `R$ ${valorArrecadado.toFixed(2).replace('.', ',')}`;
 
-            // Soma
-            pedidos.forEach(p => {
-                if(p.status === 'Rejeitado') return; // Opcional: ignorar rejeitados no contatem
+            window.atualizarElemento('pedidosAprovados', pedidosAprovados);
+            window.atualizarElemento('totalInfantis', totalInfantis);
+            window.atualizarElemento('totalBabylook', totalBabylook);
+            window.atualizarElemento('totalUnissex', totalUnissex);
+            window.atualizarElemento('pedidosRejeitados', pedidosRejeitados);
+            
+            window.mostrarCarregamento(false);
+            
+        } catch (error) {
+            console.error(`Erro ao carregar Dashboard:`, error);
+            window.exibirMensagem('mensagemLogin', 'erro', `Erro ao carregar dashboard: ${error.message}.`);
+            window.mostrarCarregamento(false);
+        }
+    };
+    
+    window.carregarDetalhesTamanho = async function() {
+        window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
+        const detalhesBody = document.getElementById('tamanhosDetalhesBody');
+        const detalhesFooter = document.getElementById('tamanhosDetalhesFooter');
+        
+        detalhesBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Calculando...</td></tr>';
+        detalhesFooter.innerHTML = '';
+        
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+            const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
+            let htmlBody = '';
+            let htmlFooter = '<tr><td class="tipo-header"><strong>Total Geral</strong></td>';
+            
+            const tipos = [
+                { name: 'Infantis', key: 'infantil', displaySizes: ['1', '2', '4', '6', '8', '10', '12', '14'] },
+                { name: 'Babylook', key: 'babylook', displaySizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG'] },
+                { name: 'Unissex', key: 'unissex', displaySizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG'] }
+            ];
 
-                Object.entries(p.babylook || {}).forEach(([tam, qtd]) => { if(sizesAdulto.includes(tam)) accAdulto['Babylook'][tam] += qtd; });
-                Object.entries(p.unissex || {}).forEach(([tam, qtd]) => { if(sizesAdulto.includes(tam)) accAdulto['Unissex'][tam] += qtd; });
-                Object.entries(p.infantil || {}).forEach(([tam, qtd]) => { if(sizesInfantil.includes(tam.toString())) accInfantil['Infantil'][tam] += qtd; });
+            const totaisGerais = {};
+            tamanhosDisponiveis.forEach(t => totaisGerais[t] = 0);
+
+            const detalhes = { infantil: {}, babylook: {}, unissex: {} };
+            tamanhosDisponiveis.forEach(t => {
+                detalhes.infantil[t] = 0;
+                detalhes.babylook[t] = 0;
+                detalhes.unissex[t] = 0;
             });
 
-            // Renderiza Tabela Adulto
-            const tbodyAdulto = document.getElementById('bodyAdulto');
-            const tfootAdulto = document.getElementById('footerAdulto');
-            let htmlBodyA = '';
-            let totalColA = {};
-            sizesAdulto.forEach(s => totalColA[s] = 0);
 
-            ['Babylook', 'Unissex'].forEach(tipo => {
-                htmlBodyA += `<tr><td class="tipo-header">${tipo}</td>`;
-                sizesAdulto.forEach(s => {
-                    htmlBodyA += `<td>${accAdulto[tipo][s]}</td>`;
-                    totalColA[s] += accAdulto[tipo][s];
+            pedidos.forEach(pedido => {
+                tipos.forEach(tipo => {
+                    const quantidades = pedido[tipo.key] || {};
+                    Object.entries(quantidades).forEach(([tamanho, qtd]) => {
+                        detalhes[tipo.key][tamanho] = (detalhes[tipo.key][tamanho] || 0) + qtd;
+                    });
                 });
-                htmlBodyA += `</tr>`;
             });
-            tbodyAdulto.innerHTML = htmlBodyA;
-            tfootAdulto.innerHTML = `<tr><td class="tipo-header">TOTAL</td>${sizesAdulto.map(s => `<td><strong>${totalColA[s]}</strong></td>`).join('')}</tr>`;
-
-            // Renderiza Tabela Infantil
-            const tbodyInfantil = document.getElementById('bodyInfantil');
-            const tfootInfantil = document.getElementById('footerInfantil');
-            let htmlBodyI = '';
-            let totalColI = {};
-            sizesInfantil.forEach(s => totalColI[s] = 0);
-
-            // Como só tem uma linha (tipo Infantil), iteramos uma vez
-            htmlBodyI += `<tr><td class="tipo-header">Infantil</td>`;
-            sizesInfantil.forEach(s => {
-                const qtd = accInfantil['Infantil'][s];
-                htmlBodyI += `<td>${qtd}</td>`;
-                totalColI[s] += qtd;
-            });
-            htmlBodyI += `</tr>`;
             
-            tbodyInfantil.innerHTML = htmlBodyI;
-            tfootInfantil.innerHTML = `<tr><td class="tipo-header">TOTAL</td>${sizesInfantil.map(s => `<td><strong>${totalColI[s]}</strong></td>`).join('')}</tr>`;
+            tipos.forEach(tipo => {
+                htmlBody += `<tr><td class="tipo-header">${tipo.name}</td>`;
+                
+                // Mapeia por todos os tamanhos (incluindo os não usados para o tipo)
+                tamanhosDisponiveis.forEach(t => {
+                    const qtd = detalhes[tipo.key][t] || 0;
+                    htmlBody += `<td>${qtd}</td>`;
+                    totaisGerais[t] += qtd;
+                });
+                htmlBody += `</tr>`;
+            });
+            
+            // Gerar footer
+            tamanhosDisponiveis.forEach(t => {
+                htmlFooter += `<td><strong>${totaisGerais[t]}</strong></td>`;
+            });
+            htmlFooter += '</tr>';
 
-        } catch (e) {
-            console.error(e);
-            window.exibirMensagem('mensagemLogin', 'erro', 'Erro ao calcular detalhes.');
+            detalhesBody.innerHTML = htmlBody;
+            detalhesFooter.innerHTML = htmlFooter;
+            window.exibirMensagem('mensagemLogin', 'sucesso', 'Detalhes de tamanho carregados com sucesso!');
+
+        } catch (error) {
+            console.error('Erro ao carregar detalhes de tamanho:', error);
+            detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">Erro de comunicação: ${error.message}</td></tr>`;
+            window.exibirMensagem('mensagemLogin', 'erro', 'Erro ao carregar Detalhes.');
         } finally {
             window.mostrarCarregamento(false);
         }
     };
 
-    // Admin Geral
-    window.carregarDashboard = async function() {
-        const snapshot = await getDocs(pedidosCollection);
-        const pedidos = snapshot.docs.map(d => d.data());
-        let totalP = pedidos.length, totalC = 0, pendentes = 0, rejeitados = 0;
-        let tInf = 0, tBaby = 0, tUni = 0;
+    window.carregarDetalhesFinanceiros = async function() {
+        window.mostrarCarregamento(true, 'Calculando resumo financeiro...');
+        const resumoContainer = document.getElementById('resumoFinanceiroLocais');
         
-        pedidos.forEach(p => {
-            if(p.status === 'Pendente') pendentes++;
-            if(p.status === 'Rejeitado') rejeitados++;
-            
-            const inf = Object.values(p.infantil||{}).reduce((a,b)=>a+b,0);
-            const bab = Object.values(p.babylook||{}).reduce((a,b)=>a+b,0);
-            const uni = Object.values(p.unissex||{}).reduce((a,b)=>a+b,0);
-            
-            if(p.status !== 'Rejeitado') { // Conta camisetas apenas de ativos/pendentes
-                tInf += inf; tBaby += bab; tUni += uni;
-                totalC += (inf + bab + uni);
-            }
-        });
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+            const resumo = {};
 
-        document.getElementById('totalPedidos').innerText = totalP;
-        document.getElementById('totalCamisetas').innerText = totalC;
-        document.getElementById('pedidosPendentes').innerText = pendentes;
-        document.getElementById('totalArrecadado').innerText = `R$ ${(totalC * PRECO_CAMISETA).toFixed(2).replace('.',',')}`;
-        
-        document.getElementById('totalInfantis').innerText = tInf;
-        document.getElementById('totalBabylook').innerText = tBaby;
-        document.getElementById('totalUnissex').innerText = tUni;
+            pedidos.forEach(pedido => {
+                // Usa o Setor/Cidade normalizado (maiúsculas) para agrupar
+                const chave = `${pedido.local} / ${pedido.setor}`;
+                const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                         Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                         Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
+                if (!resumo[chave]) {
+                    resumo[chave] = { totalCamisetas: 0, valor: 0 };
+                }
+                
+                resumo[chave].totalCamisetas += totalCamisetas;
+                resumo[chave].valor += totalCamisetas * PRECO_CAMISETA;
+            });
+
+            let html = '<ul style="list-style: none; padding-left: 0;">';
+            
+            // Ordena o resumo por Local/Setor para exibição
+            const chavesOrdenadas = Object.keys(resumo).sort();
+
+            for (const chave of chavesOrdenadas) {
+                const dados = resumo[chave];
+                html += `
+                    <li style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 4px; font-size: 0.875rem;">
+                        <strong>${chave}</strong>: ${dados.totalCamisetas} camisetas = R$ ${dados.valor.toFixed(2).replace('.', ',')}
+                    </li>
+                `;
+            }
+            html += '</ul>';
+            
+            if (chavesOrdenadas.length === 0) {
+                 html = `<div class="empty-state" style="padding: 1rem 0;"><p>Nenhum dado financeiro para exibir.</p></div>`;
+            }
+            
+            resumoContainer.innerHTML = html;
+
+            document.getElementById('valorCamisetaInput').value = PRECO_CAMISETA.toFixed(2);
+
+
+        } catch (error) {
+            console.error('Erro ao carregar detalhes financeiros:', error);
+            resumoContainer.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar dados: ${error.message}</div>`;
+        } finally {
+            window.mostrarCarregamento(false);
+        }
     };
+
 
     window.carregarPedidos = async function() {
-        const list = document.getElementById('listaPedidos');
-        list.innerHTML = '';
-        const snapshot = await getDocs(pedidosCollection);
-        let pedidos = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
-        
-        // Ordena: Pendentes primeiro, depois por data
-        pedidos.sort((a,b) => {
-            if(a.status === 'Pendente' && b.status !== 'Pendente') return -1;
-            if(a.status !== 'Pendente' && b.status === 'Pendente') return 1;
-            return new Date(b.data) - new Date(a.data);
-        });
+        window.mostrarCarregamento(true, 'Carregando lista de pedidos...');
+        const listaPedidosElement = document.getElementById('listaPedidos');
+        listaPedidosElement.innerHTML = ''; 
 
-        pedidos.forEach(p => {
-            const total = Object.values(p.infantil||{}).reduce((a,b)=>a+b,0) + Object.values(p.babylook||{}).reduce((a,b)=>a+b,0) + Object.values(p.unissex||{}).reduce((a,b)=>a+b,0);
-            const statusClass = p.status === 'Pendente' ? 'status-pendente' : p.status === 'Aprovado' ? 'status-aprovado' : 'status-rejeitado';
+        try {
+            const pedidos = await window.carregarTodosPedidos();
             
-            // Botões de ação
-            const botoes = `
-                <div style="margin-top:10px; display:flex; gap:10px;">
-                    <button onclick="window.alterarStatus('${p.id}', 'Aprovado')" style="background:var(--success-color); border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">Aprovar</button>
-                    <button onclick="window.alterarStatus('${p.id}', 'Rejeitado')" style="background:var(--danger-color); border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">Rejeitar</button>
-                </div>
-            `;
+            // Ordena os pedidos para mostrar Pendentes primeiro
+            const pedidosOrdenados = pedidos.sort((a, b) => {
+                if (a.status === 'Pendente' && b.status !== 'Pendente') return -1;
+                if (a.status !== 'Pendente' && b.status === 'Pendente') return 1;
+                return new Date(b.data) - new Date(a.data); // Mais recentes primeiro
+            });
 
-            list.innerHTML += `
-                <div class="pedido-item">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h4 style="color:var(--primary-color);">#${p.numPedido}</h4>
-                        <span class="pedido-status ${statusClass}">${p.status}</span>
+            if (pedidosOrdenados.length === 0) {
+                listaPedidosElement.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Nenhum Pedido Encontrado</h3><p>Não há pedidos registrados no sistema.</p></div>`;
+                window.mostrarCarregamento(false);
+                return;
+            }
+
+            pedidosOrdenados.forEach(pedido => {
+                const statusClass = pedido.status === 'Pendente' ? 'status-pendente' : 
+                                    pedido.status === 'Aprovado' ? 'status-aprovado' : 
+                                    'status-rejeitado';
+
+                const formatarTamanhos = (tipos) => {
+                    return Object.entries(tipos).filter(([_, qtd]) => parseInt(qtd) > 0)
+                                .map(([t, q]) => `<li>${t}: ${q}</li>`).join('');
+                };
+                
+                const totalCamisetas = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) +
+                                             Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) +
+                                             Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
+
+                const valorPagar = totalCamisetas * PRECO_CAMISETA;
+                
+                // Formata a data para um formato mais legível
+                const dataFormatada = new Date(pedido.data).toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit'
+                });
+
+
+                const pedidoHtml = `
+                    <div class="pedido-item" data-id="${pedido.docId}">
+                        <div class="pedido-header" style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <span class="pedido-numero">#${pedido.numPedido}</span>
+                            <span class="pedido-status ${statusClass}" style="margin-top: 4px;">${pedido.status}</span>
+                        </div>
+                        
+                        <div class="pedido-info">
+                            <p><i class="fas fa-user"></i> <strong>Líder:</strong> ${pedido.nome}</p>
+                            <p><i class="fas fa-building"></i> <strong>Setor:</strong> ${pedido.setor} (${pedido.local})</p>
+                            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${pedido.email}</p>
+                            <p><i class="fas fa-calendar"></i> <strong>Data:</strong> ${dataFormatada}</p>
+                            <p><i class="fas fa-tshirt"></i> <strong>Total Camisetas:</strong> ${totalCamisetas || 0}</p>
+                            <p><i class="fas fa-money-bill-wave"></i> <strong>Valor a Pagar:</strong> R$ ${valorPagar.toFixed(2).replace('.', ',')}</p>
+                        </div>
+                        
+                        <div class="pedido-tamanhos">
+                            <div class="tipo-tamanhos">
+                                <h4>Infantis</h4>
+                                <ul>${formatarTamanhos(pedido.infantil || {})}</ul>
+                            </div>
+                            <div class="tipo-tamanhos">
+                                <h4>Babylook</h4>
+                                <ul>${formatarTamanhos(pedido.babylook || {})}</ul>
+                            </div>
+                            <div class="tipo-tamanhos">
+                                <h4>Unissex</h4>
+                                <ul>${formatarTamanhos(pedido.unissex || {})}</ul>
+                            </div>
+                        </div>
+                        <div class="admin-actions">
+                            <button class="btn-aprovar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Aprovado')">Aprovar</button>
+                            <button class="btn-rejeitar" onclick="window.atualizarStatusPedido('${pedido.docId}', 'Rejeitado')">Rejeitar</button>
+                        </div>
                     </div>
-                    <p><strong>${p.nome}</strong> - ${p.setor}</p>
-                    <p style="font-size:0.85rem; color:var(--text-secondary);">${p.email}</p>
-                    <p>Total: <strong>${total}</strong> peças (R$ ${(total*PRECO_CAMISETA).toFixed(2)})</p>
-                    ${botoes}
-                </div>
-            `;
-        });
-    };
+                `;
+                listaPedidosElement.insertAdjacentHTML('beforeend', pedidoHtml);
+            });
 
-    window.alterarStatus = async function(docId, status) {
-        if(!confirm('Confirmar alteração de status?')) return;
-        await updateDoc(doc(db, "pedidos", docId), { status });
-        window.carregarPedidos();
-        window.carregarDashboard();
+        } catch (error) {
+            console.error('Erro ao carregar lista de pedidos:', error);
+            listaPedidosElement.innerHTML = `<div class="mensagem erro"><i class="fas fa-exclamation-circle"></i> Erro ao carregar pedidos: ${error.message}</div>`;
+        } finally {
+            window.mostrarCarregamento(false);
+        }
     };
+    
+    window.atualizarStatusPedido = async function(docId, novoStatus) {
+        if (!confirm(`Tem certeza que deseja mudar o status do pedido para '${novoStatus}'?`)) {
+            return;
+        }
 
-    // Inicialização
-    document.addEventListener('DOMContentLoaded', () => {
-        // Fieldset logic
-        window.updateSetorCidadeInput = function(val = '') {
-            const container = document.getElementById('setorCidadeContainer');
-            const isCapital = document.getElementById('radioCapital').checked;
-            document.getElementById('setorCidadeLabel').textContent = isCapital ? 'Setor' : 'Cidade/Setor';
+        window.mostrarCarregamento(true, `Atualizando status para ${novoStatus}...`);
+
+        try {
+            const pedidoRef = doc(db, "pedidos", docId);
+            await updateDoc(pedidoRef, { status: novoStatus });
+
+            window.exibirMensagem('mensagemLogin', 'sucesso', `Status do pedido atualizado para ${novoStatus} com sucesso!`);
+            await window.carregarPedidos(); 
+            await window.carregarDashboard();
             
-            if(isCapital) {
-                container.innerHTML = `
+        } catch (error) {
+            console.error('Erro ao atualizar status:', error);
+            window.exibirMensagem('mensagemLogin', 'erro', `Erro ao atualizar status: ${error.message}`);
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+
+
+    // ==========================================================
+    // EVENT LISTENERS PRINCIPAIS (Inicialização)
+    // ==========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const btnAdministrador = document.getElementById('btnAdministrador');
+      const formLoginAdmin = document.getElementById('formLoginAdmin');
+      const formConsultarNumero = document.getElementById('formConsultarNumero');
+      const formConsultarEmail = document.getElementById('formConsultarEmail');
+
+      const radioCapital = document.getElementById('radioCapital');
+      const radioInterior = document.getElementById('radioInterior');
+      
+      const btnVerDetalhes = document.getElementById('btnVerDetalhes');
+      const voltarDashboard = document.getElementById('voltarDashboard');
+      const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
+      const btnFinanceiro = document.getElementById('btnFinanceiro');
+      const btnGerarPdf = document.getElementById('btnGerarPdf'); // NOVO
+
+
+      // === Fluxo Home ===
+      document.getElementById('btnNovoPedido').addEventListener('click', () => {
+          window.setupNovoPedido(); 
+          window.redirecionarComAnimacao('pedido');
+      });
+      document.getElementById('btnConsultarPedido').addEventListener('click', () => {
+          document.getElementById('resultadoConsulta').innerHTML = '';
+          window.redirecionarComAnimacao('consultar');
+      });
+      document.getElementById('btnAdministrador').addEventListener('click', () => {
+          document.getElementById('loginAdmin').style.display = 'block';
+          document.getElementById('painelAdmin').style.display = 'none';
+          document.getElementById('mensagemLogin').innerHTML = '';
+          window.redirecionarComAnimacao('admin');
+      });
+
+
+      // === Fluxo do Administrador (LOGIN POR SENHA FIXA) ===
+      if (formLoginAdmin) {
+          formLoginAdmin.addEventListener('submit', window.handleAdminLogin);
+      }
+
+      // === Submissão Única (NOVO / EDITAR) ===
+      const formPedido = document.getElementById('formPedido');
+      if (formPedido) {
+          formPedido.addEventListener('submit', window.handleFormSubmission);
+      }
+      
+      // === Fluxo de Consulta/Edição: NÚMERO ===
+      if (formConsultarNumero) {
+          formConsultarNumero.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const consulta = document.getElementById('numPedidoConsultaInput').value.trim();
+              
+              if (!consulta) {
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Insira o número do pedido.');
+                  return;
+              }
+              
+              window.mostrarCarregamento(true, 'Buscando pedido por número...');
+              
+              const pedido = await window.verificarPedidoPorNumero(consulta);
+
+              if (pedido) {
+                  currentPedidoParaEdicao = pedido;
+                  window.displayVisualizacaoPedido(pedido);
+                  window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
+              } else {
+                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido correspondente ao número '${consulta}' foi localizado.</p></div>`;
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
+              }
+              
+              window.mostrarCarregamento(false);
+          });
+      }
+      
+      // === Fluxo de Consulta/Edição: E-MAIL ===
+      if (formConsultarEmail) {
+          formConsultarEmail.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const consulta = document.getElementById('emailConsultaInput').value.trim();
+              
+              if (!isValidEmail(consulta)) {
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Insira um e-mail válido.');
+                  return;
+              }
+              
+              window.mostrarCarregamento(true, 'Buscando pedido por e-mail...');
+              
+              // O campo de email no banco está normalizado para minúsculas
+              const emailNormalizado = consulta.toLowerCase().trim(); 
+              const pedido = await window.verificarPedidoPorEmail(emailNormalizado);
+
+              if (pedido) {
+                  currentPedidoParaEdicao = pedido;
+                  window.displayVisualizacaoPedido(pedido);
+                  window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido #${pedido.numPedido} encontrado.`);
+              } else {
+                  document.getElementById('resultadoConsulta').innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>Pedido Não Encontrado</h3><p>Nenhum pedido para o e-mail '${consulta}' foi localizado.</p></div>`;
+                  window.exibirMensagem('mensagemConsulta', 'erro', 'Nenhum pedido encontrado.');
+              }
+              
+              window.mostrarCarregamento(false);
+          });
+      }
+
+
+      // === Lógica de Campo Dinâmico (Capital/Interior) ===
+      window.updateSetorCidadeInput = function(currentValue = '') {
+          const container = document.getElementById('setorCidadeContainer');
+          const labelElement = document.getElementById('setorCidadeLabel');
+          const radioCapitalChecked = document.querySelector('input[name="local"][value="Capital"]:checked');
+          
+          // Se não houver currentValue, tenta pegar o valor atual do input/select, se existir
+          if (currentValue === '') {
+            const currentElement = document.getElementById('setor');
+            if (currentElement) currentValue = currentElement.value;
+          }
+
+          if (radioCapitalChecked) {
+              labelElement.textContent = 'Setor';
+              // Opção CAPITAL: Dropdown de Setores. Estilos de input/select são aplicados via CSS.
+              container.innerHTML = `
                   <select id="setor" name="setor" required>
-                      <option value="" disabled selected>Selecione</option>
+                      <option value="" disabled selected>Selecione seu Setor</option>
                       <option value="SETOR A">Setor A</option>
                       <option value="SETOR B">Setor B</option>
                       <option value="SETOR C1">Setor C1</option>
@@ -1095,89 +2950,86 @@
                       <option value="SETOR H">Setor H</option>
                       <option value="SETOR M">Setor M</option>
                       <option value="SETOR N">Setor N</option>
-                  </select>`;
-                if(val) {
-                    const sel = document.getElementById('setor');
-                    const norm = normalizeString(val);
-                    Array.from(sel.options).forEach(o => { if(o.value === norm) sel.value = norm; });
-                }
-            } else {
-                container.innerHTML = `<input type="text" id="setor" name="setor" placeholder="Digite sua Cidade" required value="${val}">`;
-            }
-        };
+                  </select>
+              `;
+              // Tenta restaurar o valor. Como o valor no banco é normalizado (maiúsculas), comparamos com o currentValue.
+              const selectElement = document.getElementById('setor');
+              if (selectElement && currentValue) {
+                // Remove a normalização do currentValue APENAS para comparação com o valor do banco
+                const normalizedCurrentValue = normalizeString(currentValue); 
+                const optionExists = Array.from(selectElement.options).some(opt => opt.value === normalizedCurrentValue);
+                selectElement.value = optionExists ? normalizedCurrentValue : '';
+              } else if (selectElement) {
+                selectElement.value = "";
+              }
+              
+          } else {
+              labelElement.textContent = 'Cidade/Setor';
+              container.innerHTML = `
+                  <input type="text" id="setor" name="setor" placeholder="Digite sua Cidade/Setor" required>
+              `;
+              // Ao preencher com um valor vindo do banco (que estará em MAIÚSCULAS), ele é mantido.
+              document.getElementById('setor').value = currentValue;
+          }
+      }
+      
+      if (radioCapital) radioCapital.addEventListener('change', () => window.updateSetorCidadeInput());
+      if (radioInterior) radioInterior.addEventListener('change', () => window.updateSetorCidadeInput());
+      
+      // Chama no carregamento para configurar o campo Setor/Cidade inicial
+      window.updateSetorCidadeInput(); 
 
-        document.getElementById('radioCapital').addEventListener('change', () => window.updateSetorCidadeInput());
-        document.getElementById('radioInterior').addEventListener('change', () => window.updateSetorCidadeInput());
-
-        // Navegação Básica
-        document.getElementById('btnNovoPedido').addEventListener('click', () => { window.setupNovoPedido(); window.redirecionarComAnimacao('pedido'); });
-        document.getElementById('btnConsultarPedido').addEventListener('click', () => { document.getElementById('resultadoConsulta').innerHTML=''; window.redirecionarComAnimacao('consultar'); });
-        document.getElementById('btnAdministrador').addEventListener('click', () => window.redirecionarComAnimacao('admin'));
-        
-        document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
-        document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
-        document.getElementById('voltarHomeConsulta').addEventListener('click', () => window.redirecionarComAnimacao('home'));
-        document.getElementById('fecharConfirmacaoPedido').addEventListener('click', window.fecharConfirmacaoPedido);
-        document.getElementById('voltarInicio').addEventListener('click', window.fecharConfirmacaoPedido);
-
-        // Admin Nav
-        document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
-        document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
-        document.getElementById('btnFinanceiro').addEventListener('click', () => window.mostrarAdminSecao('financeiro'));
-        document.getElementById('btnVerDetalhes').addEventListener('click', () => { window.mostrarAdminSecao('detalhes-tamanhos'); window.carregarDetalhesTamanho(); });
-        document.getElementById('voltarDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
-        document.getElementById('atualizarDetalhesTamanho').addEventListener('click', window.carregarDetalhesTamanho);
-
-        // Forms
-        document.getElementById('formPedido').addEventListener('submit', window.handleFormSubmission);
-        
-        document.getElementById('formLoginAdmin').addEventListener('submit', (e) => {
-            e.preventDefault();
-            if(document.getElementById('senhaAdmin').value === ADMIN_PASSWORD_FIXA) {
-                document.getElementById('loginAdmin').style.display = 'none';
-                document.getElementById('painelAdmin').style.display = 'block';
-                window.carregarDashboard();
-            } else {
-                window.exibirMensagem('mensagemLogin', 'erro', 'Senha Incorreta');
-            }
-        });
-
-        document.getElementById('formConsultarNumero').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            window.mostrarCarregamento(true);
-            const num = document.getElementById('numPedidoConsultaInput').value;
-            const ped = await window.verificarPedidoPorNumero(num);
-            window.mostrarCarregamento(false);
-            
-            const resDiv = document.getElementById('resultadoConsulta');
-            if(ped) {
-                currentPedidoParaEdicao = ped;
-                resDiv.innerHTML = `
-                    <div class="pedido-item">
-                        <h4>Pedido #${ped.numPedido} encontrado!</h4>
-                        <p>${ped.nome} (${ped.status})</p>
-                        <button class="btn-primary" onclick="window.setupEdicaoPedido()" style="margin-top:10px;">Editar Pedido</button>
-                    </div>
-                `;
-            } else {
-                resDiv.innerHTML = '<div class="mensagem erro">Pedido não encontrado.</div>';
-            }
-        });
-
-        // Toggle Esqueceu ID
-        document.getElementById('btnEsqueciId').addEventListener('click', () => {
-            const formEmail = document.getElementById('formConsultarEmail');
-            // Toggle display
-            formEmail.style.display = formEmail.style.display === 'none' ? 'block' : 'none';
-        });
-
-        // Form Recuperar ID
-        document.getElementById('formConsultarEmail').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('emailConsultaInput').value;
-            window.recuperarIdPorEmail(email);
-        });
+      // === Botões de Navegação / Voltar ===
+      document.getElementById('voltarHome1').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      document.getElementById('voltarHome3').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      document.getElementById('fecharConfirmacaoPedido').addEventListener('click', () => window.fecharConfirmacaoPedido());
+      document.getElementById('voltarInicio').addEventListener('click', () => window.fecharConfirmacaoPedido());
+      document.getElementById('voltarHomeConsulta').addEventListener('click', () => window.redirecionarComAnimacao('home'));
+      
+      // Outros Event Listeners do Admin Panel
+      document.getElementById('btnDashboard').addEventListener('click', () => window.mostrarAdminSecao('dashboard'));
+      document.getElementById('btnPedidos').addEventListener('click', () => window.mostrarAdminSecao('pedidos'));
+      document.getElementById('atualizarDashboard').addEventListener('click', window.carregarDashboard);
+      document.getElementById('atualizarPedidos').addEventListener('click', window.carregarPedidos);
+      
+      if (btnVerDetalhes) {
+          btnVerDetalhes.addEventListener('click', () => {
+              window.mostrarAdminSecao('detalhes-tamanhos'); 
+              window.carregarDetalhesTamanho(); 
+          });
+      }
+      if (voltarDashboard) {
+          voltarDashboard.addEventListener('click', () => {
+              window.mostrarAdminSecao('dashboard');
+          });
+      }
+      if (atualizarDetalhesTamanho) {
+          atualizarDetalhesTamanho.addEventListener('click', window.carregarDetalhesTamanho);
+      }
+      if (btnGerarPdf) {
+          btnGerarPdf.addEventListener('click', window.gerarRelatorioPdf); // NOVO: Listener para o PDF
+      }
+      
+      // Fluxo Financeiro (Confirmar Valor Camiseta)
+      document.getElementById('btnFinanceiro').addEventListener('click', () => window.mostrarAdminSecao('financeiro'));
+      
+      document.getElementById('formValorCamiseta').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const novoValor = document.getElementById('valorCamisetaInput').value;
+          if (novoValor > 0) {
+              if (confirm(`Confirmar o novo valor da camiseta para R$ ${parseFloat(novoValor).toFixed(2).replace('.', ',')}? Isso irá recalcular o Dashboard e Pedidos.`)) {
+                  window.recalcularValores(novoValor);
+              }
+          } else {
+              window.exibirMensagem('mensagemLogin', 'erro', 'O valor deve ser maior que zero.');
+          }
+      });
+      
+      document.getElementById('valorCamisetaInput').value = PRECO_CAMISETA.toFixed(2);
+      document.getElementById('atualizarFinanceiro').addEventListener('click', window.carregarDetalhesFinanceiros);
+      
     });
+
   </script>
 </body>
 </html>
