@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,6 +6,8 @@
   <title>Sistema de Pedidos - UMADEMATS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Markdown Parser para exibir a resposta da IA formatada -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     /* ===== VARIÁVEIS E RESET (Mantidas) ===== */
     :root {
@@ -41,6 +42,11 @@
       --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
       --border-radius: 0.75rem;
       --transition: all 0.3s ease;
+      
+      /* Cores Específicas para IA */
+      --ai-gradient: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+      --ai-primary: #a855f7;
+      --ai-glow: 0 0 15px rgba(168, 85, 247, 0.5);
     }
 
     * {
@@ -64,7 +70,69 @@
       padding: 0 20px;
     }
 
-    /* ===== BARRA DE CARREGAMENTO (Mantido) ===== */
+    /* ===== ANIMAÇÕES CSS ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in-up {
+      animation: fadeInUp 0.8s ease forwards;
+      opacity: 0; /* Começa invisível */
+    }
+
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    
+    /* Animação de Pulso para Botões IA */
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+    }
+    
+    .btn-ai-magic {
+        background: var(--ai-gradient) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        animation: pulse-glow 2s infinite;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .btn-ai-magic::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+        transform: scale(0);
+        transition: transform 0.5s;
+        z-index: -1;
+    }
+    
+    .btn-ai-magic:hover::before {
+        transform: scale(1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animate-fade-in-up, .btn-ai-magic {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ===== BARRA DE CARREGAMENTO ===== */
     .loading-overlay {
       position: fixed;
       top: 0;
@@ -95,6 +163,12 @@
       border-top-color: var(--primary-color);
       animation: spin 1s ease-in-out infinite;
     }
+    
+    /* Spinner específico para IA */
+    .ai-spinner {
+        border-top-color: #a855f7;
+        border-left-color: #ec4899;
+    }
 
     @keyframes spin {
       to {
@@ -102,7 +176,7 @@
       }
     }
 
-    /* ===== CARD DE CONFIRMAÇÃO DE PEDIDO (Ajustes para Mobile) ===== */
+    /* ===== CARD DE CONFIRMAÇÃO / MODAIS ===== */
     .pedido-confirmacao-overlay {
       position: fixed;
       top: 0;
@@ -117,12 +191,14 @@
       z-index: 10000;
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
       transition: opacity 0.3s ease, visibility 0.3s ease;
     }
 
     .pedido-confirmacao-overlay.active {
       opacity: 1;
       visibility: visible;
+      pointer-events: auto;
     }
 
     .pedido-confirmacao-card {
@@ -137,6 +213,14 @@
       box-shadow: var(--shadow-lg);
       transform: scale(0.9);
       transition: transform 0.3s ease;
+      position: relative;
+    }
+    
+    /* Estilo especial para Modal de IA */
+    .ai-modal-card {
+        border: 1px solid #a855f7;
+        background: linear-gradient(to bottom, #1a1033, var(--darker-color));
+        max-width: 700px;
     }
 
     .pedido-confirmacao-overlay.active .pedido-confirmacao-card {
@@ -160,6 +244,12 @@
       align-items: center;
       gap: 0.5rem;
     }
+    
+    .ai-header-text {
+        background: var(--ai-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
     .pedido-confirmacao-close {
       background: none;
@@ -180,58 +270,27 @@
       background: rgba(255, 255, 255, 0.1);
       color: var(--primary-color);
     }
-
+    
+    /* Conteúdo específico dos Modais */
     .pedido-confirmacao-info {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       margin-bottom: 1.5rem;
     }
-
-    .pedido-confirmacao-info p {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-
-    .pedido-confirmacao-info strong {
-      color: var(--text-primary);
-    }
-
+    
     .pedido-confirmacao-tamanhos {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
       margin-bottom: 1.5rem;
     }
-
+    
     .pedido-confirmacao-tipo {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
       padding: 1rem;
-    }
-
-    .pedido-confirmacao-tipo h4 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .pedido-confirmacao-tipo ul {
-      list-style: none;
-    }
-
-    .pedido-confirmacao-tipo li {
-      font-size: 0.875rem;
-      color: var(--text-primary);
-      padding: 0.25rem 0;
     }
 
     .pedido-confirmacao-actions {
@@ -250,7 +309,7 @@
       color: var(--primary-color);
     }
     
-    .pedido-confirmacao-numero > div { /* NOVO: centralizar botão de copiar */
+    .pedido-confirmacao-numero > div { 
         flex-direction: column;
         gap: 0.5rem !important;
     }
@@ -285,13 +344,70 @@
       align-items: center;
       gap: 0.5rem;
       transition: var(--transition);
-      font-size: 0.875rem; /* Ajuste para mobile */
+      font-size: 0.875rem;
     }
 
     .btn-copiar:hover {
       background: rgba(255, 255, 255, 0.2);
       border-color: var(--primary-color);
       color: var(--primary-color);
+    }
+
+    /* ===== MUDANÇA 4: Modal Recuperar ID ===== */
+    .forgot-id-link {
+      display: block;
+      text-align: right;
+      margin-top: 0.5rem;
+      color: var(--primary-color);
+      font-size: 0.875rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .forgot-id-link:hover {
+      text-decoration: underline;
+      color: var(--primary-dark);
+    }
+    
+    /* ===== ÁREA DE INPUT IA ===== */
+    .ai-input-area textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--ai-primary);
+        border-radius: var(--border-radius);
+        color: var(--text-primary);
+        padding: 1rem;
+        min-height: 100px;
+        margin-bottom: 1rem;
+        font-family: inherit;
+        resize: vertical;
+    }
+    
+    .ai-input-area textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.3);
+    }
+    
+    .ai-result-content {
+        background: rgba(0,0,0,0.2);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        color: var(--text-secondary);
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .ai-result-content h1, .ai-result-content h2, .ai-result-content h3 {
+        color: #d8b4fe;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .ai-result-content strong {
+        color: #fff;
     }
 
     /* ===== HEADER (Ajustes para Mobile) ===== */
@@ -305,18 +421,18 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 0; /* Reduzido o padding */
+      padding: 1rem 0;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 0.75rem; /* Reduzido o gap */
+      gap: 0.75rem;
     }
 
     .logo-icon {
-      width: 48px; /* Reduzido para mobile */
-      height: 48px; /* Reduzido para mobile */
+      width: 48px;
+      height: 48px;
       background-image: url('https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png'); 
       background-size: cover; 
       background-repeat: no-repeat; 
@@ -336,14 +452,14 @@
     }
 
     .logo-text h1 {
-      font-size: 1.5rem; /* Reduzido para mobile */
+      font-size: 1.5rem;
       font-weight: 800;
       color: var(--text-primary);
       line-height: 1.2;
     }
 
     .logo-text span {
-      font-size: 0.75rem; /* Reduzido para mobile */
+      font-size: 0.75rem;
       color: var(--text-secondary);
       font-weight: 500;
       text-transform: uppercase;
@@ -413,17 +529,17 @@
     }
 
     .home-title {
-      font-size: 1.75rem; /* Reduzido para mobile */
+      font-size: 1.75rem;
       font-weight: 800;
       color: var(--text-primary);
-      margin-bottom: 1.5rem; /* Reduzido */
+      margin-bottom: 1.5rem;
       line-height: 1.2;
     }
 
     .home-subtitle {
-      font-size: 1rem; /* Reduzido para mobile */
+      font-size: 1rem;
       color: var(--text-secondary);
-      margin-bottom: 2rem; /* Reduzido */
+      margin-bottom: 2rem;
       max-width: 600px;
       font-weight: 400;
     }
@@ -432,13 +548,13 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 1.5rem; /* Reduzido o padding */
+      padding: 1.5rem;
       box-shadow: var(--shadow-lg);
       display: flex;
       flex-direction: column;
       gap: 1rem;
       width: 100%;
-      max-width: 350px; /* Reduzido o max-width */
+      max-width: 350px;
       backdrop-filter: blur(10px);
     }
 
@@ -447,12 +563,12 @@
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      padding: 0.875rem 1.5rem; /* Ajustado o padding */
+      padding: 0.875rem 1.5rem;
       background: rgba(255, 255, 255, 0.05);
       color: var(--text-primary);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      font-size: 0.9rem; /* Ajustado o font-size */
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
@@ -486,7 +602,7 @@
     }
 
     .menu-button i {
-      font-size: 1.125rem; /* Ajustado o font-size */
+      font-size: 1.125rem;
       transition: var(--transition);
     }
 
@@ -499,7 +615,7 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 1.5rem; /* Reduzido o padding */
+      padding: 1.5rem;
       box-shadow: var(--shadow-lg);
       margin-top: 1rem;
       backdrop-filter: blur(10px);
@@ -507,9 +623,9 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: 1fr; /* Força uma coluna em mobile */
+      grid-template-columns: 1fr;
       gap: 1.5rem;
-      margin-bottom: 1.5rem; /* Reduzido */
+      margin-bottom: 1.5rem;
     }
 
     .form-group {
@@ -532,22 +648,20 @@
       font-size: 0.875rem;
     }
     
-    /* ESTILOS CORRIGIDOS PARA SELECT (Dropdown) */
     .form-group select { 
         background: rgba(255, 255, 255, 0.1);
-        color: var(--text-primary); /* Garante que o texto seja branco */
+        color: var(--text-primary);
         border: 1px solid var(--border-color);
         padding: 0.75rem 1rem;
         border-radius: var(--border-radius);
         width: 100%;
-        -webkit-appearance: none; /* Remove seta padrão em Safari/Chrome */
-        -moz-appearance: none; /* Remove seta padrão em Firefox */
-        appearance: none; /* Remove seta padrão */
-        /* Adiciona um ícone de seta customizado no fundo */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23e2e8f0'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 1rem center;
-        background-size: 1.5em; /* Tamanho do ícone de seta */
+        background-size: 1.5em;
         cursor: pointer;
         transition: var(--transition);
     }
@@ -561,7 +675,6 @@
       color: var(--text-primary);
       transition: var(--transition);
       width: 100%; 
-      /* Estilos para SELECT foram movidos acima */
     }
 
     .form-group input:focus {
@@ -576,13 +689,12 @@
         border-color: var(--primary-color);
         box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
         background: rgba(255, 255, 255, 0.15);
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ff7e5f'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E"); /* Muda a cor da seta no foco */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ff7e5f'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
     }
     
-    /* Estiliza as opções dentro do dropdown para o modo escuro */
     .form-group select option {
-        background: var(--darker-color); /* Fundo da opção na lista */
-        color: var(--text-primary); /* Cor do texto da opção */
+        background: var(--darker-color);
+        color: var(--text-primary);
         padding: 0.5rem;
     }
 
@@ -592,7 +704,7 @@
 
     .radio-group {
       display: flex;
-      gap: 1.5rem; /* Reduzido o gap */
+      gap: 1.5rem;
       margin-top: 0.5rem;
     }
 
@@ -603,7 +715,7 @@
       cursor: pointer;
       font-weight: 500;
       color: var(--text-primary);
-      font-size: 0.875rem; /* Ajustado para mobile */
+      font-size: 0.875rem;
     }
 
     .radio-label input[type="radio"] {
@@ -611,8 +723,8 @@
     }
 
     .radio-custom {
-      width: 18px; /* Reduzido */
-      height: 18px; /* Reduzido */
+      width: 18px;
+      height: 18px;
       border: 2px solid var(--border-color);
       border-radius: 50%;
       position: relative;
@@ -629,8 +741,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 8px; /* Reduzido */
-      height: 8px; /* Reduzido */
+      width: 8px;
+      height: 8px;
       background: var(--primary-color);
       border-radius: 50%;
     }
@@ -670,7 +782,7 @@
       padding: 0.75rem 1rem;
       cursor: pointer;
       transition: var(--transition);
-      flex-shrink: 0; /* NOVO: Não encolher o botão de ícone */
+      flex-shrink: 0;
     }
 
     .btn-icon:hover {
@@ -688,14 +800,14 @@
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 1rem; /* Reduzido o padding */
+      padding: 1rem;
     }
 
     .tipo-camiseta h3 {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 1rem; /* Reduzido o font-size */
+      font-size: 1rem;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 1rem;
@@ -707,8 +819,8 @@
 
     .tamanhos-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Reduzido o minmax */
-      gap: 0.75rem; /* Reduzido o gap */
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 0.75rem;
     }
 
     .tamanho-item {
@@ -720,19 +832,19 @@
     .tamanho-item label {
       font-weight: 500;
       color: var(--text-secondary);
-      margin-bottom: 0.25rem; /* Reduzido o margin-bottom */
-      font-size: 0.75rem; /* Reduzido o font-size */
+      margin-bottom: 0.25rem;
+      font-size: 0.75rem;
     }
 
     .tamanho-item input {
-      width: 100%; /* Ajustado para 100% da coluna */
-      max-width: 50px; /* Definido um máximo */
-      padding: 0.4rem; /* Reduzido o padding */
+      width: 100%;
+      max-width: 50px;
+      padding: 0.4rem;
       text-align: center;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      font-size: 0.9rem; /* Reduzido o font-size */
+      font-size: 0.9rem;
       color: var(--text-primary);
       transition: var(--transition);
     }
@@ -747,20 +859,20 @@
       display: flex;
       justify-content: center;
       margin-top: 2rem;
-      flex-wrap: wrap; /* Adicionado para quebrar em mobile */
-      gap: 1rem; /* Espaço entre os botões */
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
     .btn-primary {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.75rem 1.5rem; /* Ajustado o padding */
+      padding: 0.75rem 1.5rem;
       background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
       color: var(--white-color);
       border: none;
       border-radius: var(--border-radius);
-      font-size: 0.9rem; /* Ajustado o font-size */
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
@@ -778,12 +890,12 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.4rem 0.8rem; /* Ajustado o padding */
+      padding: 0.4rem 0.8rem;
       background: rgba(255, 255, 255, 0.1);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      font-size: 0.75rem; /* Ajustado o font-size */
+      font-size: 0.75rem;
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
@@ -799,11 +911,11 @@
 
     /* ===== MENSAGENS (Mantidos) ===== */
     .message-container {
-      margin-top: 1rem; /* Reduzido o margin-top */
+      margin-top: 1rem;
     }
 
     .mensagem {
-      padding: 0.75rem 1rem; /* Reduzido o padding */
+      padding: 0.75rem 1rem;
       border-radius: var(--border-radius);
       font-weight: 500;
       display: flex;
@@ -861,7 +973,7 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 1.5rem; /* Reduzido o padding */
+      padding: 1.5rem;
       box-shadow: var(--shadow-lg);
       margin-top: 1rem;
       backdrop-filter: blur(10px);
@@ -869,10 +981,10 @@
 
     .admin-menu {
       display: flex;
-      gap: 0.5rem; /* Reduzido o gap */
-      margin-bottom: 1.5rem; /* Reduzido o margin-bottom */
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
       border-bottom: 1px solid var(--border-color);
-      overflow-x: auto; /* Adicionado para menus horizontais em mobile */
+      overflow-x: auto;
       padding-bottom: 0.5rem;
     }
 
@@ -880,7 +992,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.3rem 0.3rem; /* Reduzido o padding */
+      padding: 0.3rem 0.3rem;
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
@@ -888,8 +1000,8 @@
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
-      font-size: 0.875rem; /* Ajustado o font-size */
-      white-space: nowrap; /* Evitar quebra de linha */
+      font-size: 0.875rem;
+      white-space: nowrap;
     }
 
     .admin-menu-btn:hover {
@@ -913,9 +1025,9 @@
     /* ===== DASHBOARD (Ajustes para Mobile) ===== */
     .dashboard-header {
       display: flex;
-      flex-direction: column; /* Empilha em mobile */
+      flex-direction: column;
       align-items: flex-start;
-      margin-bottom: 1.5rem; /* Reduzido */
+      margin-bottom: 1.5rem;
     }
     
     .dashboard-header .btn-refresh {
@@ -923,23 +1035,23 @@
     }
 
     .dashboard-header h3 {
-      font-size: 1.25rem; /* Reduzido */
+      font-size: 1.25rem;
       font-weight: 700;
       color: var(--text-primary);
     }
 
     .dashboard-cards {
       display: grid;
-      grid-template-columns: 1fr; /* Uma coluna em mobile */
-      gap: 1rem; /* Reduzido o gap */
-      margin-bottom: 1.5rem; /* Reduzido */
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .card {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius);
-      padding: 1rem; /* Reduzido o padding */
+      padding: 1rem;
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -949,73 +1061,74 @@
     }
 
     .card-icon {
-      width: 40px; /* Reduzido */
-      height: 40px; /* Reduzido */
+      width: 40px;
+      height: 40px;
       border-radius: var(--border-radius);
-      font-size: 1rem; /* Reduzido */
+      font-size: 1rem;
     }
 
     .card-content h4 {
-      font-size: 0.75rem; /* Reduzido */
-      margin-bottom: 0.1rem; /* Reduzido */
+      font-size: 0.75rem;
+      margin-bottom: 0.1rem;
     }
 
     .card-value {
-      font-size: 1.5rem; /* Reduzido */
+      font-size: 1.5rem;
       font-weight: 700;
     }
 
     /* ===== DETALHES ADMIN (Ajustes para Mobile) ===== */
     .dashboard-details {
-      padding: 1rem; /* Reduzido o padding */
-      margin-bottom: 1.5rem; /* Reduzido */
+      padding: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .dashboard-details h4 {
-      font-size: 1rem; /* Reduzido */
-      margin-bottom: 0.75rem; /* Reduzido */
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .details-grid {
-      grid-template-columns: 1fr; /* Uma coluna em mobile */
-      gap: 0.75rem; /* Reduzido o gap */
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
     }
 
     .detail-item {
-      padding: 0.75rem; /* Reduzido o padding */
+      padding: 0.75rem;
     }
 
     .detail-icon {
-      width: 36px; /* Reduzido */
-      height: 36px; /* Reduzido */
-      font-size: 0.875rem; /* Reduzido */
+      width: 36px;
+      height: 36px;
+      font-size: 0.875rem;
     }
 
     .detail-content span {
-      font-size: 0.8rem; /* Reduzido */
+      font-size: 0.8rem;
     }
 
     .detail-content strong {
-      font-size: 1rem; /* Reduzido */
+      font-size: 1rem;
     }
 
     /* ===== TABELA DE TAMANHOS (Ajustes Específicos para Tabela em Mobile) ===== */
-    .tamanhos-table-container { /* NOVO: Envolve a tabela para melhor scroll */
+    .tamanhos-table-container { 
         overflow-x: auto;
         width: 100%;
+        margin-bottom: 2rem; /* Espaço extra */
     }
 
     .tamanhos-table {
       width: 100%;
-      min-width: 600px; /* Garante que a tabela não encolha demais, forçando o scroll */
+      min-width: 600px;
       border-collapse: collapse;
-      margin-top: 0.75rem; /* Reduzido */
+      margin-top: 0.75rem;
     }
 
     .tamanhos-table th,
     .tamanhos-table td {
-      padding: 0.5rem; /* Reduzido o padding */
-      font-size: 0.75rem; /* Reduzido o font-size */
+      padding: 0.5rem;
+      font-size: 0.75rem;
       text-align: center;
       border-bottom: 1px solid var(--border-color);
     }
@@ -1034,14 +1147,13 @@
       text-align: left;
       font-weight: 600;
       color: var(--primary-color);
-      font-size: 0.875rem; /* Ajustado */
+      font-size: 0.875rem;
       position: sticky;
       left: 0;
       background: var(--darker-color);
       z-index: 10;
     }
     
-    /* FIX: Fundo do footer para scroll da tabela */
     .tamanhos-table tfoot .tipo-header {
         background: var(--dark-color);
     }
@@ -1049,9 +1161,9 @@
 
     /* ===== PEDIDOS (Ajustes para Mobile) ===== */
     .pedidos-header {
-      flex-direction: column; /* Empilha em mobile */
+      flex-direction: column;
       align-items: flex-start;
-      margin-bottom: 1.5rem; /* Reduzido */
+      margin-bottom: 1.5rem;
     }
     
     .pedidos-header .btn-refresh {
@@ -1059,21 +1171,20 @@
     }
 
     .pedidos-header h3 {
-      font-size: 1.25rem; /* Reduzido */
+      font-size: 1.25rem;
     }
 
     .pedidos-list {
-      gap: 0.75rem; /* Reduzido o gap */
+      gap: 0.75rem;
     }
 
     .pedido-item {
-      /* Estilo do Card de Pedido Individual no Admin - NOVO */
       background: var(--darker-color);
       border: 1px solid var(--border-color);
-      border-left: 5px solid var(--primary-color); /* Destaque Laranja */
+      border-left: 5px solid var(--primary-color);
       border-radius: var(--border-radius);
       padding: 1rem;
-      margin-bottom: 0.75rem; /* Separar os cards */
+      margin-bottom: 0.75rem;
       box-shadow: var(--shadow-sm);
       transition: var(--transition);
     }
@@ -1085,19 +1196,17 @@
 
 
     .pedido-header {
-      /* Ajuste para que o número e o status fiquem em cima */
       display: flex;
       flex-direction: column; 
       align-items: flex-start; 
-      justify-content: flex-start; /* Ajuste para não ter espaço entre eles */
+      justify-content: flex-start;
       margin-bottom: 0.5rem;
     }
 
     .pedido-numero {
-      font-size: 1.25rem; /* Reduzido */
+      font-size: 1.25rem;
     }
 
-    /* Estilos para Status - NOVO/MELHORADO */
     .pedido-status {
         padding: 0.2rem 0.6rem;
         border-radius: 0.5rem;
@@ -1108,26 +1217,25 @@
     }
 
     .status-pendente {
-        background: rgba(255, 165, 0, 0.15); /* Laranja sutil */
+        background: rgba(255, 165, 0, 0.15);
         color: var(--warning-color); 
         border: 1px solid var(--warning-color);
     }
 
     .status-aprovado {
-        background: rgba(16, 185, 129, 0.15); /* Verde sutil */
+        background: rgba(16, 185, 129, 0.15);
         color: var(--success-color);
         border: 1px solid var(--success-color);
     }
 
     .status-rejeitado {
-        background: rgba(239, 68, 68, 0.15); /* Vermelho sutil */
+        background: rgba(239, 68, 68, 0.15);
         color: var(--danger-color);
         border: 1px solid var(--danger-color);
     }
 
 
     .pedido-info {
-      /* FIX: Força empilhamento em mobile e garante que os textos não quebrem feio */
       display: grid;
       grid-template-columns: 1fr; 
       gap: 0.5rem; 
@@ -1136,22 +1244,20 @@
 
     .pedido-info p {
       font-size: 0.875rem; 
-      /* Adicionado para que o texto não quebre o layout */
       word-break: break-word; 
       overflow-wrap: break-word;
     }
 
     .pedido-info strong {
-        /* Adicionado para garantir que o valor fique logo após o label */
         margin-left: auto;
     }
 
     .pedido-tamanhos {
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Reduzido o minmax para caber em 3 colunas */
-      gap: 0.5rem; /* Reduzido o gap */
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 0.5rem;
       margin-bottom: 0.75rem; 
-      padding-top: 0.5rem; /* Espaçamento da seção de tamanhos */
-      border-top: 1px solid rgba(255, 255, 255, 0.05); /* Separador sutil */
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .tipo-tamanhos h4 {
@@ -1164,11 +1270,10 @@
     }
 
     .tipo-tamanhos li {
-      font-size: 0.75rem; /* Reduzido */
+      font-size: 0.75rem;
       line-height: 1.3;
     }
 
-    /* Botões de Ação - NOVO/MELHORADO */
     .admin-actions {
         display: flex;
         flex-wrap: wrap;
@@ -1191,7 +1296,7 @@
     }
 
     .btn-aprovar {
-        background: var(--success-color); /* Verde */
+        background: var(--success-color);
         color: var(--white-color);
     }
 
@@ -1201,7 +1306,7 @@
     }
 
     .btn-rejeitar {
-        background: var(--danger-color); /* Vermelho */
+        background: var(--danger-color);
         color: var(--white-color);
     }
 
@@ -1210,7 +1315,7 @@
         transform: translateY(-1px);
     }
     
-    /* ===== MEDIA QUERIES GERAIS (Garantir o ajuste para telas maiores que mobile) ===== */
+    /* ===== MEDIA QUERIES GERAIS ===== */
     @media (min-width: 640px) {
         .form-grid {
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -1266,7 +1371,6 @@
             font-size: 0.875rem;
         }
 
-        /* Ajuste para telas maiores na lista de pedidos */
         .pedido-info {
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         }
@@ -1282,7 +1386,7 @@
         }
 
         .admin-actions button {
-             flex: 0 1 auto; /* Volta ao padrão */
+             flex: 0 1 auto;
              min-width: 100px;
         }
     }
@@ -1321,6 +1425,57 @@
     </div>
   </div>
 
+  <!-- MUDANÇA 4: Modal Esqueceu ID -->
+  <div id="esqueceuIdOverlay" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card">
+          <div class="pedido-confirmacao-header">
+              <h2><i class="fas fa-key"></i> Recuperar IDs</h2>
+              <button class="pedido-confirmacao-close" id="fecharEsqueceuId">
+                  <i class="fas fa-times"></i>
+              </button>
+          </div>
+          <p style="margin-bottom: 1rem; color: var(--text-secondary);">Informe seu e-mail para visualizar seus IDs de pedido.</p>
+          
+          <form id="formEsqueceuId" class="modern-form" style="margin-top: 0; padding: 1rem; box-shadow: none;">
+              <div class="form-group">
+                  <label for="emailRecuperacao"><i class="fas fa-envelope"></i> E-mail Cadastrado</label>
+                  <input type="email" id="emailRecuperacao" name="emailRecuperacao" required placeholder="seu@email.com">
+              </div>
+              <div class="form-actions">
+                  <button type="submit" class="btn-primary">Buscar IDs</button>
+              </div>
+          </form>
+
+          <div id="listaIdsRecuperados" style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; display: none;">
+              <!-- Lista de IDs aparecerá aqui -->
+          </div>
+      </div>
+  </div>
+  
+  <!-- NOVO: Modal Análise IA (Admin) -->
+  <div id="analiseIAOverlay" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card ai-modal-card">
+          <div class="pedido-confirmacao-header">
+              <h2 class="ai-header-text"><i class="fas fa-brain"></i> Análise Estratégica IA</h2>
+              <button class="pedido-confirmacao-close" id="fecharAnaliseIA">
+                  <i class="fas fa-times"></i>
+              </button>
+          </div>
+          
+          <div id="resultadoAnaliseIA" class="ai-result-content">
+              <div style="text-align: center; padding: 2rem;">
+                  <div class="loading-spinner ai-spinner" style="margin: 0 auto 1rem auto;"></div>
+                  <p>A Inteligência Artificial está analisando seus dados de vendas...</p>
+              </div>
+          </div>
+          
+          <div class="form-actions">
+              <button type="button" class="btn-refresh" onclick="document.getElementById('analiseIAOverlay').classList.remove('active')">Fechar</button>
+          </div>
+      </div>
+  </div>
+
+
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -1337,12 +1492,13 @@
 
   <main class="main">
     <div class="container">
+      <!-- MUDANÇA 3: Classes de animação adicionadas -->
       <section id="home" class="section active">
         <div class="home-screen">
-          <h3 class="home-title">PEDIDOS DE CAMISETA</h3>
+          <h3 class="home-title animate-fade-in-up delay-100">PEDIDOS DE CAMISETA</h3>
+          <h4 class="home-subtitle animate-fade-in-up delay-200" style="margin-bottom: 1.5rem;">Sistema Integrado de Encomendas</h4>
           
-          
-          <div class="menu-container">
+          <div class="menu-container animate-fade-in-up delay-300">
             <button class="menu-button" id="btnNovoPedido">
               <i class="fas fa-plus-circle"></i>
               NOVO PEDIDO
@@ -1385,6 +1541,11 @@
           </div>
         </form>
 
+        <!-- MUDANÇA 4: Link Esqueceu ID -->
+        <div style="max-width: 400px; margin: 0 auto 1rem auto;">
+            <a id="btnEsqueceuId" class="forgot-id-link">Esqueceu seu ID?</a>
+        </div>
+
         <form id="formConsultarEmail" class="modern-form" style="margin-top: 1rem;">
           <div class="form-group">
             <label for="emailConsultaInput">
@@ -1414,7 +1575,7 @@
           <h2 id="pedidoTitulo">Fazer Novo Pedido</h2>
           <p id="pedidoSubtitulo">Solicite suas camisetas com elegância</p>
         </div>
-
+        
         <form id="formPedido" class="modern-form">
           <input type="hidden" id="pedidoDocId" name="docId" value="">
           <div class="form-grid">
@@ -1636,6 +1797,13 @@
                     Atualizar
                 </button>
                 </div>
+                
+                <!-- Botão IA Admin -->
+                <div style="margin-bottom: 1.5rem;">
+                    <button class="btn-primary btn-ai-magic" id="btnAnaliseIA" style="width: 100%;">
+                        <i class="fas fa-brain"></i> Analisar Dados com IA
+                    </button>
+                </div>
 
                 <div class="dashboard-cards">
                     <div class="card">
@@ -1728,44 +1896,50 @@
                 </div>
             </div>
 
+            <!-- MUDANÇA 2: Separação em Duas Tabelas -->
             <div id="admin-detalhes-tamanhos" class="admin-section">
                 <div class="dashboard-header">
-                <h3>Totalizadores por Tamanho</h3>
-                <button id="voltarDashboard" class="btn-refresh">
-                    <i class="fas fa-arrow-left"></i>
-                    Voltar ao Dashboard
-                </button>
+                    <h3>Totalizadores por Tamanho</h3>
+                    <button id="voltarDashboard" class="btn-refresh">
+                        <i class="fas fa-arrow-left"></i>
+                        Voltar ao Dashboard
+                    </button>
                 </div>
                 
+                <!-- Tabela A: Babylook e Unissex -->
                 <div class="dashboard-details">
-                <div id="tamanhosDetalhesContainer" class="tamanhos-table-container">
-                    <table class="tamanhos-table">
-                    <thead>
-                        <tr>
-                        <th class="tipo-header">Tipo</th>
-                        <th>PP</th>
-                        <th>P</th>
-                        <th>M</th>
-                        <th>G</th>
-                        <th>GG</th>
-                        <th>XGG</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>4</th>
-                        <th>6</th>
-                        <th>8</th>
-                        <th>10</th>
-                        <th>12</th>
-                        <th>14</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tamanhosDetalhesBody">
-                        <tr><td colspan="15" style="text-align: center;">Clique em "Atualizar Detalhes" para carregar os dados.</td></tr>
-                    </tbody>
-                    <tfoot id="tamanhosDetalhesFooter">
-                        </tfoot>
-                    </table>
+                    <h4><i class="fas fa-user-friends"></i> Tamanhos - Babylook & Unissex</h4>
+                    <div id="tamanhosAdultoContainer" class="tamanhos-table-container">
+                        <table class="tamanhos-table" id="tabelaAdultos">
+                            <thead>
+                                <tr>
+                                    <th class="tipo-header">Tipo</th>
+                                    <th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tamanhosAdultoBody">
+                                <tr><td colspan="7" style="text-align: center;">Clique em "Atualizar Detalhes"</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
+                <!-- Tabela B: Infantil -->
+                <div class="dashboard-details">
+                    <h4><i class="fas fa-child"></i> Tamanhos - Infantil</h4>
+                    <div id="tamanhosInfantilContainer" class="tamanhos-table-container">
+                        <table class="tamanhos-table" id="tabelaInfantil">
+                            <thead>
+                                <tr>
+                                    <th class="tipo-header">Tipo</th>
+                                    <th>1</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th><th>12</th><th>14</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tamanhosInfantilBody">
+                                <tr><td colspan="9" style="text-align: center;">Clique em "Atualizar Detalhes"</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 
                 <div class="form-actions">
@@ -1875,6 +2049,112 @@
 
     // VARIÁVEIS GLOBAIS DE ESTADO
     let currentPedidoParaEdicao = null; 
+    
+    // ==========================================================
+    // INTEGRAÇÃO GEMINI API
+    // ==========================================================
+    
+    async function callGemini(promptText, systemInstruction = "") {
+        const apiKey = ""; // Chave da API injetada em tempo de execução
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        
+        const payload = {
+            contents: [{ parts: [{ text: promptText }] }],
+            systemInstruction: { parts: [{ text: systemInstruction }] }
+        };
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) throw new Error(`API Error: ${response.status}`);
+            
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        } catch (error) {
+            console.error("Gemini API Error:", error);
+            throw error;
+        }
+    }
+
+    // 2. Lógica de Análise de Dados (Admin)
+    window.handleAnaliseIA = async function() {
+        const resultContainer = document.getElementById('resultadoAnaliseIA');
+        
+        // Buscar dados atuais
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+            
+            // Calcular estatísticas básicas para enviar à IA
+            const stats = {
+                totalPedidos: pedidos.length,
+                totalCamisetas: 0,
+                arrecadacaoEstimada: 0,
+                distribuicao: { infantil: 0, babylook: 0, unissex: 0 },
+                tamanhosTop: {},
+                locais: {}
+            };
+            
+            pedidos.forEach(p => {
+                // Contagem
+                const qtdInfantil = Object.values(p.infantil || {}).reduce((a,b)=>a+b,0);
+                const qtdBaby = Object.values(p.babylook || {}).reduce((a,b)=>a+b,0);
+                const qtdUni = Object.values(p.unissex || {}).reduce((a,b)=>a+b,0);
+                
+                stats.totalCamisetas += (qtdInfantil + qtdBaby + qtdUni);
+                stats.distribuicao.infantil += qtdInfantil;
+                stats.distribuicao.babylook += qtdBaby;
+                stats.distribuicao.unissex += qtdUni;
+                
+                // Locais
+                const local = p.local || "Desconhecido";
+                stats.locais[local] = (stats.locais[local] || 0) + 1;
+                
+                // Tamanhos detalhados
+                const mapSizes = (obj, prefix) => {
+                    Object.entries(obj || {}).forEach(([k, v]) => {
+                        if(v > 0) {
+                            const key = `${prefix} ${k}`;
+                            stats.tamanhosTop[key] = (stats.tamanhosTop[key] || 0) + v;
+                        }
+                    });
+                };
+                mapSizes(p.infantil, 'Infantil');
+                mapSizes(p.babylook, 'Babylook');
+                mapSizes(p.unissex, 'Unissex');
+            });
+            
+            stats.arrecadacaoEstimada = stats.totalCamisetas * PRECO_CAMISETA;
+            
+            // Ordenar top tamanhos
+            const sortedSizes = Object.entries(stats.tamanhosTop)
+                .sort(([,a],[,b]) => b-a)
+                .slice(0, 5);
+            
+            const prompt = `Analise estes dados de vendas de camisetas para um evento cristão (UMADEMATS):
+            ${JSON.stringify({
+                ...stats,
+                tamanhosTop: Object.fromEntries(sortedSizes)
+            })}
+            
+            Atue como um estrategista de dados. Gere um relatório curto em Markdown (português) com:
+            1. 🏆 **Campeões de Venda**: Destaque o que mais sai.
+            2. 💰 **Saúde Financeira**: Comente sobre a arrecadação.
+            3. 💡 **Insight Estratégico**: Uma sugestão logística ou de meta baseada nos números (ex: se tem muito infantil, focar em brindes infantis).
+            4. Use emojis e tom profissional mas encorajador.
+            `;
+            
+            const aiResponse = await callGemini(prompt);
+            resultContainer.innerHTML = marked.parse(aiResponse);
+            
+        } catch (error) {
+            console.error(error);
+            resultContainer.innerHTML = `<p style="color: var(--danger-color)">Erro ao analisar dados. Verifique sua conexão.</p>`;
+        }
+    };
 
     // ==========================================================
     // FUNÇÕES AUXILIARES
@@ -1923,7 +2203,12 @@
     window.mostrarSecao = function(secao) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       const secaoElement = document.getElementById(secao);
-      if (secaoElement) secaoElement.classList.add('active');
+      if (secaoElement) {
+          secaoElement.classList.add('active');
+          // Forçar reset de estilos inline que possam ter sido deixados por animações
+          secaoElement.style.opacity = "";
+          secaoElement.style.transform = "";
+      }
     };
 
     window.mostrarAdminSecao = function(secao) {
@@ -2005,10 +2290,23 @@
       if (elemento) elemento.textContent = valor;
     };
     
+    // ===== MUDANÇA 1: Correção Voltar ao Inicio =====
     window.fecharConfirmacaoPedido = function() {
-        document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
+        const overlay = document.getElementById('pedidoConfirmacaoOverlay');
+        overlay.classList.remove('active');
+        
+        // Força o redirecionamento e limpa estilos para evitar tela azul travada
         window.mostrarSecao('home');
+        
+        // Garantia extra: remove estilos inline da home caso tenham ficado
+        const homeSection = document.getElementById('home');
+        if(homeSection) {
+            homeSection.style.opacity = "1";
+            homeSection.style.transform = "none";
+            homeSection.style.visibility = "visible";
+        }
     };
+    // ================================================
 
     window.copiarNumeroPedido = function(numPedido) {
         navigator.clipboard.writeText(numPedido)
@@ -2117,69 +2415,44 @@
         doc.text(`Valor da Camiseta (Cálculo): R$ ${PRECO_CAMISETA.toFixed(2).replace('.', ',')}`, 287, 25, null, null, "right");
 
 
-        // 1. Preparar Cabeçalhos e Corpo da Tabela
-        const tableElement = document.getElementById('tamanhosDetalhesBody').closest('table');
-        if (!tableElement || tableElement.rows.length <= 1) {
-            window.exibirMensagem('mensagemLogin', 'erro', 'Tabela de Detalhes de Tamanho vazia. Atualize antes de gerar o PDF.');
-            window.mostrarCarregamento(false);
-            return;
-        }
+        // 1. Preparar Cabeçalhos e Corpo da Tabela - Adaptação para duas tabelas
+        // Como temos duas tabelas agora, vamos gerar sequencialmente
         
-        // Obter cabeçalhos (os <th> do thead)
-        const head = Array.from(tableElement.querySelector('thead tr').children).map(th => th.textContent);
-        
-        // Obter corpo (os <td> do tbody e tfoot)
-        let body = [];
-        const tbodyRows = Array.from(tableElement.querySelector('tbody').rows);
-        const tfootRow = tableElement.querySelector('tfoot tr');
-        
-        // Verifica se o tbody tem a linha de placeholder antes de mapear
-        if (tbodyRows.length === 1 && tbodyRows[0].children[0].textContent.includes('Clique em "Atualizar Detalhes"')) {
-             window.exibirMensagem('mensagemLogin', 'erro', 'Tabela de Detalhes de Tamanho vazia. Atualize antes de gerar o PDF.');
-             window.mostrarCarregamento(false);
-             return;
-        }
+        // Função auxiliar para adicionar tabela ao PDF
+        const addTableToPdf = (tableId, startY, title) => {
+            const tableElement = document.getElementById(tableId);
+             if (!tableElement || tableElement.rows.length <= 1) return startY;
 
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(title, 14, startY - 2);
 
-        tbodyRows.forEach(row => {
-            body.push(Array.from(row.children).map(td => td.textContent));
-        });
-        
-        // Adicionar a linha de Total Geral (do tfoot) com estilo
-        let totalRow = tfootRow ? Array.from(tfootRow.children).map(td => td.textContent) : null;
+            const head = Array.from(tableElement.querySelector('thead tr').children).map(th => th.textContent);
+            let body = [];
+            const tbodyRows = Array.from(tableElement.querySelector('tbody').rows);
+            
+             // Verifica placeholder
+            if (tbodyRows.length === 1 && tbodyRows[0].innerText.includes('Clique em')) return startY;
 
+            tbodyRows.forEach(row => {
+                body.push(Array.from(row.children).map(td => td.textContent));
+            });
 
-        // 2. Configuração e Geração da Tabela (usando autoTable)
-        doc.autoTable({
-            head: [head],
-            body: body,
-            foot: totalRow ? [totalRow] : [], // Adiciona o total no rodapé da tabela
-            startY: 30, // Posição inicial da tabela
-            theme: 'grid', // Estilo de grade
-            styles: {
-                fontSize: 8,
-                cellPadding: 1.5,
-                textColor: [0, 0, 0], // Cor da fonte em PRETO (para impressão/gráfica)
-            },
-            headStyles: {
-                fillColor: [200, 200, 200], // Fundo Cinza Claro para o cabeçalho
-                textColor: [0, 0, 0],
-                fontStyle: 'bold',
-            },
-            footStyles: {
-                fillColor: [180, 180, 180], // Fundo Cinza um pouco mais escuro para o rodapé
-                textColor: [0, 0, 0],
-                fontStyle: 'bold',
-            },
-            columnStyles: {
-                0: { fontStyle: 'bold' } // Coluna "Tipo" em negrito
-            },
-            didDrawPage: function(data) {
-                // Rodapé com número da página
-                doc.setFontSize(8);
-                doc.text(`Página ${data.pageNumber}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
-            }
-        });
+            doc.autoTable({
+                head: [head],
+                body: body,
+                startY: startY,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 1.5, textColor: [0, 0, 0] },
+                headStyles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], fontStyle: 'bold' },
+            });
+            
+            return doc.lastAutoTable.finalY + 15; // Retorna posição Y para a próxima tabela
+        };
+
+        let nextY = 35;
+        nextY = addTableToPdf('tabelaAdultos', nextY, "Adultos (Babylook & Unissex)");
+        addTableToPdf('tabelaInfantil', nextY, "Infantil");
         
         // 3. Salvar o PDF
         doc.save(`Relatorio_Camisetas_${dataAtual.replace('/', '-')}.pdf`);
@@ -2211,12 +2484,54 @@
             return null;
         }
     };
+
+    // ===== MUDANÇA 4: Função Recuperar IDs =====
+    window.recuperarIdsPorEmail = async function(e) {
+        e.preventDefault();
+        const emailInput = document.getElementById('emailRecuperacao');
+        const email = emailInput.value.toLowerCase().trim();
+        const listaContainer = document.getElementById('listaIdsRecuperados');
+        
+        if (!isValidEmail(email)) {
+            alert("Por favor, insira um e-mail válido.");
+            return;
+        }
+        
+        window.mostrarCarregamento(true, 'Buscando IDs...');
+        
+        try {
+            const q = query(pedidosCollection, where("email", "==", email));
+            const snapshot = await getDocs(q);
+            
+            listaContainer.style.display = 'block';
+            
+            if (snapshot.empty) {
+                listaContainer.innerHTML = `<p style="color: var(--danger-color);">Nenhum ID encontrado para este e-mail.</p>`;
+            } else {
+                let html = `<h4 style="margin-bottom:0.5rem;">IDs Encontrados:</h4><ul style="list-style:none; padding:0;">`;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    html += `<li style="padding:0.5rem; background:rgba(255,255,255,0.1); margin-bottom:0.5rem; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+                        <span><strong>#${data.numPedido || doc.id}</strong> - ${data.nome}</span>
+                        <button type="button" class="btn-refresh" onclick="window.copiarNumeroPedido('${data.numPedido || doc.id}')">Copiar</button>
+                    </li>`;
+                });
+                html += `</ul>`;
+                listaContainer.innerHTML = html;
+            }
+        } catch (error) {
+            console.error("Erro ao recuperar IDs:", error);
+            listaContainer.innerHTML = `<p style="color: var(--danger-color);">Erro ao buscar IDs.</p>`;
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+    // ===========================================
     
-    // Função para verificar se o SETOR JÁ TEM pedido (retorna o pedido se sim) <--- NOVA FUNÇÃO
+    // Função para verificar se o SETOR JÁ TEM pedido (retorna o pedido se sim)
     window.verificarPedidoPorSetor = async function(setor) {
         const setorNormalizado = normalizeString(setor); 
         try {
-            // OBS: O campo 'setor' no banco DEVE ser salvo normalizado (em maiúsculas)
             const q = query(pedidosCollection, where("setor", "==", setorNormalizado));
             const snapshot = await getDocs(q);
             
@@ -2422,16 +2737,12 @@
                 return;
             }
         }
-        // FIM NOVA VALIDAÇÃO
         
         if (isEditing) {
             const confirmacao = confirm("ATENÇÃO: Você está prestes a substituir seu pedido anterior. Deseja continuar com o reenvio?");
             if (!confirmacao) {
                 return;
             }
-            
-            // Checagem extra de setor/email em caso de edição, para garantir que o setor/email não foi trocado para um que já existe com OUTRO docId.
-            // Para simplificar, manteremos o foco na unicidade do E-MAIL para edição, pois é o identificador do líder.
         }
         
         const totalCamisetas = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]'))
@@ -2485,7 +2796,7 @@
         }
     };
 
-    // Função de Login Admin (Corrigida para receber 'e')
+    // Função de Login Admin
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
         const senha = document.getElementById('senhaAdmin').value;
@@ -2572,76 +2883,80 @@
         }
     };
     
+    // ===== MUDANÇA 2: Função para carregar DUAS tabelas =====
     window.carregarDetalhesTamanho = async function() {
         window.mostrarCarregamento(true, 'Calculando totalizadores por tamanho...');
-        const detalhesBody = document.getElementById('tamanhosDetalhesBody');
-        const detalhesFooter = document.getElementById('tamanhosDetalhesFooter');
         
-        detalhesBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Calculando...</td></tr>';
-        detalhesFooter.innerHTML = '';
+        const adultosBody = document.getElementById('tamanhosAdultoBody');
+        const infantilBody = document.getElementById('tamanhosInfantilBody');
+        
+        adultosBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Calculando...</td></tr>';
+        infantilBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Calculando...</td></tr>';
         
         try {
             const pedidos = await window.carregarTodosPedidos();
-            const tamanhosDisponiveis = ['PP', 'P', 'M', 'G', 'GG', 'XGG', '1', '2', '4', '6', '8', '10', '12', '14'];
-            let htmlBody = '';
-            let htmlFooter = '<tr><td class="tipo-header"><strong>Total Geral</strong></td>';
             
-            const tipos = [
-                { name: 'Infantis', key: 'infantil', displaySizes: ['1', '2', '4', '6', '8', '10', '12', '14'] },
-                { name: 'Babylook', key: 'babylook', displaySizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG'] },
-                { name: 'Unissex', key: 'unissex', displaySizes: ['PP', 'P', 'M', 'G', 'GG', 'XGG'] }
-            ];
+            // Definições de tamanho para cada tabela
+            const tamanhosAdulto = ['PP', 'P', 'M', 'G', 'GG', 'XGG'];
+            const tamanhosInfantil = ['1', '2', '4', '6', '8', '10', '12', '14'];
+            
+            // Inicialização de Contadores
+            const totaisAdulto = { babylook: {}, unissex: {} };
+            const totaisInfantil = { infantil: {} };
+            
+            // Zera contadores
+            tamanhosAdulto.forEach(t => { totaisAdulto.babylook[t] = 0; totaisAdulto.unissex[t] = 0; });
+            tamanhosInfantil.forEach(t => { totaisInfantil.infantil[t] = 0; });
 
-            const totaisGerais = {};
-            tamanhosDisponiveis.forEach(t => totaisGerais[t] = 0);
-
-            const detalhes = { infantil: {}, babylook: {}, unissex: {} };
-            tamanhosDisponiveis.forEach(t => {
-                detalhes.infantil[t] = 0;
-                detalhes.babylook[t] = 0;
-                detalhes.unissex[t] = 0;
-            });
-
-
+            // Processamento
             pedidos.forEach(pedido => {
-                tipos.forEach(tipo => {
-                    const quantidades = pedido[tipo.key] || {};
-                    Object.entries(quantidades).forEach(([tamanho, qtd]) => {
-                        detalhes[tipo.key][tamanho] = (detalhes[tipo.key][tamanho] || 0) + qtd;
-                    });
-                });
+                // Babylook
+                Object.entries(pedido.babylook || {}).forEach(([t, q]) => { if(totaisAdulto.babylook[t] !== undefined) totaisAdulto.babylook[t] += q; });
+                // Unissex
+                Object.entries(pedido.unissex || {}).forEach(([t, q]) => { if(totaisAdulto.unissex[t] !== undefined) totaisAdulto.unissex[t] += q; });
+                // Infantil
+                Object.entries(pedido.infantil || {}).forEach(([t, q]) => { if(totaisInfantil.infantil[t] !== undefined) totaisInfantil.infantil[t] += q; });
             });
             
-            tipos.forEach(tipo => {
-                htmlBody += `<tr><td class="tipo-header">${tipo.name}</td>`;
-                
-                // Mapeia por todos os tamanhos (incluindo os não usados para o tipo)
-                tamanhosDisponiveis.forEach(t => {
-                    const qtd = detalhes[tipo.key][t] || 0;
-                    htmlBody += `<td>${qtd}</td>`;
-                    totaisGerais[t] += qtd;
-                });
-                htmlBody += `</tr>`;
+            // Construção HTML - Tabela Adultos
+            let htmlAdultos = '';
+            ['babylook', 'unissex'].forEach(tipo => {
+                const nomeTipo = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+                htmlAdultos += `<tr><td class="tipo-header">${nomeTipo}</td>`;
+                tamanhosAdulto.forEach(t => htmlAdultos += `<td>${totaisAdulto[tipo][t]}</td>`);
+                htmlAdultos += `</tr>`;
             });
+            // Linha de Total Adulto
+            htmlAdultos += `<tr style="background: rgba(255,255,255,0.05); font-weight:bold;"><td class="tipo-header">TOTAL</td>`;
+            tamanhosAdulto.forEach(t => {
+                const soma = totaisAdulto.babylook[t] + totaisAdulto.unissex[t];
+                htmlAdultos += `<td>${soma}</td>`;
+            });
+            htmlAdultos += `</tr>`;
             
-            // Gerar footer
-            tamanhosDisponiveis.forEach(t => {
-                htmlFooter += `<td><strong>${totaisGerais[t]}</strong></td>`;
-            });
-            htmlFooter += '</tr>';
+            // Construção HTML - Tabela Infantil
+            let htmlInfantil = `<tr><td class="tipo-header">Infantil</td>`;
+            tamanhosInfantil.forEach(t => htmlInfantil += `<td>${totaisInfantil.infantil[t]}</td>`);
+            htmlInfantil += `</tr>`;
+            // Linha de Total Infantil (redundante se só tem uma linha, mas mantém padrão)
+            htmlInfantil += `<tr style="background: rgba(255,255,255,0.05); font-weight:bold;"><td class="tipo-header">TOTAL</td>`;
+            tamanhosInfantil.forEach(t => htmlInfantil += `<td>${totaisInfantil.infantil[t]}</td>`);
+            htmlInfantil += `</tr>`;
 
-            detalhesBody.innerHTML = htmlBody;
-            detalhesFooter.innerHTML = htmlFooter;
+            adultosBody.innerHTML = htmlAdultos;
+            infantilBody.innerHTML = htmlInfantil;
+            
             window.exibirMensagem('mensagemLogin', 'sucesso', 'Detalhes de tamanho carregados com sucesso!');
 
         } catch (error) {
             console.error('Erro ao carregar detalhes de tamanho:', error);
-            detalhesBody.innerHTML = `<tr><td colspan="15" style="text-align: center; color: var(--danger-color);">Erro de comunicação: ${error.message}</td></tr>`;
-            window.exibirMensagem('mensagemLogin', 'erro', 'Erro ao carregar Detalhes.');
+            adultosBody.innerHTML = `<tr><td colspan="7" style="color: var(--danger-color);">Erro: ${error.message}</td></tr>`;
+            infantilBody.innerHTML = `<tr><td colspan="9" style="color: var(--danger-color);">Erro: ${error.message}</td></tr>`;
         } finally {
             window.mostrarCarregamento(false);
         }
     };
+    // ========================================================
 
     window.carregarDetalhesFinanceiros = async function() {
         window.mostrarCarregamento(true, 'Calculando resumo financeiro...');
@@ -2831,7 +3146,39 @@
       const voltarDashboard = document.getElementById('voltarDashboard');
       const atualizarDetalhesTamanho = document.getElementById('atualizarDetalhesTamanho');
       const btnFinanceiro = document.getElementById('btnFinanceiro');
-      const btnGerarPdf = document.getElementById('btnGerarPdf'); // NOVO
+      const btnGerarPdf = document.getElementById('btnGerarPdf'); 
+
+      // MUDANÇA 4: Listeners do Modal Recuperar ID
+      const btnEsqueceuId = document.getElementById('btnEsqueceuId');
+      const fecharEsqueceuId = document.getElementById('fecharEsqueceuId');
+      const formEsqueceuId = document.getElementById('formEsqueceuId');
+      
+      if (btnEsqueceuId) {
+          btnEsqueceuId.addEventListener('click', () => {
+              document.getElementById('esqueceuIdOverlay').classList.add('active');
+              document.getElementById('listaIdsRecuperados').style.display = 'none';
+              formEsqueceuId.reset();
+          });
+      }
+      if (fecharEsqueceuId) {
+          fecharEsqueceuId.addEventListener('click', () => {
+              document.getElementById('esqueceuIdOverlay').classList.remove('active');
+          });
+      }
+      if (formEsqueceuId) {
+          formEsqueceuId.addEventListener('submit', window.recuperarIdsPorEmail);
+      }
+      
+      // LISTENERS IA
+      // 2. Análise Admin
+      const btnAnaliseIA = document.getElementById('btnAnaliseIA');
+      const fecharAnaliseIA = document.getElementById('fecharAnaliseIA');
+      
+      if(btnAnaliseIA) btnAnaliseIA.addEventListener('click', () => {
+          document.getElementById('analiseIAOverlay').classList.add('active');
+          window.handleAnaliseIA();
+      });
+      if(fecharAnaliseIA) fecharAnaliseIA.addEventListener('click', () => document.getElementById('analiseIAOverlay').classList.remove('active'));
 
 
       // === Fluxo Home ===
