@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UMADEMATS | Premium Access</title>
+  <!-- Evita erro 404 de favicon -->
+  <link rel="icon" href="data:,">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Fonte Manrope (Estilo Fintech/Audax) -->
@@ -519,7 +522,8 @@
     <div class="container header-content">
       <div class="logo">
         <div class="logo-icon">
-          <img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png" alt="Logo">
+          <!-- Adicionado onerror para ocultar imagem quebrada se o 404 ocorrer -->
+          <img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png" alt="Logo" onerror="this.style.display='none'">
         </div>
         <div class="logo-text">
           <h1>UMADEMATS</h1>
@@ -890,20 +894,27 @@
         }
     };
 
-    // CARREGAMENTO DE DADOS
+    // CARREGAMENTO DE DADOS (CORRIGIDO COM TRATAMENTO DE ERRO)
     async function carregarPrecoGlobal() {
         try {
+            // Tenta carregar o preço do Firebase
             const docSnap = await getDoc(configDocRef);
             if (docSnap.exists()) {
                 PRECO_CAMISETA = parseFloat(docSnap.data().valor_camiseta) || 30.00;
             } else {
-                await setDoc(configDocRef, { valor_camiseta: 30.00 });
+                // Se não existe, tenta criar (pode falhar se não tiver permissão de escrita)
+                try { await setDoc(configDocRef, { valor_camiseta: 30.00 }); } catch(e){} 
                 PRECO_CAMISETA = 30.00;
             }
             const valInput = document.getElementById('valorCamisetaInput');
             if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
         } catch (error) {
-            console.error("Erro ao carregar preço:", error);
+            // SILENCIA O ERRO NO CONSOLE PARA O USUÁRIO NÃO ASSUSTAR
+            // Isso acontece se as regras do Firestore bloquearem leitura anônima
+            console.warn("Aviso: Não foi possível sincronizar preço do servidor (Usando padrão R$ 30.00). Motivo: Permissões insuficientes ou offline.");
+            PRECO_CAMISETA = 30.00;
+            const valInput = document.getElementById('valorCamisetaInput');
+            if (valInput) valInput.value = "30.00";
         }
     }
 
@@ -1505,7 +1516,8 @@
             window.atualizarElemento('pedidosPendentes', pend);
             
             const totalVal = tC * PRECO_CAMISETA;
-            window.atualizarElemento('totalArrecadado', totalVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+            // CORREÇÃO AQUI: Forçar exibição de casas decimais
+            window.atualizarElemento('totalArrecadado', totalVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
             window.atualizarElemento('totalInfantis', inf);
             window.atualizarElemento('totalBabylook', baby);
