@@ -470,7 +470,7 @@
     </div>
   </div>
 
-  <!-- MODAL CONFIRMAR ALTERAÇÃO VALOR (NOVO) -->
+  <!-- MODAL CONFIRMAR ALTERAÇÃO VALOR -->
   <div id="modalConfirmarValor" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:400px;">
           <div style="text-align:center; margin-bottom:2rem;">
@@ -809,7 +809,6 @@
                 </div>
                 
                 <div class="card" style="margin-bottom:2rem;">
-                    <!-- MUDANÇA: Botão Salvar com ID específico e tipo Button -->
                     <div style="display:flex; align-items:center; gap:1rem;">
                         <label style="color:var(--text-muted); margin:0;">Valor Unitário (R$)</label>
                         <input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;">
@@ -896,8 +895,6 @@
                 PRECO_CAMISETA = parseFloat(docSnap.data().valor_camiseta) || 30.00;
                 console.log("Preço carregado do DB:", PRECO_CAMISETA);
             } else {
-                // Se não existir, cria com o padrão
-                // await setDoc(configDocRef, { valor_camiseta: 30.00 }); -> Pode falhar se auth falhar, melhor não bloquear
                 PRECO_CAMISETA = 30.00;
             }
             // Atualiza UI se estiver visível
@@ -1169,11 +1166,11 @@
         
         window.mostrarCarregamento(true, "ATUALIZANDO E RECALCULANDO...");
         
-        // ATUALIZAÇÃO OTIMISTA (MEMÓRIA PRIMEIRO)
+        // ATUALIZAÇÃO OTIMISTA
         PRECO_CAMISETA = novoValor;
         
         try {
-            // Tenta salvar no banco (se falhar, a memória já foi atualizada para a sessão atual)
+            // Salva no banco de dados
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
         } catch (error) {
             console.error("Erro ao salvar no banco (mas memória atualizada):", error);
@@ -1327,7 +1324,9 @@
 
         const isCapital = radioCapital.checked;
         if (isCapital) {
-            container.innerHTML = `<select id="setor" name="setor" required><option value="" disabled selected>SELECIONE</option>${['A', 'B', 'C1', 'C2', 'D', 'E', 'F', 'G', 'H', 'M', 'N'].map(s => `<option value="SETOR ${s}">SETOR ${s}</option>`).join('')}</select>`;
+            // MUDANÇA 1: Adicionado 'I' à lista de setores
+            const setores = ['A', 'B', 'C1', 'C2', 'D', 'E', 'F', 'G', 'H', 'I', 'M', 'N'];
+            container.innerHTML = `<select id="setor" name="setor" required><option value="" disabled selected>SELECIONE</option>${setores.map(s => `<option value="SETOR ${s}">SETOR ${s}</option>`).join('')}</select>`;
             const sel = document.getElementById('setor');
             if (val && Array.from(sel.options).some(o => o.value === normalizeString(val))) sel.value = normalizeString(val);
         } else {
@@ -1512,7 +1511,7 @@
             window.atualizarElemento('totalPedidos', tP);
             window.atualizarElemento('totalCamisetas', tC);
             window.atualizarElemento('pedidosPendentes', pend);
-            // MUDANÇA 5: Formatação de Moeda
+            
             const totalVal = tC * PRECO_CAMISETA;
             window.atualizarElemento('totalArrecadado', totalVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
 
@@ -1537,10 +1536,11 @@
                       Object.values(x.babylook || {}).reduce((a, b) => a + b, 0) + 
                       Object.values(x.unissex || {}).reduce((a, b) => a + b, 0);
             
+            // MUDANÇA 2: Layout ajustado (STATUS EMBAIXO DO PEDIDO)
             lista.innerHTML += `<div class="pedido-item" style="margin-bottom:1rem;">
-                                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:5px; margin-bottom:10px; align-items:center;">
+                                    <div style="display:flex; flex-direction:column; align-items:flex-start; border-bottom:1px solid var(--border-subtle); padding-bottom:5px; margin-bottom:10px;">
                                         <span style="color:var(--gold-solid); font-weight:700; font-size:1.1rem;">#${x.numPedido}</span>
-                                        <span class="status-${x.status.toLowerCase()}">${x.status}</span>
+                                        <span class="status-${x.status.toLowerCase()}" style="margin-top: 5px;">${x.status}</span>
                                     </div>
                                     <div style="font-size:0.85rem; color:var(--text-muted);">
                                         <p><strong style="color:#fff">${x.nome}</strong> (${x.local} - ${x.setor})</p>
