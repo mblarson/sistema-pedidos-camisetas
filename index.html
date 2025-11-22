@@ -847,14 +847,17 @@
 
   <!-- JAVASCRIPT -->
   <script type="module">
-    // CONFIGURAÇÃO ORIGINAL DO USUÁRIO
-    const firebaseConfig = {
-        apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
-        authDomain: "pedidosumademats.firebaseapp.com",
-        projectId: "pedidosumademats",
-        storageBucket: "pedidosumademats.firebasestorage.app",
-        appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
-    };
+    // =================================================================
+    // CONFIGURAÇÃO PARA PRODUÇÃO (COLE SUAS CHAVES REAIS AQUI)
+    // =================================================================
+   const firebaseConfig = {
+  apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
+  authDomain: "pedidosumademats.firebaseapp.com",
+  projectId: "pedidosumademats",
+  storageBucket: "pedidosumademats.firebasestorage.app",
+  messagingSenderId: "604273766416",
+  appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
+};
     
     const ADMIN_PASSWORD_FIXA = "umademats";
     let PRECO_CAMISETA = 30.00; // Valor padrão inicial
@@ -867,53 +870,49 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
     
-    // PATHS ORIGINAIS DO USUÁRIO (NÃO ARTIFACTS)
+    // PATHS DE PRODUÇÃO (SEM ARTIFACTS)
     const pedidosCollection = collection(db, "pedidos");
     const configDocRef = doc(db, "configuracoes", "financeiro");
 
     let currentPedidoParaEdicao = null;
 
-    // AUTH LOGIC ORIGINAL COM TRATAMENTO DE ERRO EXPLÍCITO
+    // AUTH LOGIC PARA PRODUÇÃO
     const initAuth = async () => {
         try {
             await signInAnonymously(auth);
         } catch (error) {
             console.error("Auth Error:", error);
             if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
-                alert("ERRO CRÍTICO: O login Anônimo está desativado no seu projeto Firebase (pedidosumademats). Por favor, acesse o Console do Firebase -> Authentication -> Sign-in method e ative o provedor 'Anônimo'.");
+                alert("ERRO CRÍTICO DE CONFIGURAÇÃO: Vá no Console do Firebase > Authentication e ative o login 'Anônimo'.");
             } else {
                 alert("Erro de Autenticação: " + error.message);
             }
         }
     };
 
-    // CARREGAMENTO DE DADOS (APÓS AUTH)
+    // CARREGAMENTO DE DADOS
     async function carregarPrecoGlobal() {
         try {
             const docSnap = await getDoc(configDocRef);
             if (docSnap.exists()) {
                 PRECO_CAMISETA = parseFloat(docSnap.data().valor_camiseta) || 30.00;
-                console.log("Preço carregado do DB:", PRECO_CAMISETA);
             } else {
+                await setDoc(configDocRef, { valor_camiseta: 30.00 });
                 PRECO_CAMISETA = 30.00;
             }
-            // Atualiza UI se estiver visível
             const valInput = document.getElementById('valorCamisetaInput');
             if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
         } catch (error) {
-            console.error("Erro ao carregar preço (Auth falhou?):", error);
+            console.error("Erro ao carregar preço:", error);
         }
     }
 
-    // LISTENER DE AUTH - INICIA O APP
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            console.log("Usuário autenticado:", user.uid);
             carregarPrecoGlobal();
         }
     });
 
-    // START AUTH
     initAuth();
 
     // GEMINI API CALL
@@ -1164,13 +1163,12 @@
             return;
         }
         
-        window.mostrarCarregamento(true, "ATUALIZANDO E RECALCULANDO...");
+        window.mostrarCarregamento(true, "SALVANDO CONFIG...");
         
         // ATUALIZAÇÃO OTIMISTA
         PRECO_CAMISETA = novoValor;
         
         try {
-            // Salva no banco de dados
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
         } catch (error) {
             console.error("Erro ao salvar no banco (mas memória atualizada):", error);
@@ -1188,13 +1186,10 @@
             
             const novoTotal = totalItens * PRECO_CAMISETA;
             
-            // ATUALIZA A TELA
             await window.carregarDashboard();
             await window.carregarDetalhesFinanceiros();
             
             window.mostrarCarregamento(false);
-            
-            // RELATÓRIO DE CONFIRMAÇÃO
             alert(`SUCESSO!\n\nNovo Preço Unitário: R$ ${PRECO_CAMISETA.toFixed(2)}\nTotal de Camisetas Encontradas: ${totalItens}\nNovo Valor Arrecadado Total: R$ ${novoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
             
         } catch (error) {
@@ -1297,14 +1292,12 @@
 
     window.verificarPedidoPorNumero = async function(numPedido) {
         try {
-            // Tenta por ID direto primeiro
             const docRef = doc(db, "pedidos", numPedido.trim());
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 return { docId: docSnap.id, numPedido: docSnap.data().numPedido || docSnap.id, ...docSnap.data() };
             }
             
-            // Fallback: query normal
             const q = query(pedidosCollection, where("numPedido", "==", numPedido.trim()));
             const qs = await getDocs(q);
             if (!qs.empty) return { docId: qs.docs[0].id, ...qs.docs[0].data() };
@@ -1319,12 +1312,11 @@
     window.updateSetorCidadeInput = function(val = '') {
         const container = document.getElementById('setorCidadeContainer');
         const radioCapital = document.getElementById('radioCapital');
-        // Proteção contra null
+        
         if (!container || !radioCapital) return;
 
         const isCapital = radioCapital.checked;
         if (isCapital) {
-            // MUDANÇA 1: Adicionado 'I' à lista de setores
             const setores = ['A', 'B', 'C1', 'C2', 'D', 'E', 'F', 'G', 'H', 'I', 'M', 'N'];
             container.innerHTML = `<select id="setor" name="setor" required><option value="" disabled selected>SELECIONE</option>${setores.map(s => `<option value="SETOR ${s}">SETOR ${s}</option>`).join('')}</select>`;
             const sel = document.getElementById('setor');
@@ -1519,7 +1511,7 @@
             window.atualizarElemento('totalBabylook', baby);
             window.atualizarElemento('totalUnissex', uni);
         } catch (e) {
-            // Erro silencioso ou log
+            // Erro silencioso
         } finally {
             window.mostrarCarregamento(false);
         }
@@ -1536,7 +1528,6 @@
                       Object.values(x.babylook || {}).reduce((a, b) => a + b, 0) + 
                       Object.values(x.unissex || {}).reduce((a, b) => a + b, 0);
             
-            // MUDANÇA 2: Layout ajustado (STATUS EMBAIXO DO PEDIDO)
             lista.innerHTML += `<div class="pedido-item" style="margin-bottom:1rem;">
                                     <div style="display:flex; flex-direction:column; align-items:flex-start; border-bottom:1px solid var(--border-subtle); padding-bottom:5px; margin-bottom:10px;">
                                         <span style="color:var(--gold-solid); font-weight:700; font-size:1.1rem;">#${x.numPedido}</span>
@@ -1641,7 +1632,6 @@
 
     // INITIALIZATION
     document.addEventListener('DOMContentLoaded', () => {
-        // Helper para adicionar eventos de forma segura (evita crash se o elemento não existir)
         const safeOnClick = (id, handler) => { const el = document.getElementById(id); if(el) el.onclick = handler; };
         const safeOnSubmit = (id, handler) => { const el = document.getElementById(id); if(el) el.onsubmit = handler; };
         const safeOnChange = (id, handler) => { const el = document.getElementById(id); if(el) el.onchange = handler; };
@@ -1710,7 +1700,6 @@
         safeOnClick('atualizarDetalhesTamanho', window.carregarDetalhesTamanho);
         safeOnClick('btnGerarPdf', window.gerarRelatorioPdf);
         
-        // MUDANÇA 9: Nova Lógica de Confirmação de Preço (Modal)
         safeOnClick('btnSalvarValor', () => {
             document.getElementById('modalConfirmarValor').classList.add('active');
         });
@@ -1728,7 +1717,6 @@
         safeOnChange('radioCapital', () => window.updateSetorCidadeInput());
         safeOnChange('radioInterior', () => window.updateSetorCidadeInput());
         
-        // Inicialização
         window.updateSetorCidadeInput();
         const valInput = document.getElementById('valorCamisetaInput');
         if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
@@ -1736,5 +1724,3 @@
   </script>
 </body>
 </html>
-
-
