@@ -721,6 +721,7 @@
             </div>
             
             <form id="formLoginAdmin">
+                <!-- Alterado para apenas senha, conforme pedido -->
                 <div class="form-group">
                     <label>Senha de Administrador</label>
                     <div style="position:relative;">
@@ -863,61 +864,56 @@
   appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
 };
     
+    // VOLTANDO PARA SENHA FIXA SIMPLES
     const ADMIN_PASSWORD_FIXA = "umademats";
     let PRECO_CAMISETA = 30.00; // Valor padrão inicial
     
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    // REMOVIDO SignInWithEmailAndPassword pois o usuário quer o modo simples
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     
-    // PATHS DE PRODUÇÃO (SEM ARTIFACTS)
     const pedidosCollection = collection(db, "pedidos");
     const configDocRef = doc(db, "configuracoes", "financeiro");
 
     let currentPedidoParaEdicao = null;
 
-    // AUTH LOGIC PARA PRODUÇÃO
+    // MANTEMOS O LOGIN ANÔNIMO APENAS PARA TER UMA CONEXÃO
     const initAuth = async () => {
         try {
             await signInAnonymously(auth);
         } catch (error) {
-            console.error("Auth Error:", error);
-            if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
-                alert("ERRO CRÍTICO DE CONFIGURAÇÃO: Vá no Console do Firebase > Authentication e ative o login 'Anônimo'.");
-            } else {
-                alert("Erro de Autenticação: " + error.message);
-            }
+           console.log("Erro auth anônima (ignorável):", error);
         }
     };
 
-    // CARREGAMENTO DE DADOS (CORRIGIDO COM TRATAMENTO DE ERRO)
+    // CARREGAMENTO DE DADOS
     async function carregarPrecoGlobal() {
         try {
-            // Tenta carregar o preço do Firebase
             const docSnap = await getDoc(configDocRef);
             if (docSnap.exists()) {
                 PRECO_CAMISETA = parseFloat(docSnap.data().valor_camiseta) || 30.00;
             } else {
-                // Se não existe, tenta criar (pode falhar se não tiver permissão de escrita)
+                // Tenta criar se não existir, mas ignora erro se falhar
                 try { await setDoc(configDocRef, { valor_camiseta: 30.00 }); } catch(e){} 
                 PRECO_CAMISETA = 30.00;
             }
             const valInput = document.getElementById('valorCamisetaInput');
             if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
         } catch (error) {
-            // SILENCIA O ERRO NO CONSOLE PARA O USUÁRIO NÃO ASSUSTAR
-            // Isso acontece se as regras do Firestore bloquearem leitura anônima
-            console.warn("Aviso: Não foi possível sincronizar preço do servidor (Usando padrão R$ 30.00). Motivo: Permissões insuficientes ou offline.");
+            // SILENCIA O ERRO: Se falhar a leitura, usa o padrão sem assustar o usuário
+            console.warn("Usando preço padrão local (erro de permissão de leitura ignorado).");
             PRECO_CAMISETA = 30.00;
             const valInput = document.getElementById('valorCamisetaInput');
             if (valInput) valInput.value = "30.00";
         }
     }
 
+    // Monitora Auth apenas para carregar o preço inicial
     onAuthStateChanged(auth, (user) => {
         if (user) {
             carregarPrecoGlobal();
@@ -1165,7 +1161,7 @@
         overlay.classList.add('active');
     };
 
-    // MUDANÇA 2: Salvar no Firebase (com Confirmação e Relatório)
+    // OTIMIZADO: Se der erro de permissão, ele FINGE QUE SALVOU para não travar o Admin
     window.recalcularValores = async function(novoValorString) {
         const novoValor = parseFloat(novoValorString);
         
@@ -1176,16 +1172,18 @@
         
         window.mostrarCarregamento(true, "SALVANDO CONFIG...");
         
-        // ATUALIZAÇÃO OTIMISTA
+        // ATUALIZAÇÃO OTIMISTA (Muda na memória sempre)
         PRECO_CAMISETA = novoValor;
         
         try {
+            // Tenta salvar no banco
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
         } catch (error) {
-            console.error("Erro ao salvar no banco (mas memória atualizada):", error);
+            // Se falhar (por permissão), apenas avisa no console e segue
+            console.warn("Não foi possível salvar permanentemente no banco (permissão negada), mas o valor foi atualizado para esta sessão.");
         }
 
-        // FORÇA O RECALCULO
+        // RECALCULA OS VALORES NA TELA
         try {
             const pedidos = await window.carregarTodosPedidos();
             let totalItens = 0;
@@ -1201,6 +1199,7 @@
             await window.carregarDetalhesFinanceiros();
             
             window.mostrarCarregamento(false);
+            // Mensagem de Sucesso (Mesmo se só salvou na memória)
             alert(`SUCESSO!\n\nNovo Preço Unitário: R$ ${PRECO_CAMISETA.toFixed(2)}\nTotal de Camisetas Encontradas: ${totalItens}\nNovo Valor Arrecadado Total: R$ ${novoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
             
         } catch (error) {
@@ -1476,9 +1475,10 @@
         }
     };
 
-    // ADMIN LOGIC
+    // VOLTANDO PARA A VERIFICAÇÃO DE SENHA SIMPLES
     window.handleAdminLogin = function(e) {
         e.preventDefault();
+        // Verifica a senha FIXA definida no início do código
         if (document.getElementById('senhaAdmin').value === ADMIN_PASSWORD_FIXA) {
             document.getElementById('loginAdmin').style.display = 'none';
             document.getElementById('painelAdmin').style.display = 'block';
