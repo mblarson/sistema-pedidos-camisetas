@@ -355,15 +355,52 @@
     
     .card-value { font-size: 2.5rem; font-weight: 300; color: #fff; }
     
-    /* STATUS BADGES */
-    .status-pendente, .status-aprovado, .status-rejeitado {
+    /* STATUS BADGES - APROVADO/REJEITADO REMOVIDOS */
+    .status-pendente {
+        /* Mantido apenas para lógica interna se necessário, mas não será exibido com badges de aprovação */
         font-weight: 700; font-size: 0.7rem; padding: 6px 12px; 
         text-transform: uppercase; border-radius: 50px; display: inline-block;
         letter-spacing: 0.5px;
+        /* Estilização para pendente financeiro se usado */
+        background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2);
     }
-    .status-pendente { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
-    .status-aprovado { background: rgba(100, 255, 218, 0.1); color: #64ffda; border: 1px solid rgba(100, 255, 218, 0.2); }
-    .status-rejeitado { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+    /* .status-aprovado e .status-rejeitado foram removidos do CSS */
+    
+    /* ACORDEON DE PEDIDOS (NOVO) */
+    .pedido-card-expandable {
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    .pedido-card-expandable:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .pedido-details-content {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-subtle);
+        animation: slideDown 0.3s ease-out;
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .tabela-detalhe-pedido {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        color: #ddd;
+    }
+    .tabela-detalhe-pedido th, .tabela-detalhe-pedido td {
+        padding: 8px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        text-align: left;
+    }
+    .tabela-detalhe-pedido th {
+        color: var(--gold-solid);
+        font-weight: 600;
+        text-transform: uppercase;
+    }
 
     /* MODAIS */
     .pedido-confirmacao-overlay {
@@ -519,6 +556,38 @@
       
       <button class="btn-primary" id="voltarInicio" style="width:100%;">Retornar ao Início</button>
     </div>
+  </div>
+
+  <!-- MODAL SUCESSO FINANCEIRO -->
+  <div id="modalSucessoFinanceiro" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--success-color); margin-bottom:1rem;"><i class="fas fa-check-circle"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Valor Atualizado!</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">O preço foi alterado e os totais recalculados.</p>
+          
+          <div style="background:rgba(255,255,255,0.03); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2rem; border:1px solid var(--border-subtle);">
+              <div style="margin-bottom:1rem;">
+                  <p style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:0.3rem;">Novo Valor Unitário</p>
+                  <p id="confirmacaoNovoValor" style="font-size:1.5rem; color:var(--gold-solid); font-weight:700;">R$ 0,00</p>
+              </div>
+              <div>
+                  <p style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:0.3rem;">Novo Total Arrecadado</p>
+                  <p id="confirmacaoNovoTotal" style="font-size:1.2rem; color:#fff;">R$ 0,00</p>
+              </div>
+          </div>
+          
+          <button onclick="document.getElementById('modalSucessoFinanceiro').classList.remove('active')" class="btn-primary" style="width:100%;">Fechar</button>
+      </div>
+  </div>
+
+  <!-- MODAL ERRO LOGIN -->
+  <div id="modalErroLogin" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--danger-color); margin-bottom:1rem;"><i class="fas fa-times-circle"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Acesso Negado</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Senha incorreta. Tente novamente.</p>
+          <button onclick="document.getElementById('modalErroLogin').classList.remove('active')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color);">Tentar Novamente</button>
+      </div>
   </div>
 
   <div id="modalConfirmarValor" class="pedido-confirmacao-overlay">
@@ -693,6 +762,12 @@
                         <label for="email">E-mail (Obrigatório)</label>
                         <input type="email" id="email" name="email" required placeholder="Para receber confirmação">
                     </div>
+
+                    <!-- NOVO CAMPO DE CONTATO ADICIONADO AQUI -->
+                    <div class="form-group">
+                        <label for="contato">Número para Contato</label>
+                        <input type="text" id="contato" name="contato" required placeholder="(XX) 9XXXX-XXXX">
+                    </div>
                 </div>
 
                 <div style="margin-top:4rem;">
@@ -792,7 +867,7 @@
                 <div class="dashboard-cards">
                     <div class="card"><div class="card-content"><h4>Pedidos Totais</h4><p class="card-value" id="totalPedidos">0</p></div></div>
                     <div class="card"><div class="card-content"><h4>Camisetas</h4><p class="card-value" id="totalCamisetas">0</p></div></div>
-                    <div class="card"><div class="card-content"><h4>Pendentes</h4><p class="card-value" id="pedidosPendentes">0</p></div></div>
+                    <!-- Card de Pendentes removido conforme solicitado -->
                     <div class="card"><div class="card-content"><h4>Receita (Est.)</h4><p class="card-value text-gold" id="totalArrecadado">R$ 0,00</p></div></div>
                 </div>
 
@@ -897,6 +972,9 @@
     // VOLTANDO PARA SENHA FIXA SIMPLES
     const ADMIN_PASSWORD_FIXA = "umademats";
     let PRECO_CAMISETA = 30.00; // Valor padrão inicial
+    
+    // VARIÁVEL GLOBAL PARA CACHE DE PEDIDOS (necessária para PDF individual)
+    window.pedidosCache = [];
     
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
@@ -1043,6 +1121,11 @@
         } catch (error) {
            // Silencioso se já logado
         }
+    };
+    
+    // NOVA FUNÇÃO DE FORMATAÇÃO (PADRÃO BRASILEIRO)
+    const formatarMoeda = (valor) => {
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
     // CARREGAMENTO DE DADOS (VERSÃO LIMPA PARA BANCO DE DADOS)
@@ -1328,7 +1411,7 @@
         window.mostrarCarregamento(true, "SALVANDO CONFIG...");
         
         try {
-            // 1. Tenta salvar no banco PRIMEIRO (Se falhar aqui, vai pro catch e não muda nada)
+            // 1. Tenta salvar no banco PRIMEIRO
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
             
             // 2. Sucesso no banco! Agora atualizamos a variável global
@@ -1350,21 +1433,23 @@
             
             window.mostrarCarregamento(false);
             
-            // Mensagem de Sucesso Real
-            alert(`SUCESSO!\n\nConfiguração salva no banco de dados.\nNovo Preço: R$ ${PRECO_CAMISETA.toFixed(2)}\nTotal Previsto: R$ ${novoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            // REMOVIDO ALERT DO NAVEGADOR
+            // EXIBIR CARD INTERNO
+            document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(PRECO_CAMISETA);
+            document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(novoTotal);
+            document.getElementById('modalSucessoFinanceiro').classList.add('active');
             
         } catch (error) {
             window.mostrarCarregamento(false);
             console.error("Erro fatal ao salvar preço:", error);
             alert("ERRO AO SALVAR: O novo valor NÃO foi aplicado.\n\nVerifique sua conexão ou permissões.\nDetalhe: " + error.message);
             
-            // Reseta o input para o valor real (antigo) para não confundir
             const valInput = document.getElementById('valorCamisetaInput');
             if(valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
         }
     };
 
-    // PDF GENERATION
+    // PDF GENERATION (GERAL)
     window.gerarRelatorioPdf = function() {
         window.mostrarCarregamento(true, 'GERANDO PDF...');
         const { jsPDF } = window.jspdf;
@@ -1405,6 +1490,73 @@
         doc.save(`Relatorio_${dataAtual.replace('/', '-')}.pdf`);
         window.mostrarCarregamento(false);
     };
+
+    // NOVA FUNÇÃO: GERAR PDF INDIVIDUAL DO PEDIDO
+    window.gerarPdfPedidoIndividual = function(docId) {
+        // Encontrar o pedido no cache global
+        const pedido = window.pedidosCache.find(p => p.docId === docId);
+        if(!pedido) {
+            alert('Erro: Pedido não encontrado para gerar PDF.');
+            return;
+        }
+
+        window.mostrarCarregamento(true, 'GERANDO PDF DO PEDIDO...');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4'); // Retrato
+        
+        // Cabeçalho
+        doc.setFontSize(18);
+        doc.text("PEDIDO #" + pedido.numPedido, 105, 20, null, null, "center");
+        doc.setFontSize(10);
+        doc.text("UMADEMATS - Jubileu de Ouro", 105, 26, null, null, "center");
+        
+        // Informações do Pedido
+        doc.setFontSize(11);
+        doc.text(`Nome: ${pedido.nome}`, 14, 40);
+        doc.text(`Local: ${pedido.local} - ${pedido.setor}`, 14, 46);
+        doc.text(`Contato: ${pedido.contato || 'Não informado'}`, 14, 52);
+        doc.text(`E-mail: ${pedido.email}`, 14, 58);
+        doc.text(`Data: ${new Date(pedido.data).toLocaleDateString('pt-BR')}`, 140, 40);
+
+        // Preparar dados da tabela
+        let bodyData = [];
+        let totalQtd = 0;
+
+        const addRows = (categoryName, dataObj) => {
+             Object.entries(dataObj || {}).forEach(([tamanho, qtd]) => {
+                if (qtd > 0) {
+                    bodyData.push([categoryName, tamanho, qtd]);
+                    totalQtd += qtd;
+                }
+             });
+        };
+
+        addRows("Infantil", pedido.infantil);
+        addRows("Babylook", pedido.babylook);
+        addRows("Unissex", pedido.unissex);
+
+        const valorTotal = totalQtd * PRECO_CAMISETA;
+
+        // Gerar Tabela
+        doc.autoTable({
+            head: [['Categoria', 'Tamanho', 'Qtd']],
+            body: bodyData,
+            startY: 65,
+            theme: 'striped',
+            headStyles: { fillColor: [212, 175, 55] }, // Dourado
+        });
+
+        // Totais
+        const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text(`Total de Peças: ${totalQtd}`, 14, finalY);
+        doc.text(`Valor Total: ${formatarMoeda(valorTotal)}`, 14, finalY + 6); // FORMATAÇÃO APLICADA
+
+        doc.save(`Pedido_${pedido.numPedido}.pdf`);
+        window.mostrarCarregamento(false);
+    };
+
 
     // FIREBASE QUERIES
     window.verificarPedidoPorEmail = async function(email) {
@@ -1520,6 +1672,9 @@
         window.updateSetorCidadeInput(pedido.setor);
         document.getElementById('email').value = pedido.email;
         
+        // PREECHER CAMPO CONTATO NA EDIÇÃO
+        document.getElementById('contato').value = pedido.contato || '';
+        
         const preencher = (tamanhos, prefix) => {
             for (const [t, q] of Object.entries(tamanhos || {})) {
                 const input = document.getElementById(`${prefix}_${t}`);
@@ -1544,13 +1699,14 @@
         const html = `<div class="pedido-item">
                         <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem; margin-bottom:1rem; align-items:center;">
                             <span style="color:var(--gold-solid); font-size:1.2rem; font-weight:700;">#${pedido.numPedido}</span>
-                            <span class="status-${pedido.status.toLowerCase()}">${pedido.status}</span>
                         </div>
                         <div style="display:grid; gap:0.5rem; color:var(--text-muted); font-size:0.9rem;">
                             <p>NOME: <span style="color:#fff">${pedido.nome}</span></p>
                             <p>LOCAL: <span style="color:#fff">${pedido.local} - ${pedido.setor}</span></p>
+                            <!-- EXIBIR CONTATO AQUI -->
+                            <p>CONTATO: <span style="color:#fff">${pedido.contato || 'Não informado'}</span></p>
                             <p>TOTAL PEÇAS: <span style="color:#fff">${total}</span></p>
-                            <p>VALOR TOTAL: <span style="color:var(--gold-solid); font-weight:700;">R$ ${(total * PRECO_CAMISETA).toFixed(2)}</span></p>
+                            <p>VALOR TOTAL: <span style="color:var(--gold-solid); font-weight:700;">${formatarMoeda(total * PRECO_CAMISETA)}</span></p>
                         </div>
                         <button id="btnIniciarEdicao" class="btn-primary" style="width:100%; margin-top:2rem; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); box-shadow:none;">Editar Pedido</button>
                       </div>`;
@@ -1604,10 +1760,11 @@
                 local: formData.get('local'),
                 setor: setor,
                 email: email,
+                contato: formData.get('contato'), // SALVANDO CONTATO
                 infantil: getQuantidadesFromForm(formData, 'infantil'),
                 babylook: getQuantidadesFromForm(formData, 'babylook'),
                 unissex: getQuantidadesFromForm(formData, 'unissex'),
-                status: 'Pendente'
+                status: 'Pendente' // MANTIDO NO BANCO MAS INVISÍVEL
             };
             
             let finalNum = '';
@@ -1640,7 +1797,8 @@
             document.getElementById('painelAdmin').style.display = 'block';
             window.carregarDashboard();
         } else {
-            alert('SENHA INCORRETA');
+            // REMOVIDO ALERT
+            document.getElementById('modalErroLogin').classList.add('active');
         }
     };
 
@@ -1653,6 +1811,8 @@
         window.mostrarCarregamento(true);
         try {
             const p = await window.carregarTodosPedidos();
+            window.pedidosCache = p; // Atualizar cache global
+            
             let tP = p.length, tC = 0, pend = 0, inf = 0, baby = 0, uni = 0;
             
             p.forEach(x => {
@@ -1669,11 +1829,11 @@
             
             window.atualizarElemento('totalPedidos', tP);
             window.atualizarElemento('totalCamisetas', tC);
-            window.atualizarElemento('pedidosPendentes', pend);
+            // window.atualizarElemento('pedidosPendentes', pend); // REMOVIDO DO DASHBOARD
             
             const totalVal = tC * PRECO_CAMISETA;
-            // CORREÇÃO AQUI: Forçar exibição de casas decimais
-            window.atualizarElemento('totalArrecadado', totalVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            // FORMATAÇÃO APLICADA AQUI
+            window.atualizarElemento('totalArrecadado', formatarMoeda(totalVal));
 
             window.atualizarElemento('totalInfantis', inf);
             window.atualizarElemento('totalBabylook', baby);
@@ -1685,36 +1845,91 @@
         }
     };
 
+    // FUNÇÃO AUXILIAR PARA TOGGLE DO ACORDEON
+    window.togglePedidoDetails = function(docId) {
+        const detailsDiv = document.getElementById(`details-${docId}`);
+        const icon = document.getElementById(`icon-${docId}`);
+        if (detailsDiv.style.display === 'none') {
+            detailsDiv.style.display = 'block';
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-down');
+        } else {
+            detailsDiv.style.display = 'none';
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-right');
+        }
+    };
+
     window.carregarPedidos = async function() {
         window.mostrarCarregamento(true);
         const lista = document.getElementById('listaPedidos');
         lista.innerHTML = '';
         
         const p = await window.carregarTodosPedidos();
+        window.pedidosCache = p; // Cachear para uso no PDF
+
         p.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(x => {
             const t = Object.values(x.infantil || {}).reduce((a, b) => a + b, 0) + 
                       Object.values(x.babylook || {}).reduce((a, b) => a + b, 0) + 
                       Object.values(x.unissex || {}).reduce((a, b) => a + b, 0);
             
-            lista.innerHTML += `<div class="pedido-item" style="margin-bottom:1rem;">
-                                    <div style="display:flex; flex-direction:column; align-items:flex-start; border-bottom:1px solid var(--border-subtle); padding-bottom:5px; margin-bottom:10px;">
-                                        <span style="color:var(--gold-solid); font-weight:700; font-size:1.1rem;">#${x.numPedido}</span>
-                                        <span class="status-${x.status.toLowerCase()}" style="margin-top: 5px;">${x.status}</span>
-                                    </div>
-                                    <div style="font-size:0.85rem; color:var(--text-muted);">
-                                        <p><strong style="color:#fff">${x.nome}</strong> (${x.local} - ${x.setor})</p>
-                                        <p>TOTAL: ${t} CAMISETAS | R$ ${(t * PRECO_CAMISETA).toFixed(2)}</p>
-                                    </div>
-                                    <div style="margin-top:15px; display:flex; gap:10px;">
-                                        <button onclick="window.atualizarStatusPedido('${x.docId}','Aprovado')" style="flex:1; background:none; border:1px solid var(--success-color); color:var(--success-color); padding:6px; cursor:pointer; font-size:0.7rem; border-radius:4px; font-weight:600;">APROVAR</button>
-                                        <button onclick="window.atualizarStatusPedido('${x.docId}','Rejeitado')" style="flex:1; background:none; border:1px solid var(--danger-color); color:var(--danger-color); padding:6px; cursor:pointer; font-size:0.7rem; border-radius:4px; font-weight:600;">REJEITAR</button>
-                                    </div>
-                                </div>`;
+            // CONSTRUIR TABELA VISUAL DE DETALHES
+            let tabelaHTML = `<table class="tabela-detalhe-pedido">
+                <thead><tr><th>Categoria</th><th>Tamanho</th><th>Qtd</th></tr></thead>
+                <tbody>`;
+            
+            const addRows = (cat, obj) => {
+                let rows = '';
+                Object.entries(obj || {}).forEach(([tam, qtd]) => {
+                    if(qtd > 0) rows += `<tr><td>${cat}</td><td>${tam}</td><td>${qtd}</td></tr>`;
+                });
+                return rows;
+            };
+            
+            tabelaHTML += addRows('Infantil', x.infantil);
+            tabelaHTML += addRows('Babylook', x.babylook);
+            tabelaHTML += addRows('Unissex', x.unissex);
+            tabelaHTML += `</tbody></table>`;
+
+            // CARD EXPANSÍVEL
+            lista.innerHTML += `
+                <div class="pedido-item pedido-card-expandable" style="margin-bottom:1rem;">
+                    <!-- HEADER DO CARD (CLICÁVEL) -->
+                    <div onclick="window.togglePedidoDetails('${x.docId}')" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                        <div style="flex:1;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+                                <span style="color:var(--gold-solid); font-weight:700; font-size:1.1rem;">#${x.numPedido}</span>
+                                <i id="icon-${x.docId}" class="fas fa-chevron-right" style="font-size:0.8rem; color:var(--text-muted); transition:0.3s;"></i>
+                            </div>
+                            <div style="font-size:0.85rem; color:var(--text-muted);">
+                                <strong style="color:#fff">${x.nome}</strong> | ${x.local} - ${x.setor} <br>
+                                <i class="fas fa-phone-alt" style="font-size:0.7rem;"></i> ${x.contato || 'S/ Contato'}
+                            </div>
+                        </div>
+                        <div style="text-align:right; font-size:0.85rem; color:var(--text-muted);">
+                            <span>${t} PÇS</span><br>
+                            <span style="color:var(--gold-solid); font-weight:700;">${formatarMoeda(t * PRECO_CAMISETA)}</span>
+                        </div>
+                    </div>
+
+                    <!-- DETALHES EXPANSÍVEIS -->
+                    <div id="details-${x.docId}" class="pedido-details-content" style="display:none;">
+                        <h5 style="color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; font-size:0.75rem; letter-spacing:1px;">Detalhamento do Pedido</h5>
+                        ${tabelaHTML}
+                        
+                        <div style="margin-top:15px; text-align:right;">
+                            <button onclick="window.gerarPdfPedidoIndividual('${x.docId}')" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fas fa-file-pdf"></i> Gerar PDF do Pedido
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
         });
         window.mostrarCarregamento(false);
     };
 
     window.atualizarStatusPedido = async function(id, status) {
+        // Esta função não é mais chamada pelos botões (removidos), mas mantida para não quebrar referências antigas se existirem
         if (confirm('CONFIRMA AÇÃO?')) {
             window.mostrarCarregamento(true);
             await updateDoc(doc(db, "pedidos", id), { status });
@@ -1785,7 +2000,7 @@
             h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(255,255,255,0.02); margin-bottom:8px; border-radius:4px; border:1px solid var(--border-subtle);">
                     <div>
                         <strong style="color:#fff; font-size:0.9rem;">${k}</strong><br>
-                        <span style="font-size:0.8rem; color:var(--text-muted);">${res[k].qtd} PÇS - <span style="color:var(--gold-solid);">R$ ${res[k].val.toFixed(2)}</span></span>
+                        <span style="font-size:0.8rem; color:var(--text-muted);">${res[k].qtd} PÇS - <span style="color:var(--gold-solid);">${formatarMoeda(res[k].val)}</span></span>
                     </div>
                     <div style="text-align:right;">
                         <span id="status-fin-${i}" style="font-size:0.7rem; color:var(--warning-color); display:block; margin-bottom:5px; font-weight:600;">PENDENTE</span>
