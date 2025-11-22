@@ -4,15 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UMADEMATS | Premium Access</title>
-  <!-- Evita erro 404 de favicon -->
   <link rel="icon" href="data:,">
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Fonte Manrope (Estilo Fintech/Audax) -->
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Markdown Parser -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
   <style>
@@ -493,19 +490,16 @@
 </head>
 <body>
 
-  <!-- LUXURY BACKGROUND -->
   <div id="beams-container">
       <canvas id="beams-canvas"></canvas>
       <div class="beams-overlay"></div>
   </div>
 
-  <!-- LOADING -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="spinner-gold"></div>
     <div id="loadingText" style="margin-top:1.5rem; font-size:0.9rem; letter-spacing:2px; color:var(--text-muted);">CARREGANDO</div>
   </div>
 
-  <!-- MODAL SUCESSO -->
   <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
     <div class="pedido-confirmacao-card">
       <div style="text-align:center; margin-bottom:2rem;">
@@ -527,7 +521,6 @@
     </div>
   </div>
 
-  <!-- MODAL CONFIRMAR ALTERAÇÃO VALOR -->
   <div id="modalConfirmarValor" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:400px;">
           <div style="text-align:center; margin-bottom:2rem;">
@@ -542,7 +535,6 @@
       </div>
   </div>
 
-  <!-- MODAL RECUPERAR ID -->
   <div id="esqueceuIdOverlay" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card">
           <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
@@ -560,7 +552,6 @@
       </div>
   </div>
 
-  <!-- MODAL IA -->
   <div id="analiseIAOverlay" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:700px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
@@ -571,12 +562,10 @@
       </div>
   </div>
 
-  <!-- HEADER -->
   <header class="header">
     <div class="container header-content">
       <div class="logo">
         <div class="logo-icon">
-          <!-- Adicionado onerror para ocultar imagem quebrada se o 404 ocorrer -->
           <img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png" alt="Logo" onerror="this.style.display='none'">
         </div>
         <div class="logo-text">
@@ -587,11 +576,9 @@
     </div>
   </header>
 
-  <!-- MAIN -->
   <main class="main">
     <div class="container">
       
-      <!-- 1. HOME -->
       <section id="home" class="section active">
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:75vh; text-align:center;">
             <h1 class="home-title" style="line-height:1.1; margin-bottom:1.5rem;">
@@ -618,7 +605,6 @@
         </div>
       </section>
 
-      <!-- 2. CONSULTAR -->
       <section id="consultar" class="section">
         <button class="back-button" id="voltarHomeConsulta"><i class="fas fa-arrow-left"></i> Voltar</button>
         
@@ -663,7 +649,6 @@
         <div id="mensagemConsulta"></div>
       </section>
 
-      <!-- 3. PEDIDO -->
       <section id="pedido" class="section">
         <button class="back-button" id="voltarHome1"><i class="fas fa-arrow-left"></i> Voltar</button>
         
@@ -764,7 +749,6 @@
         </div>
       </section>
 
-      <!-- 4. ADMIN LOGIN -->
       <section id="admin" class="section">
         <button class="back-button" id="voltarHome3"><i class="fas fa-arrow-left"></i> Voltar</button>
         
@@ -775,7 +759,6 @@
             </div>
             
             <form id="formLoginAdmin">
-                <!-- Alterado para apenas senha, conforme pedido -->
                 <div class="form-group">
                     <label>Senha de Administrador</label>
                     <div style="position:relative;">
@@ -788,7 +771,6 @@
             <div id="mensagemLogin"></div>
         </div>
 
-        <!-- ADMIN PANEL -->
         <div id="painelAdmin" class="admin-panel" style="display:none; border:none; background:transparent; padding:0; box-shadow:none;">
             
             <div class="admin-menu">
@@ -797,7 +779,6 @@
                 <button class="admin-menu-btn" id="btnFinanceiro" onclick="window.mostrarAdminSecao('financeiro')">Financeiro</button>
             </div>
 
-            <!-- DASHBOARD -->
             <div id="admin-dashboard" class="admin-section active">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                     <h2>Visão Geral</h2>
@@ -827,7 +808,6 @@
                 <button class="btn-primary" id="btnVerDetalhes" style="width:100%; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">Relatório Detalhado de Tamanhos</button>
             </div>
 
-            <!-- DETALHES TAMANHOS -->
             <div id="admin-detalhes-tamanhos" class="admin-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
                     <h2>Matriz de Tamanhos</h2>
@@ -860,7 +840,6 @@
                 </div>
             </div>
 
-            <!-- FINANCEIRO -->
             <div id="admin-financeiro" class="admin-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
                     <h2>Financeiro</h2>
@@ -881,7 +860,6 @@
                 </div>
             </div>
 
-            <!-- LISTA PEDIDOS -->
             <div id="admin-pedidos" class="admin-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
                     <h2>Todos os Pedidos</h2>
@@ -900,11 +878,9 @@
     <p>&copy; 2025 UMADEMATS</p>
   </footer>
 
-  <!-- LIBS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- JAVASCRIPT -->
   <script type="module">
     // =================================================================
     // CONFIGURAÇÃO PARA PRODUÇÃO (COLE SUAS CHAVES REAIS AQUI)
@@ -1338,7 +1314,9 @@
         overlay.classList.add('active');
     };
 
-    // OTIMIZADO: Se der erro de permissão, ele FINGE QUE SALVOU para não travar o Admin
+    // =================================================================
+    // FUNÇÃO CORRIGIDA: SEGURANÇA DE DADOS
+    // =================================================================
     window.recalcularValores = async function(novoValorString) {
         const novoValor = parseFloat(novoValorString);
         
@@ -1349,19 +1327,14 @@
         
         window.mostrarCarregamento(true, "SALVANDO CONFIG...");
         
-        // ATUALIZAÇÃO OTIMISTA (Muda na memória sempre)
-        PRECO_CAMISETA = novoValor;
-        
         try {
-            // Tenta salvar no banco (pode falhar se for anônimo)
+            // 1. Tenta salvar no banco PRIMEIRO (Se falhar aqui, vai pro catch e não muda nada)
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
-        } catch (error) {
-            alert("ATENÇÃO: Erro ao salvar no banco! Verifique as regras do Firebase.");
-            console.error("Erro de permissão:", error);
-        }
+            
+            // 2. Sucesso no banco! Agora atualizamos a variável global
+            PRECO_CAMISETA = novoValor;
 
-        // RECALCULA OS VALORES NA TELA
-        try {
+            // 3. Recalcula os totais VISUAIS
             const pedidos = await window.carregarTodosPedidos();
             let totalItens = 0;
             pedidos.forEach(p => {
@@ -1376,12 +1349,18 @@
             await window.carregarDetalhesFinanceiros();
             
             window.mostrarCarregamento(false);
-            // Mensagem de Sucesso
-            alert(`SUCESSO!\n\nNovo Preço Unitário: R$ ${PRECO_CAMISETA.toFixed(2)}\nTotal de Camisetas Encontradas: ${totalItens}\nNovo Valor Arrecadado Total: R$ ${novoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            
+            // Mensagem de Sucesso Real
+            alert(`SUCESSO!\n\nConfiguração salva no banco de dados.\nNovo Preço: R$ ${PRECO_CAMISETA.toFixed(2)}\nTotal Previsto: R$ ${novoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
             
         } catch (error) {
             window.mostrarCarregamento(false);
-            alert("Erro ao recalcular: " + error.message);
+            console.error("Erro fatal ao salvar preço:", error);
+            alert("ERRO AO SALVAR: O novo valor NÃO foi aplicado.\n\nVerifique sua conexão ou permissões.\nDetalhe: " + error.message);
+            
+            // Reseta o input para o valor real (antigo) para não confundir
+            const valInput = document.getElementById('valorCamisetaInput');
+            if(valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
         }
     };
 
