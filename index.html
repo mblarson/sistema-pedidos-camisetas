@@ -794,7 +794,7 @@
                         <label style="color:var(--text-muted); margin:0;">Valor Unitário (R$)</label>
                         <input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;" required>
                         <!-- MUDANÇA 2: Botão Salvar corrigido -->
-                        <button type="submit" class="btn-primary" style="padding:0.8rem 1.5rem; font-size:0.8rem;">Salvar</button>
+                        <button type="submit" class="btn-primary" style="padding:0.8rem 1.5rem; font-size:0.8rem;">Salvar Configuração</button>
                     </form>
                 </div>
 
@@ -829,26 +829,87 @@
 
   <!-- JAVASCRIPT -->
   <script type="module">
-    const firebaseConfig = {
-        apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
-        authDomain: "pedidosumademats.firebaseapp.com",
-        projectId: "pedidosumademats",
-        storageBucket: "pedidosumademats.firebasestorage.app",
-        appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
-    };
-    
+    // CONFIGURAÇÃO DINÂMICA DO FIREBASE (AMBIENTE)
+    let firebaseConfig;
+    try {
+        firebaseConfig = JSON.parse(__firebase_config);
+    } catch (e) {
+        console.warn("Usando config fallback (local dev)");
+        firebaseConfig = {
+            apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
+            authDomain: "pedidosumademats.firebaseapp.com",
+            projectId: "pedidosumademats",
+            storageBucket: "pedidosumademats.firebasestorage.app",
+            appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
+        };
+    }
+
     const ADMIN_PASSWORD_FIXA = "umademats";
-    let PRECO_CAMISETA = parseFloat(localStorage.getItem('PRECO_CAMISETA')) || 30.00;
+    let PRECO_CAMISETA = 30.00; // Valor padrão inicial
     
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const pedidosCollection = collection(db, "pedidos");
     const auth = getAuth(app);
+    
+    // IDENTIFICADOR ÚNICO DO APP E PATHS SEGUROS
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'pedidos-umademats-app';
+    
+    // CONFIGURAÇÃO DE PATHS DO FIRESTORE (REQUIRED FOR PERMISSIONS)
+    const pedidosCollection = collection(db, 'artifacts', appId, 'public', 'data', 'pedidos');
+    const configDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'configuracoes', 'financeiro');
+
     let currentPedidoParaEdicao = null;
+
+    // AUTH LOGIC (REQUIRED BEFORE QUERIES)
+    const initAuth = async () => {
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        } catch (error) {
+            console.error("Auth Error:", error);
+            // Tenta fallback silencioso para anônimo se o token falhar
+            try { await signInAnonymously(auth); } catch(e) { console.error("Fallback Auth Failed", e); }
+        }
+    };
+
+    // CARREGAMENTO DE DADOS (APÓS AUTH)
+    async function carregarPrecoGlobal() {
+        try {
+            const docSnap = await getDoc(configDocRef);
+            if (docSnap.exists()) {
+                PRECO_CAMISETA = parseFloat(docSnap.data().valor_camiseta) || 30.00;
+                console.log("Preço carregado do DB:", PRECO_CAMISETA);
+            } else {
+                // Se não existir, cria com o padrão
+                await setDoc(configDocRef, { valor_camiseta: 30.00 });
+                PRECO_CAMISETA = 30.00;
+                console.log("Configuração criada no DB");
+            }
+            // Atualiza UI se estiver visível
+            const valInput = document.getElementById('valorCamisetaInput');
+            if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
+        } catch (error) {
+            console.error("Erro ao carregar preço:", error);
+        }
+    }
+
+    // LISTENER DE AUTH - INICIA O APP
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("Usuário autenticado:", user.uid);
+            carregarPrecoGlobal();
+        }
+    });
+
+    // START AUTH
+    initAuth();
 
     // GEMINI API CALL
     async function callGemini(promptText, systemInstruction = "") {
@@ -1089,8 +1150,8 @@
         overlay.classList.add('active');
     };
 
-    // MUDANÇA 2: Lógica de salvar valor e recalcular
-    window.recalcularValores = function(novoValorString) {
+    // MUDANÇA 2: Salvar no Firebase
+    window.recalcularValores = async function(novoValorString) {
         const novoValor = parseFloat(novoValorString);
         
         if (isNaN(novoValor) || novoValor <= 0) {
@@ -1098,16 +1159,22 @@
             return;
         }
         
-        // Atualiza valor global
-        PRECO_CAMISETA = novoValor;
-        localStorage.setItem('PRECO_CAMISETA', novoValor.toFixed(2));
+        window.mostrarCarregamento(true, "SALVANDO CONFIG...");
         
-        // Mensagem de sucesso
-        alert("Valor alterado com sucesso! Recalculando valores...");
-        
-        // Recalcula e atualiza a tela
-        window.carregarDashboard();
-        window.carregarDetalhesFinanceiros();
+        try {
+            // Salva no banco de dados
+            await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
+            PRECO_CAMISETA = novoValor;
+            alert("Valor atualizado no Banco de Dados para todos os dispositivos!");
+            
+            // Recalcula e atualiza a tela
+            window.carregarDashboard();
+            window.carregarDetalhesFinanceiros();
+        } catch (error) {
+            alert("Erro ao salvar configuração: " + error.message);
+        } finally {
+            window.mostrarCarregamento(false);
+        }
     };
 
     // PDF GENERATION
@@ -1204,11 +1271,24 @@
 
     window.verificarPedidoPorNumero = async function(numPedido) {
         try {
-            const docRef = doc(db, "pedidos", numPedido.trim());
+            // BUSCA POR ID DIRETO AGORA USANDO PATH SEGURO
+            const docRef = doc(pedidosCollection, numPedido.trim()); // Tenta usar o numPedido como ID do doc
+            // OU SE O ID FOR DIFERENTE DO NUMPEDIDO, PRECISAMOS DE QUERY
+            // Vamos tentar primeiro por ID direto, depois query
+            
+            let data = null;
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) return { docId: docSnap.id, numPedido: docSnap.data().numPedido || docSnap.id, ...docSnap.data() };
-            return null;
+            if (docSnap.exists()) {
+                data = { docId: docSnap.id, numPedido: docSnap.data().numPedido || docSnap.id, ...docSnap.data() };
+            } else {
+                // Fallback: buscar por campo numPedido
+                 const q = query(pedidosCollection, where("numPedido", "==", numPedido.trim()));
+                 const qs = await getDocs(q);
+                 if (!qs.empty) data = { docId: qs.docs[0].id, ...qs.docs[0].data() };
+            }
+            return data;
         } catch (error) {
+            console.error(error);
             return null;
         }
     };
@@ -1350,10 +1430,10 @@
             
             let finalNum = '';
             if (isEditing) {
-                await updateDoc(doc(db, "pedidos", docId), data);
+                await updateDoc(doc(pedidosCollection, docId), data); // Usa coleção segura
                 finalNum = currentPedidoParaEdicao.numPedido;
             } else {
-                const ref = doc(pedidosCollection);
+                const ref = doc(pedidosCollection); // Usa coleção segura
                 data.numPedido = ref.id;
                 await setDoc(ref, data);
                 finalNum = ref.id;
@@ -1363,6 +1443,7 @@
             window.exibirConfirmacaoPedido(pedidoConfirmado);
             document.getElementById('formPedido').reset();
         } catch (err) {
+            console.error(err);
             window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR');
         } finally {
             window.mostrarCarregamento(false);
@@ -1453,7 +1534,7 @@
     window.atualizarStatusPedido = async function(id, status) {
         if (confirm('CONFIRMA AÇÃO?')) {
             window.mostrarCarregamento(true);
-            await updateDoc(doc(db, "pedidos", id), { status });
+            await updateDoc(doc(pedidosCollection, id), { status });
             window.carregarPedidos();
         }
     };
@@ -1624,3 +1705,5 @@
   </script>
 </body>
 </html>
+
+
