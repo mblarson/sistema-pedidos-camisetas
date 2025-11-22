@@ -194,6 +194,7 @@
       font-weight: 600;
       cursor: pointer;
       backdrop-filter: blur(10px);
+      font-size: 1.1rem;
     }
     
     .menu-button i { color: var(--gold-solid); font-size: 1.2rem; transition: var(--transition); }
@@ -334,7 +335,7 @@
         word-break: break-all;
         overflow-wrap: break-word;
         white-space: normal;
-        font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+        font-size: clamp(1.2rem, 4vw, 2rem) !important; 
         line-height: 1.2;
         padding: 0 10px;
     }
@@ -386,7 +387,7 @@
     .admin-menu-btn.active { color: var(--gold-solid); border-bottom-color: var(--gold-solid); }
 
     /* =========================================
-       MOBILE RESPONSIVENESS (MUDANÇA 1)
+       MOBILE RESPONSIVENESS
        ========================================= */
     @media (max-width: 480px) {
         .container { padding: 0 16px; }
@@ -398,7 +399,7 @@
         .logo-icon { width: 40px; height: 40px; }
         
         /* Home */
-        .home-title { font-size: 2rem; margin-bottom: 1rem; }
+        .home-title { font-size: 2.2rem; margin-bottom: 1rem; }
         .menu-button { padding: 1rem; }
         
         /* Forms */
@@ -433,6 +434,10 @@
         .pedido-confirmacao-card { width: 95%; margin: 10px; max-height: 90vh; overflow-y: auto; }
     }
 
+    @media (min-width: 481px) {
+        .home-title { font-size: clamp(3rem, 6vw, 4.5rem); }
+    }
+
   </style>
 </head>
 <body>
@@ -454,7 +459,6 @@
       
       <div style="background:rgba(255,255,255,0.03); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2rem; text-align:center; border:1px solid var(--border-subtle);">
           <p style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:0.5rem;">ID DO PEDIDO</p>
-          <!-- MUDANÇA 3: Ajuste do número do pedido para não estourar -->
           <div id="pedidoConfirmacaoNumero" style="color:#fff; font-weight:300; margin-bottom:1rem;"></div>
           <button onclick="const num = document.getElementById('pedidoConfirmacaoNumero').innerText.replace('#',''); window.copiarNumeroPedido(num)" style="background:transparent; border:1px solid var(--border-subtle); color:var(--gold-solid); padding:8px 16px; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:0.3s;">COPIAR CÓDIGO</button>
       </div>
@@ -464,6 +468,21 @@
       
       <button class="btn-primary" id="voltarInicio" style="width:100%;">Retornar ao Início</button>
     </div>
+  </div>
+
+  <!-- MODAL CONFIRMAR ALTERAÇÃO VALOR (NOVO) -->
+  <div id="modalConfirmarValor" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px;">
+          <div style="text-align:center; margin-bottom:2rem;">
+              <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-exclamation-triangle"></i></div>
+              <h2 style="font-size:1.5rem;">Alterar Preço?</h2>
+              <p style="color:var(--text-muted); font-size:0.9rem;">Isso recalculará todos os relatórios.</p>
+          </div>
+          <div style="display:flex; gap:1rem;">
+              <button id="btnCancelarAlteracao" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
+              <button id="btnConfirmarAlteracao" class="btn-primary" style="flex:1;">Confirmar</button>
+          </div>
+      </div>
   </div>
 
   <!-- MODAL RECUPERAR ID -->
@@ -517,7 +536,7 @@
       <!-- 1. HOME -->
       <section id="home" class="section active">
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:75vh; text-align:center;">
-            <h1 class="home-title" style="font-size: clamp(2.5rem, 5vw, 4rem); line-height:1.1; margin-bottom:1.5rem;">
+            <h1 class="home-title" style="line-height:1.1; margin-bottom:1.5rem;">
                 Pedidos de Camisetas <br>
                 <span class="text-gold">Jubileu de Ouro</span>
             </h1>
@@ -790,12 +809,12 @@
                 </div>
                 
                 <div class="card" style="margin-bottom:2rem;">
-                    <form id="formValorCamiseta" style="display:flex; align-items:center; gap:1rem;">
+                    <!-- MUDANÇA: Botão Salvar com ID específico e tipo Button -->
+                    <div style="display:flex; align-items:center; gap:1rem;">
                         <label style="color:var(--text-muted); margin:0;">Valor Unitário (R$)</label>
-                        <input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;" required>
-                        <!-- MUDANÇA 2: Botão Salvar corrigido -->
-                        <button type="submit" class="btn-primary" style="padding:0.8rem 1.5rem; font-size:0.8rem;">Salvar</button>
-                    </form>
+                        <input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;">
+                        <button id="btnSalvarValor" class="btn-primary" type="button" style="padding:0.8rem 1.5rem; font-size:0.8rem; display:flex; justify-content:center; align-items:center;">SALVAR</button>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -829,6 +848,7 @@
 
   <!-- JAVASCRIPT -->
   <script type="module">
+    // CONFIGURAÇÃO ORIGINAL DO USUÁRIO
     const firebaseConfig = {
         apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
         authDomain: "pedidosumademats.firebaseapp.com",
@@ -838,17 +858,66 @@
     };
     
     const ADMIN_PASSWORD_FIXA = "umademats";
-    let PRECO_CAMISETA = parseFloat(localStorage.getItem('PRECO_CAMISETA')) || 30.00;
+    let PRECO_CAMISETA = 30.00; // Valor padrão inicial
     
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const pedidosCollection = collection(db, "pedidos");
     const auth = getAuth(app);
+    
+    // PATHS ORIGINAIS DO USUÁRIO (NÃO ARTIFACTS)
+    const pedidosCollection = collection(db, "pedidos");
+    const configDocRef = doc(db, "configuracoes", "financeiro");
+
     let currentPedidoParaEdicao = null;
+
+    // AUTH LOGIC ORIGINAL COM TRATAMENTO DE ERRO EXPLÍCITO
+    const initAuth = async () => {
+        try {
+            await signInAnonymously(auth);
+        } catch (error) {
+            console.error("Auth Error:", error);
+            if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
+                alert("ERRO CRÍTICO: O login Anônimo está desativado no seu projeto Firebase (pedidosumademats). Por favor, acesse o Console do Firebase -> Authentication -> Sign-in method e ative o provedor 'Anônimo'.");
+            } else {
+                alert("Erro de Autenticação: " + error.message);
+            }
+        }
+    };
+
+    // CARREGAMENTO DE DADOS (APÓS AUTH)
+    async function carregarPrecoGlobal() {
+        try {
+            const docSnap = await getDoc(configDocRef);
+            if (docSnap.exists()) {
+                PRECO_CAMISETA = parseFloat(docSnap.data().valor_camiseta) || 30.00;
+                console.log("Preço carregado do DB:", PRECO_CAMISETA);
+            } else {
+                // Se não existir, cria com o padrão
+                // await setDoc(configDocRef, { valor_camiseta: 30.00 }); -> Pode falhar se auth falhar, melhor não bloquear
+                PRECO_CAMISETA = 30.00;
+            }
+            // Atualiza UI se estiver visível
+            const valInput = document.getElementById('valorCamisetaInput');
+            if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
+        } catch (error) {
+            console.error("Erro ao carregar preço (Auth falhou?):", error);
+        }
+    }
+
+    // LISTENER DE AUTH - INICIA O APP
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("Usuário autenticado:", user.uid);
+            carregarPrecoGlobal();
+        }
+    });
+
+    // START AUTH
+    initAuth();
 
     // GEMINI API CALL
     async function callGemini(promptText, systemInstruction = "") {
@@ -1089,8 +1158,8 @@
         overlay.classList.add('active');
     };
 
-    // MUDANÇA 2: Lógica de salvar valor e recalcular
-    window.recalcularValores = function(novoValorString) {
+    // MUDANÇA 2: Salvar no Firebase (com Confirmação e Relatório)
+    window.recalcularValores = async function(novoValorString) {
         const novoValor = parseFloat(novoValorString);
         
         if (isNaN(novoValor) || novoValor <= 0) {
@@ -1098,16 +1167,43 @@
             return;
         }
         
-        // Atualiza valor global
+        window.mostrarCarregamento(true, "ATUALIZANDO E RECALCULANDO...");
+        
+        // ATUALIZAÇÃO OTIMISTA (MEMÓRIA PRIMEIRO)
         PRECO_CAMISETA = novoValor;
-        localStorage.setItem('PRECO_CAMISETA', novoValor.toFixed(2));
         
-        // Mensagem de sucesso
-        alert("Valor alterado com sucesso! Recalculando valores...");
-        
-        // Recalcula e atualiza a tela
-        window.carregarDashboard();
-        window.carregarDetalhesFinanceiros();
+        try {
+            // Tenta salvar no banco (se falhar, a memória já foi atualizada para a sessão atual)
+            await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
+        } catch (error) {
+            console.error("Erro ao salvar no banco (mas memória atualizada):", error);
+        }
+
+        // FORÇA O RECALCULO
+        try {
+            const pedidos = await window.carregarTodosPedidos();
+            let totalItens = 0;
+            pedidos.forEach(p => {
+                totalItens += Object.values(p.infantil || {}).reduce((a,b)=>a+b,0) +
+                              Object.values(p.babylook || {}).reduce((a,b)=>a+b,0) +
+                              Object.values(p.unissex || {}).reduce((a,b)=>a+b,0);
+            });
+            
+            const novoTotal = totalItens * PRECO_CAMISETA;
+            
+            // ATUALIZA A TELA
+            await window.carregarDashboard();
+            await window.carregarDetalhesFinanceiros();
+            
+            window.mostrarCarregamento(false);
+            
+            // RELATÓRIO DE CONFIRMAÇÃO
+            alert(`SUCESSO!\n\nNovo Preço Unitário: R$ ${PRECO_CAMISETA.toFixed(2)}\nTotal de Camisetas Encontradas: ${totalItens}\nNovo Valor Arrecadado Total: R$ ${novoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            
+        } catch (error) {
+            window.mostrarCarregamento(false);
+            alert("Erro ao recalcular: " + error.message);
+        }
     };
 
     // PDF GENERATION
@@ -1204,9 +1300,18 @@
 
     window.verificarPedidoPorNumero = async function(numPedido) {
         try {
+            // Tenta por ID direto primeiro
             const docRef = doc(db, "pedidos", numPedido.trim());
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) return { docId: docSnap.id, numPedido: docSnap.data().numPedido || docSnap.id, ...docSnap.data() };
+            if (docSnap.exists()) {
+                return { docId: docSnap.id, numPedido: docSnap.data().numPedido || docSnap.id, ...docSnap.data() };
+            }
+            
+            // Fallback: query normal
+            const q = query(pedidosCollection, where("numPedido", "==", numPedido.trim()));
+            const qs = await getDocs(q);
+            if (!qs.empty) return { docId: qs.docs[0].id, ...qs.docs[0].data() };
+            
             return null;
         } catch (error) {
             return null;
@@ -1593,14 +1698,6 @@
         
         safeOnSubmit('formEsqueceuId', window.recuperarIdsPorEmail);
         
-        // MUDANÇA 7: Confirmação antes de alterar valor
-        safeOnSubmit('formValorCamiseta', (e) => {
-            e.preventDefault();
-            if (confirm("Confirmar alteração do valor?")) {
-                window.recalcularValores(document.getElementById('valorCamisetaInput').value);
-            }
-        });
-        
         safeOnClick('atualizarDashboard', window.carregarDashboard);
         safeOnClick('atualizarPedidos', window.carregarPedidos);
         safeOnClick('atualizarFinanceiro', window.carregarDetalhesFinanceiros);
@@ -1613,6 +1710,21 @@
         safeOnClick('atualizarDetalhesTamanho', window.carregarDetalhesTamanho);
         safeOnClick('btnGerarPdf', window.gerarRelatorioPdf);
         
+        // MUDANÇA 9: Nova Lógica de Confirmação de Preço (Modal)
+        safeOnClick('btnSalvarValor', () => {
+            document.getElementById('modalConfirmarValor').classList.add('active');
+        });
+        
+        safeOnClick('btnCancelarAlteracao', () => {
+            document.getElementById('modalConfirmarValor').classList.remove('active');
+        });
+        
+        safeOnClick('btnConfirmarAlteracao', () => {
+            document.getElementById('modalConfirmarValor').classList.remove('active');
+            const val = document.getElementById('valorCamisetaInput').value;
+            window.recalcularValores(val);
+        });
+        
         safeOnChange('radioCapital', () => window.updateSetorCidadeInput());
         safeOnChange('radioInterior', () => window.updateSetorCidadeInput());
         
@@ -1624,3 +1736,5 @@
   </script>
 </body>
 </html>
+
+
