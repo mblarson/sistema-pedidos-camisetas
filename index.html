@@ -887,27 +887,26 @@
         try {
             await signInAnonymously(auth);
         } catch (error) {
-           console.log("Erro auth anônima (ignorável):", error);
+           // Silencioso se já logado
         }
     };
 
-    // CARREGAMENTO DE DADOS
+    // CARREGAMENTO DE DADOS (VERSÃO LIMPA PARA BANCO DE DADOS)
     async function carregarPrecoGlobal() {
         try {
             const docSnap = await getDoc(configDocRef);
             if (docSnap.exists()) {
                 PRECO_CAMISETA = parseFloat(docSnap.data().valor_camiseta) || 30.00;
             } else {
-                // Tenta criar se não existir, mas ignora erro se falhar
+                // Tenta criar se não existir
                 try { await setDoc(configDocRef, { valor_camiseta: 30.00 }); } catch(e){} 
                 PRECO_CAMISETA = 30.00;
             }
             const valInput = document.getElementById('valorCamisetaInput');
             if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
         } catch (error) {
-            // SILENCIA O ERRO: Se falhar a leitura, usa o padrão sem assustar o usuário
-            console.warn("Usando preço padrão local (erro de permissão de leitura ignorado).");
-            PRECO_CAMISETA = 30.00;
+            // Se falhar por permissão, o usuário será alertado ao tentar salvar
+            console.error("Erro ao carregar preço:", error);
             const valInput = document.getElementById('valorCamisetaInput');
             if (valInput) valInput.value = "30.00";
         }
@@ -1176,11 +1175,11 @@
         PRECO_CAMISETA = novoValor;
         
         try {
-            // Tenta salvar no banco
+            // Tenta salvar no banco (pode falhar se for anônimo)
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
         } catch (error) {
-            // Se falhar (por permissão), apenas avisa no console e segue
-            console.warn("Não foi possível salvar permanentemente no banco (permissão negada), mas o valor foi atualizado para esta sessão.");
+            alert("ATENÇÃO: Erro ao salvar no banco! Verifique as regras do Firebase.");
+            console.error("Erro de permissão:", error);
         }
 
         // RECALCULA OS VALORES NA TELA
@@ -1199,7 +1198,7 @@
             await window.carregarDetalhesFinanceiros();
             
             window.mostrarCarregamento(false);
-            // Mensagem de Sucesso (Mesmo se só salvou na memória)
+            // Mensagem de Sucesso
             alert(`SUCESSO!\n\nNovo Preço Unitário: R$ ${PRECO_CAMISETA.toFixed(2)}\nTotal de Camisetas Encontradas: ${totalItens}\nNovo Valor Arrecadado Total: R$ ${novoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
             
         } catch (error) {
@@ -1730,8 +1729,8 @@
         safeOnChange('radioInterior', () => window.updateSetorCidadeInput());
         
         window.updateSetorCidadeInput();
-        const valInput = document.getElementById('valorCamisetaInput');
-        if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
+        // A carga inicial do preço agora está dentro da função carregarPrecoGlobal
+        carregarPrecoGlobal(); 
     });
   </script>
 </body>
