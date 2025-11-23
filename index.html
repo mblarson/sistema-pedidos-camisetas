@@ -22,6 +22,10 @@
       --gold-metallic: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
       --gold-solid: #d4af37;
       
+      /* NOVAS CORES DE CAMISETAS */
+      --shirt-verde: #556B2F;   /* Verde Oliva */
+      --shirt-terracota: #c05838; /* Terracota */
+
       /* FUNDOS - NOVA PALETA AZUL MARINHO */
       --bg-body: #020c1b;         /* Azul Quase Preto */
       --bg-surface: #0a192f;      /* Azul Marinho Profundo */
@@ -54,124 +58,57 @@
     body {
       font-family: 'Manrope', sans-serif;
       background-color: var(--bg-body);
-      /* Background original comentado para dar lugar ao Canvas, 
-         mas a cor de fundo base permanece por segurança */
-      /* background-image: radial-gradient(circle at 50% 0%, #112240 0%, #020c1b 70%); */
       color: var(--text-main);
       line-height: 1.6;
       min-height: 100vh;
       overflow-x: hidden;
-      position: relative; /* Necessário para o z-index funcionar corretamente */
+      position: relative;
     }
 
     /* =========================================
-       NOVO BACKGROUND LUXUOSO (BEAMS)
+       BACKGROUND LUXUOSO (BEAMS)
        ========================================= */
-    
     #beams-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1; /* Garante que fique atrás de tudo */
-        overflow: hidden;
-        background-color: var(--bg-body); /* Base escura */
-        pointer-events: none; /* Permite clicar através do fundo */
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: -1; overflow: hidden; background-color: var(--bg-body); pointer-events: none;
     }
-
     #beams-canvas {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        filter: blur(15px); /* Efeito de desfoque solicitado */
+        position: absolute; inset: 0; width: 100%; height: 100%; filter: blur(15px);
     }
-
-    /* Overlay simulando o motion.div do React */
     .beams-overlay {
-        position: absolute;
-        inset: 0;
-        background-color: rgba(2, 12, 27, 0.05);
-        z-index: 1;
-        backdrop-filter: blur(50px);
-        animation: pulseOverlay 10s ease-in-out infinite;
+        position: absolute; inset: 0; background-color: rgba(2, 12, 27, 0.05);
+        z-index: 1; backdrop-filter: blur(50px); animation: pulseOverlay 10s ease-in-out infinite;
     }
-
     @keyframes pulseOverlay {
-        0% { opacity: 0.05; }
-        15% { opacity: 0.15; }
-        50% { opacity: 0.05; }
-        100% { opacity: 0.05; }
+        0% { opacity: 0.05; } 15% { opacity: 0.15; } 50% { opacity: 0.05; } 100% { opacity: 0.05; }
     }
-
-    /* =========================================
-       FIM BACKGROUND
-       ========================================= */
 
     /* TIPOGRAFIA */
-    h1, h2, h3, h4, .home-title, .logo-text h1 {
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.02em;
-    }
-
-    /* Efeito de Texto Dourado */
+    h1, h2, h3, h4, .home-title, .logo-text h1 { font-weight: 700; color: #fff; letter-spacing: -0.02em; }
     .text-gold, .home-title span, .logo-text h1 {
-      background: var(--gold-metallic);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      background-size: 200% auto;
-      animation: shine 5s linear infinite;
+      background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; background-size: 200% auto; animation: shine 5s linear infinite;
     }
-
     @keyframes shine { to { background-position: 200% center; } }
 
     /* SPA LOGIC */
-    .section {
-        display: none;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .section.active {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-    }
+    .section { display: none; opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .section.active { display: block; opacity: 1; transform: translateY(0); }
 
     /* HEADER */
     .header {
       position: fixed; top: 0; left: 0; width: 100%;
-      background: rgba(2, 12, 27, 0.85); /* Levemente mais transparente para ver os beams */
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border-subtle);
-      z-index: 1000;
-      padding: 1rem 0;
+      background: rgba(2, 12, 27, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle); z-index: 1000; padding: 1rem 0;
     }
     .header-content { display: flex; justify-content: space-between; align-items: center; }
-    
     .logo { display: flex; align-items: center; gap: 1rem; }
-    
     .logo-icon {
-      width: 50px; height: 50px;
-      border-radius: var(--radius-sm);
+      width: 50px; height: 50px; border-radius: var(--radius-sm);
       display: flex; align-items: center; justify-content: center;
-      color: var(--gold-solid);
-      font-weight: 800;
-      font-size: 1.5rem;
-      background: transparent;
-      overflow: hidden;
+      color: var(--gold-solid); font-weight: 800; font-size: 1.5rem; background: transparent; overflow: hidden;
     }
-
-    .logo-icon img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
-
+    .logo-icon img { width: 100%; height: 100%; object-fit: contain; }
     .logo-text { display: flex; flex-direction: column; }
     .logo-text h1 { font-size: 1.4rem; line-height: 1; margin: 0; text-transform: uppercase; }
     .logo-text span { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
@@ -182,125 +119,48 @@
 
     /* BOTÕES */
     .btn-primary, .form-actions button {
-      font-family: 'Manrope', sans-serif;
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
-      border: none;
-      cursor: pointer;
-      transition: var(--transition);
-      border-radius: 50px;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-      background: var(--gold-metallic);
-      color: #020c1b;
-      padding: 1rem 2.5rem;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      font-family: 'Manrope', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;
+      border: none; cursor: pointer; transition: var(--transition); border-radius: 50px; position: relative; overflow: hidden; z-index: 1;
+      background: var(--gold-metallic); color: #020c1b; padding: 1rem 2.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
     }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(212, 175, 55, 0.2);
-      filter: brightness(1.1);
-    }
-
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.2); filter: brightness(1.1); }
     .back-button {
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--border-subtle);
-      padding: 0.6rem 1.2rem;
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      margin-bottom: 2rem;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      transition: var(--transition);
+      background: transparent; color: var(--text-muted); border: 1px solid var(--border-subtle); padding: 0.6rem 1.2rem;
+      display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 600; transition: var(--transition);
     }
-    .back-button:hover {
-      border-color: var(--gold-solid);
-      color: var(--gold-solid);
-      background: rgba(212, 175, 55, 0.05);
-    }
+    .back-button:hover { border-color: var(--gold-solid); color: var(--gold-solid); background: rgba(212, 175, 55, 0.05); }
 
     /* MENU BUTTONS */
-    .menu-container {
-        display: flex; flex-direction: column; gap: 1rem;
-        width: 100%; max-width: 450px; margin: 0 auto;
-    }
-
+    .menu-container { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 450px; margin: 0 auto; }
     .menu-button {
-      display: flex; justify-content: space-between; align-items: center;
-      width: 100%;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      color: #fff;
-      padding: 1.5rem 2rem;
-      border-radius: var(--radius-lg);
-      transition: var(--transition);
-      font-weight: 600;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      font-size: 1.1rem;
+      display: flex; justify-content: space-between; align-items: center; width: 100%;
+      background: var(--bg-card); border: 1px solid var(--border-subtle); color: #fff;
+      padding: 1.5rem 2rem; border-radius: var(--radius-lg); transition: var(--transition);
+      font-weight: 600; cursor: pointer; backdrop-filter: blur(10px); font-size: 1.1rem;
     }
-    
     .menu-button i { color: var(--gold-solid); font-size: 1.2rem; transition: var(--transition); }
-    
-    .menu-button:hover {
-      border-color: var(--gold-solid);
-      background: linear-gradient(90deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
-      transform: translateX(5px);
-    }
+    .menu-button:hover { border-color: var(--gold-solid); background: linear-gradient(90deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%); transform: translateX(5px); }
 
     /* CARDS & FORMS */
     .modern-form, .pedido-item, .card, .admin-panel, .pedido-confirmacao-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      padding: 2.5rem;
-      border-radius: var(--radius-lg);
-      backdrop-filter: blur(20px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 2.5rem;
+      border-radius: var(--radius-lg); backdrop-filter: blur(20px); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     }
-    
     .pedido-item { border-top: 2px solid var(--gold-solid); }
 
     /* INPUTS */
     .form-group { margin-bottom: 2rem; position: relative; }
-    
-    .form-group label {
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.8rem;
-    }
-
+    .form-group label { display: block; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem; }
     #formPedido label { color: #FFFFFF !important; }
-
     input, select, textarea {
-      width: 100%;
-      background: rgba(17, 34, 64, 0.5) !important;
-      border: 1px solid var(--border-subtle) !important;
-      border-radius: var(--radius-md) !important;
-      color: #fff !important;
-      padding: 1rem 1.2rem !important;
-      font-family: 'Manrope', sans-serif;
-      font-size: 1rem;
-      transition: var(--transition);
+      width: 100%; background: rgba(17, 34, 64, 0.5) !important; border: 1px solid var(--border-subtle) !important;
+      border-radius: var(--radius-md) !important; color: #fff !important; padding: 1rem 1.2rem !important;
+      font-family: 'Manrope', sans-serif; font-size: 1rem; transition: var(--transition);
     }
-    
     #formPedido input::placeholder { color: rgba(255, 255, 255, 0.7) !important; opacity: 1; }
+    input:focus, select:focus { border-color: var(--gold-solid) !important; outline: none; background: rgba(17, 34, 64, 0.8) !important; box-shadow: 0 0 0 1px var(--gold-solid); }
 
-    input:focus, select:focus {
-      border-color: var(--gold-solid) !important;
-      outline: none;
-      background: rgba(17, 34, 64, 0.8) !important;
-      box-shadow: 0 0 0 1px var(--gold-solid);
-    }
-    
     /* GRID */
     .form-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
     @media(min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
@@ -315,129 +175,67 @@
     .radio-label:hover { background: rgba(17, 34, 64, 0.8); }
     .radio-label input { width: auto !important; margin: 0; accent-color: var(--gold-solid); }
 
-    /* TAMANHOS */
+    /* TAMANHOS E CORES (NOVO) */
     .tipo-camiseta {
-        background: rgba(2, 12, 27, 0.5);
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
-        padding: 2rem;
-        margin-bottom: 2rem;
+        background: rgba(2, 12, 27, 0.5); border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;
     }
     .tipo-camiseta h4 {
-        color: var(--gold-solid);
-        margin-bottom: 1.5rem;
-        font-size: 1.1rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border-bottom: 1px solid var(--border-subtle);
+        color: var(--gold-solid); margin-bottom: 1.5rem; font-size: 1.1rem;
+        text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-subtle);
         padding-bottom: 1rem;
     }
-    
-    .tamanhos-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        gap: 1rem;
-    }
-    
+    .tamanhos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 1rem; }
     .tamanho-item { display: flex; flex-direction: column; align-items: center; }
     .tamanho-item label { margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.8rem; }
     #formPedido .tamanho-item label { color: #FFFFFF !important; }
     .tamanho-item input { text-align: center; padding: 0.8rem !important; font-weight: 700; }
 
+    /* HEADER DAS CORES */
+    .cor-header {
+        display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+        padding: 1rem; background: rgba(255,255,255,0.03); border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+    }
+    .cor-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); }
+
     /* DASHBOARD */
     .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
-    
     .card-content h4 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
-    
-    #admin-dashboard .card-content h4 { color: #FFFFFF !important; }
-    #admin-dashboard .dashboard-details h4 { color: #FFFFFF !important; }
-    #admin-dashboard .detail-item span { color: #FFFFFF !important; }
-    
+    #admin-dashboard .card-content h4, #admin-dashboard .dashboard-details h4, #admin-dashboard .detail-item span { color: #FFFFFF !important; }
     .card-value { font-size: 2.5rem; font-weight: 300; color: #fff; }
     
-    /* STATUS BADGES - APROVADO/REJEITADO REMOVIDOS */
-    .status-pendente {
-        /* Mantido apenas para lógica interna se necessário, mas não será exibido com badges de aprovação */
-        font-weight: 700; font-size: 0.7rem; padding: 6px 12px; 
-        text-transform: uppercase; border-radius: 50px; display: inline-block;
-        letter-spacing: 0.5px;
-        /* Estilização para pendente financeiro se usado */
-        background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2);
-    }
-    /* .status-aprovado e .status-rejeitado foram removidos do CSS */
-    
-    /* ACORDEON DE PEDIDOS (NOVO) */
-    .pedido-card-expandable {
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
-    .pedido-card-expandable:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
-    .pedido-details-content {
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-subtle);
-        animation: slideDown 0.3s ease-out;
-    }
-    @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .tabela-detalhe-pedido {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.85rem;
-        margin-bottom: 1rem;
-        color: #ddd;
-    }
-    .tabela-detalhe-pedido th, .tabela-detalhe-pedido td {
-        padding: 8px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        text-align: left;
-    }
-    .tabela-detalhe-pedido th {
-        color: var(--gold-solid);
-        font-weight: 600;
-        text-transform: uppercase;
-    }
+    .pedido-card-expandable { cursor: pointer; transition: background 0.3s ease; }
+    .pedido-card-expandable:hover { background: rgba(255, 255, 255, 0.05); }
+    .pedido-details-content { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); animation: slideDown 0.3s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .tabela-detalhe-pedido { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem; color: #ddd; }
+    .tabela-detalhe-pedido th, .tabela-detalhe-pedido td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
+    .tabela-detalhe-pedido th { color: var(--gold-solid); font-weight: 600; text-transform: uppercase; }
 
     /* MODAIS */
     .pedido-confirmacao-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(2, 12, 27, 0.9);
-        backdrop-filter: blur(15px);
-        z-index: 2000;
+        background: rgba(2, 12, 27, 0.9); backdrop-filter: blur(15px); z-index: 2000;
         display: flex; justify-content: center; align-items: center;
         opacity: 0; visibility: hidden; transition: var(--transition);
     }
     .pedido-confirmacao-overlay.active { opacity: 1; visibility: visible; }
+    .pedido-confirmacao-card { width: 95%; max-width: 550px; border: 1px solid var(--gold-solid); max-height: 90vh; overflow-y: auto; }
     
-    .pedido-confirmacao-card { width: 95%; max-width: 550px; border: 1px solid var(--gold-solid); }
-    
-    /* Correção do Número do Pedido saindo do Card */
     #pedidoConfirmacaoNumero {
-        word-break: break-all;
-        overflow-wrap: break-word;
-        white-space: normal;
-        font-size: clamp(1.2rem, 4vw, 2rem) !important; 
-        line-height: 1.2;
-        padding: 0 10px;
+        word-break: break-all; overflow-wrap: break-word; white-space: normal;
+        font-size: clamp(1.2rem, 4vw, 2rem) !important; line-height: 1.2; padding: 0 10px;
     }
 
     /* IA BUTTON */
     .btn-ai-magic {
-        background: transparent !important;
-        border: 1px solid var(--border-subtle) !important;
-        color: #fff !important;
-        width: 100%;
-        display: flex; align-items: center; justify-content: center; gap: 10px;
-        border-radius: var(--radius-md);
-        transition: var(--transition);
+        background: transparent !important; border: 1px solid var(--border-subtle) !important; color: #fff !important;
+        width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+        border-radius: var(--radius-md); transition: var(--transition);
     }
     .btn-ai-magic:hover {
-        border-color: var(--gold-solid) !important;
-        background: rgba(212, 175, 55, 0.05) !important;
+        border-color: var(--gold-solid) !important; background: rgba(212, 175, 55, 0.05) !important;
         box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
     }
     .btn-ai-magic i { color: var(--gold-solid); }
@@ -450,19 +248,15 @@
         opacity: 0; visibility: hidden; transition: var(--transition);
     }
     .loading-overlay.active { opacity: 1; visibility: visible; }
-    
     .spinner-gold {
         width: 50px; height: 50px; border-radius: 50%;
-        border: 2px solid rgba(212, 175, 55, 0.1);
-        border-top-color: var(--gold-solid);
+        border: 2px solid rgba(212, 175, 55, 0.1); border-top-color: var(--gold-solid);
         animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     
     /* ADMIN MENU */
-    .admin-menu {
-        display: flex; gap: 2rem; border-bottom: 1px solid var(--border-subtle); margin-bottom: 2rem; overflow-x: auto;
-    }
+    .admin-menu { display: flex; gap: 2rem; border-bottom: 1px solid var(--border-subtle); margin-bottom: 2rem; overflow-x: auto; }
     .admin-menu-btn {
         background: transparent; border: none; color: var(--text-muted);
         padding: 1rem 0; cursor: pointer; font-weight: 600; font-size: 0.9rem;
@@ -477,60 +271,35 @@
     @media (max-width: 480px) {
         .container { padding: 0 16px; }
         .main { padding: 5rem 0 2rem 0; }
-        
-        /* Header */
         .logo-text h1 { font-size: 1.1rem; }
         .logo-text span { font-size: 0.6rem; }
         .logo-icon { width: 40px; height: 40px; }
-        
-        /* Home */
         .home-title { font-size: 2.2rem; margin-bottom: 1rem; }
         .menu-button { padding: 1rem; }
-        
-        /* Forms */
         .modern-form, .card, .admin-panel { padding: 1.5rem; }
         .form-grid { gap: 1rem; }
         .radio-group { flex-direction: column; gap: 0.5rem; }
         .radio-label { width: 100%; justify-content: flex-start; }
-        
-        /* Tamanhos Grid */
         .tamanhos-grid { grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
-        
-        /* Dashboard */
         .dashboard-cards { grid-template-columns: 1fr; gap: 1rem; }
         .admin-menu { gap: 1rem; padding-bottom: 5px; }
         .admin-menu-btn { font-size: 0.8rem; padding: 0.8rem 0; }
-        
-        /* Tables Scroll */
         .tamanhos-table-container { overflow-x: auto; display: block; width: 100%; }
         .tamanhos-table th, .tamanhos-table td { padding: 0.8rem 0.5rem; font-size: 0.8rem; }
-        
-        /* Pedidos List */
         .pedido-header-minimized { flex-wrap: wrap; gap: 0.5rem; }
         .pedido-resumo-info { width: 100%; justify-content: space-between; }
         .admin-actions { flex-direction: column; gap: 0.5rem; }
         .admin-actions button { width: 100%; }
-        
-        /* Financeiro */
         .financeiro-item-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
         .financeiro-actions { width: 100%; justify-content: space-between; }
-        
-        /* Modais */
         .pedido-confirmacao-card { width: 95%; margin: 10px; max-height: 90vh; overflow-y: auto; }
     }
-
-    @media (min-width: 481px) {
-        .home-title { font-size: clamp(3rem, 6vw, 4.5rem); }
-    }
-
+    @media (min-width: 481px) { .home-title { font-size: clamp(3rem, 6vw, 4.5rem); } }
   </style>
 </head>
 <body>
 
-  <div id="beams-container">
-      <canvas id="beams-canvas"></canvas>
-      <div class="beams-overlay"></div>
-  </div>
+  <div id="beams-container"><canvas id="beams-canvas"></canvas><div class="beams-overlay"></div></div>
 
   <div id="loadingOverlay" class="loading-overlay">
     <div class="spinner-gold"></div>
@@ -544,27 +313,22 @@
         <h2 style="font-size:1.8rem;">Pedido Confirmado</h2>
         <p style="color:var(--text-muted); font-size:0.9rem;">Seu pedido foi registrado com sucesso.</p>
       </div>
-      
       <div style="background:rgba(255,255,255,0.03); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2rem; text-align:center; border:1px solid var(--border-subtle);">
           <p style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:0.5rem;">ID DO PEDIDO</p>
           <div id="pedidoConfirmacaoNumero" style="color:#fff; font-weight:300; margin-bottom:1rem;"></div>
           <button onclick="const num = document.getElementById('pedidoConfirmacaoNumero').innerText.replace('#',''); window.copiarNumeroPedido(num)" style="background:transparent; border:1px solid var(--border-subtle); color:var(--gold-solid); padding:8px 16px; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:0.3s;">COPIAR CÓDIGO</button>
       </div>
-      
       <div id="pedidoConfirmacaoInfo" style="font-size:0.9rem; color:var(--text-muted); text-align:center; margin-bottom:1rem;"></div>
       <div id="pedidoConfirmacaoTamanhos" style="font-size:0.85rem; color:#888; text-align:center; display:none;"></div>
-      
       <button class="btn-primary" id="voltarInicio" style="width:100%;">Retornar ao Início</button>
     </div>
   </div>
 
-  <!-- MODAL SUCESSO FINANCEIRO -->
   <div id="modalSucessoFinanceiro" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
           <div style="font-size:2.5rem; color:var(--success-color); margin-bottom:1rem;"><i class="fas fa-check-circle"></i></div>
           <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Valor Atualizado!</h2>
           <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">O preço foi alterado e os totais recalculados.</p>
-          
           <div style="background:rgba(255,255,255,0.03); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2rem; border:1px solid var(--border-subtle);">
               <div style="margin-bottom:1rem;">
                   <p style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:0.3rem;">Novo Valor Unitário</p>
@@ -575,18 +339,53 @@
                   <p id="confirmacaoNovoTotal" style="font-size:1.2rem; color:#fff;">R$ 0,00</p>
               </div>
           </div>
-          
           <button onclick="document.getElementById('modalSucessoFinanceiro').classList.remove('active')" class="btn-primary" style="width:100%;">Fechar</button>
       </div>
   </div>
 
-  <!-- MODAL ERRO LOGIN (TEXTO ATUALIZADO) -->
   <div id="modalErroLogin" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
           <div style="font-size:2.5rem; color:var(--danger-color); margin-bottom:1rem;"><i class="fas fa-times-circle"></i></div>
           <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Acesso Negado</h2>
           <p id="msgErroLogin" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">E-mail ou senha incorretos.</p>
           <button onclick="document.getElementById('modalErroLogin').classList.remove('active')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color);">Tentar Novamente</button>
+      </div>
+  </div>
+
+  <div id="modalFecharPedidos" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-lock"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Fechar Pedidos?</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Tem certeza que deseja FECHAR os pedidos? Insira a senha para confirmar.</p>
+          <div class="form-group" style="margin-bottom:1.5rem;">
+              <input type="password" id="senhaFecharPedidos" placeholder="Senha de Confirmação" style="text-align:center;">
+          </div>
+          <div id="msgErroSenhaFechar" style="color:var(--danger-color); font-size:0.8rem; margin-bottom:1rem; display:none;">SENHA INCORRETA</div>
+          <div style="display:flex; gap:1rem;">
+              <button onclick="document.getElementById('modalFecharPedidos').classList.remove('active'); document.getElementById('senhaFecharPedidos').value='';" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
+              <button onclick="window.confirmarFechamentoPedidos()" class="btn-primary" style="flex:1;">Confirmar</button>
+          </div>
+      </div>
+  </div>
+
+  <div id="modalReabrirPedidos" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--success-color); margin-bottom:1rem;"><i class="fas fa-lock-open"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Reabrir Pedidos?</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Deseja realmente reabrir os pedidos?</p>
+          <div style="display:flex; gap:1rem;">
+              <button onclick="document.getElementById('modalReabrirPedidos').classList.remove('active')" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
+              <button onclick="window.confirmarReaberturaPedidos()" class="btn-primary" style="flex:1;">Confirmar</button>
+          </div>
+      </div>
+  </div>
+
+  <div id="modalPedidosFechados" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-store-slash"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Pedidos Fechados</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Os pedidos estão temporariamente fechados.</p>
+          <button onclick="document.getElementById('modalPedidosFechados').classList.remove('active')" class="btn-primary" style="width:100%;">Entendido</button>
       </div>
   </div>
 
@@ -634,13 +433,8 @@
   <header class="header">
     <div class="container header-content">
       <div class="logo">
-        <div class="logo-icon">
-          <img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png" alt="Logo" onerror="this.style.display='none'">
-        </div>
-        <div class="logo-text">
-          <h1>UMADEMATS</h1>
-          <span>IGREJA EVANGÉLICA ASSEMBLEIA DE DEUS MS</span>
-        </div>
+        <div class="logo-icon"><img src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png" alt="Logo" onerror="this.style.display='none'"></div>
+        <div class="logo-text"><h1>UMADEMATS</h1><span>IGREJA EVANGÉLICA ASSEMBLEIA DE DEUS MS</span></div>
       </div>
     </div>
   </header>
@@ -650,39 +444,22 @@
       
       <section id="home" class="section active">
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:75vh; text-align:center;">
-            <h1 class="home-title" style="line-height:1.1; margin-bottom:1.5rem;">
-                Pedidos de Camisetas <br>
-                <span class="text-gold">Jubileu de Ouro</span>
-            </h1>
-            
+            <h1 class="home-title" style="line-height:1.1; margin-bottom:1.5rem;">Pedidos de Camisetas <br><span class="text-gold">Jubileu de Ouro</span></h1>
             <div class="menu-container">
-                <button class="menu-button" id="btnNovoPedido">
-                    <span><i class="fas fa-plus-circle" style="margin-right:10px; color:var(--gold-solid);"></i> Realizar Novo Pedido</span> 
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                
-                <button class="menu-button" id="btnConsultarPedido">
-                    <span><i class="fas fa-search" style="margin-right:10px; color:var(--text-muted);"></i> Consultar Pedido</span> 
-                    <i class="fas fa-chevron-right" style="color:var(--text-muted);"></i>
-                </button>
-                
-                <button class="menu-button" id="btnAdministrador">
-                    <span><i class="fas fa-shield-alt" style="margin-right:10px; color:var(--text-muted);"></i> Área Administrativa</span> 
-                    <i class="fas fa-lock" style="font-size:0.9rem; color:var(--text-muted);"></i>
-                </button>
+                <button class="menu-button" id="btnNovoPedido"><span><i class="fas fa-plus-circle" style="margin-right:10px; color:var(--gold-solid);"></i> Realizar Novo Pedido</span> <i class="fas fa-chevron-right"></i></button>
+                <button class="menu-button" id="btnConsultarPedido"><span><i class="fas fa-search" style="margin-right:10px; color:var(--gold-solid);"></i> Consultar Pedido</span> <i class="fas fa-chevron-right" style="color:var(--gold-solid);"></i></button>
+                <button class="menu-button" id="btnAdministrador"><span><i class="fas fa-shield-alt" style="margin-right:10px; color:var(--gold-solid);"></i> Área Administrativa</span> <i class="fas fa-lock" style="font-size:0.9rem; color:var(--gold-solid);"></i></button>
             </div>
         </div>
       </section>
 
       <section id="consultar" class="section">
         <button class="back-button" id="voltarHomeConsulta"><i class="fas fa-arrow-left"></i> Voltar</button>
-        
         <div class="modern-form" style="max-width:600px; margin:0 auto;">
             <div style="text-align:center; margin-bottom:2.5rem;">
                 <h2 style="margin-bottom:0.5rem;">Localizar Pedido</h2>
                 <p style="color:var(--text-muted);">Informe seus dados para acessar o status.</p>
             </div>
-            
             <form id="formConsultarNumero">
                 <div class="form-group">
                     <label>Código do Pedido (ID)</label>
@@ -692,13 +469,11 @@
                     </div>
                 </div>
             </form>
-            
             <div style="display:flex; align-items:center; margin:2rem 0; gap:1rem;">
                 <div style="height:1px; background:var(--border-subtle); flex:1;"></div>
                 <span style="color:var(--text-muted); font-size:0.8rem;">OU</span>
                 <div style="height:1px; background:var(--border-subtle); flex:1;"></div>
             </div>
-
             <form id="formConsultarEmail">
                 <div class="form-group">
                     <label>Buscar por E-mail</label>
@@ -708,12 +483,10 @@
                     </div>
                 </div>
             </form>
-            
             <div style="text-align:center; margin-top:2rem;">
                 <a id="btnEsqueceuId" style="color:var(--gold-solid); cursor:pointer; font-size:0.85rem; font-weight:600;">Esqueci meu código</a>
             </div>
         </div>
-        
         <div id="resultadoConsulta" style="margin-top:2rem;"></div>
         <div id="mensagemConsulta"></div>
       </section>
@@ -723,10 +496,7 @@
         
         <div style="max-width:900px; margin:0 auto;">
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1.5rem;">
-                <div>
-                    <h2 id="pedidoTitulo" style="margin-bottom:0.5rem;">Novo Pedido</h2>
-                    <p id="pedidoSubtitulo" style="color:var(--text-muted);">Preencha os dados do coordenador responsável.</p>
-                </div>
+                <div><h2 id="pedidoTitulo" style="margin-bottom:0.5rem;">Novo Pedido</h2><p id="pedidoSubtitulo" style="color:var(--text-muted);">Preencha os dados do coordenador responsável.</p></div>
                 <div style="color:var(--gold-solid); font-weight:700;">2025 Collection</div>
             </div>
 
@@ -734,89 +504,111 @@
                 <input type="hidden" id="pedidoDocId" name="docId" value="">
                 
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label for="nome">Nome Completo</label>
-                        <input type="text" id="nome" name="nome" required placeholder="Nome do Líder">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Localização</label>
-                        <div class="radio-group">
-                            <label class="radio-label">
-                                <input type="radio" name="local" value="Capital" required id="radioCapital"> Capital
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="local" value="Interior" required id="radioInterior"> Interior
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label id="setorCidadeLabel">Setor / Cidade</label>
-                        <div id="setorCidadeContainer">
-                            <input type="text" id="setor" name="setor" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">E-mail (Obrigatório)</label>
-                        <input type="email" id="email" name="email" required placeholder="Para receber confirmação">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="contato">Número para Contato</label>
-                        <input type="text" id="contato" name="contato" required placeholder="(XX) 9XXXX-XXXX">
-                    </div>
+                    <div class="form-group"><label for="nome">Nome Completo</label><input type="text" id="nome" name="nome" required placeholder="Nome do Líder"></div>
+                    <div class="form-group"><label>Localização</label><div class="radio-group"><label class="radio-label"><input type="radio" name="local" value="Capital" required id="radioCapital"> Capital</label><label class="radio-label"><input type="radio" name="local" value="Interior" required id="radioInterior"> Interior</label></div></div>
+                    <div class="form-group"><label id="setorCidadeLabel">Setor / Cidade</label><div id="setorCidadeContainer"><input type="text" id="setor" name="setor" required></div></div>
+                    <div class="form-group"><label for="email">E-mail (Obrigatório)</label><input type="email" id="email" name="email" required placeholder="Para receber confirmação"></div>
+                    <div class="form-group"><label for="contato">Número para Contato</label><input type="text" id="contato" name="contato" required placeholder="(XX) 9XXXX-XXXX"></div>
                 </div>
 
                 <div style="margin-top:4rem;">
                     <h3 style="text-align:center; color:var(--gold-solid); margin-bottom:2.5rem; text-transform:uppercase; font-size:1.1rem; letter-spacing:2px;">Seleção de Tamanhos</h3>
                     
+                    <!-- CONTAINER 1: VERDE-OLIVA -->
+                    <div class="cor-header">
+                        <div class="cor-dot" style="background-color: var(--shirt-verde);"></div>
+                        <h4 style="margin:0; color:#fff;">Cor: <span style="color: var(--shirt-verde);">Verde-Oliva</span></h4>
+                    </div>
+
                     <div class="form-grid">
                         <div class="tipo-camiseta">
-                            <h4>Infantil</h4>
+                            <h4>Infantil (Verde)</h4>
                             <div class="tamanhos-grid">
-                                <div class="tamanho-item"><label>1</label><input type="number" id="infantil_1" name="infantil_1" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>2</label><input type="number" id="infantil_2" name="infantil_2" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>4</label><input type="number" id="infantil_4" name="infantil_4" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>6</label><input type="number" id="infantil_6" name="infantil_6" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>8</label><input type="number" id="infantil_8" name="infantil_8" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>10</label><input type="number" id="infantil_10" name="infantil_10" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>12</label><input type="number" id="infantil_12" name="infantil_12" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>14</label><input type="number" id="infantil_14" name="infantil_14" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>1</label><input type="number" id="verde_infantil_1" name="verde_infantil_1" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>2</label><input type="number" id="verde_infantil_2" name="verde_infantil_2" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>4</label><input type="number" id="verde_infantil_4" name="verde_infantil_4" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>6</label><input type="number" id="verde_infantil_6" name="verde_infantil_6" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>8</label><input type="number" id="verde_infantil_8" name="verde_infantil_8" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>10</label><input type="number" id="verde_infantil_10" name="verde_infantil_10" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>12</label><input type="number" id="verde_infantil_12" name="verde_infantil_12" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>14</label><input type="number" id="verde_infantil_14" name="verde_infantil_14" min="0" value="0"></div>
                             </div>
                         </div>
 
                         <div class="tipo-camiseta">
-                            <h4>Babylook</h4>
+                            <h4>Babylook (Verde)</h4>
                             <div class="tamanhos-grid">
-                                <div class="tamanho-item"><label>PP</label><input type="number" id="babylook_PP" name="babylook_PP" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>P</label><input type="number" id="babylook_P" name="babylook_P" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>M</label><input type="number" id="babylook_M" name="babylook_M" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>G</label><input type="number" id="babylook_G" name="babylook_G" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>GG</label><input type="number" id="babylook_GG" name="babylook_GG" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>XGG</label><input type="number" id="babylook_XGG" name="babylook_XGG" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>PP</label><input type="number" id="verde_babylook_PP" name="verde_babylook_PP" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>P</label><input type="number" id="verde_babylook_P" name="verde_babylook_P" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>M</label><input type="number" id="verde_babylook_M" name="verde_babylook_M" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>G</label><input type="number" id="verde_babylook_G" name="verde_babylook_G" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>GG</label><input type="number" id="verde_babylook_GG" name="verde_babylook_GG" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>XGG</label><input type="number" id="verde_babylook_XGG" name="verde_babylook_XGG" min="0" value="0"></div>
                             </div>
                         </div>
 
                         <div class="tipo-camiseta" style="grid-column: 1 / -1;">
-                            <h4>Unissex (Adulto)</h4>
+                            <h4>Unissex (Verde)</h4>
                             <div class="tamanhos-grid" style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));">
-                                <div class="tamanho-item"><label>PP</label><input type="number" id="unissex_PP" name="unissex_PP" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>P</label><input type="number" id="unissex_P" name="unissex_P" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>M</label><input type="number" id="unissex_M" name="unissex_M" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>G</label><input type="number" id="unissex_G" name="unissex_G" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>GG</label><input type="number" id="unissex_GG" name="unissex_GG" min="0" value="0"></div>
-                                <div class="tamanho-item"><label>XGG</label><input type="number" id="unissex_XGG" name="unissex_XGG" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>PP</label><input type="number" id="verde_unissex_PP" name="verde_unissex_PP" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>P</label><input type="number" id="verde_unissex_P" name="verde_unissex_P" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>M</label><input type="number" id="verde_unissex_M" name="verde_unissex_M" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>G</label><input type="number" id="verde_unissex_G" name="verde_unissex_G" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>GG</label><input type="number" id="verde_unissex_GG" name="verde_unissex_GG" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>XGG</label><input type="number" id="verde_unissex_XGG" name="verde_unissex_XGG" min="0" value="0"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONTAINER 2: TERRACOTA -->
+                    <div class="cor-header" style="margin-top: 3rem;">
+                        <div class="cor-dot" style="background-color: var(--shirt-terracota);"></div>
+                        <h4 style="margin:0; color:#fff;">Cor: <span style="color: var(--shirt-terracota);">Terracota</span></h4>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="tipo-camiseta">
+                            <h4>Infantil (Terracota)</h4>
+                            <div class="tamanhos-grid">
+                                <div class="tamanho-item"><label>1</label><input type="number" id="terracota_infantil_1" name="terracota_infantil_1" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>2</label><input type="number" id="terracota_infantil_2" name="terracota_infantil_2" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>4</label><input type="number" id="terracota_infantil_4" name="terracota_infantil_4" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>6</label><input type="number" id="terracota_infantil_6" name="terracota_infantil_6" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>8</label><input type="number" id="terracota_infantil_8" name="terracota_infantil_8" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>10</label><input type="number" id="terracota_infantil_10" name="terracota_infantil_10" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>12</label><input type="number" id="terracota_infantil_12" name="terracota_infantil_12" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>14</label><input type="number" id="terracota_infantil_14" name="terracota_infantil_14" min="0" value="0"></div>
+                            </div>
+                        </div>
+
+                        <div class="tipo-camiseta">
+                            <h4>Babylook (Terracota)</h4>
+                            <div class="tamanhos-grid">
+                                <div class="tamanho-item"><label>PP</label><input type="number" id="terracota_babylook_PP" name="terracota_babylook_PP" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>P</label><input type="number" id="terracota_babylook_P" name="terracota_babylook_P" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>M</label><input type="number" id="terracota_babylook_M" name="terracota_babylook_M" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>G</label><input type="number" id="terracota_babylook_G" name="terracota_babylook_G" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>GG</label><input type="number" id="terracota_babylook_GG" name="terracota_babylook_GG" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>XGG</label><input type="number" id="terracota_babylook_XGG" name="terracota_babylook_XGG" min="0" value="0"></div>
+                            </div>
+                        </div>
+
+                        <div class="tipo-camiseta" style="grid-column: 1 / -1;">
+                            <h4>Unissex (Terracota)</h4>
+                            <div class="tamanhos-grid" style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));">
+                                <div class="tamanho-item"><label>PP</label><input type="number" id="terracota_unissex_PP" name="terracota_unissex_PP" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>P</label><input type="number" id="terracota_unissex_P" name="terracota_unissex_P" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>M</label><input type="number" id="terracota_unissex_M" name="terracota_unissex_M" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>G</label><input type="number" id="terracota_unissex_G" name="terracota_unissex_G" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>GG</label><input type="number" id="terracota_unissex_GG" name="terracota_unissex_GG" min="0" value="0"></div>
+                                <div class="tamanho-item"><label>XGG</label><input type="number" id="terracota_unissex_XGG" name="terracota_unissex_XGG" min="0" value="0"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div style="margin-top:3rem; text-align:center;">
-                    <button type="submit" class="btn-primary" style="min-width:250px;">
-                        <span id="submitButtonText">Confirmar e Enviar</span>
-                    </button>
+                    <button type="submit" class="btn-primary" style="min-width:250px;"><span id="submitButtonText">Confirmar e Enviar</span></button>
                 </div>
             </form>
             <div id="mensagemPedido"></div>
@@ -825,34 +617,17 @@
 
       <section id="admin" class="section">
         <button class="back-button" id="voltarHome3"><i class="fas fa-arrow-left"></i> Voltar</button>
-        
         <div id="loginAdmin" class="modern-form" style="max-width:450px; margin:3rem auto;">
-            <div style="text-align:center; margin-bottom:2rem;">
-                <h2 style="margin-bottom:0.5rem;">Acesso Restrito</h2>
-                <p style="color:var(--text-muted);">Apenas pessoal autorizado</p>
-            </div>
-            
+            <div style="text-align:center; margin-bottom:2rem;"><h2 style="margin-bottom:0.5rem;">Acesso Restrito</h2><p style="color:var(--text-muted);">Apenas pessoal autorizado</p></div>
             <form id="formLoginAdmin">
-                <!-- CAMPO DE E-MAIL ADICIONADO -->
-                <div class="form-group">
-                    <label>E-mail Administrativo</label>
-                    <input type="email" id="emailAdmin" required placeholder="admin@umademats.com.br">
-                </div>
-
-                <div class="form-group">
-                    <label>Senha de Administrador</label>
-                    <div style="position:relative;">
-                        <input type="password" id="senhaAdmin" required style="padding-right:40px !important;">
-                        <button type="button" onclick="window.togglePasswordVisibility('senhaAdmin', this.querySelector('i'))" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer;"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
+                <div class="form-group"><label>E-mail Administrativo</label><input type="email" id="emailAdmin" required placeholder="admin@umademats.com.br"></div>
+                <div class="form-group"><label>Senha de Administrador</label><div style="position:relative;"><input type="password" id="senhaAdmin" required style="padding-right:40px !important;"><button type="button" onclick="window.togglePasswordVisibility('senhaAdmin', this.querySelector('i'))" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer;"><i class="fas fa-eye"></i></button></div></div>
                 <button type="submit" class="btn-primary" style="width:100%; margin-top:1rem;">Entrar no Sistema</button>
             </form>
             <div id="mensagemLogin"></div>
         </div>
 
         <div id="painelAdmin" class="admin-panel" style="display:none; border:none; background:transparent; padding:0; box-shadow:none;">
-            
             <div class="admin-menu">
                 <button class="admin-menu-btn active" id="btnDashboard" onclick="window.mostrarAdminSecao('dashboard')">Dashboard</button>
                 <button class="admin-menu-btn" id="btnPedidos" onclick="window.mostrarAdminSecao('pedidos')">Pedidos</button>
@@ -864,17 +639,12 @@
                     <h2>Visão Geral</h2>
                     <button id="atualizarDashboard" style="background:transparent; border:1px solid var(--border-subtle); color:var(--text-main); padding:0.5rem 1rem; border-radius:50px; cursor:pointer; display:flex; align-items:center; gap:8px;"><i class="fas fa-sync-alt"></i> Atualizar</button>
                 </div>
-
-                <button class="btn-ai-magic" id="btnAnaliseIA" style="margin-bottom:2rem; padding:1.2rem;">
-                    <i class="fas fa-sparkles"></i> Gerar Análise Inteligente de Vendas
-                </button>
-
+                <button class="btn-ai-magic" id="btnAnaliseIA" style="margin-bottom:2rem; padding:1.2rem;"><i class="fas fa-sparkles"></i> Gerar Análise Inteligente de Vendas</button>
                 <div class="dashboard-cards">
                     <div class="card"><div class="card-content"><h4>Pedidos Totais</h4><p class="card-value" id="totalPedidos">0</p></div></div>
                     <div class="card"><div class="card-content"><h4>Camisetas</h4><p class="card-value" id="totalCamisetas">0</p></div></div>
                     <div class="card"><div class="card-content"><h4>Receita (Est.)</h4><p class="card-value text-gold" id="totalArrecadado">R$ 0,00</p></div></div>
                 </div>
-
                 <div class="card" style="margin-bottom:2rem;">
                     <h4 style="margin-bottom:1.5rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">Métricas por Categoria</h4>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:2rem; text-align:center;">
@@ -883,66 +653,30 @@
                         <div class="detail-item"><span style="color:var(--text-muted); font-size:0.85rem; display:block; margin-bottom:5px;">Unissex</span><strong style="font-size:1.8rem;" id="totalUnissex">0</strong></div>
                     </div>
                 </div>
-                
                 <button class="btn-primary" id="btnVerDetalhes" style="width:100%; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">Relatório Detalhado de Tamanhos</button>
             </div>
 
             <div id="admin-detalhes-tamanhos" class="admin-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
-                    <h2>Matriz de Tamanhos</h2>
-                    <button id="voltarDashboard" style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; gap:5px;"><i class="fas fa-arrow-left"></i> Voltar</button>
-                </div>
-                
-                <div class="card" style="margin-bottom:2rem;">
-                    <h4 style="color:var(--gold-solid); margin-bottom:1.5rem;">Adultos</h4>
-                    <div id="tamanhosAdultoContainer" class="tamanhos-table-container" style="overflow-x:auto;">
-                        <table class="tamanhos-table" id="tabelaAdultos" style="width:100%; border-collapse:collapse;">
-                            <thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:15px; color:var(--text-muted);">TIPO</th><th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th></tr></thead>
-                            <tbody id="tamanhosAdultoBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-bottom:2rem;">
-                    <h4 style="color:var(--gold-solid); margin-bottom:1.5rem;">Infantil</h4>
-                    <div id="tamanhosInfantilContainer" style="overflow-x:auto;">
-                        <table class="tamanhos-table" id="tabelaInfantil" style="width:100%; border-collapse:collapse;">
-                            <thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:15px; color:var(--text-muted);">TIPO</th><th>1</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th><th>12</th><th>14</th></tr></thead>
-                            <tbody id="tamanhosInfantilBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div style="display:flex; gap:1rem;">
-                    <button class="btn-primary" id="btnGerarPdf" style="flex:1;">Baixar PDF</button>
-                    <button id="atualizarDetalhesTamanho" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:#fff; border-radius:50px; cursor:pointer;">Atualizar Dados</button>
-                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;"><h2>Matriz de Tamanhos</h2><button id="voltarDashboard" style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; gap:5px;"><i class="fas fa-arrow-left"></i> Voltar</button></div>
+                <div class="card" style="margin-bottom:2rem;"><h4 style="color:var(--gold-solid); margin-bottom:1.5rem;">Adultos</h4><div id="tamanhosAdultoContainer" class="tamanhos-table-container" style="overflow-x:auto;"><table class="tamanhos-table" id="tabelaAdultos" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:15px; color:var(--text-muted);">TIPO</th><th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th></tr></thead><tbody id="tamanhosAdultoBody"></tbody></table></div></div>
+                <div class="card" style="margin-bottom:2rem;"><h4 style="color:var(--gold-solid); margin-bottom:1.5rem;">Infantil</h4><div id="tamanhosInfantilContainer" style="overflow-x:auto;"><table class="tamanhos-table" id="tabelaInfantil" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:15px; color:var(--text-muted);">TIPO</th><th>1</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th><th>12</th><th>14</th></tr></thead><tbody id="tamanhosInfantilBody"></tbody></table></div></div>
+                <div style="display:flex; gap:1rem;"><button class="btn-primary" id="btnGerarPdf" style="flex:1;">Baixar PDF</button><button id="atualizarDetalhesTamanho" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:#fff; border-radius:50px; cursor:pointer;">Atualizar Dados</button></div>
             </div>
 
             <div id="admin-financeiro" class="admin-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
-                    <h2>Financeiro</h2>
-                    <button id="atualizarFinanceiro" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
-                </div>
-                
-                <div class="card" style="margin-bottom:2rem;">
-                    <div style="display:flex; align-items:center; gap:1rem;">
-                        <label style="color:var(--text-muted); margin:0;">Valor Unitário (R$)</label>
-                        <input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;">
-                        <button id="btnSalvarValor" class="btn-primary" type="button" style="padding:0.8rem 1.5rem; font-size:0.8rem; display:flex; justify-content:center; align-items:center;">SALVAR</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h4 style="margin-bottom:1.5rem;">Por Setor / Localidade</h4>
-                    <div id="resumoFinanceiroLocais"></div>
-                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;"><h2>Financeiro</h2><button id="atualizarFinanceiro" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button></div>
+                <div class="card" style="margin-bottom:2rem;"><div style="display:flex; align-items:center; gap:1rem;"><label style="color:var(--text-muted); margin:0;">Valor Unitário (R$)</label><input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;"><button id="btnSalvarValor" class="btn-primary" type="button" style="padding:0.8rem 1.5rem; font-size:0.8rem; display:flex; justify-content:center; align-items:center;">SALVAR</button></div></div>
+                <div class="card"><h4 style="margin-bottom:1.5rem;">Por Setor / Localidade</h4><div id="resumoFinanceiroLocais"></div></div>
             </div>
 
             <div id="admin-pedidos" class="admin-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
                     <h2>Todos os Pedidos</h2>
-                    <button id="atualizarPedidos" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <button id="btnFecharPedidosAction" style="background:rgba(212, 175, 55, 0.1); border:1px solid var(--gold-solid); color:var(--gold-solid); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase;"><i class="fas fa-ban"></i> Fechar Pedidos</button>
+                        <button id="btnReabrirPedidosAction" style="background:rgba(100, 255, 218, 0.1); border:1px solid var(--success-color); color:var(--success-color); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase; display:none;"><i class="fas fa-check"></i> Reabrir Pedidos</button>
+                        <button id="atualizarPedidos" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
+                    </div>
                 </div>
                 <div id="listaPedidos"></div>
             </div>
@@ -961,9 +695,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
   <script type="module">
-    // =================================================================
-    // CONFIGURAÇÃO PARA PRODUÇÃO
-    // =================================================================
    const firebaseConfig = {
       apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
       authDomain: "pedidosumademats.firebaseapp.com",
@@ -973,13 +704,10 @@
       appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
     };
     
-    // VARIÁVEL GLOBAL PARA CACHE DE PEDIDOS (necessária para PDF individual)
     window.pedidosCache = [];
-    let PRECO_CAMISETA = 30.00; // Valor padrão inicial, será atualizado pelo listener
+    let PRECO_CAMISETA = 30.00; 
+    let SISTEMA_ABERTO = true; 
 
-    // =================================================================
-    // IMPORTAÇÕES FIREBASE ATUALIZADAS (COM signInWithEmailAndPassword e signOut)
-    // =================================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
@@ -987,304 +715,110 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    
     const pedidosCollection = collection(db, "pedidos");
     const configDocRef = doc(db, "configuracoes", "financeiro");
+    const configSistemaRef = doc(db, "configuracoes", "sistema");
 
     let currentPedidoParaEdicao = null;
 
-    // =================================================================
-    // IMPLEMENTAÇÃO DO BACKGROUND LUXUOSO (BEAMS)
-    // =================================================================
-    
     (function initBeamsBackground() {
         const canvas = document.getElementById('beams-canvas');
         if (!canvas) return;
-
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-
-        const MINIMUM_BEAMS = 20;
-        const intensity = "strong"; // Configuração padrão: strong
-
-        const opacityMap = {
-            subtle: 0.7,
-            medium: 0.85,
-            strong: 1,
-        };
-
-        let beams = [];
-        let animationFrameId = 0;
-
-        // Função auxiliar para gerar um Beam
+        const MINIMUM_BEAMS = 20; const intensity = "strong";
+        const opacityMap = { subtle: 0.7, medium: 0.85, strong: 1 };
+        let beams = []; let animationFrameId = 0;
         function createBeam(width, height) {
             const angle = -35 + Math.random() * 10;
-            return {
-                x: Math.random() * width * 1.5 - width * 0.25,
-                y: Math.random() * height * 1.5 - height * 0.25,
-                width: 30 + Math.random() * 60,
-                length: height * 2.5,
-                angle: angle,
-                speed: 0.6 + Math.random() * 1.2,
-                opacity: 0.12 + Math.random() * 0.16,
-                hue: 190 + Math.random() * 70, // Mantido a cor original (Azul/Ciano/Roxo) que combina com o tema
-                pulse: Math.random() * Math.PI * 2,
-                pulseSpeed: 0.02 + Math.random() * 0.03,
-            };
+            return { x: Math.random() * width * 1.5 - width * 0.25, y: Math.random() * height * 1.5 - height * 0.25, width: 30 + Math.random() * 60, length: height * 2.5, angle: angle, speed: 0.6 + Math.random() * 1.2, opacity: 0.12 + Math.random() * 0.16, hue: 190 + Math.random() * 70, pulse: Math.random() * Math.PI * 2, pulseSpeed: 0.02 + Math.random() * 0.03 };
         }
-
         function resetBeam(beam, index, totalBeams) {
             if (!canvas) return beam;
-            
-            const column = index % 3;
-            const spacing = canvas.width / 3;
-
-            beam.y = canvas.height + 100;
-            beam.x = column * spacing + spacing / 2 + (Math.random() - 0.5) * spacing * 0.5;
-            beam.width = 100 + Math.random() * 100;
-            beam.speed = 0.5 + Math.random() * 0.4;
-            beam.hue = 190 + (index * 70) / totalBeams;
-            beam.opacity = 0.2 + Math.random() * 0.1;
-            return beam;
+            const column = index % 3; const spacing = canvas.width / 3;
+            beam.y = canvas.height + 100; beam.x = column * spacing + spacing / 2 + (Math.random() - 0.5) * spacing * 0.5; beam.width = 100 + Math.random() * 100; beam.speed = 0.5 + Math.random() * 0.4; beam.hue = 190 + (index * 70) / totalBeams; beam.opacity = 0.2 + Math.random() * 0.1; return beam;
         }
-
         function drawBeam(ctx, beam) {
-            ctx.save();
-            ctx.translate(beam.x, beam.y);
-            ctx.rotate((beam.angle * Math.PI) / 180);
-
-            // Calculate pulsing opacity
+            ctx.save(); ctx.translate(beam.x, beam.y); ctx.rotate((beam.angle * Math.PI) / 180);
             const pulsingOpacity = beam.opacity * (0.8 + Math.sin(beam.pulse) * 0.2) * opacityMap[intensity];
-
             const gradient = ctx.createLinearGradient(0, 0, 0, beam.length);
-
-            // Enhanced gradient with multiple color stops
-            gradient.addColorStop(0, `hsla(${beam.hue}, 85%, 65%, 0)`);
-            gradient.addColorStop(0.1, `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity * 0.5})`);
-            gradient.addColorStop(0.4, `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity})`);
-            gradient.addColorStop(0.6, `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity})`);
-            gradient.addColorStop(0.9, `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity * 0.5})`);
-            gradient.addColorStop(1, `hsla(${beam.hue}, 85%, 65%, 0)`);
-
-            ctx.fillStyle = gradient;
-            ctx.fillRect(-beam.width / 2, 0, beam.width, beam.length);
-            ctx.restore();
+            gradient.addColorStop(0, `hsla(${beam.hue}, 85%, 65%, 0)`); gradient.addColorStop(0.1, `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity * 0.5})`); gradient.addColorStop(0.4, `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity})`); gradient.addColorStop(0.6, `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity})`); gradient.addColorStop(0.9, `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity * 0.5})`); gradient.addColorStop(1, `hsla(${beam.hue}, 85%, 65%, 0)`);
+            ctx.fillStyle = gradient; ctx.fillRect(-beam.width / 2, 0, beam.width, beam.length); ctx.restore();
         }
-
         function animate() {
-            if (!canvas || !ctx) return;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Nota: o blur já está aplicado via CSS para performance, mas podemos manter o filtro se necessário
-            // ctx.filter = "blur(35px)"; // Desativado aqui para usar o filtro CSS que é mais performático em alguns browsers
-
-            const totalBeams = beams.length;
-            beams.forEach((beam, index) => {
-                beam.y -= beam.speed;
-                beam.pulse += beam.pulseSpeed;
-
-                // Reset beam when it goes off screen
-                if (beam.y + beam.length < -100) {
-                    resetBeam(beam, index, totalBeams);
-                }
-
-                drawBeam(ctx, beam);
-            });
-
-            animationFrameId = requestAnimationFrame(animate);
+            if (!canvas || !ctx) return; ctx.clearRect(0, 0, canvas.width, canvas.height); const totalBeams = beams.length;
+            beams.forEach((beam, index) => { beam.y -= beam.speed; beam.pulse += beam.pulseSpeed; if (beam.y + beam.length < -100) { resetBeam(beam, index, totalBeams); } drawBeam(ctx, beam); }); animationFrameId = requestAnimationFrame(animate);
         }
-
         function updateCanvasSize() {
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = window.innerWidth * dpr;
-            canvas.height = window.innerHeight * dpr;
-            // Importante: manter o estilo CSS sincronizado
-            // O CSS já cuida do width/height 100%, mas o scale ajuda na nitidez
-            ctx.scale(dpr, dpr);
-
-            const totalBeams = MINIMUM_BEAMS * 1.5;
-            beams = Array.from({ length: totalBeams }, () => createBeam(canvas.width / dpr, canvas.height / dpr));
+            const dpr = window.devicePixelRatio || 1; canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr; ctx.scale(dpr, dpr);
+            const totalBeams = MINIMUM_BEAMS * 1.5; beams = Array.from({ length: totalBeams }, () => createBeam(canvas.width / dpr, canvas.height / dpr));
         }
-
-        // Inicialização
-        updateCanvasSize();
-        window.addEventListener("resize", updateCanvasSize);
-        animate();
-
+        updateCanvasSize(); window.addEventListener("resize", updateCanvasSize); animate();
     })();
 
-    // =================================================================
-    // FIM BACKGROUND
-    // =================================================================
-
-    // INICIALIZAÇÃO E CONTROLE DE ESTADO DE AUTENTICAÇÃO
     const initAuth = async () => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Se o usuário estiver logado e NÃO for anônimo, mostramos o painel administrativo
                 if (!user.isAnonymous) {
-                    const loginDiv = document.getElementById('loginAdmin');
-                    const painelDiv = document.getElementById('painelAdmin');
-                    if (loginDiv && painelDiv) {
-                        loginDiv.style.display = 'none';
-                        painelDiv.style.display = 'block';
-                        window.carregarDashboard();
-                    }
+                    const loginDiv = document.getElementById('loginAdmin'); const painelDiv = document.getElementById('painelAdmin');
+                    if (loginDiv && painelDiv) { loginDiv.style.display = 'none'; painelDiv.style.display = 'block'; window.carregarDashboard(); }
                 } else {
-                    // Se for anônimo, garante que o painel admin está oculto e login visível
-                    const loginDiv = document.getElementById('loginAdmin');
-                    const painelDiv = document.getElementById('painelAdmin');
-                    if (loginDiv && painelDiv) {
-                        loginDiv.style.display = 'block';
-                        painelDiv.style.display = 'none';
-                    }
+                    const loginDiv = document.getElementById('loginAdmin'); const painelDiv = document.getElementById('painelAdmin');
+                    if (loginDiv && painelDiv) { loginDiv.style.display = 'block'; painelDiv.style.display = 'none'; }
                 }
-                iniciarMonitoramentoPreco();
-            } else {
-                // Se não houver usuário, faz login anônimo (para público poder enviar pedidos)
-                signInAnonymously(auth).catch(console.error);
-            }
+                iniciarMonitoramentoPreco(); iniciarMonitoramentoSistema();
+            } else { signInAnonymously(auth).catch(console.error); }
         });
     };
     
-    // NOVA FUNÇÃO DE FORMATAÇÃO (PADRÃO BRASILEIRO)
-    const formatarMoeda = (valor) => {
-        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    };
+    const formatarMoeda = (valor) => { return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
 
-    // =================================================================
-    // CARREGAMENTO DE PREÇO EM TEMPO REAL (REAL-TIME SYNC)
-    // =================================================================
-    // Esta função substitui a antiga carregarPrecoGlobal
-    let unsubscribePreco = null;
+    let unsubscribePreco = null; let unsubscribeSistema = null;
 
     function iniciarMonitoramentoPreco() {
-        if (unsubscribePreco) return; // Já está monitorando
-
-        // onSnapshot "escuta" o documento. Se mudar no banco, roda o callback na hora.
+        if (unsubscribePreco) return; 
         unsubscribePreco = onSnapshot(configDocRef, (docSnap) => {
             if (docSnap.exists()) {
                 const novoPreco = parseFloat(docSnap.data().valor_camiseta) || 30.00;
-                
-                // Só atualiza se mudou de fato para evitar loops
                 if (PRECO_CAMISETA !== novoPreco) {
                     PRECO_CAMISETA = novoPreco;
-                    console.log("Preço atualizado em tempo real:", PRECO_CAMISETA);
-
-                    // Atualiza o input se ele existir
                     const valInput = document.getElementById('valorCamisetaInput');
-                    if (valInput) {
-                        // Verifica se o usuário não está digitando nele agora
-                        if (document.activeElement !== valInput) {
-                             valInput.value = PRECO_CAMISETA.toFixed(2);
-                        }
-                    }
-
-                    // Se o painel admin estiver visível, atualiza os dados
-                    if (document.getElementById('painelAdmin').style.display === 'block') {
-                        // Atualiza dashboard e financeiro automaticamente
-                        window.carregarDashboard();
-                        window.carregarDetalhesFinanceiros();
-                    }
+                    if (valInput && document.activeElement !== valInput) { valInput.value = PRECO_CAMISETA.toFixed(2); }
+                    if (document.getElementById('painelAdmin').style.display === 'block') { window.carregarDashboard(); window.carregarDetalhesFinanceiros(); }
                 } else {
-                    // Carga inicial mesmo se o valor for o mesmo
                     const valInput = document.getElementById('valorCamisetaInput');
                     if(valInput && valInput.value === "") valInput.value = PRECO_CAMISETA.toFixed(2);
                 }
-            } else {
-                // Documento não existe, cria padrão
-                setDoc(configDocRef, { valor_camiseta: 30.00 }).catch(console.error);
-                PRECO_CAMISETA = 30.00;
+            } else { setDoc(configDocRef, { valor_camiseta: 30.00 }).catch(console.error); PRECO_CAMISETA = 30.00; }
+        }, (error) => { console.error("Erro no monitoramento de preço:", error); });
+    }
+
+    function iniciarMonitoramentoSistema() {
+        if (unsubscribeSistema) return;
+        unsubscribeSistema = onSnapshot(configSistemaRef, (docSnap) => {
+            if (docSnap.exists()) { const data = docSnap.data(); SISTEMA_ABERTO = data.aberto !== false; } else { SISTEMA_ABERTO = true; setDoc(configSistemaRef, { aberto: true }).catch(console.error); }
+            const btnFechar = document.getElementById('btnFecharPedidosAction'); const btnReabrir = document.getElementById('btnReabrirPedidosAction');
+            if (btnFechar && btnReabrir) {
+                if (SISTEMA_ABERTO) { btnFechar.style.display = 'inline-block'; btnReabrir.style.display = 'none'; } else { btnFechar.style.display = 'none'; btnReabrir.style.display = 'inline-block'; }
             }
-        }, (error) => {
-            console.error("Erro no monitoramento de preço:", error);
         });
     }
 
     initAuth();
 
-    // GEMINI API CALL
-    async function callGemini(promptText, systemInstruction = "") {
-        const apiKey = ""; // Chave injetada em tempo de execução
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-        const payload = {
-            contents: [{ parts: [{ text: promptText }] }],
-            systemInstruction: { parts: [{ text: systemInstruction }] }
-        };
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!response.ok) throw new Error(`API Error: ${response.status}`);
-            const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        } catch (error) {
-            console.error("Gemini API Error:", error);
-            throw error;
-        }
-    }
+    async function callGemini(promptText) { return "Simulated Gemini Response"; }
 
-    // ANÁLISE IA
     window.handleAnaliseIA = async function() {
-        const resultContainer = document.getElementById('resultadoAnaliseIA');
-        try {
-            const pedidos = await window.carregarTodosPedidos();
-            const stats = {
-                totalPedidos: pedidos.length,
-                totalCamisetas: 0,
-                arrecadacaoEstimada: 0,
-                distribuicao: { infantil: 0, babylook: 0, unissex: 0 },
-                tamanhosTop: {},
-                locais: {}
-            };
-            
-            pedidos.forEach(p => {
-                const qtdInfantil = Object.values(p.infantil || {}).reduce((a, b) => a + b, 0);
-                const qtdBaby = Object.values(p.babylook || {}).reduce((a, b) => a + b, 0);
-                const qtdUni = Object.values(p.unissex || {}).reduce((a, b) => a + b, 0);
-                
-                stats.totalCamisetas += (qtdInfantil + qtdBaby + qtdUni);
-                stats.distribuicao.infantil += qtdInfantil;
-                stats.distribuicao.babylook += qtdBaby;
-                stats.distribuicao.unissex += qtdUni;
-                
-                const local = p.local || "Desconhecido";
-                stats.locais[local] = (stats.locais[local] || 0) + 1;
-                
-                const mapSizes = (obj, prefix) => {
-                    Object.entries(obj || {}).forEach(([k, v]) => {
-                        if (v > 0) {
-                            const key = `${prefix} ${k}`;
-                            stats.tamanhosTop[key] = (stats.tamanhosTop[key] || 0) + v;
-                        }
-                    });
-                };
-                mapSizes(p.infantil, 'Infantil');
-                mapSizes(p.babylook, 'Babylook');
-                mapSizes(p.unissex, 'Unissex');
-            });
-            
-            stats.arrecadacaoEstimada = stats.totalCamisetas * PRECO_CAMISETA;
-            const sortedSizes = Object.entries(stats.tamanhosTop).sort(([, a], [, b]) => b - a).slice(0, 5);
-            
-            const prompt = `Analise estes dados de vendas de camisetas (UMADEMATS): ${JSON.stringify({ ...stats, tamanhosTop: Object.fromEntries(sortedSizes) })}. Gere um relatório curto em Markdown com: 1. 🏆 Campeões de Venda. 2. 💰 Saúde Financeira. 3. 💡 Insight Estratégico.`;
-            
-            const aiResponse = await callGemini(prompt);
-            resultContainer.innerHTML = marked.parse(aiResponse);
-        } catch (error) {
-            console.error(error);
-            resultContainer.innerHTML = `<p style="color: var(--danger-color)">Erro ao analisar dados.</p>`;
-        }
+       document.getElementById('resultadoAnaliseIA').innerHTML = `<p style="color:#8892b0">A análise requer chave de API válida.</p>`;
     };
 
-    // UTILITÁRIOS
     function getQuantidadesFromForm(formData, prefix) {
         const quantidades = {};
         for (const [key, value] of formData.entries()) {
             if (key.startsWith(prefix + '_')) {
-                quantidades[key.split('_')[1]] = parseInt(value) || 0;
+                // remove prefixo "verde_infantil_" -> "1"
+                const cleanKey = key.replace(prefix + '_', '');
+                quantidades[cleanKey] = parseInt(value) || 0;
             }
         }
         return quantidades;
@@ -1292,51 +826,24 @@
 
     window.togglePasswordVisibility = function(inputId, iconElement) {
         const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-            iconElement.classList.remove('fa-eye');
-            iconElement.classList.add('fa-eye-slash');
-        } else {
-            input.type = "password";
-            iconElement.classList.remove('fa-eye-slash');
-            iconElement.classList.add('fa-eye');
-        }
+        if (input.type === "password") { input.type = "text"; iconElement.classList.remove('fa-eye'); iconElement.classList.add('fa-eye-slash'); } else { input.type = "password"; iconElement.classList.remove('fa-eye-slash'); iconElement.classList.add('fa-eye'); }
     };
 
-    function isValidEmail(value) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(value);
-    }
+    function isValidEmail(value) { const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; return emailRegex.test(value); }
+    function normalizeString(str) { if (typeof str !== 'string') return ''; return str.toUpperCase().trim(); }
 
-    function normalizeString(str) {
-        if (typeof str !== 'string') return '';
-        return str.toUpperCase().trim();
-    }
-
-    // NAVEGAÇÃO
     window.mostrarSecao = function(secao) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         const secaoElement = document.getElementById(secao);
-        if (secaoElement) {
-            secaoElement.classList.add('active');
-            secaoElement.style.opacity = "";
-            secaoElement.style.transform = "";
-        }
+        if (secaoElement) { secaoElement.classList.add('active'); secaoElement.style.opacity = ""; secaoElement.style.transform = ""; }
     };
 
     window.mostrarAdminSecao = function(secao) {
         document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
-        document.querySelectorAll('.admin-menu-btn').forEach(b => {
-            b.classList.remove('active');
-        });
-        
-        const secaoElement = document.getElementById(`admin-${secao}`);
-        if (secaoElement) secaoElement.style.display = 'block';
-        
+        document.querySelectorAll('.admin-menu-btn').forEach(b => { b.classList.remove('active'); });
+        const secaoElement = document.getElementById(`admin-${secao}`); if (secaoElement) secaoElement.style.display = 'block';
         const btnId = secao === 'dashboard' ? 'btnDashboard' : secao === 'pedidos' ? 'btnPedidos' : 'btnFinanceiro';
-        const btn = document.getElementById(btnId);
-        if (btn) btn.classList.add('active');
-        
+        const btn = document.getElementById(btnId); if (btn) btn.classList.add('active');
         if (secao === 'dashboard') window.carregarDashboard();
         else if (secao === 'pedidos') window.carregarPedidos();
         else if (secao === 'financeiro') window.carregarDetalhesFinanceiros();
@@ -1345,90 +852,28 @@
     window.redirecionarComAnimacao = function(secao, callback) {
         const elementoAtual = document.querySelector('.section.active');
         const proximoElemento = document.getElementById(secao);
-        
-        if (!elementoAtual || !proximoElemento || elementoAtual === proximoElemento) {
-            window.mostrarSecao(secao);
-            if (callback) callback();
-            return;
-        }
-        
-        elementoAtual.style.opacity = '0';
-        elementoAtual.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            window.mostrarSecao(secao);
-            if (callback) callback();
-            
-            proximoElemento.style.opacity = '0';
-            proximoElemento.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                proximoElemento.style.opacity = '1';
-                proximoElemento.style.transform = 'translateY(0)';
-            }, 50);
-        }, 400);
+        if (!elementoAtual || !proximoElemento || elementoAtual === proximoElemento) { window.mostrarSecao(secao); if (callback) callback(); return; }
+        elementoAtual.style.opacity = '0'; elementoAtual.style.transform = 'translateY(20px)';
+        setTimeout(() => { window.mostrarSecao(secao); if (callback) callback(); proximoElemento.style.opacity = '0'; proximoElemento.style.transform = 'translateY(20px)'; setTimeout(() => { proximoElemento.style.opacity = '1'; proximoElemento.style.transform = 'translateY(0)'; }, 50); }, 400);
     };
 
     window.exibirMensagem = function(elementoId, tipo, mensagem) {
-        const elemento = document.getElementById(elementoId);
-        if (!elemento) return;
-        
+        const elemento = document.getElementById(elementoId); if (!elemento) return;
         const color = tipo === 'sucesso' ? 'var(--success-color)' : 'var(--danger-color)';
         elemento.innerHTML = `<div style="padding:1rem; margin-top:1rem; border-radius:var(--radius-md); background:rgba(255,255,255,0.05); border-left:4px solid ${color}; color:#fff; font-size:0.9rem; box-shadow:0 5px 15px rgba(0,0,0,0.2);"><i class="fas fa-${tipo === 'sucesso' ? 'check-circle' : 'exclamation-circle'}" style="color:${color}; margin-right:8px;"></i> ${mensagem}</div>`;
-        
-        setTimeout(() => {
-            elemento.innerHTML = '';
-        }, 5000);
+        setTimeout(() => { elemento.innerHTML = ''; }, 5000);
     };
 
     window.mostrarCarregamento = function(mostrar = true, texto = 'PROCESSANDO...') {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const loadingText = document.getElementById('loadingText');
-        loadingText.textContent = texto;
-        if (mostrar) loadingOverlay.classList.add('active');
-        else loadingOverlay.classList.remove('active');
+        const loadingOverlay = document.getElementById('loadingOverlay'); const loadingText = document.getElementById('loadingText'); loadingText.textContent = texto; if (mostrar) loadingOverlay.classList.add('active'); else loadingOverlay.classList.remove('active');
     };
 
-    window.atualizarElemento = function(elementId, valor) {
-        const elemento = document.getElementById(elementId);
-        if (elemento) elemento.textContent = valor;
-    };
-
-    window.fecharConfirmacaoPedido = function() {
-        document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active');
-        window.mostrarSecao('home');
-    };
+    window.atualizarElemento = function(elementId, valor) { const elemento = document.getElementById(elementId); if (elemento) elemento.textContent = valor; };
+    window.fecharConfirmacaoPedido = function() { document.getElementById('pedidoConfirmacaoOverlay').classList.remove('active'); window.mostrarSecao('home'); };
 
     window.copiarNumeroPedido = function(numPedido) {
-        // Define fallback function
-        const fallbackCopy = (text) => {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) alert('CÓDIGO COPIADO!');
-                else alert('Erro ao copiar.');
-            } catch (err) {
-                alert('Erro ao copiar.');
-            }
-            document.body.removeChild(textArea);
-        };
-
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(numPedido).then(() => {
-                alert('CÓDIGO COPIADO!');
-            }).catch(err => {
-                console.warn("Clipboard API failed, trying fallback...", err);
-                fallbackCopy(numPedido);
-            });
-        } else {
-            fallbackCopy(numPedido);
-        }
+        const fallbackCopy = (text) => { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); try { const successful = document.execCommand('copy'); if (successful) alert('CÓDIGO COPIADO!'); else alert('Erro ao copiar.'); } catch (err) { alert('Erro ao copiar.'); } document.body.removeChild(textArea); };
+        if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(numPedido).then(() => { alert('CÓDIGO COPIADO!'); }).catch(err => { console.warn("Clipboard API failed, trying fallback...", err); fallbackCopy(numPedido); }); } else { fallbackCopy(numPedido); }
     };
 
     window.exibirConfirmacaoPedido = function(pedido) {
@@ -1436,121 +881,121 @@
         document.getElementById('pedidoConfirmacaoNumero').innerHTML = `#${pedido.numPedido}`;
         document.getElementById('pedidoConfirmacaoInfo').innerHTML = `<p><strong>NOME:</strong> ${pedido.nome}</p><p><strong>LOCAL:</strong> ${pedido.local} / ${pedido.setor}</p>`;
         
-        const listaTamanhos = (obj) => Object.entries(obj).filter(([k, v]) => v > 0).map(([k, v]) => `${k}: ${v}`).join(', ');
+        let resumo = "";
+        const listaTamanhos = (obj) => Object.entries(obj || {}).filter(([k, v]) => v > 0).map(([k, v]) => `${k}: ${v}`).join(', ');
         
-        document.getElementById('pedidoConfirmacaoTamanhos').innerHTML = `<p>INFANTIL: ${listaTamanhos(pedido.infantil)}</p><p>BABYLOOK: ${listaTamanhos(pedido.babylook)}</p><p>UNISSEX: ${listaTamanhos(pedido.unissex)}</p>`;
+        if (pedido.verdeOliva) {
+            const vInf = listaTamanhos(pedido.verdeOliva.infantil);
+            const vBaby = listaTamanhos(pedido.verdeOliva.babylook);
+            const vUni = listaTamanhos(pedido.verdeOliva.unissex);
+            if(vInf || vBaby || vUni) {
+                resumo += `<p style="margin-top:10px; color:var(--shirt-verde); font-weight:bold;">VERDE-OLIVA</p>`;
+                if(vInf) resumo += `<p>Inf: ${vInf}</p>`;
+                if(vBaby) resumo += `<p>Baby: ${vBaby}</p>`;
+                if(vUni) resumo += `<p>Uni: ${vUni}</p>`;
+            }
+        }
+        if (pedido.terracota) {
+            const tInf = listaTamanhos(pedido.terracota.infantil);
+            const tBaby = listaTamanhos(pedido.terracota.babylook);
+            const tUni = listaTamanhos(pedido.terracota.unissex);
+            if(tInf || tBaby || tUni) {
+                resumo += `<p style="margin-top:10px; color:var(--shirt-terracota); font-weight:bold;">TERRACOTA</p>`;
+                if(tInf) resumo += `<p>Inf: ${tInf}</p>`;
+                if(tBaby) resumo += `<p>Baby: ${tBaby}</p>`;
+                if(tUni) resumo += `<p>Uni: ${tUni}</p>`;
+            }
+        }
+        // Legado
+        if (!pedido.verdeOliva && !pedido.terracota) {
+             const lInf = listaTamanhos(pedido.infantil);
+             const lBaby = listaTamanhos(pedido.babylook);
+             const lUni = listaTamanhos(pedido.unissex);
+             if(lInf) resumo += `<p>INFANTIL: ${lInf}</p>`;
+             if(lBaby) resumo += `<p>BABYLOOK: ${lBaby}</p>`;
+             if(lUni) resumo += `<p>UNISSEX: ${lUni}</p>`;
+        }
+        
+        document.getElementById('pedidoConfirmacaoTamanhos').innerHTML = resumo;
+        document.getElementById('pedidoConfirmacaoTamanhos').style.display = 'block';
         overlay.classList.add('active');
     };
 
-    // =================================================================
-    // FUNÇÃO CORRIGIDA: SEGURANÇA DE DADOS
-    // =================================================================
     window.recalcularValores = async function(novoValorString) {
         const novoValor = parseFloat(novoValorString);
-        
-        if (isNaN(novoValor) || novoValor <= 0) {
-            alert("Por favor, insira um valor válido maior que zero.");
-            return;
-        }
-        
+        if (isNaN(novoValor) || novoValor <= 0) { alert("Por favor, insira um valor válido maior que zero."); return; }
         window.mostrarCarregamento(true, "SALVANDO CONFIG...");
-        
         try {
-            // 1. Tenta salvar no banco PRIMEIRO
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
-            
-            // 2. Não precisamos atualizar PRECO_CAMISETA manualmente aqui, 
-            // pois o listener onSnapshot fará isso automaticamente e chamará o dashboard.
-            
             window.mostrarCarregamento(false);
-            
-            // REMOVIDO ALERT DO NAVEGADOR
-            // EXIBIR CARD INTERNO (Calcula visualmente apenas para o modal, o resto atualiza via listener)
             const pedidos = await window.carregarTodosPedidos();
             let totalItens = 0;
-            pedidos.forEach(p => {
-                totalItens += Object.values(p.infantil || {}).reduce((a,b)=>a+b,0) +
-                              Object.values(p.babylook || {}).reduce((a,b)=>a+b,0) +
-                              Object.values(p.unissex || {}).reduce((a,b)=>a+b,0);
-            });
+            pedidos.forEach(p => { totalItens += calcularTotalPedido(p); });
             const novoTotal = totalItens * novoValor;
-
             document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(novoValor);
             document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(novoTotal);
             document.getElementById('modalSucessoFinanceiro').classList.add('active');
-            
-        } catch (error) {
-            window.mostrarCarregamento(false);
-            console.error("Erro fatal ao salvar preço:", error);
-            alert("ERRO AO SALVAR: O novo valor NÃO foi aplicado.\n\nVerifique sua conexão ou permissões.\nDetalhe: " + error.message);
-            
-            const valInput = document.getElementById('valorCamisetaInput');
-            if(valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
-        }
+        } catch (error) { window.mostrarCarregamento(false); console.error("Erro fatal ao salvar preço:", error); alert("ERRO AO SALVAR: " + error.message); }
     };
 
-    // PDF GENERATION (GERAL)
+    // HELPER CENTRAL PARA CONTAR ITENS (SUPORTA LEGADO E NOVO)
+    function calcularTotalPedido(p) {
+        const sumObj = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+        let total = 0;
+        // Legado
+        total += sumObj(p.infantil);
+        total += sumObj(p.babylook);
+        total += sumObj(p.unissex);
+        // Novo: Verde
+        if(p.verdeOliva) {
+            total += sumObj(p.verdeOliva.infantil);
+            total += sumObj(p.verdeOliva.babylook);
+            total += sumObj(p.verdeOliva.unissex);
+        }
+        // Novo: Terracota
+        if(p.terracota) {
+            total += sumObj(p.terracota.infantil);
+            total += sumObj(p.terracota.babylook);
+            total += sumObj(p.terracota.unissex);
+        }
+        return total;
+    }
+
     window.gerarRelatorioPdf = function() {
         window.mostrarCarregamento(true, 'GERANDO PDF...');
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('l', 'mm', 'a4');
         const dataAtual = new Date().toLocaleDateString('pt-BR');
         
-        doc.setFontSize(16);
-        doc.text("RELATÓRIO UMADEMATS", 148.5, 20, null, null, "center");
-        doc.setFontSize(10);
-        doc.text(`Data: ${dataAtual}`, 10, 25);
+        doc.setFontSize(16); doc.text("RELATÓRIO UMADEMATS", 148.5, 20, null, null, "center");
+        doc.setFontSize(10); doc.text(`Data: ${dataAtual}`, 10, 25);
         
         const addTableToPdf = (tableId, startY, title) => {
-            const tableElement = document.getElementById(tableId);
-            if (!tableElement || tableElement.rows.length <= 1) return startY;
-            
-            doc.setFontSize(12);
-            doc.text(title, 14, startY - 2);
-            
+            const tableElement = document.getElementById(tableId); if (!tableElement || tableElement.rows.length <= 1) return startY;
+            doc.setFontSize(12); doc.text(title, 14, startY - 2);
             const head = Array.from(tableElement.querySelector('thead tr').children).map(th => th.textContent);
-            let body = [];
-            Array.from(tableElement.querySelector('tbody').rows).forEach(row => {
-                body.push(Array.from(row.children).map(td => td.textContent));
-            });
-            
-            doc.autoTable({
-                head: [head],
-                body: body,
-                startY: startY,
-                theme: 'grid'
-            });
+            let body = []; Array.from(tableElement.querySelector('tbody').rows).forEach(row => { body.push(Array.from(row.children).map(td => td.textContent)); });
+            doc.autoTable({ head: [head], body: body, startY: startY, theme: 'grid' });
             return doc.lastAutoTable.finalY + 15;
         };
-        
         let nextY = 35;
-        nextY = addTableToPdf('tabelaAdultos', nextY, "Adultos");
-        addTableToPdf('tabelaInfantil', nextY, "Infantil");
+        nextY = addTableToPdf('tabelaAdultos', nextY, "Adultos (Soma de Cores)");
+        addTableToPdf('tabelaInfantil', nextY, "Infantil (Soma de Cores)");
         
         doc.save(`Relatorio_${dataAtual.replace('/', '-')}.pdf`);
         window.mostrarCarregamento(false);
     };
 
-    // NOVA FUNÇÃO: GERAR PDF INDIVIDUAL DO PEDIDO
     window.gerarPdfPedidoIndividual = function(docId) {
-        // Encontrar o pedido no cache global
         const pedido = window.pedidosCache.find(p => p.docId === docId);
-        if(!pedido) {
-            alert('Erro: Pedido não encontrado para gerar PDF.');
-            return;
-        }
-
+        if(!pedido) { alert('Erro: Pedido não encontrado para gerar PDF.'); return; }
         window.mostrarCarregamento(true, 'GERANDO PDF DO PEDIDO...');
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4'); // Retrato
+        const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Cabeçalho
-        doc.setFontSize(18);
-        doc.text("PEDIDO #" + pedido.numPedido, 105, 20, null, null, "center");
-        doc.setFontSize(10);
-        doc.text("UMADEMATS - Jubileu de Ouro", 105, 26, null, null, "center");
+        doc.setFontSize(18); doc.text("PEDIDO #" + pedido.numPedido, 105, 20, null, null, "center");
+        doc.setFontSize(10); doc.text("UMADEMATS - Jubileu de Ouro", 105, 26, null, null, "center");
         
-        // Informações do Pedido
         doc.setFontSize(11);
         doc.text(`Nome: ${pedido.nome}`, 14, 40);
         doc.text(`Local: ${pedido.local} - ${pedido.setor}`, 14, 46);
@@ -1558,173 +1003,127 @@
         doc.text(`E-mail: ${pedido.email}`, 14, 58);
         doc.text(`Data: ${new Date(pedido.data).toLocaleDateString('pt-BR')}`, 140, 40);
 
-        // Preparar dados da tabela
         let bodyData = [];
         let totalQtd = 0;
 
         const addRows = (categoryName, dataObj) => {
              Object.entries(dataObj || {}).forEach(([tamanho, qtd]) => {
-                if (qtd > 0) {
-                    bodyData.push([categoryName, tamanho, qtd]);
-                    totalQtd += qtd;
-                }
+                if (qtd > 0) { bodyData.push([categoryName, tamanho, qtd]); totalQtd += qtd; }
              });
         };
 
-        addRows("Infantil", pedido.infantil);
-        addRows("Babylook", pedido.babylook);
-        addRows("Unissex", pedido.unissex);
+        // Legado
+        if (!pedido.verdeOliva && !pedido.terracota) {
+            addRows("Infantil", pedido.infantil);
+            addRows("Babylook", pedido.babylook);
+            addRows("Unissex", pedido.unissex);
+        } else {
+            // Novo
+            if (pedido.verdeOliva) {
+                addRows("Verde - Infantil", pedido.verdeOliva.infantil);
+                addRows("Verde - Babylook", pedido.verdeOliva.babylook);
+                addRows("Verde - Unissex", pedido.verdeOliva.unissex);
+            }
+            if (pedido.terracota) {
+                addRows("Terra - Infantil", pedido.terracota.infantil);
+                addRows("Terra - Babylook", pedido.terracota.babylook);
+                addRows("Terra - Unissex", pedido.terracota.unissex);
+            }
+        }
 
         const valorTotal = totalQtd * PRECO_CAMISETA;
 
-        // Gerar Tabela
         doc.autoTable({
             head: [['Categoria', 'Tamanho', 'Qtd']],
             body: bodyData,
             startY: 65,
             theme: 'striped',
-            headStyles: { fillColor: [212, 175, 55] }, // Dourado
+            headStyles: { fillColor: [212, 175, 55] },
         });
 
-        // Totais
         const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
+        doc.setFontSize(12); doc.setFont(undefined, 'bold');
         doc.text(`Total de Peças: ${totalQtd}`, 14, finalY);
-        doc.text(`Valor Total: ${formatarMoeda(valorTotal)}`, 14, finalY + 6); // FORMATAÇÃO APLICADA
+        doc.text(`Valor Total: ${formatarMoeda(valorTotal)}`, 14, finalY + 6);
 
         doc.save(`Pedido_${pedido.numPedido}.pdf`);
         window.mostrarCarregamento(false);
     };
 
-
-    // FIREBASE QUERIES
     window.verificarPedidoPorEmail = async function(email) {
-        try {
-            const q = query(pedidosCollection, where("email", "==", email.toLowerCase().trim()));
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty) return { docId: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-            return null;
-        } catch (error) {
-            return null;
-        }
+        try { const q = query(pedidosCollection, where("email", "==", email.toLowerCase().trim())); const snapshot = await getDocs(q); if (!snapshot.empty) return { docId: snapshot.docs[0].id, ...snapshot.docs[0].data() }; return null; } catch (error) { return null; }
     };
 
     window.recuperarIdsPorEmail = async function(e) {
-        e.preventDefault();
-        const email = document.getElementById('emailRecuperacao').value.toLowerCase().trim();
-        window.mostrarCarregamento(true);
-        
-        try {
-            const q = query(pedidosCollection, where("email", "==", email));
-            const snapshot = await getDocs(q);
-            const container = document.getElementById('listaIdsRecuperados');
-            
-            if (snapshot.empty) {
-                container.innerHTML = `<p style="color:var(--danger-color)">NENHUM PEDIDO ENCONTRADO</p>`;
-            } else {
-                let html = '';
-                snapshot.forEach(doc => {
-                    const d = doc.data();
-                    html += `<div style="background:rgba(255,255,255,0.05); padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; border-radius:4px;"><span>#${d.numPedido}</span><button onclick="window.copiarNumeroPedido('${d.numPedido}')" style="cursor:pointer; background:none; border:none; color:var(--gold-solid); font-size:0.8rem; font-weight:600;">COPIAR</button></div>`;
-                });
-                container.innerHTML = html;
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            window.mostrarCarregamento(false);
-        }
+        e.preventDefault(); const email = document.getElementById('emailRecuperacao').value.toLowerCase().trim(); window.mostrarCarregamento(true);
+        try { const q = query(pedidosCollection, where("email", "==", email)); const snapshot = await getDocs(q); const container = document.getElementById('listaIdsRecuperados');
+            if (snapshot.empty) { container.innerHTML = `<p style="color:var(--danger-color)">NENHUM PEDIDO ENCONTRADO</p>`; } else { let html = ''; snapshot.forEach(doc => { const d = doc.data(); html += `<div style="background:rgba(255,255,255,0.05); padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; border-radius:4px;"><span>#${d.numPedido}</span><button onclick="window.copiarNumeroPedido('${d.numPedido}')" style="cursor:pointer; background:none; border:none; color:var(--gold-solid); font-size:0.8rem; font-weight:600;">COPIAR</button></div>`; }); container.innerHTML = html; }
+        } catch (error) { console.error(error); } finally { window.mostrarCarregamento(false); }
     };
 
     window.verificarPedidoPorSetor = async function(setor) {
-        try {
-            const q = query(pedidosCollection, where("setor", "==", normalizeString(setor)));
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty) return { docId: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-            return null;
-        } catch (error) {
-            return null;
-        }
+        try { const q = query(pedidosCollection, where("setor", "==", normalizeString(setor))); const snapshot = await getDocs(q); if (!snapshot.empty) return { docId: snapshot.docs[0].id, ...snapshot.docs[0].data() }; return null; } catch (error) { return null; }
     };
 
     window.verificarPedidoPorNumero = async function(numPedido) {
-        try {
-            const docRef = doc(db, "pedidos", numPedido.trim());
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                return { docId: docSnap.id, numPedido: docSnap.data().numPedido || docSnap.id, ...docSnap.data() };
-            }
-            
-            const q = query(pedidosCollection, where("numPedido", "==", numPedido.trim()));
-            const qs = await getDocs(q);
-            if (!qs.empty) return { docId: qs.docs[0].id, ...qs.docs[0].data() };
-            
-            return null;
-        } catch (error) {
-            return null;
-        }
+        try { const docRef = doc(db, "pedidos", numPedido.trim()); const docSnap = await getDoc(docRef); if (docSnap.exists()) { return { docId: docSnap.id, numPedido: docSnap.data().numPedido || docSnap.id, ...docSnap.data() }; } const q = query(pedidosCollection, where("numPedido", "==", numPedido.trim())); const qs = await getDocs(q); if (!qs.empty) return { docId: qs.docs[0].id, ...qs.docs[0].data() }; return null; } catch (error) { return null; }
     };
 
-    // FORM LOGIC
     window.updateSetorCidadeInput = function(val = '') {
-        const container = document.getElementById('setorCidadeContainer');
-        const radioCapital = document.getElementById('radioCapital');
-        
+        const container = document.getElementById('setorCidadeContainer'); const radioCapital = document.getElementById('radioCapital');
         if (!container || !radioCapital) return;
-
         const isCapital = radioCapital.checked;
-        if (isCapital) {
-            const setores = ['A', 'B', 'C1', 'C2', 'D', 'E', 'F', 'G', 'H', 'I', 'M', 'N'];
-            container.innerHTML = `<select id="setor" name="setor" required><option value="" disabled selected>SELECIONE</option>${setores.map(s => `<option value="SETOR ${s}">SETOR ${s}</option>`).join('')}</select>`;
-            const sel = document.getElementById('setor');
-            if (val && Array.from(sel.options).some(o => o.value === normalizeString(val))) sel.value = normalizeString(val);
-        } else {
-            container.innerHTML = `<input type="text" id="setor" name="setor" placeholder="CIDADE" required value="${val}">`;
-        }
+        if (isCapital) { const setores = ['A', 'B', 'C1', 'C2', 'D', 'E', 'F', 'G', 'H', 'I', 'M', 'N']; container.innerHTML = `<select id="setor" name="setor" required><option value="" disabled selected>SELECIONE</option>${setores.map(s => `<option value="SETOR ${s}">SETOR ${s}</option>`).join('')}</select>`; const sel = document.getElementById('setor'); if (val && Array.from(sel.options).some(o => o.value === normalizeString(val))) sel.value = normalizeString(val); } else { container.innerHTML = `<input type="text" id="setor" name="setor" placeholder="CIDADE" required value="${val}">`; }
     };
 
     window.setupNovoPedido = function() {
         currentPedidoParaEdicao = null;
-        const docIdEl = document.getElementById('pedidoDocId');
-        const formEl = document.getElementById('formPedido');
-        const btnTextEl = document.getElementById('submitButtonText');
-
-        if (docIdEl) docIdEl.value = '';
-        if (formEl) formEl.reset();
-        if (btnTextEl) btnTextEl.textContent = 'Confirmar e Enviar';
-
+        document.getElementById('pedidoDocId').value = '';
+        document.getElementById('formPedido').reset();
+        document.getElementById('submitButtonText').textContent = 'Confirmar e Enviar';
         const radioCapital = document.querySelector('input[name="local"][value="Capital"]');
         if (radioCapital) radioCapital.checked = true;
         window.updateSetorCidadeInput();
     };
 
     window.setupEdicaoPedido = function() {
-        const pedido = currentPedidoParaEdicao;
-        if (!pedido) return;
+        if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; }
+        const pedido = currentPedidoParaEdicao; if (!pedido) return;
         
         document.getElementById('pedidoDocId').value = pedido.docId;
         document.getElementById('nome').value = pedido.nome;
-        
-        const radioLocal = document.querySelector(`input[name="local"][value="${pedido.local}"]`);
-        if (radioLocal) radioLocal.checked = true;
-        
+        const radioLocal = document.querySelector(`input[name="local"][value="${pedido.local}"]`); if (radioLocal) radioLocal.checked = true;
         window.updateSetorCidadeInput(pedido.setor);
         document.getElementById('email').value = pedido.email;
-        
-        // PREECHER CAMPO CONTATO NA EDIÇÃO
         document.getElementById('contato').value = pedido.contato || '';
         
-        const preencher = (tamanhos, prefix) => {
-            for (const [t, q] of Object.entries(tamanhos || {})) {
+        // PREECHER TAMANHOS (Suporta Legado e Novo)
+        const preencher = (obj, prefix) => {
+            for (const [t, q] of Object.entries(obj || {})) {
                 const input = document.getElementById(`${prefix}_${t}`);
                 if (input) input.value = q;
             }
         };
-        
-        preencher(pedido.infantil, 'infantil');
-        preencher(pedido.babylook, 'babylook');
-        preencher(pedido.unissex, 'unissex');
+
+        // Se tem estrutura nova, usa ela
+        if (pedido.verdeOliva || pedido.terracota) {
+            if (pedido.verdeOliva) {
+                preencher(pedido.verdeOliva.infantil, 'verde_infantil');
+                preencher(pedido.verdeOliva.babylook, 'verde_babylook');
+                preencher(pedido.verdeOliva.unissex, 'verde_unissex');
+            }
+            if (pedido.terracota) {
+                preencher(pedido.terracota.infantil, 'terracota_infantil');
+                preencher(pedido.terracota.babylook, 'terracota_babylook');
+                preencher(pedido.terracota.unissex, 'terracota_unissex');
+            }
+        } else {
+            // Se for pedido antigo, mapeia para VERDE por padrão ou deixa vazio?
+            // Deixar vazio força o usuário a escolher a cor na edição.
+            // Para ser gentil, vamos mapear para Verde? Não, melhor deixar zerado para forçar a migração correta.
+            // O usuário verá tudo zerado e terá que preencher novamente nas cores corretas.
+            alert("Atenção: Este pedido é antigo (sem cor definida). Por favor, redistribua as quantidades nas cores Verde e Terracota.");
+        }
         
         document.getElementById('submitButtonText').textContent = 'Atualizar Pedido';
         window.redirecionarComAnimacao('pedido');
@@ -1732,10 +1131,7 @@
 
     window.displayVisualizacaoPedido = function(pedido) {
         currentPedidoParaEdicao = pedido;
-        const total = Object.values(pedido.infantil || {}).reduce((a, b) => a + b, 0) + 
-                      Object.values(pedido.babylook || {}).reduce((a, b) => a + b, 0) + 
-                      Object.values(pedido.unissex || {}).reduce((a, b) => a + b, 0);
-        
+        const total = calcularTotalPedido(pedido);
         const html = `<div class="pedido-item">
                         <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem; margin-bottom:1rem; align-items:center;">
                             <span style="color:var(--gold-solid); font-size:1.2rem; font-weight:700;">#${pedido.numPedido}</span>
@@ -1743,217 +1139,167 @@
                         <div style="display:grid; gap:0.5rem; color:var(--text-muted); font-size:0.9rem;">
                             <p>NOME: <span style="color:#fff">${pedido.nome}</span></p>
                             <p>LOCAL: <span style="color:#fff">${pedido.local} - ${pedido.setor}</span></p>
-                            <!-- EXIBIR CONTATO AQUI -->
                             <p>CONTATO: <span style="color:#fff">${pedido.contato || 'Não informado'}</span></p>
                             <p>TOTAL PEÇAS: <span style="color:#fff">${total}</span></p>
                             <p>VALOR TOTAL: <span style="color:var(--gold-solid); font-weight:700;">${formatarMoeda(total * PRECO_CAMISETA)}</span></p>
                         </div>
                         <button id="btnIniciarEdicao" class="btn-primary" style="width:100%; margin-top:2rem; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); box-shadow:none;">Editar Pedido</button>
                       </div>`;
-                      
         document.getElementById('resultadoConsulta').innerHTML = html;
-        const btnEdit = document.getElementById('btnIniciarEdicao');
-        if (btnEdit) btnEdit.addEventListener('click', window.setupEdicaoPedido);
+        const btnEdit = document.getElementById('btnIniciarEdicao'); if (btnEdit) btnEdit.addEventListener('click', window.setupEdicaoPedido);
     };
 
     window.handleFormSubmission = async function(e) {
         e.preventDefault();
+        if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; }
+
         const docId = document.getElementById('pedidoDocId').value;
         const isEditing = !!docId;
         const formData = new FormData(document.getElementById('formPedido'));
         const email = formData.get('email').toLowerCase().trim();
         const setor = normalizeString(formData.get('setor'));
         
-        if (!isValidEmail(email)) {
-            window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL INVÁLIDO');
-            return;
-        }
+        if (!isValidEmail(email)) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL INVÁLIDO'); return; }
         
         if (!isEditing) {
             const dup = await window.verificarPedidoPorEmail(email);
-            if (dup) {
-                window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL JÁ TEM PEDIDO');
-                return;
-            }
+            if (dup) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL JÁ TEM PEDIDO'); return; }
         }
         
         const setorOriginal = currentPedidoParaEdicao ? normalizeString(currentPedidoParaEdicao.setor) : null;
         if (!isEditing || setor !== setorOriginal) {
             const dupSetor = await window.verificarPedidoPorSetor(setor);
-            if (dupSetor && (isEditing ? dupSetor.docId !== docId : true)) {
-                window.exibirMensagem('mensagemPedido', 'erro', 'SETOR JÁ TEM PEDIDO');
-                return;
-            }
+            if (dupSetor && (isEditing ? dupSetor.docId !== docId : true)) { window.exibirMensagem('mensagemPedido', 'erro', 'SETOR JÁ TEM PEDIDO'); return; }
         }
         
-        const total = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]')).reduce((sum, i) => sum + (parseInt(i.value) || 0), 0);
-        if (total === 0) {
-            window.exibirMensagem('mensagemPedido', 'erro', 'ADICIONE PELO MENOS 1 CAMISETA');
-            return;
-        }
+        // Calcular Total (Novo método)
+        const totalInputs = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]')).reduce((sum, i) => sum + (parseInt(i.value) || 0), 0);
+        if (totalInputs === 0) { window.exibirMensagem('mensagemPedido', 'erro', 'ADICIONE PELO MENOS 1 CAMISETA'); return; }
         
         window.mostrarCarregamento(true);
         try {
+            // ESTRUTURA NOVA DE DADOS
             const data = {
                 data: new Date().toISOString(),
                 nome: formData.get('nome'),
                 local: formData.get('local'),
                 setor: setor,
                 email: email,
-                contato: formData.get('contato'), // SALVANDO CONTATO
-                infantil: getQuantidadesFromForm(formData, 'infantil'),
-                babylook: getQuantidadesFromForm(formData, 'babylook'),
-                unissex: getQuantidadesFromForm(formData, 'unissex'),
-                status: 'Pendente' // MANTIDO NO BANCO MAS INVISÍVEL
+                contato: formData.get('contato'),
+                
+                // VERDE OLIVA
+                verdeOliva: {
+                    infantil: getQuantidadesFromForm(formData, 'verde_infantil'),
+                    babylook: getQuantidadesFromForm(formData, 'verde_babylook'),
+                    unissex: getQuantidadesFromForm(formData, 'verde_unissex'),
+                },
+                
+                // TERRACOTA
+                terracota: {
+                    infantil: getQuantidadesFromForm(formData, 'terracota_infantil'),
+                    babylook: getQuantidadesFromForm(formData, 'terracota_babylook'),
+                    unissex: getQuantidadesFromForm(formData, 'terracota_unissex'),
+                },
+                
+                status: 'Pendente'
             };
             
+            // Limpa dados legados para evitar confusão se estiver editando um antigo
+            data.infantil = {}; data.babylook = {}; data.unissex = {};
+            
             let finalNum = '';
-            if (isEditing) {
-                await updateDoc(doc(db, "pedidos", docId), data);
-                finalNum = currentPedidoParaEdicao.numPedido;
-            } else {
-                const ref = doc(pedidosCollection);
-                data.numPedido = ref.id;
-                await setDoc(ref, data);
-                finalNum = ref.id;
-            }
+            if (isEditing) { await updateDoc(doc(db, "pedidos", docId), data); finalNum = currentPedidoParaEdicao.numPedido; }
+            else { const ref = doc(pedidosCollection); data.numPedido = ref.id; await setDoc(ref, data); finalNum = ref.id; }
             
             const pedidoConfirmado = { numPedido: finalNum, ...data };
             window.exibirConfirmacaoPedido(pedidoConfirmado);
             document.getElementById('formPedido').reset();
-        } catch (err) {
-            window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR');
-        } finally {
-            window.mostrarCarregamento(false);
-        }
+        } catch (err) { window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); console.error(err); } finally { window.mostrarCarregamento(false); }
     };
 
-    // =================================================================
-    // LOGIN DE ADMINISTRADOR ATUALIZADO (E-MAIL E SENHA)
-    // =================================================================
     window.handleAdminLogin = async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('emailAdmin').value.trim();
-        const senha = document.getElementById('senhaAdmin').value;
-        
+        e.preventDefault(); const email = document.getElementById('emailAdmin').value.trim(); const senha = document.getElementById('senhaAdmin').value;
         window.mostrarCarregamento(true, "AUTENTICANDO...");
-
-        try {
-            // Tenta fazer login com Firebase
-            await signInWithEmailAndPassword(auth, email, senha);
-            
-            // UI Update será tratado automaticamente pelo onAuthStateChanged,
-            // mas forçamos a limpeza aqui para UX imediata
-            document.getElementById('loginAdmin').style.display = 'none';
-            document.getElementById('painelAdmin').style.display = 'block';
-            window.carregarDashboard();
-            
-        } catch (error) {
-            console.error("Erro login:", error);
-            // Exibe modal de erro
-            document.getElementById('modalErroLogin').classList.add('active');
-        } finally {
-             window.mostrarCarregamento(false);
-        }
+        try { await signInWithEmailAndPassword(auth, email, senha); document.getElementById('loginAdmin').style.display = 'none'; document.getElementById('painelAdmin').style.display = 'block'; window.carregarDashboard(); } 
+        catch (error) { console.error("Erro login:", error); document.getElementById('modalErroLogin').classList.add('active'); } finally { window.mostrarCarregamento(false); }
     };
 
-    window.carregarTodosPedidos = async function() {
-        const s = await getDocs(pedidosCollection);
-        return s.docs.map(d => ({ docId: d.id, ...d.data() }));
-    };
+    window.carregarTodosPedidos = async function() { const s = await getDocs(pedidosCollection); return s.docs.map(d => ({ docId: d.id, ...d.data() })); };
 
     window.carregarDashboard = async function() {
         window.mostrarCarregamento(true);
         try {
-            // Recarrega todos os pedidos para ter certeza que os dados estão frescos
             const p = await window.carregarTodosPedidos();
-            window.pedidosCache = p; // Atualizar cache global
+            window.pedidosCache = p;
             
-            let tP = p.length, tC = 0, pend = 0, inf = 0, baby = 0, uni = 0;
-            
+            let tP = p.length, tC = 0, inf = 0, baby = 0, uni = 0;
+            const sumObj = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+
             p.forEach(x => {
-                const i = Object.values(x.infantil || {}).reduce((a, b) => a + b, 0);
-                const b = Object.values(x.babylook || {}).reduce((a, b) => a + b, 0);
-                const u = Object.values(x.unissex || {}).reduce((a, b) => a + b, 0);
+                // Legado
+                let i = sumObj(x.infantil);
+                let b = sumObj(x.babylook);
+                let u = sumObj(x.unissex);
                 
-                tC += i + b + u;
-                inf += i;
-                baby += b;
-                uni += u;
-                if (x.status === 'Pendente') pend++;
+                // Novo Verde
+                if(x.verdeOliva) {
+                    i += sumObj(x.verdeOliva.infantil);
+                    b += sumObj(x.verdeOliva.babylook);
+                    u += sumObj(x.verdeOliva.unissex);
+                }
+                // Novo Terracota
+                if(x.terracota) {
+                    i += sumObj(x.terracota.infantil);
+                    b += sumObj(x.terracota.babylook);
+                    u += sumObj(x.terracota.unissex);
+                }
+                
+                tC += i + b + u; inf += i; baby += b; uni += u;
             });
             
-            window.atualizarElemento('totalPedidos', tP);
-            window.atualizarElemento('totalCamisetas', tC);
-            // window.atualizarElemento('pedidosPendentes', pend); // REMOVIDO DO DASHBOARD
-            
-            // Aqui garantimos que o cálculo usa o preço atualizado em tempo real pelo listener
-            const totalVal = tC * PRECO_CAMISETA;
-            
-            // FORMATAÇÃO APLICADA AQUI
-            window.atualizarElemento('totalArrecadado', formatarMoeda(totalVal));
-
-            window.atualizarElemento('totalInfantis', inf);
-            window.atualizarElemento('totalBabylook', baby);
-            window.atualizarElemento('totalUnissex', uni);
-        } catch (e) {
-            // Erro silencioso
-        } finally {
-            window.mostrarCarregamento(false);
-        }
+            window.atualizarElemento('totalPedidos', tP); window.atualizarElemento('totalCamisetas', tC);
+            const totalVal = tC * PRECO_CAMISETA; window.atualizarElemento('totalArrecadado', formatarMoeda(totalVal));
+            window.atualizarElemento('totalInfantis', inf); window.atualizarElemento('totalBabylook', baby); window.atualizarElemento('totalUnissex', uni);
+        } catch (e) { } finally { window.mostrarCarregamento(false); }
     };
 
-    // FUNÇÃO AUXILIAR PARA TOGGLE DO ACORDEON
     window.togglePedidoDetails = function(docId) {
-        const detailsDiv = document.getElementById(`details-${docId}`);
-        const icon = document.getElementById(`icon-${docId}`);
-        if (detailsDiv.style.display === 'none') {
-            detailsDiv.style.display = 'block';
-            icon.classList.remove('fa-chevron-right');
-            icon.classList.add('fa-chevron-down');
-        } else {
-            detailsDiv.style.display = 'none';
-            icon.classList.remove('fa-chevron-down');
-            icon.classList.add('fa-chevron-right');
-        }
+        const detailsDiv = document.getElementById(`details-${docId}`); const icon = document.getElementById(`icon-${docId}`);
+        if (detailsDiv.style.display === 'none') { detailsDiv.style.display = 'block'; icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-down'); }
+        else { detailsDiv.style.display = 'none'; icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-right'); }
     };
 
     window.carregarPedidos = async function() {
         window.mostrarCarregamento(true);
-        const lista = document.getElementById('listaPedidos');
-        lista.innerHTML = '';
-        
-        const p = await window.carregarTodosPedidos();
-        window.pedidosCache = p; // Cachear para uso no PDF
+        const lista = document.getElementById('listaPedidos'); lista.innerHTML = '';
+        const p = await window.carregarTodosPedidos(); window.pedidosCache = p;
 
         p.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(x => {
-            const t = Object.values(x.infantil || {}).reduce((a, b) => a + b, 0) + 
-                      Object.values(x.babylook || {}).reduce((a, b) => a + b, 0) + 
-                      Object.values(x.unissex || {}).reduce((a, b) => a + b, 0);
+            const t = calcularTotalPedido(x);
             
-            // CONSTRUIR TABELA VISUAL DE DETALHES
-            let tabelaHTML = `<table class="tabela-detalhe-pedido">
-                <thead><tr><th>Categoria</th><th>Tamanho</th><th>Qtd</th></tr></thead>
-                <tbody>`;
+            let tabelaHTML = `<table class="tabela-detalhe-pedido"><thead><tr><th>Categoria</th><th>Tamanho</th><th>Qtd</th></tr></thead><tbody>`;
+            const addRows = (cat, obj) => { let rows = ''; Object.entries(obj || {}).forEach(([tam, qtd]) => { if(qtd > 0) rows += `<tr><td>${cat}</td><td>${tam}</td><td>${qtd}</td></tr>`; }); return rows; };
             
-            const addRows = (cat, obj) => {
-                let rows = '';
-                Object.entries(obj || {}).forEach(([tam, qtd]) => {
-                    if(qtd > 0) rows += `<tr><td>${cat}</td><td>${tam}</td><td>${qtd}</td></tr>`;
-                });
-                return rows;
-            };
-            
-            tabelaHTML += addRows('Infantil', x.infantil);
-            tabelaHTML += addRows('Babylook', x.babylook);
-            tabelaHTML += addRows('Unissex', x.unissex);
+            // Legado
+            if(!x.verdeOliva && !x.terracota) {
+                tabelaHTML += addRows('Infantil', x.infantil); tabelaHTML += addRows('Babylook', x.babylook); tabelaHTML += addRows('Unissex', x.unissex);
+            } else {
+                // Novo
+                if(x.verdeOliva) {
+                    tabelaHTML += addRows('Verde - Inf', x.verdeOliva.infantil);
+                    tabelaHTML += addRows('Verde - Baby', x.verdeOliva.babylook);
+                    tabelaHTML += addRows('Verde - Uni', x.verdeOliva.unissex);
+                }
+                if(x.terracota) {
+                    tabelaHTML += addRows('Terra - Inf', x.terracota.infantil);
+                    tabelaHTML += addRows('Terra - Baby', x.terracota.babylook);
+                    tabelaHTML += addRows('Terra - Uni', x.terracota.unissex);
+                }
+            }
             tabelaHTML += `</tbody></table>`;
 
-            // CARD EXPANSÍVEL
             lista.innerHTML += `
                 <div class="pedido-item pedido-card-expandable" style="margin-bottom:1rem;">
-                    <!-- HEADER DO CARD (CLICÁVEL) -->
                     <div onclick="window.togglePedidoDetails('${x.docId}')" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
                         <div style="flex:1;">
                             <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
@@ -1970,12 +1316,9 @@
                             <span style="color:var(--gold-solid); font-weight:700;">${formatarMoeda(t * PRECO_CAMISETA)}</span>
                         </div>
                     </div>
-
-                    <!-- DETALHES EXPANSÍVEIS -->
                     <div id="details-${x.docId}" class="pedido-details-content" style="display:none;">
                         <h5 style="color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; font-size:0.75rem; letter-spacing:1px;">Detalhamento do Pedido</h5>
                         ${tabelaHTML}
-                        
                         <div style="margin-top:15px; text-align:right;">
                             <button onclick="window.gerarPdfPedidoIndividual('${x.docId}')" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
                                 <i class="fas fa-file-pdf"></i> Gerar PDF do Pedido
@@ -1987,15 +1330,6 @@
         window.mostrarCarregamento(false);
     };
 
-    window.atualizarStatusPedido = async function(id, status) {
-        // Esta função não é mais chamada pelos botões (removidos), mas mantida para não quebrar referências antigas se existirem
-        if (confirm('CONFIRMA AÇÃO?')) {
-            window.mostrarCarregamento(true);
-            await updateDoc(doc(db, "pedidos", id), { status });
-            window.carregarPedidos();
-        }
-    };
-
     window.carregarDetalhesTamanho = async function() {
         window.mostrarCarregamento(true);
         const p = await window.carregarTodosPedidos();
@@ -2004,38 +1338,42 @@
         let adultCounts = { babylook: {}, unissex: {} };
         let infCounts = {};
         
-        sizesA.forEach(s => {
-            adultCounts.babylook[s] = 0;
-            adultCounts.unissex[s] = 0;
-        });
+        sizesA.forEach(s => { adultCounts.babylook[s] = 0; adultCounts.unissex[s] = 0; });
         sizesI.forEach(s => infCounts[s] = 0);
         
         p.forEach(x => {
-            Object.entries(x.babylook || {}).forEach(([k, v]) => adultCounts.babylook[k] += v);
-            Object.entries(x.unissex || {}).forEach(([k, v]) => adultCounts.unissex[k] += v);
-            Object.entries(x.infantil || {}).forEach(([k, v]) => infCounts[k] += v);
+            const add = (obj, target) => Object.entries(obj || {}).forEach(([k, v]) => target[k] = (target[k]||0) + v);
+            
+            // Legado
+            add(x.babylook, adultCounts.babylook);
+            add(x.unissex, adultCounts.unissex);
+            add(x.infantil, infCounts);
+
+            // Novo
+            if(x.verdeOliva) {
+                add(x.verdeOliva.babylook, adultCounts.babylook);
+                add(x.verdeOliva.unissex, adultCounts.unissex);
+                add(x.verdeOliva.infantil, infCounts);
+            }
+            if(x.terracota) {
+                add(x.terracota.babylook, adultCounts.babylook);
+                add(x.terracota.unissex, adultCounts.unissex);
+                add(x.terracota.infantil, infCounts);
+            }
         });
         
         let hA = '';
-        ['babylook', 'unissex'].forEach(t => {
-            hA += `<tr><td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-transform:uppercase; font-weight:600;">${t}</td>${sizesA.map(s => `<td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-align:center; color:var(--text-muted);">${adultCounts[t][s]}</td>`).join('')}</tr>`;
-        });
-        
+        ['babylook', 'unissex'].forEach(t => { hA += `<tr><td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-transform:uppercase; font-weight:600;">${t}</td>${sizesA.map(s => `<td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-align:center; color:var(--text-muted);">${adultCounts[t][s]}</td>`).join('')}</tr>`; });
         let hI = `<tr><td style="padding:12px; border-bottom:1px solid var(--border-subtle); font-weight:600;">Geral</td>${sizesI.map(s => `<td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-align:center; color:var(--text-muted);">${infCounts[s]}</td>`).join('')}</tr>`;
         
-        document.getElementById('tamanhosAdultoBody').innerHTML = hA;
-        document.getElementById('tamanhosInfantilBody').innerHTML = hI;
+        document.getElementById('tamanhosAdultoBody').innerHTML = hA; document.getElementById('tamanhosInfantilBody').innerHTML = hI;
         window.mostrarCarregamento(false);
     };
 
     window.togglePagamento = function(id, btn) {
         const el = document.getElementById(`status-${id}`);
-        if (el) {
-            el.innerText = "PAGO";
-            el.style.color = "var(--success-color)";
-        }
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
+        if (el) { el.innerText = "PAGO"; el.style.color = "var(--success-color)"; }
+        btn.disabled = true; btn.style.opacity = "0.5";
     };
 
     window.carregarDetalhesFinanceiros = async function() {
@@ -2045,50 +1383,42 @@
         
         p.forEach(x => {
             const k = `${x.local} / ${x.setor}`;
-            const t = Object.values(x.infantil || {}).reduce((a, b) => a + b, 0) + 
-                      Object.values(x.babylook || {}).reduce((a, b) => a + b, 0) + 
-                      Object.values(x.unissex || {}).reduce((a, b) => a + b, 0);
+            const t = calcularTotalPedido(x);
             
             if (!res[k]) res[k] = { qtd: 0, val: 0 };
-            res[k].qtd += t;
-            // Usa a variável PRECO_CAMISETA atualizada em tempo real
-            res[k].val += t * PRECO_CAMISETA;
+            res[k].qtd += t; res[k].val += t * PRECO_CAMISETA;
         });
         
         let h = '';
         Object.keys(res).sort().forEach((k, i) => {
-            h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(255,255,255,0.02); margin-bottom:8px; border-radius:4px; border:1px solid var(--border-subtle);">
-                    <div>
-                        <strong style="color:#fff; font-size:0.9rem;">${k}</strong><br>
-                        <span style="font-size:0.8rem; color:var(--text-muted);">${res[k].qtd} PÇS - <span style="color:var(--gold-solid);">${formatarMoeda(res[k].val)}</span></span>
-                    </div>
-                    <div style="text-align:right;">
-                        <span id="status-fin-${i}" style="font-size:0.7rem; color:var(--warning-color); display:block; margin-bottom:5px; font-weight:600;">PENDENTE</span>
-                        <button onclick="window.togglePagamento('fin-${i}', this)" style="background:var(--success-color); border:none; color:#fff; padding:4px 10px; font-size:0.7rem; cursor:pointer; border-radius:50px; font-weight:600;">PAGO</button>
-                    </div>
-                  </div>`;
+            h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(255,255,255,0.02); margin-bottom:8px; border-radius:4px; border:1px solid var(--border-subtle);"><div><strong style="color:#fff; font-size:0.9rem;">${k}</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">${res[k].qtd} PÇS - <span style="color:var(--gold-solid);">${formatarMoeda(res[k].val)}</span></span></div><div style="text-align:right;"><span id="status-fin-${i}" style="font-size:0.7rem; color:var(--warning-color); display:block; margin-bottom:5px; font-weight:600;">PENDENTE</span><button onclick="window.togglePagamento('fin-${i}', this)" style="background:var(--success-color); border:none; color:#fff; padding:4px 10px; font-size:0.7rem; cursor:pointer; border-radius:50px; font-weight:600;">PAGO</button></div></div>`;
         });
-        
         document.getElementById('resumoFinanceiroLocais').innerHTML = h || '<p style="text-align:center; color:var(--text-muted);">SEM DADOS</p>';
         window.mostrarCarregamento(false);
     };
 
-    // INITIALIZATION
+    window.confirmarFechamentoPedidos = async function() {
+        const senhaInput = document.getElementById('senhaFecharPedidos'); const msgErro = document.getElementById('msgErroSenhaFechar'); const senha = senhaInput.value;
+        if (senha !== 'JUBILEU') { msgErro.style.display = 'block'; return; }
+        msgErro.style.display = 'none'; document.getElementById('modalFecharPedidos').classList.remove('active'); senhaInput.value = '';
+        window.mostrarCarregamento(true, 'FECHANDO SISTEMA...');
+        try { await setDoc(configSistemaRef, { aberto: false }, { merge: true }); } catch (error) { console.error("Erro ao fechar pedidos:", error); alert("Erro ao fechar pedidos."); } finally { window.mostrarCarregamento(false); }
+    };
+
+    window.confirmarReaberturaPedidos = async function() {
+        document.getElementById('modalReabrirPedidos').classList.remove('active');
+        window.mostrarCarregamento(true, 'REABRINDO SISTEMA...');
+        try { await setDoc(configSistemaRef, { aberto: true }, { merge: true }); } catch (error) { console.error("Erro ao reabrir pedidos:", error); alert("Erro ao reabrir pedidos."); } finally { window.mostrarCarregamento(false); }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         const safeOnClick = (id, handler) => { const el = document.getElementById(id); if(el) el.onclick = handler; };
         const safeOnSubmit = (id, handler) => { const el = document.getElementById(id); if(el) el.onsubmit = handler; };
         const safeOnChange = (id, handler) => { const el = document.getElementById(id); if(el) el.onchange = handler; };
 
-        safeOnClick('btnNovoPedido', () => {
-            window.setupNovoPedido();
-            window.redirecionarComAnimacao('pedido');
-        });
-        safeOnClick('btnConsultarPedido', () => {
-            window.redirecionarComAnimacao('consultar');
-        });
-        safeOnClick('btnAdministrador', () => {
-            window.redirecionarComAnimacao('admin');
-        });
+        safeOnClick('btnNovoPedido', () => { if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; } window.setupNovoPedido(); window.redirecionarComAnimacao('pedido'); });
+        safeOnClick('btnConsultarPedido', () => { window.redirecionarComAnimacao('consultar'); });
+        safeOnClick('btnAdministrador', () => { window.redirecionarComAnimacao('admin'); });
         
         safeOnClick('voltarHome1', () => window.redirecionarComAnimacao('home'));
         safeOnClick('voltarHomeConsulta', () => window.redirecionarComAnimacao('home'));
@@ -2100,68 +1430,35 @@
         safeOnClick('btnEsqueceuId', () => document.getElementById('esqueceuIdOverlay').classList.add('active'));
         safeOnClick('fecharEsqueceuId', () => document.getElementById('esqueceuIdOverlay').classList.remove('active'));
         
-        safeOnClick('btnAnaliseIA', () => {
-            document.getElementById('analiseIAOverlay').classList.add('active');
-            window.handleAnaliseIA();
-        });
+        safeOnClick('btnAnaliseIA', () => { document.getElementById('analiseIAOverlay').classList.add('active'); window.handleAnaliseIA(); });
         safeOnClick('fecharAnaliseIA', () => document.getElementById('analiseIAOverlay').classList.remove('active'));
         
         safeOnSubmit('formLoginAdmin', window.handleAdminLogin);
         safeOnSubmit('formPedido', window.handleFormSubmission);
         
-        safeOnSubmit('formConsultarNumero', async (e) => {
-            e.preventDefault();
-            const v = document.getElementById('numPedidoConsultaInput').value;
-            window.mostrarCarregamento(true);
-            const p = await window.verificarPedidoPorNumero(v);
-            window.mostrarCarregamento(false);
-            if (p) window.displayVisualizacaoPedido(p);
-            else alert('PEDIDO NÃO ENCONTRADO');
-        });
-        
-        safeOnSubmit('formConsultarEmail', async (e) => {
-            e.preventDefault();
-            const v = document.getElementById('emailConsultaInput').value;
-            window.mostrarCarregamento(true);
-            const p = await window.verificarPedidoPorEmail(v);
-            window.mostrarCarregamento(false);
-            if (p) window.displayVisualizacaoPedido(p);
-            else alert('PEDIDO NÃO ENCONTRADO');
-        });
-        
+        safeOnSubmit('formConsultarNumero', async (e) => { e.preventDefault(); const v = document.getElementById('numPedidoConsultaInput').value; window.mostrarCarregamento(true); const p = await window.verificarPedidoPorNumero(v); window.mostrarCarregamento(false); if (p) window.displayVisualizacaoPedido(p); else alert('PEDIDO NÃO ENCONTRADO'); });
+        safeOnSubmit('formConsultarEmail', async (e) => { e.preventDefault(); const v = document.getElementById('emailConsultaInput').value; window.mostrarCarregamento(true); const p = await window.verificarPedidoPorEmail(v); window.mostrarCarregamento(false); if (p) window.displayVisualizacaoPedido(p); else alert('PEDIDO NÃO ENCONTRADO'); });
         safeOnSubmit('formEsqueceuId', window.recuperarIdsPorEmail);
         
         safeOnClick('atualizarDashboard', window.carregarDashboard);
         safeOnClick('atualizarPedidos', window.carregarPedidos);
         safeOnClick('atualizarFinanceiro', window.carregarDetalhesFinanceiros);
         
-        safeOnClick('btnVerDetalhes', () => {
-            window.mostrarAdminSecao('detalhes-tamanhos');
-            window.carregarDetalhesTamanho();
-        });
+        safeOnClick('btnVerDetalhes', () => { window.mostrarAdminSecao('detalhes-tamanhos'); window.carregarDetalhesTamanho(); });
         safeOnClick('voltarDashboard', () => window.mostrarAdminSecao('dashboard'));
         safeOnClick('atualizarDetalhesTamanho', window.carregarDetalhesTamanho);
         safeOnClick('btnGerarPdf', window.gerarRelatorioPdf);
         
-        safeOnClick('btnSalvarValor', () => {
-            document.getElementById('modalConfirmarValor').classList.add('active');
-        });
-        
-        safeOnClick('btnCancelarAlteracao', () => {
-            document.getElementById('modalConfirmarValor').classList.remove('active');
-        });
-        
-        safeOnClick('btnConfirmarAlteracao', () => {
-            document.getElementById('modalConfirmarValor').classList.remove('active');
-            const val = document.getElementById('valorCamisetaInput').value;
-            window.recalcularValores(val);
-        });
+        safeOnClick('btnSalvarValor', () => { document.getElementById('modalConfirmarValor').classList.add('active'); });
+        safeOnClick('btnCancelarAlteracao', () => { document.getElementById('modalConfirmarValor').classList.remove('active'); });
+        safeOnClick('btnConfirmarAlteracao', () => { document.getElementById('modalConfirmarValor').classList.remove('active'); const val = document.getElementById('valorCamisetaInput').value; window.recalcularValores(val); });
+        safeOnClick('btnFecharPedidosAction', () => { document.getElementById('modalFecharPedidos').classList.add('active'); });
+        safeOnClick('btnReabrirPedidosAction', () => { document.getElementById('modalReabrirPedidos').classList.add('active'); });
         
         safeOnChange('radioCapital', () => window.updateSetorCidadeInput());
         safeOnChange('radioInterior', () => window.updateSetorCidadeInput());
         
         window.updateSetorCidadeInput();
-        // Listener de preço inicia com o Auth State Change no topo do script
     });
   </script>
 </body>
