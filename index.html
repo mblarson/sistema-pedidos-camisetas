@@ -23,8 +23,8 @@
       --gold-solid: #d4af37;
       
       /* FUNDOS - NOVA PALETA AZUL MARINHO */
-      --bg-body: #020c1b;        /* Azul Quase Preto */
-      --bg-surface: #0a192f;     /* Azul Marinho Profundo */
+      --bg-body: #020c1b;         /* Azul Quase Preto */
+      --bg-surface: #0a192f;      /* Azul Marinho Profundo */
       --bg-card: rgba(10, 25, 47, 0.7); /* Glass Azulado */
       
       /* BORDAS & DETALHES */
@@ -32,8 +32,8 @@
       --border-gold: rgba(212, 175, 55, 0.3);
       
       /* TEXTO */
-      --text-main: #e6f1ff;      /* Branco levemente azulado para conforto */
-      --text-muted: #8892b0;     /* Cinza azulado */
+      --text-main: #e6f1ff;       /* Branco levemente azulado para conforto */
+      --text-muted: #8892b0;      /* Cinza azulado */
       
       /* VARIÁVEIS DE COMPATIBILIDADE JS */
       --primary-color: #d4af37;
@@ -580,12 +580,12 @@
       </div>
   </div>
 
-  <!-- MODAL ERRO LOGIN -->
+  <!-- MODAL ERRO LOGIN (TEXTO ATUALIZADO) -->
   <div id="modalErroLogin" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
           <div style="font-size:2.5rem; color:var(--danger-color); margin-bottom:1rem;"><i class="fas fa-times-circle"></i></div>
           <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Acesso Negado</h2>
-          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Senha incorreta. Tente novamente.</p>
+          <p id="msgErroLogin" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">E-mail ou senha incorretos.</p>
           <button onclick="document.getElementById('modalErroLogin').classList.remove('active')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color);">Tentar Novamente</button>
       </div>
   </div>
@@ -595,7 +595,7 @@
           <div style="text-align:center; margin-bottom:2rem;">
               <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-exclamation-triangle"></i></div>
               <h2 style="font-size:1.5rem;">Alterar Preço?</h2>
-              <p style="color:var(--text-muted); font-size:0.9rem;">Isso recalculará todos os relatórios.</p>
+              <p style="color:var(--text-muted); font-size:0.9rem;">Isso recalculará todos os relatórios em todos os dispositivos.</p>
           </div>
           <div style="display:flex; gap:1rem;">
               <button id="btnCancelarAlteracao" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
@@ -763,7 +763,6 @@
                         <input type="email" id="email" name="email" required placeholder="Para receber confirmação">
                     </div>
 
-                    <!-- NOVO CAMPO DE CONTATO ADICIONADO AQUI -->
                     <div class="form-group">
                         <label for="contato">Número para Contato</label>
                         <input type="text" id="contato" name="contato" required placeholder="(XX) 9XXXX-XXXX">
@@ -834,6 +833,12 @@
             </div>
             
             <form id="formLoginAdmin">
+                <!-- CAMPO DE E-MAIL ADICIONADO -->
+                <div class="form-group">
+                    <label>E-mail Administrativo</label>
+                    <input type="email" id="emailAdmin" required placeholder="admin@umademats.com.br">
+                </div>
+
                 <div class="form-group">
                     <label>Senha de Administrador</label>
                     <div style="position:relative;">
@@ -867,7 +872,6 @@
                 <div class="dashboard-cards">
                     <div class="card"><div class="card-content"><h4>Pedidos Totais</h4><p class="card-value" id="totalPedidos">0</p></div></div>
                     <div class="card"><div class="card-content"><h4>Camisetas</h4><p class="card-value" id="totalCamisetas">0</p></div></div>
-                    <!-- Card de Pendentes removido conforme solicitado -->
                     <div class="card"><div class="card-content"><h4>Receita (Est.)</h4><p class="card-value text-gold" id="totalArrecadado">R$ 0,00</p></div></div>
                 </div>
 
@@ -958,27 +962,26 @@
 
   <script type="module">
     // =================================================================
-    // CONFIGURAÇÃO PARA PRODUÇÃO (COLE SUAS CHAVES REAIS AQUI)
+    // CONFIGURAÇÃO PARA PRODUÇÃO
     // =================================================================
    const firebaseConfig = {
-  apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
-  authDomain: "pedidosumademats.firebaseapp.com",
-  projectId: "pedidosumademats",
-  storageBucket: "pedidosumademats.firebasestorage.app",
-  messagingSenderId: "604273766416",
-  appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
-};
-    
-    // VOLTANDO PARA SENHA FIXA SIMPLES
-    const ADMIN_PASSWORD_FIXA = "umademats";
-    let PRECO_CAMISETA = 30.00; // Valor padrão inicial
+      apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
+      authDomain: "pedidosumademats.firebaseapp.com",
+      projectId: "pedidosumademats",
+      storageBucket: "pedidosumademats.firebasestorage.app",
+      messagingSenderId: "604273766416",
+      appId: "1:604273766416:web:4813a2365db9ea0e9e1a95"
+    };
     
     // VARIÁVEL GLOBAL PARA CACHE DE PEDIDOS (necessária para PDF individual)
     window.pedidosCache = [];
-    
+    let PRECO_CAMISETA = 30.00; // Valor padrão inicial, será atualizado pelo listener
+
+    // =================================================================
+    // IMPORTAÇÕES FIREBASE ATUALIZADAS (COM onSnapshot)
+    // =================================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-    // REMOVIDO SignInWithEmailAndPassword pois o usuário quer o modo simples
+    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
@@ -1114,7 +1117,7 @@
     // FIM BACKGROUND
     // =================================================================
 
-    // MANTEMOS O LOGIN ANÔNIMO APENAS PARA TER UMA CONEXÃO
+    // MANTEMOS O LOGIN ANÔNIMO APENAS PARA TER UMA CONEXÃO COM FIRESTORE
     const initAuth = async () => {
         try {
             await signInAnonymously(auth);
@@ -1128,31 +1131,59 @@
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    // CARREGAMENTO DE DADOS (VERSÃO LIMPA PARA BANCO DE DADOS)
-    async function carregarPrecoGlobal() {
-        try {
-            const docSnap = await getDoc(configDocRef);
+    // =================================================================
+    // CARREGAMENTO DE PREÇO EM TEMPO REAL (REAL-TIME SYNC)
+    // =================================================================
+    // Esta função substitui a antiga carregarPrecoGlobal
+    let unsubscribePreco = null;
+
+    function iniciarMonitoramentoPreco() {
+        if (unsubscribePreco) return; // Já está monitorando
+
+        // onSnapshot "escuta" o documento. Se mudar no banco, roda o callback na hora.
+        unsubscribePreco = onSnapshot(configDocRef, (docSnap) => {
             if (docSnap.exists()) {
-                PRECO_CAMISETA = parseFloat(docSnap.data().valor_camiseta) || 30.00;
+                const novoPreco = parseFloat(docSnap.data().valor_camiseta) || 30.00;
+                
+                // Só atualiza se mudou de fato para evitar loops
+                if (PRECO_CAMISETA !== novoPreco) {
+                    PRECO_CAMISETA = novoPreco;
+                    console.log("Preço atualizado em tempo real:", PRECO_CAMISETA);
+
+                    // Atualiza o input se ele existir
+                    const valInput = document.getElementById('valorCamisetaInput');
+                    if (valInput) {
+                        // Verifica se o usuário não está digitando nele agora
+                        if (document.activeElement !== valInput) {
+                             valInput.value = PRECO_CAMISETA.toFixed(2);
+                        }
+                    }
+
+                    // Se o painel admin estiver visível, atualiza os dados
+                    if (document.getElementById('painelAdmin').style.display === 'block') {
+                        // Atualiza dashboard e financeiro automaticamente
+                        window.carregarDashboard();
+                        window.carregarDetalhesFinanceiros();
+                    }
+                } else {
+                    // Carga inicial mesmo se o valor for o mesmo
+                    const valInput = document.getElementById('valorCamisetaInput');
+                    if(valInput && valInput.value === "") valInput.value = PRECO_CAMISETA.toFixed(2);
+                }
             } else {
-                // Tenta criar se não existir
-                try { await setDoc(configDocRef, { valor_camiseta: 30.00 }); } catch(e){} 
+                // Documento não existe, cria padrão
+                setDoc(configDocRef, { valor_camiseta: 30.00 }).catch(console.error);
                 PRECO_CAMISETA = 30.00;
             }
-            const valInput = document.getElementById('valorCamisetaInput');
-            if (valInput) valInput.value = PRECO_CAMISETA.toFixed(2);
-        } catch (error) {
-            // Se falhar por permissão, o usuário será alertado ao tentar salvar
-            console.error("Erro ao carregar preço:", error);
-            const valInput = document.getElementById('valorCamisetaInput');
-            if (valInput) valInput.value = "30.00";
-        }
+        }, (error) => {
+            console.error("Erro no monitoramento de preço:", error);
+        });
     }
 
-    // Monitora Auth apenas para carregar o preço inicial
+    // Monitora Auth para iniciar o listener de preço
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            carregarPrecoGlobal();
+            iniciarMonitoramentoPreco();
         }
     });
 
@@ -1414,10 +1445,13 @@
             // 1. Tenta salvar no banco PRIMEIRO
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
             
-            // 2. Sucesso no banco! Agora atualizamos a variável global
-            PRECO_CAMISETA = novoValor;
-
-            // 3. Recalcula os totais VISUAIS
+            // 2. Não precisamos atualizar PRECO_CAMISETA manualmente aqui, 
+            // pois o listener onSnapshot fará isso automaticamente e chamará o dashboard.
+            
+            window.mostrarCarregamento(false);
+            
+            // REMOVIDO ALERT DO NAVEGADOR
+            // EXIBIR CARD INTERNO (Calcula visualmente apenas para o modal, o resto atualiza via listener)
             const pedidos = await window.carregarTodosPedidos();
             let totalItens = 0;
             pedidos.forEach(p => {
@@ -1425,17 +1459,9 @@
                               Object.values(p.babylook || {}).reduce((a,b)=>a+b,0) +
                               Object.values(p.unissex || {}).reduce((a,b)=>a+b,0);
             });
-            
-            const novoTotal = totalItens * PRECO_CAMISETA;
-            
-            await window.carregarDashboard();
-            await window.carregarDetalhesFinanceiros();
-            
-            window.mostrarCarregamento(false);
-            
-            // REMOVIDO ALERT DO NAVEGADOR
-            // EXIBIR CARD INTERNO
-            document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(PRECO_CAMISETA);
+            const novoTotal = totalItens * novoValor;
+
+            document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(novoValor);
             document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(novoTotal);
             document.getElementById('modalSucessoFinanceiro').classList.add('active');
             
@@ -1788,16 +1814,22 @@
         }
     };
 
-    // VOLTANDO PARA A VERIFICAÇÃO DE SENHA SIMPLES
+    // =================================================================
+    // LOGIN DE ADMINISTRADOR ATUALIZADO (E-MAIL E SENHA)
+    // =================================================================
     window.handleAdminLogin = function(e) {
         e.preventDefault();
-        // Verifica a senha FIXA definida no início do código
-        if (document.getElementById('senhaAdmin').value === ADMIN_PASSWORD_FIXA) {
+        
+        const email = document.getElementById('emailAdmin').value.trim();
+        const senha = document.getElementById('senhaAdmin').value;
+        
+        // Credenciais fixas
+        if (email === "admin@umademats.com.br" && senha === "secretariaumademats") {
             document.getElementById('loginAdmin').style.display = 'none';
             document.getElementById('painelAdmin').style.display = 'block';
             window.carregarDashboard();
         } else {
-            // REMOVIDO ALERT
+            // Exibe modal de erro
             document.getElementById('modalErroLogin').classList.add('active');
         }
     };
@@ -1810,6 +1842,7 @@
     window.carregarDashboard = async function() {
         window.mostrarCarregamento(true);
         try {
+            // Recarrega todos os pedidos para ter certeza que os dados estão frescos
             const p = await window.carregarTodosPedidos();
             window.pedidosCache = p; // Atualizar cache global
             
@@ -1831,7 +1864,9 @@
             window.atualizarElemento('totalCamisetas', tC);
             // window.atualizarElemento('pedidosPendentes', pend); // REMOVIDO DO DASHBOARD
             
+            // Aqui garantimos que o cálculo usa o preço atualizado em tempo real pelo listener
             const totalVal = tC * PRECO_CAMISETA;
+            
             // FORMATAÇÃO APLICADA AQUI
             window.atualizarElemento('totalArrecadado', formatarMoeda(totalVal));
 
@@ -1992,6 +2027,7 @@
             
             if (!res[k]) res[k] = { qtd: 0, val: 0 };
             res[k].qtd += t;
+            // Usa a variável PRECO_CAMISETA atualizada em tempo real
             res[k].val += t * PRECO_CAMISETA;
         });
         
@@ -2101,8 +2137,7 @@
         safeOnChange('radioInterior', () => window.updateSetorCidadeInput());
         
         window.updateSetorCidadeInput();
-        // A carga inicial do preço agora está dentro da função carregarPrecoGlobal
-        carregarPrecoGlobal(); 
+        // Listener de preço inicia com o Auth State Change no topo do script
     });
   </script>
 </body>
