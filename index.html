@@ -306,6 +306,23 @@
     <div id="loadingText" style="margin-top:1.5rem; font-size:0.9rem; letter-spacing:2px; color:var(--text-muted);">CARREGANDO</div>
   </div>
 
+  <!-- NOVO MODAL DE DETALHAMENTO DE PEDIDO -->
+  <div id="modalDetalhesPedido" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
+              <h2 style="font-size:1.4rem; margin:0;">Detalhes do Pedido</h2>
+              <button onclick="document.getElementById('modalDetalhesPedido').classList.remove('active')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;"><i class="fas fa-times"></i></button>
+          </div>
+          <div id="conteudoDetalhesPedido">
+              <!-- CONTEÚDO INJETADO VIA JS -->
+          </div>
+          <div style="margin-top:2rem; display:flex; gap:1rem;">
+              <button onclick="document.getElementById('modalDetalhesPedido').classList.remove('active')" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Fechar</button>
+              <button id="btnEditarNoModal" class="btn-primary" style="flex:1;">EDITAR PEDIDO</button>
+          </div>
+      </div>
+  </div>
+
   <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
     <div class="pedido-confirmacao-card">
       <div style="text-align:center; margin-bottom:2rem;">
@@ -1129,6 +1146,87 @@
         window.redirecionarComAnimacao('pedido');
     };
 
+    // NOVA FUNÇÃO PARA EXIBIR MODAL COM DETALHES COMPLETOS
+    window.exibirModalDetalhesPedido = function(pedido) {
+        currentPedidoParaEdicao = pedido; // Necessário para setupEdicaoPedido
+        const container = document.getElementById('conteudoDetalhesPedido');
+        const total = calcularTotalPedido(pedido);
+        
+        let html = `
+            <div style="margin-bottom:1.5rem;">
+                <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+                    <p style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">ID do Pedido</p>
+                    <p style="font-size:1.5rem; color:var(--gold-solid); font-weight:700; word-break:break-all;">#${pedido.numPedido}</p>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem; font-size:0.9rem;">
+                <div><p style="color:var(--text-muted);">Nome</p><p style="color:#fff;">${pedido.nome}</p></div>
+                <div><p style="color:var(--text-muted);">Contato</p><p style="color:#fff;">${pedido.contato || '-'}</p></div>
+                <div><p style="color:var(--text-muted);">Local</p><p style="color:#fff;">${pedido.local}</p></div>
+                <div><p style="color:var(--text-muted);">Setor/Cidade</p><p style="color:#fff;">${pedido.setor}</p></div>
+                <div style="grid-column:1/-1;"><p style="color:var(--text-muted);">E-mail</p><p style="color:#fff;">${pedido.email}</p></div>
+            </div>
+        `;
+
+        const generateTable = (title, color, dataObj) => {
+            let rows = '';
+            const add = (cat, items) => {
+                Object.entries(items || {}).forEach(([tam, qtd]) => {
+                    if(qtd > 0) rows += `<tr><td style="padding:8px; color:#ddd;">${cat}</td><td style="padding:8px; color:#fff; font-weight:bold;">${tam}</td><td style="padding:8px; text-align:right; color:#ddd;">${qtd}</td></tr>`;
+                });
+            };
+            
+            if (dataObj) {
+                add('Infantil', dataObj.infantil);
+                add('Babylook', dataObj.babylook);
+                add('Unissex', dataObj.unissex);
+            } else {
+                 // Legacy support if passed directly
+                 add('Infantil', pedido.infantil);
+                 add('Babylook', pedido.babylook);
+                 add('Unissex', pedido.unissex);
+            }
+
+            if(rows) {
+                return `
+                    <div style="margin-bottom:1rem;">
+                        <p style="color:${color}; font-weight:bold; margin-bottom:0.5rem; font-size:0.9rem; text-transform:uppercase;">${title}</p>
+                        <table style="width:100%; font-size:0.85rem; border-collapse:collapse; background:rgba(0,0,0,0.2); border-radius:4px;">
+                            <tr style="background:rgba(255,255,255,0.05);"><th style="text-align:left; padding:8px; color:var(--text-muted);">Tipo</th><th style="text-align:left; padding:8px; color:var(--text-muted);">Tam</th><th style="text-align:right; padding:8px; color:var(--text-muted);">Qtd</th></tr>
+                            ${rows}
+                        </table>
+                    </div>
+                `;
+            }
+            return '';
+        };
+
+        if(pedido.verdeOliva || pedido.terracota) {
+            if(pedido.verdeOliva) html += generateTable('Verde Oliva', 'var(--shirt-verde)', pedido.verdeOliva);
+            if(pedido.terracota) html += generateTable('Terracota', 'var(--shirt-terracota)', pedido.terracota);
+        } else {
+            html += generateTable('Itens (Legado)', '#fff', null);
+        }
+
+        html += `
+            <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-subtle); text-align:right;">
+                <p style="font-size:0.9rem; color:var(--text-muted);">Total de Peças: <span style="color:#fff; font-weight:bold;">${total}</span></p>
+                <p style="font-size:1.2rem; color:var(--gold-solid); font-weight:700;">${formatarMoeda(total * PRECO_CAMISETA)}</p>
+            </div>
+        `;
+
+        container.innerHTML = html;
+        
+        // Configura o botão de edição
+        const btnEdit = document.getElementById('btnEditarNoModal');
+        btnEdit.onclick = function() {
+            document.getElementById('modalDetalhesPedido').classList.remove('active');
+            window.setupEdicaoPedido();
+        };
+
+        document.getElementById('modalDetalhesPedido').classList.add('active');
+    };
+
     window.displayVisualizacaoPedido = function(pedido) {
         currentPedidoParaEdicao = pedido;
         const total = calcularTotalPedido(pedido);
@@ -1139,14 +1237,17 @@
                         <div style="display:grid; gap:0.5rem; color:var(--text-muted); font-size:0.9rem;">
                             <p>NOME: <span style="color:#fff">${pedido.nome}</span></p>
                             <p>LOCAL: <span style="color:#fff">${pedido.local} - ${pedido.setor}</span></p>
-                            <p>CONTATO: <span style="color:#fff">${pedido.contato || 'Não informado'}</span></p>
                             <p>TOTAL PEÇAS: <span style="color:#fff">${total}</span></p>
                             <p>VALOR TOTAL: <span style="color:var(--gold-solid); font-weight:700;">${formatarMoeda(total * PRECO_CAMISETA)}</span></p>
                         </div>
-                        <button id="btnIniciarEdicao" class="btn-primary" style="width:100%; margin-top:2rem; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); box-shadow:none;">Editar Pedido</button>
+                        <!-- BOTÃO ALTERADO PARA DETALHAR PEDIDO -->
+                        <button id="btnDetalharOverlay" class="btn-primary" style="width:100%; margin-top:2rem; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); box-shadow:none;">DETALHAR PEDIDO</button>
                       </div>`;
         document.getElementById('resultadoConsulta').innerHTML = html;
-        const btnEdit = document.getElementById('btnIniciarEdicao'); if (btnEdit) btnEdit.addEventListener('click', window.setupEdicaoPedido);
+        
+        // Listener para abrir o modal de detalhes
+        const btnDetail = document.getElementById('btnDetalharOverlay');
+        if (btnDetail) btnDetail.addEventListener('click', () => window.exibirModalDetalhesPedido(pedido));
     };
 
     window.handleFormSubmission = async function(e) {
