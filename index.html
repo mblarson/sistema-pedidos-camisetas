@@ -978,11 +978,11 @@
     let PRECO_CAMISETA = 30.00; // Valor padrão inicial, será atualizado pelo listener
 
     // =================================================================
-    // IMPORTAÇÕES FIREBASE ATUALIZADAS (COM onSnapshot)
+    // IMPORTAÇÕES FIREBASE ATUALIZADAS (COM signInWithEmailAndPassword e signOut)
     // =================================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -1117,13 +1117,34 @@
     // FIM BACKGROUND
     // =================================================================
 
-    // MANTEMOS O LOGIN ANÔNIMO APENAS PARA TER UMA CONEXÃO COM FIRESTORE
+    // INICIALIZAÇÃO E CONTROLE DE ESTADO DE AUTENTICAÇÃO
     const initAuth = async () => {
-        try {
-            await signInAnonymously(auth);
-        } catch (error) {
-           // Silencioso se já logado
-        }
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Se o usuário estiver logado e NÃO for anônimo, mostramos o painel administrativo
+                if (!user.isAnonymous) {
+                    const loginDiv = document.getElementById('loginAdmin');
+                    const painelDiv = document.getElementById('painelAdmin');
+                    if (loginDiv && painelDiv) {
+                        loginDiv.style.display = 'none';
+                        painelDiv.style.display = 'block';
+                        window.carregarDashboard();
+                    }
+                } else {
+                    // Se for anônimo, garante que o painel admin está oculto e login visível
+                    const loginDiv = document.getElementById('loginAdmin');
+                    const painelDiv = document.getElementById('painelAdmin');
+                    if (loginDiv && painelDiv) {
+                        loginDiv.style.display = 'block';
+                        painelDiv.style.display = 'none';
+                    }
+                }
+                iniciarMonitoramentoPreco();
+            } else {
+                // Se não houver usuário, faz login anônimo (para público poder enviar pedidos)
+                signInAnonymously(auth).catch(console.error);
+            }
+        });
     };
     
     // NOVA FUNÇÃO DE FORMATAÇÃO (PADRÃO BRASILEIRO)
@@ -1179,13 +1200,6 @@
             console.error("Erro no monitoramento de preço:", error);
         });
     }
-
-    // Monitora Auth para iniciar o listener de preço
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            iniciarMonitoramentoPreco();
-        }
-    });
 
     initAuth();
 
@@ -1817,20 +1831,30 @@
     // =================================================================
     // LOGIN DE ADMINISTRADOR ATUALIZADO (E-MAIL E SENHA)
     // =================================================================
-    window.handleAdminLogin = function(e) {
+    window.handleAdminLogin = async function(e) {
         e.preventDefault();
         
         const email = document.getElementById('emailAdmin').value.trim();
         const senha = document.getElementById('senhaAdmin').value;
         
-        // Credenciais fixas
-        if (email === "admin@umademats.com.br" && senha === "secretariaumademats") {
+        window.mostrarCarregamento(true, "AUTENTICANDO...");
+
+        try {
+            // Tenta fazer login com Firebase
+            await signInWithEmailAndPassword(auth, email, senha);
+            
+            // UI Update será tratado automaticamente pelo onAuthStateChanged,
+            // mas forçamos a limpeza aqui para UX imediata
             document.getElementById('loginAdmin').style.display = 'none';
             document.getElementById('painelAdmin').style.display = 'block';
             window.carregarDashboard();
-        } else {
+            
+        } catch (error) {
+            console.error("Erro login:", error);
             // Exibe modal de erro
             document.getElementById('modalErroLogin').classList.add('active');
+        } finally {
+             window.mostrarCarregamento(false);
         }
     };
 
