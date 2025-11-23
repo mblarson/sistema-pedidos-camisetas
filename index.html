@@ -1261,7 +1261,22 @@
         const setor = normalizeString(formData.get('setor'));
         
         if (!isValidEmail(email)) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL INVÁLIDO'); return; }
+
+        // ============================================
+        // 1 — VALIDAÇÃO DE CELULAR OBRIGATÓRIO (NOVO)
+        // ============================================
+        const contatoInput = formData.get('contato');
+        // Remove tudo que não for número para validar tamanho
+        const contatoNumeros = contatoInput ? contatoInput.replace(/\D/g, '') : '';
         
+        // Exige pelo menos DDD + 9 digitos = 11 caracteres (XX) XXXXX-XXXX
+        if (!contatoNumeros || contatoNumeros.length < 11) {
+            window.exibirMensagem('mensagemPedido', 'erro', 'O CELULAR É OBRIGATÓRIO (COM DDD)');
+            // Foca no input para ajudar o usuário
+            document.getElementById('contato').focus();
+            return;
+        }
+
         if (!isEditing) {
             const dup = await window.verificarPedidoPorEmail(email);
             if (dup) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL JÁ TEM PEDIDO'); return; }
@@ -1516,6 +1531,30 @@
         const safeOnClick = (id, handler) => { const el = document.getElementById(id); if(el) el.onclick = handler; };
         const safeOnSubmit = (id, handler) => { const el = document.getElementById(id); if(el) el.onsubmit = handler; };
         const safeOnChange = (id, handler) => { const el = document.getElementById(id); if(el) el.onchange = handler; };
+
+        // ============================================
+        // 2 — MÁSCARA AUTOMÁTICA DE CELULAR (NOVO)
+        // ============================================
+        const inputContato = document.getElementById('contato');
+        if (inputContato) {
+            inputContato.addEventListener('input', function(e) {
+                let v = e.target.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+                
+                // Limita a 11 dígitos
+                if (v.length > 11) v = v.slice(0, 11);
+
+                // Formatação progressiva (XX) XXXXX-XXXX
+                if (v.length > 2) {
+                    v = `(${v.substring(0, 2)}) ${v.substring(2)}`;
+                }
+                if (v.length > 9) { // (11) 91234 tem 9 chars. O próximo é o hífen ou número
+                   // Insere o hífen antes dos últimos 4 dígitos
+                   v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
+                }
+                
+                e.target.value = v;
+            });
+        }
 
         safeOnClick('btnNovoPedido', () => { if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; } window.setupNovoPedido(); window.redirecionarComAnimacao('pedido'); });
         safeOnClick('btnConsultarPedido', () => { window.redirecionarComAnimacao('consultar'); });
