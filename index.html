@@ -204,8 +204,8 @@
     .card-content h4 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
     #admin-dashboard .card-content h4, #admin-dashboard .dashboard-details h4, #admin-dashboard .detail-item span { color: #FFFFFF !important; }
     
-    /* AJUSTE 1: Diminui fonte dos valores para caber no desktop */
-    .card-value { font-size: 1.8rem; font-weight: 300; color: #fff; } 
+    /* AJUSTE 1: Diminui fonte dos valores para caber no desktop e mobile sem quebrar */
+    .card-value { font-size: clamp(1.4rem, 2vw, 1.8rem); font-weight: 300; color: #fff; white-space: nowrap; } 
     
     .pedido-card-expandable { cursor: pointer; transition: background 0.3s ease; }
     .pedido-card-expandable:hover { background: rgba(255, 255, 255, 0.05); }
@@ -273,6 +273,13 @@
     .hist-table th { color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
     .hist-table td { color: #fff; }
 
+    /* ESTILOS DE FILTRO E BUSCA */
+    .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .filter-container { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+    .filter-radio { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; }
+    .filter-radio input { width: auto !important; margin: 0; accent-color: var(--gold-solid); }
+    .filter-radio input:checked + span { color: var(--gold-solid); font-weight: 600; }
+
     /* =========================================
        MOBILE RESPONSIVENESS
        ========================================= */
@@ -293,7 +300,7 @@
         .admin-menu { gap: 1rem; padding-bottom: 5px; }
         /* AJUSTE 2: Reduz a fonte e padding do menu do ADMIN no mobile */
         .admin-menu-btn { font-size: 0.75rem; padding: 0.6rem 0; } 
-        .tamanhos-table-container { overflow-x: auto; display: block; width: 100%; }
+        .tamanhos-table-container { overflow-x: auto; display: block; width: 100%; margin-bottom: 1rem; }
         .tamanhos-table th, .tamanhos-table td { padding: 0.8rem 0.5rem; font-size: 0.8rem; }
         .pedido-header-minimized { flex-wrap: wrap; gap: 0.5rem; }
         .pedido-resumo-info { width: 100%; justify-content: space-between; }
@@ -302,6 +309,8 @@
         .financeiro-item-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
         .financeiro-actions { width: 100%; justify-content: space-between; }
         .pedido-confirmacao-card { width: 95%; margin: 10px; max-height: 90vh; overflow-y: auto; }
+        /* Ajuste de filtros no mobile */
+        .filter-container { flex-direction: row; justify-content: space-between; }
     }
     @media (min-width: 481px) { .home-title { font-size: clamp(3rem, 6vw, 4.5rem); } }
   </style>
@@ -326,7 +335,7 @@
           
           <div class="form-group">
               <label>Valor Pago</label>
-              <input type="text" id="valorLiquidacao" placeholder="R$ 0,00" inputmode="decimal">
+              <input type="text" id="valorLiquidacao" placeholder="R$ 0,00" inputmode="numeric">
           </div>
           
           <div class="form-group">
@@ -678,7 +687,7 @@
             <form id="formLoginAdmin">
                 <div class="form-group"><label>E-mail Administrativo</label><input type="email" id="emailAdmin" required placeholder="admin@umademats.com.br"></div>
                 <div class="form-group"><label>Senha de Administrador</label><div style="position:relative;"><input type="password" id="senhaAdmin" required style="padding-right:40px !important;"><button type="button" onclick="window.togglePasswordVisibility('senhaAdmin', this.querySelector('i'))" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer;"><i class="fas fa-eye"></i></button></div></div>
-                <button type="submit" class="btn-primary" style="width:100%; margin-top:1rem;">Entrar no Sistema</button>
+                <button type="submit" class="btn-primary" style="width:100; margin-top:1rem;">Entrar no Sistema</button>
             </form>
             <div id="mensagemLogin"></div>
         </div>
@@ -716,8 +725,40 @@
 
             <div id="admin-detalhes-tamanhos" class="admin-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;"><h2>Matriz de Tamanhos</h2><button id="voltarDashboard" style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; gap:5px;"><i class="fas fa-arrow-left"></i> Voltar</button></div>
-                <div class="card" style="margin-bottom:2rem;"><h4 style="color:var(--gold-solid); margin-bottom:1.5rem;">Adultos</h4><div id="tamanhosAdultoContainer" class="tamanhos-table-container" style="overflow-x:auto;"><table class="tamanhos-table" id="tabelaAdultos" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:15px; color:var(--text-muted);">TIPO</th><th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th></tr></thead><tbody id="tamanhosAdultoBody"></tbody></table></div></div>
-                <div class="card" style="margin-bottom:2rem;"><h4 style="color:var(--gold-solid); margin-bottom:1.5rem;">Infantil</h4><div id="tamanhosInfantilContainer" style="overflow-x:auto;"><table class="tamanhos-table" id="tabelaInfantil" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:15px; color:var(--text-muted);">TIPO</th><th>1</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th><th>12</th><th>14</th></tr></thead><tbody id="tamanhosInfantilBody"></tbody></table></div></div>
+                
+                <!-- ADULTO -->
+                <h3 style="color:#fff; margin-bottom:1rem; border-bottom:1px solid var(--gold-solid); padding-bottom:0.5rem;">ADULTO</h3>
+                <div class="card" style="margin-bottom:1rem;">
+                    <h4 style="color:var(--shirt-verde); margin-bottom:1rem;">Verde-Oliva</h4>
+                    <div class="tamanhos-table-container"><table class="tamanhos-table" id="tabelaAdultoVerde" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:10px; color:var(--text-muted);">TIPO</th><th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th></tr></thead><tbody id="adultoVerdeBody"></tbody></table></div>
+                </div>
+                <div class="card" style="margin-bottom:2rem;">
+                    <h4 style="color:var(--shirt-terracota); margin-bottom:1rem;">Terracota</h4>
+                    <div class="tamanhos-table-container"><table class="tamanhos-table" id="tabelaAdultoTerra" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:10px; color:var(--text-muted);">TIPO</th><th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th></tr></thead><tbody id="adultoTerraBody"></tbody></table></div>
+                </div>
+
+                <!-- BABYLOOK -->
+                <h3 style="color:#fff; margin-bottom:1rem; border-bottom:1px solid var(--gold-solid); padding-bottom:0.5rem;">BABYLOOK</h3>
+                <div class="card" style="margin-bottom:1rem;">
+                    <h4 style="color:var(--shirt-verde); margin-bottom:1rem;">Verde-Oliva</h4>
+                    <div class="tamanhos-table-container"><table class="tamanhos-table" id="tabelaBabyVerde" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:10px; color:var(--text-muted);">TIPO</th><th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th></tr></thead><tbody id="babyVerdeBody"></tbody></table></div>
+                </div>
+                <div class="card" style="margin-bottom:2rem;">
+                    <h4 style="color:var(--shirt-terracota); margin-bottom:1rem;">Terracota</h4>
+                    <div class="tamanhos-table-container"><table class="tamanhos-table" id="tabelaBabyTerra" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:10px; color:var(--text-muted);">TIPO</th><th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th><th>XGG</th></tr></thead><tbody id="babyTerraBody"></tbody></table></div>
+                </div>
+
+                <!-- INFANTIL -->
+                <h3 style="color:#fff; margin-bottom:1rem; border-bottom:1px solid var(--gold-solid); padding-bottom:0.5rem;">INFANTIL</h3>
+                <div class="card" style="margin-bottom:1rem;">
+                    <h4 style="color:var(--shirt-verde); margin-bottom:1rem;">Verde-Oliva</h4>
+                    <div class="tamanhos-table-container"><table class="tamanhos-table" id="tabelaInfantilVerde" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:10px; color:var(--text-muted);">TIPO</th><th>1</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th><th>12</th><th>14</th></tr></thead><tbody id="infantilVerdeBody"></tbody></table></div>
+                </div>
+                <div class="card" style="margin-bottom:2rem;">
+                    <h4 style="color:var(--shirt-terracota); margin-bottom:1rem;">Terracota</h4>
+                    <div class="tamanhos-table-container"><table class="tamanhos-table" id="tabelaInfantilTerra" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:10px; color:var(--text-muted);">TIPO</th><th>1</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th><th>12</th><th>14</th></tr></thead><tbody id="infantilTerraBody"></tbody></table></div>
+                </div>
+                
                 <div style="display:flex; gap:1rem;"><button class="btn-primary" id="btnGerarPdf" style="flex:1;">Baixar PDF</button><button id="atualizarDetalhesTamanho" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:#fff; border-radius:50px; cursor:pointer;">Atualizar Dados</button></div>
             </div>
 
@@ -736,7 +777,20 @@
                         <button id="atualizarPedidos" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
-                <div id="listaPedidos"></div>
+                
+                <div id="filtrosPedidos" class="search-container">
+                    <div class="form-group" style="margin-bottom:0.5rem;">
+                        <input type="text" id="buscaInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;">
+                    </div>
+                    <div class="filter-container">
+                        <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase;">Filtrar Local:</span>
+                        <label class="filter-radio"><input type="radio" name="filtroLocal" value="todos" checked> <span>Todos</span></label>
+                        <label class="filter-radio"><input type="radio" name="filtroLocal" value="Capital"> <span>Capital</span></label>
+                        <label class="filter-radio"><input type="radio" name="filtroLocal" value="Interior"> <span>Interior</span></label>
+                    </div>
+                </div>
+
+                <div id="listaPedidos" style="margin-top:1.5rem;"></div>
             </div>
 
             <div id="admin-pendencias" class="admin-section" style="display:none;">
@@ -776,7 +830,7 @@
     let SISTEMA_ABERTO = true; 
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
@@ -844,9 +898,12 @@
     const formatarDataPTBR = (dataStr) => {
         if(!dataStr) return "-";
         // Se for string DDMMAAAA (legado/input)
-        if(dataStr.length === 8 && !dataStr.includes('-')) {
+        if(dataStr.length === 8 && !dataStr.includes('-') && !dataStr.includes('/')) {
              return `${dataStr.substr(0,2)}/${dataStr.substr(2,2)}/${dataStr.substr(4,4)}`;
         }
+        // Se ja tiver barra, retorna igual
+        if(dataStr.includes('/')) return dataStr;
+
         // Se for ISO ou data JS
         const dateObj = new Date(dataStr);
         // Garante que é uma data válida antes de formatar
@@ -1056,22 +1113,95 @@
         const doc = new jsPDF('l', 'mm', 'a4');
         const dataAtual = new Date().toLocaleDateString('pt-BR');
         
-        doc.setFontSize(16); doc.text("RELATÓRIO UMADEMATS", 148.5, 20, null, null, "center");
-        doc.setFontSize(10); doc.text(`Data: ${dataAtual}`, 10, 25);
+        doc.setFontSize(16); doc.text("RELATÓRIO DE TAMANHOS - UMADEMATS", 148.5, 20, null, null, "center");
+        doc.setFontSize(10); doc.text(`Gerado em: ${dataAtual}`, 10, 25);
         
-        const addTableToPdf = (tableId, startY, title) => {
-            const tableElement = document.getElementById(tableId); if (!tableElement || tableElement.rows.length <= 1) return startY;
-            doc.setFontSize(12); doc.text(title, 14, startY - 2);
+        // Função para capturar dados das tabelas HTML
+        const getTableData = (tableId) => {
+            const tableElement = document.getElementById(tableId);
+            if (!tableElement || tableElement.rows.length <= 1) return { head: [], body: [] };
             const head = Array.from(tableElement.querySelector('thead tr').children).map(th => th.textContent);
-            let body = []; Array.from(tableElement.querySelector('tbody').rows).forEach(row => { body.push(Array.from(row.children).map(td => td.textContent)); });
-            doc.autoTable({ head: [head], body: body, startY: startY, theme: 'grid' });
-            return doc.lastAutoTable.finalY + 15;
+            let body = []; 
+            Array.from(tableElement.querySelector('tbody').rows).forEach(row => { 
+                body.push(Array.from(row.children).map(td => td.textContent)); 
+            });
+            return { head: [head], body: body };
         };
-        let nextY = 35;
-        nextY = addTableToPdf('tabelaAdultos', nextY, "Adultos (Soma de Cores)");
-        addTableToPdf('tabelaInfantil', nextY, "Infantil (Soma de Cores)");
+
+        let nextY = 30;
+
+        // Helper para adicionar tabela com estilo
+        const addSection = (title, tableId, colorRGB) => {
+            const data = getTableData(tableId);
+            if (data.body.length === 0) return nextY;
+
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text(title, 14, nextY);
+            nextY += 2;
+
+            doc.autoTable({
+                head: data.head,
+                body: data.body,
+                startY: nextY,
+                theme: 'grid',
+                headStyles: { fillColor: colorRGB, textColor: [255, 255, 255], fontStyle: 'bold' },
+                styles: { fontSize: 9, cellPadding: 2 },
+                alternateRowStyles: { fillColor: [245, 245, 245] }
+            });
+            
+            nextY = doc.lastAutoTable.finalY + 10;
+            // Se não couber na página, adiciona nova página
+            if (nextY > 180) { doc.addPage(); nextY = 20; }
+            return nextY;
+        };
+
+        // Verde RGB: [85, 107, 47]
+        // Terracota RGB: [192, 88, 56]
+
+        // ADULTO
+        doc.setFontSize(14); doc.text("ADULTO (Unissex)", 14, nextY); nextY += 6;
+        addSection("Verde-Oliva", 'tabelaAdultoVerde', [85, 107, 47]);
+        addSection("Terracota", 'tabelaAdultoTerra', [192, 88, 56]);
+
+        // BABYLOOK
+        if (nextY > 160) { doc.addPage(); nextY = 20; }
+        doc.setFontSize(14); doc.text("BABYLOOK", 14, nextY); nextY += 6;
+        addSection("Verde-Oliva", 'tabelaBabyVerde', [85, 107, 47]);
+        addSection("Terracota", 'tabelaBabyTerra', [192, 88, 56]);
+
+        // INFANTIL
+        if (nextY > 160) { doc.addPage(); nextY = 20; }
+        doc.setFontSize(14); doc.text("INFANTIL", 14, nextY); nextY += 6;
+        addSection("Verde-Oliva", 'tabelaInfantilVerde', [85, 107, 47]);
+        addSection("Terracota", 'tabelaInfantilTerra', [192, 88, 56]);
+
+        // TOTALIZADORES NO FINAL
+        if (nextY > 150) { doc.addPage(); nextY = 20; }
         
-        doc.save(`Relatorio_${dataAtual.replace('/', '-')}.pdf`);
+        const tInf = parseInt(document.getElementById('totalInfantis').innerText) || 0;
+        const tBaby = parseInt(document.getElementById('totalBabylook').innerText) || 0;
+        const tUni = parseInt(document.getElementById('totalUnissex').innerText) || 0;
+        const tGeral = tInf + tBaby + tUni;
+        
+        doc.setDrawColor(212, 175, 55);
+        doc.setLineWidth(0.5);
+        doc.rect(14, nextY, 180, 40);
+        
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 0);
+        doc.text("RESUMO GERAL", 20, nextY + 10);
+        
+        doc.setFontSize(11);
+        doc.text(`Total Infantil: ${tInf}`, 20, nextY + 20);
+        doc.text(`Total Babylook: ${tBaby}`, 20, nextY + 26);
+        doc.text(`Total Unissex: ${tUni}`, 20, nextY + 32);
+        
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text(`TOTAL GERAL DE PEÇAS: ${tGeral.toLocaleString('pt-BR')}`, 100, nextY + 25);
+
+        doc.save(`Relatorio_Detalhado_Tamanhos_${dataAtual.replace(/\//g, '-')}.pdf`);
         window.mostrarCarregamento(false);
     };
 
@@ -1207,10 +1337,6 @@
                 preencher(pedido.terracota.unissex, 'terracota_unissex');
             }
         } else {
-            // Se for pedido antigo, mapeia para VERDE por padrão ou deixa vazio?
-            // Deixar vazio força o usuário a escolher a cor na edição.
-            // Para ser gentil, vamos mapear para Verde? Não, melhor deixar zerado para forçar a migração correta.
-            // O usuário verá tudo zerado e terá que preencher novamente nas cores corretas.
             alert("Atenção: Este pedido é antigo (sem cor definida). Por favor, redistribua as quantidades nas cores Verde e Terracota.");
         }
         
@@ -1337,13 +1463,9 @@
         // 1 — VALIDAÇÃO DE CELULAR OBRIGATÓRIO (NOVO)
         // ============================================
         const contatoInput = formData.get('contato');
-        // Remove tudo que não for número para validar tamanho
         const contatoNumeros = contatoInput ? contatoInput.replace(/\D/g, '') : '';
-        
-        // Exige pelo menos DDD + 9 digitos = 11 caracteres (XX) XXXXX-XXXX
         if (!contatoNumeros || contatoNumeros.length < 11) {
             window.exibirMensagem('mensagemPedido', 'erro', 'O CELULAR É OBRIGATÓRIO (COM DDD)');
-            // Foca no input para ajudar o usuário
             document.getElementById('contato').focus();
             return;
         }
@@ -1359,13 +1481,11 @@
             if (dupSetor && (isEditing ? dupSetor.docId !== docId : true)) { window.exibirMensagem('mensagemPedido', 'erro', 'SETOR JÁ TEM PEDIDO'); return; }
         }
         
-        // Calcular Total (Novo método)
         const totalInputs = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]')).reduce((sum, i) => sum + (parseInt(i.value) || 0), 0);
         if (totalInputs === 0) { window.exibirMensagem('mensagemPedido', 'erro', 'ADICIONE PELO MENOS 1 CAMISETA'); return; }
         
         window.mostrarCarregamento(true);
         try {
-            // ESTRUTURA NOVA DE DADOS
             const data = {
                 data: new Date().toISOString(),
                 nome: formData.get('nome'),
@@ -1374,14 +1494,12 @@
                 email: email,
                 contato: formData.get('contato'),
                 
-                // VERDE OLIVA
                 verdeOliva: {
                     infantil: getQuantidadesFromForm(formData, 'verde_infantil'),
                     babylook: getQuantidadesFromForm(formData, 'verde_babylook'),
                     unissex: getQuantidadesFromForm(formData, 'verde_unissex'),
                 },
                 
-                // TERRACOTA
                 terracota: {
                     infantil: getQuantidadesFromForm(formData, 'terracota_infantil'),
                     babylook: getQuantidadesFromForm(formData, 'terracota_babylook'),
@@ -1391,7 +1509,6 @@
                 status: 'Pendente'
             };
             
-            // Limpa dados legados para evitar confusão se estiver editando um antigo
             data.infantil = {}; data.babylook = {}; data.unissex = {};
             
             let finalNum = '';
@@ -1420,7 +1537,7 @@
             window.pedidosCache = p;
             
             let tP = p.length, tC = 0, inf = 0, baby = 0, uni = 0;
-            let totalRecebidoReal = 0; // SOMA APENAS O QUE FOI PAGO
+            let totalRecebidoReal = 0;
             const sumObj = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
 
             p.forEach(x => {
@@ -1429,13 +1546,12 @@
                 let b = sumObj(x.babylook);
                 let u = sumObj(x.unissex);
                 
-                // Novo Verde
+                // Novo
                 if(x.verdeOliva) {
                     i += sumObj(x.verdeOliva.infantil);
                     b += sumObj(x.verdeOliva.babylook);
                     u += sumObj(x.verdeOliva.unissex);
                 }
-                // Novo Terracota
                 if(x.terracota) {
                     i += sumObj(x.terracota.infantil);
                     b += sumObj(x.terracota.babylook);
@@ -1444,7 +1560,7 @@
                 
                 tC += i + b + u; inf += i; baby += b; uni += u;
 
-                // Somar liquidações reais
+                // SOMA TODAS AS LIQUIDAÇÕES
                 if (x.liquidacoes && Array.isArray(x.liquidacoes)) {
                     totalRecebidoReal += x.liquidacoes.reduce((acc, curr) => acc + (curr.valor || 0), 0);
                 }
@@ -1452,7 +1568,7 @@
             
             window.atualizarElemento('totalPedidos', tP); window.atualizarElemento('totalCamisetas', tC);
             const totalVal = tC * PRECO_CAMISETA; window.atualizarElemento('totalArrecadado', formatarMoeda(totalVal));
-            window.atualizarElemento('totalRecebidoReal', formatarMoeda(totalRecebidoReal)); // NOVO ELEMENTO
+            window.atualizarElemento('totalRecebidoReal', formatarMoeda(totalRecebidoReal));
             window.atualizarElemento('totalInfantis', inf); window.atualizarElemento('totalBabylook', baby); window.atualizarElemento('totalUnissex', uni);
         } catch (e) { console.error(e); } finally { window.mostrarCarregamento(false); }
     };
@@ -1463,22 +1579,52 @@
         else { detailsDiv.style.display = 'none'; icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-right'); }
     };
 
+    // FILTRO E BUSCA ATUALIZADOS
     window.carregarPedidos = async function() {
         window.mostrarCarregamento(true);
         const lista = document.getElementById('listaPedidos'); lista.innerHTML = '';
-        const p = await window.carregarTodosPedidos(); window.pedidosCache = p;
+        
+        // Obtém valores dos filtros
+        const termoBusca = document.getElementById('buscaInput').value.toLowerCase().trim();
+        const filtroLocal = document.querySelector('input[name="filtroLocal"]:checked').value;
 
-        p.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(x => {
+        // Se não houver cache, carrega
+        if (!window.pedidosCache || window.pedidosCache.length === 0) {
+            window.pedidosCache = await window.carregarTodosPedidos();
+        }
+        const p = window.pedidosCache;
+
+        const pedidosFiltrados = p.filter(x => {
+            // Filtro Local
+            if (filtroLocal !== 'todos' && x.local !== filtroLocal) return false;
+            
+            // Filtro Busca (substring em vários campos)
+            if (termoBusca) {
+                const searchable = [
+                    x.nome, 
+                    x.numPedido, 
+                    x.setor, 
+                    x.local, 
+                    x.email, 
+                    x.contato,
+                    // Permite buscar por valores aproximados
+                    formatarMoeda(calcularTotalPedido(x) * PRECO_CAMISETA)
+                ].join(' ').toLowerCase();
+                
+                if (!searchable.includes(termoBusca)) return false;
+            }
+            return true;
+        });
+
+        pedidosFiltrados.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(x => {
             const t = calcularTotalPedido(x);
             
             let tabelaHTML = `<table class="tabela-detalhe-pedido"><thead><tr><th>Categoria</th><th>Tamanho</th><th>Qtd</th></tr></thead><tbody>`;
             const addRows = (cat, obj) => { let rows = ''; Object.entries(obj || {}).forEach(([tam, qtd]) => { if(qtd > 0) rows += `<tr><td>${cat}</td><td>${tam}</td><td>${qtd}</td></tr>`; }); return rows; };
             
-            // Legado
             if(!x.verdeOliva && !x.terracota) {
                 tabelaHTML += addRows('Infantil', x.infantil); tabelaHTML += addRows('Babylook', x.babylook); tabelaHTML += addRows('Unissex', x.unissex);
             } else {
-                // Novo
                 if(x.verdeOliva) {
                     tabelaHTML += addRows('Verde - Inf', x.verdeOliva.infantil);
                     tabelaHTML += addRows('Verde - Baby', x.verdeOliva.babylook);
@@ -1525,6 +1671,9 @@
                     </div>
                 </div>`;
         });
+        
+        if(pedidosFiltrados.length === 0) lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">Nenhum pedido encontrado para o filtro atual.</p>`;
+        
         window.mostrarCarregamento(false);
     };
 
@@ -1533,38 +1682,50 @@
         const p = await window.carregarTodosPedidos();
         const sizesA = ['PP', 'P', 'M', 'G', 'GG', 'XGG'];
         const sizesI = ['1', '2', '4', '6', '8', '10', '12', '14'];
-        let adultCounts = { babylook: {}, unissex: {} };
-        let infCounts = {};
         
-        sizesA.forEach(s => { adultCounts.babylook[s] = 0; adultCounts.unissex[s] = 0; });
-        sizesI.forEach(s => infCounts[s] = 0);
+        // Estrutura Detalhada por COR e TIPO
+        let adultoVerde = {}, adultoTerra = {};
+        let babyVerde = {}, babyTerra = {};
+        let infantilVerde = {}, infantilTerra = {};
+
+        sizesA.forEach(s => {
+            adultoVerde[s] = 0; adultoTerra[s] = 0;
+            babyVerde[s] = 0; babyTerra[s] = 0;
+        });
+        sizesI.forEach(s => {
+            infantilVerde[s] = 0; infantilTerra[s] = 0;
+        });
         
         p.forEach(x => {
-            const add = (obj, target) => Object.entries(obj || {}).forEach(([k, v]) => target[k] = (target[k]||0) + v);
-            
-            // Legado
-            add(x.babylook, adultCounts.babylook);
-            add(x.unissex, adultCounts.unissex);
-            add(x.infantil, infCounts);
+            const add = (source, target) => Object.entries(source || {}).forEach(([k, v]) => target[k] = (target[k]||0) + v);
 
-            // Novo
-            if(x.verdeOliva) {
-                add(x.verdeOliva.babylook, adultCounts.babylook);
-                add(x.verdeOliva.unissex, adultCounts.unissex);
-                add(x.verdeOliva.infantil, infCounts);
+            if (x.verdeOliva) {
+                add(x.verdeOliva.unissex, adultoVerde);
+                add(x.verdeOliva.babylook, babyVerde);
+                add(x.verdeOliva.infantil, infantilVerde);
             }
-            if(x.terracota) {
-                add(x.terracota.babylook, adultCounts.babylook);
-                add(x.terracota.unissex, adultCounts.unissex);
-                add(x.terracota.infantil, infCounts);
+            if (x.terracota) {
+                add(x.terracota.unissex, adultoTerra);
+                add(x.terracota.babylook, babyTerra);
+                add(x.terracota.infantil, infantilTerra);
+            }
+            // Legado -> assume como "Verde" (ou ignora, conforme regra) - vou somar no Verde para nao perder
+            if (!x.verdeOliva && !x.terracota) {
+                add(x.unissex, adultoVerde);
+                add(x.babylook, babyVerde);
+                add(x.infantil, infantilVerde);
             }
         });
         
-        let hA = '';
-        ['babylook', 'unissex'].forEach(t => { hA += `<tr><td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-transform:uppercase; font-weight:600;">${t}</td>${sizesA.map(s => `<td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-align:center; color:var(--text-muted);">${adultCounts[t][s]}</td>`).join('')}</tr>`; });
-        let hI = `<tr><td style="padding:12px; border-bottom:1px solid var(--border-subtle); font-weight:600;">Geral</td>${sizesI.map(s => `<td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-align:center; color:var(--text-muted);">${infCounts[s]}</td>`).join('')}</tr>`;
+        const buildRow = (label, data, keys) => `<tr><td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-transform:uppercase; font-weight:600;">${label}</td>${keys.map(s => `<td style="padding:12px; border-bottom:1px solid var(--border-subtle); text-align:center; color:var(--text-muted);">${data[s] || 0}</td>`).join('')}</tr>`;
         
-        document.getElementById('tamanhosAdultoBody').innerHTML = hA; document.getElementById('tamanhosInfantilBody').innerHTML = hI;
+        document.getElementById('adultoVerdeBody').innerHTML = buildRow('Unissex', adultoVerde, sizesA);
+        document.getElementById('adultoTerraBody').innerHTML = buildRow('Unissex', adultoTerra, sizesA);
+        document.getElementById('babyVerdeBody').innerHTML = buildRow('Babylook', babyVerde, sizesA);
+        document.getElementById('babyTerraBody').innerHTML = buildRow('Babylook', babyTerra, sizesA);
+        document.getElementById('infantilVerdeBody').innerHTML = buildRow('Infantil', infantilVerde, sizesI);
+        document.getElementById('infantilTerraBody').innerHTML = buildRow('Infantil', infantilTerra, sizesI);
+        
         window.mostrarCarregamento(false);
     };
 
@@ -1599,7 +1760,7 @@
     // MÓDULO PENDÊNCIAS FINANCEIRAS - NOVA IMPLEMENTAÇÃO
     // =========================================================================
     
-    // FUNÇÃO DE MÁSCARA MONETÁRIA
+    // FUNÇÃO DE MÁSCARA MONETÁRIA (SHIFT LEFT)
     window.aplicarMascaraMonetaria = function(inputElement) {
         let v = inputElement.value.replace(/\D/g, ""); // Remove tudo que não é dígito
 
@@ -1608,7 +1769,7 @@
             return;
         }
 
-        // Garante que pelo menos 2 casas decimais existam
+        // Garante que pelo menos 3 dígitos existam para formato 0,00
         while (v.length < 3) {
             v = "0" + v;
         }
@@ -1616,6 +1777,9 @@
         // Separa os centavos
         let integerPart = v.substring(0, v.length - 2);
         let decimalPart = v.substring(v.length - 2);
+
+        // Remove zeros à esquerda desnecessários na parte inteira (ex: 00123 -> 123)
+        integerPart = parseInt(integerPart).toString();
 
         // Adiciona separadores de milhares
         integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -1639,7 +1803,7 @@
             return;
         }
 
-        // Ordenar por setor para facilitar visualização (opcional)
+        // Ordenar por setor para facilitar visualização
         p.sort((a, b) => a.setor.localeCompare(b.setor));
 
         p.forEach(pedido => {
@@ -1651,14 +1815,13 @@
             const valorRecebido = liquidacoes.reduce((acc, curr) => acc + (curr.valor || 0), 0);
             const valorRestante = valorTotal - valorRecebido;
 
-            let statusColor = 'var(--gold-solid)';
             let statusText = '';
             
-            // Regra de exibição de Status (PAGO PARCIALMENTE)
-            if (valorRecebido > 0 && valorRecebido < valorTotal) {
-                statusText = '<span style="color:var(--warning-color); font-weight:bold; font-size:0.8rem; cursor:pointer; text-decoration:underline;" onclick="window.abrirModalLiquidacao(\''+pedido.docId+'\', true)">PAGO PARCIALMENTE <i class="fas fa-history"></i></span>';
-            } else if (valorRecebido >= valorTotal && valorTotal > 0) {
-                statusText = '<span style="color:var(--success-color); font-weight:bold; font-size:0.8rem; cursor:pointer;" onclick="window.abrirModalLiquidacao(\''+pedido.docId+'\', true)">QUITADO <i class="fas fa-check"></i></span>';
+            // Regra de exibição de Status
+            if (valorRecebido > 0 && valorRecebido < valorTotal - 0.01) { // tolerância float
+                statusText = `<span style="color:var(--warning-color); font-weight:bold; font-size:0.8rem; cursor:pointer; text-decoration:underline; display:block; margin-top:0.5rem;" onclick="window.abrirModalLiquidacao('${pedido.docId}')">PAGO PARCIALMENTE <i class="fas fa-history"></i></span>`;
+            } else if (valorRecebido >= valorTotal - 0.01 && valorTotal > 0) {
+                statusText = `<span style="color:var(--success-color); font-weight:bold; font-size:0.8rem; cursor:pointer; display:block; margin-top:0.5rem;" onclick="window.abrirModalLiquidacao('${pedido.docId}')">QUITADO <i class="fas fa-check"></i></span>`;
             }
 
             lista.innerHTML += `
@@ -1667,6 +1830,7 @@
                         <div>
                             <h4 style="margin:0; color:#fff; font-size:1.1rem;">${pedido.setor}</h4>
                             <span style="color:var(--text-muted); font-size:0.9rem;">${qtdTotal} Camisetas</span>
+                            <br><span style="font-size:0.8rem; color:#888;">${pedido.local}</span>
                         </div>
                         <div style="text-align:right;">
                             <div style="color:var(--gold-solid); font-weight:700; font-size:1.2rem;">${formatarMoeda(valorTotal)}</div>
@@ -1674,11 +1838,11 @@
                         </div>
                     </div>
                     
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:1rem; margin-top:0.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; border-top:1px solid var(--border-subtle); padding-top:1rem; margin-top:0.5rem;">
                         <div style="font-size:0.9rem;">
                             <p style="color:var(--success-color); margin-bottom:2px;">Recebido: <strong>${formatarMoeda(valorRecebido)}</strong></p>
                             <p style="color:var(--danger-color);">Restante: <strong>${formatarMoeda(valorRestante > 0 ? valorRestante : 0)}</strong></p>
-                            <div style="margin-top:5px;">${statusText}</div>
+                            ${statusText}
                         </div>
                         <button onclick="window.abrirModalLiquidacao('${pedido.docId}')" class="btn-primary" style="padding:0.7rem 1.5rem; font-size:0.8rem;">LIQUIDAR</button>
                     </div>
@@ -1690,7 +1854,7 @@
     };
 
     // ABRIR MODAL
-    window.abrirModalLiquidacao = async function(docId, forceHistory = false) {
+    window.abrirModalLiquidacao = async function(docId) {
         window.mostrarCarregamento(true);
         const docRef = doc(db, "pedidos", docId);
         const docSnap = await getDoc(docRef);
@@ -1704,7 +1868,7 @@
         const pedido = { docId: docSnap.id, ...docSnap.data() };
         document.getElementById('liquidacaoDocId').value = pedido.docId;
         
-        // Resetar o valor e a data, mantendo a máscara limpa
+        // Resetar o valor e a data
         const valorInput = document.getElementById('valorLiquidacao');
         valorInput.value = '';
         document.getElementById('dataLiquidacao').value = '';
@@ -1717,7 +1881,8 @@
         const liquidacoes = pedido.liquidacoes || [];
         
         if (liquidacoes.length > 0) {
-            liquidacoes.forEach(liq => {
+            // Mostra do mais recente para o mais antigo
+            [...liquidacoes].reverse().forEach(liq => {
                 listaHist.innerHTML += `
                     <tr>
                         <td>${formatarDataPTBR(liq.data)}</td>
@@ -1731,6 +1896,10 @@
         }
 
         document.getElementById('modalLiquidacao').classList.add('active');
+        
+        // Foca no campo de valor
+        setTimeout(() => valorInput.focus(), 100);
+        
         window.mostrarCarregamento(false);
     };
 
@@ -1759,9 +1928,9 @@
             alert("Data inválida. Use o formato DD/MM/AAAA"); return;
         }
         
-        // A regra diz "data (string — DDMMAAAA)". Vamos remover as barras.
-        const dataSalvar = dataInput.replace(/\//g, '');
-
+        // Salvar string DDMMAAAA ou ISO se preferir, vamos manter string simples para compatibilidade visual
+        // Mas para ordenação futura, timestamp é salvo também.
+        
         window.mostrarCarregamento(true, "REGISTRANDO PAGAMENTO...");
         
         try {
@@ -1772,16 +1941,16 @@
             const pedido = docSnap.data();
             let liquidacoes = pedido.liquidacoes || [];
             
-            // Adicionar nova liquidação
             liquidacoes.push({
-                valor: valorPago, // Valor numérico para cálculo
-                data: dataSalvar // String DDMMAAAA
+                valor: valorPago, 
+                data: dataInput,
+                timestamp: new Date().toISOString() // Para controle
             });
 
             await updateDoc(docRef, { liquidacoes: liquidacoes });
             
             document.getElementById('modalLiquidacao').classList.remove('active');
-            window.carregarPendencias(); // Recarrega a lista
+            window.carregarPendencias(); 
             
         } catch (error) {
             console.error("Erro ao liquidar:", error);
@@ -1791,7 +1960,7 @@
         }
     };
 
-    // CANCELAR ÚLTIMA LIQUIDAÇÃO
+    // CANCELAR ÚLTIMA LIQUIDAÇÃO (LIFO)
     window.cancelarUltimaLiquidacao = async function() {
         if(!confirm("Deseja realmente cancelar a ÚLTIMA liquidação registrada?")) return;
 
@@ -1818,9 +1987,8 @@
 
             await updateDoc(docRef, { liquidacoes: liquidacoes });
 
-            // Atualizar Modal (reabrir para ver o histórico atualizado ou fechar)
-            document.getElementById('modalLiquidacao').classList.remove('active');
-            window.carregarPendencias();
+            // Reabrir modal para ver o histórico atualizado
+            await window.abrirModalLiquidacao(docId);
 
         } catch (error) {
             console.error(error);
@@ -1864,8 +2032,7 @@
                 if (v.length > 2) {
                     v = `(${v.substring(0, 2)}) ${v.substring(2)}`;
                 }
-                if (v.length > 9) { // (11) 91234 tem 9 chars. O próximo é o hífen ou número
-                   // Insere o hífen antes dos últimos 4 dígitos
+                if (v.length > 7) { 
                    v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
                 }
                 
@@ -1874,7 +2041,7 @@
         }
         
         // ====================================================
-        // MÁSCARA DATA PARA LIQUIDAÇÃO (DD/MM/AAAA) (MANTIDA)
+        // MÁSCARA DATA PARA LIQUIDAÇÃO (DD/MM/AAAA)
         // ====================================================
         const inputDataLiq = document.getElementById('dataLiquidacao');
         if (inputDataLiq) {
@@ -1887,11 +2054,10 @@
         }
         
         // ====================================================
-        // 💰 3 — MÁSCARA MONETÁRIA (R$ 1.234,56) (NOVA)
+        // 💰 3 — MÁSCARA MONETÁRIA (R$ 1.234,56)
         // ====================================================
         const inputValorLiq = document.getElementById('valorLiquidacao');
         if (inputValorLiq) {
-            // Adiciona o listener para aplicar a máscara
             inputValorLiq.addEventListener('input', function(e) {
                 window.aplicarMascaraMonetaria(e.target);
             });
@@ -1944,6 +2110,14 @@
         safeOnChange('radioCapital', () => window.updateSetorCidadeInput());
         safeOnChange('radioInterior', () => window.updateSetorCidadeInput());
         
+        // LISTENERS DE FILTRO E BUSCA
+        const buscaInput = document.getElementById('buscaInput');
+        if(buscaInput) buscaInput.addEventListener('input', () => window.carregarPedidos());
+        
+        document.querySelectorAll('input[name="filtroLocal"]').forEach(radio => {
+            radio.addEventListener('change', () => window.carregarPedidos());
+        });
+
         window.updateSetorCidadeInput();
     });
   </script>
