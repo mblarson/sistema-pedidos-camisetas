@@ -265,6 +265,12 @@
     .admin-menu-btn:hover { color: #fff; }
     .admin-menu-btn.active { color: var(--gold-solid); border-bottom-color: var(--gold-solid); }
 
+    /* ESTILO PARA TABELA DE LIQUIDAÇÕES */
+    .hist-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+    .hist-table th, .hist-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
+    .hist-table th { color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
+    .hist-table td { color: #fff; }
+
     /* =========================================
        MOBILE RESPONSIVENESS
        ========================================= */
@@ -304,6 +310,41 @@
   <div id="loadingOverlay" class="loading-overlay">
     <div class="spinner-gold"></div>
     <div id="loadingText" style="margin-top:1.5rem; font-size:0.9rem; letter-spacing:2px; color:var(--text-muted);">CARREGANDO</div>
+  </div>
+
+  <!-- NOVO MODAL DE LIQUIDAÇÃO DE PENDÊNCIAS -->
+  <div id="modalLiquidacao" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width: 500px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
+              <h2 style="font-size:1.4rem; margin:0;">Liquidar Pagamento</h2>
+              <button onclick="document.getElementById('modalLiquidacao').classList.remove('active')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;"><i class="fas fa-times"></i></button>
+          </div>
+          
+          <input type="hidden" id="liquidacaoDocId">
+          
+          <div class="form-group">
+              <label>Valor Pago (R$)</label>
+              <input type="number" id="valorLiquidacao" placeholder="0,00" step="0.01">
+          </div>
+          
+          <div class="form-group">
+              <label>Data do Recebimento</label>
+              <input type="text" id="dataLiquidacao" placeholder="DD/MM/AAAA" maxlength="10">
+          </div>
+
+          <button id="btnConfirmarLiquidacao" class="btn-primary" style="width:100%; margin-bottom:1rem;">CONFIRMAR PAGAMENTO</button>
+          
+          <div id="historicoLiquidacoesContainer" style="display:none; margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border-subtle);">
+              <h4 style="color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; margin-bottom:1rem;">Histórico de Pagamentos</h4>
+              <table class="hist-table">
+                  <thead><tr><th>Data</th><th>Valor</th></tr></thead>
+                  <tbody id="listaHistoricoLiquidacoes"></tbody>
+              </table>
+              <div style="margin-top:1.5rem; text-align:right;">
+                   <button id="btnCancelarLiquidacao" style="background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); padding:8px 16px; border-radius:50px; font-size:0.8rem; cursor:pointer;">CANCELAR ÚLTIMA LIQUIDAÇÃO</button>
+              </div>
+          </div>
+      </div>
   </div>
 
   <!-- NOVO MODAL DE DETALHAMENTO DE PEDIDO -->
@@ -649,6 +690,8 @@
                 <button class="admin-menu-btn active" id="btnDashboard" onclick="window.mostrarAdminSecao('dashboard')">Dashboard</button>
                 <button class="admin-menu-btn" id="btnPedidos" onclick="window.mostrarAdminSecao('pedidos')">Pedidos</button>
                 <button class="admin-menu-btn" id="btnFinanceiro" onclick="window.mostrarAdminSecao('financeiro')">Financeiro</button>
+                <!-- NOVO BOTÃO MENU -->
+                <button class="admin-menu-btn" id="btnPendencias" onclick="window.mostrarAdminSecao('pendencias')">Pendências Financeiras</button>
             </div>
 
             <div id="admin-dashboard" class="admin-section active">
@@ -660,7 +703,9 @@
                 <div class="dashboard-cards">
                     <div class="card"><div class="card-content"><h4>Pedidos Totais</h4><p class="card-value" id="totalPedidos">0</p></div></div>
                     <div class="card"><div class="card-content"><h4>Camisetas</h4><p class="card-value" id="totalCamisetas">0</p></div></div>
-                    <div class="card"><div class="card-content"><h4>Receita (Est.)</h4><p class="card-value text-gold" id="totalArrecadado">R$ 0,00</p></div></div>
+                    <div class="card"><div class="card-content"><h4>Receita Prevista</h4><p class="card-value text-gold" id="totalArrecadado">R$ 0,00</p></div></div>
+                    <!-- NOVO CARD TOTAL RECEBIDO -->
+                    <div class="card"><div class="card-content"><h4>Total Recebido (Real)</h4><p class="card-value text-gold" id="totalRecebidoReal">R$ 0,00</p></div></div>
                 </div>
                 <div class="card" style="margin-bottom:2rem;">
                     <h4 style="margin-bottom:1.5rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">Métricas por Categoria</h4>
@@ -696,6 +741,17 @@
                     </div>
                 </div>
                 <div id="listaPedidos"></div>
+            </div>
+
+            <!-- NOVA SEÇÃO PENDÊNCIAS FINANCEIRAS -->
+            <div id="admin-pendencias" class="admin-section" style="display:none;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
+                    <h2>Pendências Financeiras</h2>
+                    <button id="atualizarPendencias" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <div id="listaPendencias">
+                    <!-- CARDS INJETADOS VIA JS -->
+                </div>
             </div>
 
         </div>
@@ -789,6 +845,16 @@
     };
     
     const formatarMoeda = (valor) => { return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+    // Função auxiliar para data
+    const formatarDataPTBR = (dataStr) => {
+        if(!dataStr) return "-";
+        // Se for string DDMMAAAA (legado/input)
+        if(dataStr.length === 8 && !dataStr.includes('-')) {
+             return `${dataStr.substr(0,2)}/${dataStr.substr(2,2)}/${dataStr.substr(4,4)}`;
+        }
+        // Se for ISO ou data JS
+        return new Date(dataStr).toLocaleDateString('pt-BR');
+    };
 
     let unsubscribePreco = null; let unsubscribeSistema = null;
 
@@ -859,11 +925,19 @@
         document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
         document.querySelectorAll('.admin-menu-btn').forEach(b => { b.classList.remove('active'); });
         const secaoElement = document.getElementById(`admin-${secao}`); if (secaoElement) secaoElement.style.display = 'block';
-        const btnId = secao === 'dashboard' ? 'btnDashboard' : secao === 'pedidos' ? 'btnPedidos' : 'btnFinanceiro';
+        
+        let btnId = '';
+        if(secao === 'dashboard') btnId = 'btnDashboard';
+        else if(secao === 'pedidos') btnId = 'btnPedidos';
+        else if(secao === 'financeiro') btnId = 'btnFinanceiro';
+        else if(secao === 'pendencias') btnId = 'btnPendencias';
+        
         const btn = document.getElementById(btnId); if (btn) btn.classList.add('active');
+        
         if (secao === 'dashboard') window.carregarDashboard();
         else if (secao === 'pedidos') window.carregarPedidos();
         else if (secao === 'financeiro') window.carregarDetalhesFinanceiros();
+        else if (secao === 'pendencias') window.carregarPendencias();
     };
 
     window.redirecionarComAnimacao = function(secao, callback) {
@@ -1349,6 +1423,7 @@
             window.pedidosCache = p;
             
             let tP = p.length, tC = 0, inf = 0, baby = 0, uni = 0;
+            let totalRecebidoReal = 0; // SOMA APENAS O QUE FOI PAGO
             const sumObj = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
 
             p.forEach(x => {
@@ -1371,12 +1446,18 @@
                 }
                 
                 tC += i + b + u; inf += i; baby += b; uni += u;
+
+                // Somar liquidações reais
+                if (x.liquidacoes && Array.isArray(x.liquidacoes)) {
+                    totalRecebidoReal += x.liquidacoes.reduce((acc, curr) => acc + (curr.valor || 0), 0);
+                }
             });
             
             window.atualizarElemento('totalPedidos', tP); window.atualizarElemento('totalCamisetas', tC);
             const totalVal = tC * PRECO_CAMISETA; window.atualizarElemento('totalArrecadado', formatarMoeda(totalVal));
+            window.atualizarElemento('totalRecebidoReal', formatarMoeda(totalRecebidoReal)); // NOVO ELEMENTO
             window.atualizarElemento('totalInfantis', inf); window.atualizarElemento('totalBabylook', baby); window.atualizarElemento('totalUnissex', uni);
-        } catch (e) { } finally { window.mostrarCarregamento(false); }
+        } catch (e) { console.error(e); } finally { window.mostrarCarregamento(false); }
     };
 
     window.togglePedidoDetails = function(docId) {
@@ -1521,6 +1602,211 @@
         window.mostrarCarregamento(false);
     };
 
+    // =========================================================================
+    // MÓDULO PENDÊNCIAS FINANCEIRAS - NOVA IMPLEMENTAÇÃO
+    // =========================================================================
+
+    window.carregarPendencias = async function() {
+        window.mostrarCarregamento(true);
+        const lista = document.getElementById('listaPendencias');
+        lista.innerHTML = '';
+        
+        const p = await window.carregarTodosPedidos();
+        window.pedidosCache = p;
+
+        if (p.length === 0) {
+            lista.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Nenhum pedido encontrado.</p>';
+            window.mostrarCarregamento(false);
+            return;
+        }
+
+        // Ordenar por setor para facilitar visualização (opcional)
+        p.sort((a, b) => a.setor.localeCompare(b.setor));
+
+        p.forEach(pedido => {
+            const qtdTotal = calcularTotalPedido(pedido);
+            const valorTotal = qtdTotal * PRECO_CAMISETA;
+            
+            // Calcula total já recebido
+            const liquidacoes = pedido.liquidacoes || [];
+            const valorRecebido = liquidacoes.reduce((acc, curr) => acc + (curr.valor || 0), 0);
+            const valorRestante = valorTotal - valorRecebido;
+
+            let statusColor = 'var(--gold-solid)';
+            let statusText = '';
+            
+            // Regra de exibição de Status (PAGO PARCIALMENTE)
+            // Se Recebido > 0 e Recebido < Total -> Pago Parcialmente
+            // Se Recebido >= Total -> (Opcional: Poderia sumir ou ficar verde, mas o requisito diz "Liquidado")
+            
+            // O requisito pede apenas "Se VALOR PAGO < VALOR TOTAL... Exibir PAGO PARCIALMENTE"
+            // Vamos assumir que se = 0, mostra nada ou "Pendente"
+            if (valorRecebido > 0 && valorRecebido < valorTotal) {
+                statusText = '<span style="color:var(--warning-color); font-weight:bold; font-size:0.8rem; cursor:pointer; text-decoration:underline;" onclick="window.abrirModalLiquidacao(\''+pedido.docId+'\', true)">PAGO PARCIALMENTE <i class="fas fa-history"></i></span>';
+            } else if (valorRecebido >= valorTotal && valorTotal > 0) {
+                statusText = '<span style="color:var(--success-color); font-weight:bold; font-size:0.8rem; cursor:pointer;" onclick="window.abrirModalLiquidacao(\''+pedido.docId+'\', true)">QUITADO <i class="fas fa-check"></i></span>';
+            }
+
+            lista.innerHTML += `
+                <div class="card" style="margin-bottom:1rem; padding:1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                        <div>
+                            <h4 style="margin:0; color:#fff; font-size:1.1rem;">${pedido.setor}</h4>
+                            <span style="color:var(--text-muted); font-size:0.9rem;">${qtdTotal} Camisetas</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="color:var(--gold-solid); font-weight:700; font-size:1.2rem;">${formatarMoeda(valorTotal)}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">TOTAL</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:1rem; margin-top:0.5rem;">
+                        <div style="font-size:0.9rem;">
+                            <p style="color:var(--success-color); margin-bottom:2px;">Recebido: <strong>${formatarMoeda(valorRecebido)}</strong></p>
+                            <p style="color:var(--danger-color);">Restante: <strong>${formatarMoeda(valorRestante > 0 ? valorRestante : 0)}</strong></p>
+                            <div style="margin-top:5px;">${statusText}</div>
+                        </div>
+                        <button onclick="window.abrirModalLiquidacao('${pedido.docId}')" class="btn-primary" style="padding:0.7rem 1.5rem; font-size:0.8rem;">LIQUIDAR</button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        window.mostrarCarregamento(false);
+    };
+
+    // ABRIR MODAL
+    window.abrirModalLiquidacao = async function(docId, forceHistory = false) {
+        window.mostrarCarregamento(true);
+        const docRef = doc(db, "pedidos", docId);
+        const docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) {
+            alert("Pedido não encontrado.");
+            window.mostrarCarregamento(false);
+            return;
+        }
+
+        const pedido = { docId: docSnap.id, ...docSnap.data() };
+        document.getElementById('liquidacaoDocId').value = pedido.docId;
+        document.getElementById('valorLiquidacao').value = '';
+        document.getElementById('dataLiquidacao').value = ''; // Resetar data
+        
+        // Renderizar Histórico
+        const histContainer = document.getElementById('historicoLiquidacoesContainer');
+        const listaHist = document.getElementById('listaHistoricoLiquidacoes');
+        listaHist.innerHTML = '';
+
+        const liquidacoes = pedido.liquidacoes || [];
+        
+        if (liquidacoes.length > 0) {
+            liquidacoes.forEach(liq => {
+                listaHist.innerHTML += `
+                    <tr>
+                        <td>${formatarDataPTBR(liq.data)}</td>
+                        <td>${formatarMoeda(liq.valor)}</td>
+                    </tr>
+                `;
+            });
+            histContainer.style.display = 'block';
+        } else {
+            histContainer.style.display = 'none';
+        }
+
+        // Se clicou em "PAGO PARCIALMENTE", pode rolar pro histórico
+        document.getElementById('modalLiquidacao').classList.add('active');
+        window.mostrarCarregamento(false);
+    };
+
+    // CONFIRMAR LIQUIDAÇÃO
+    window.confirmarLiquidacao = async function() {
+        const docId = document.getElementById('liquidacaoDocId').value;
+        const valorInput = document.getElementById('valorLiquidacao').value;
+        const dataInput = document.getElementById('dataLiquidacao').value; // Formato DD/MM/AAAA
+
+        if (!valorInput || parseFloat(valorInput) <= 0) {
+            alert("Informe um valor válido."); return;
+        }
+
+        // Validar Formato Data Simples (DD/MM/AAAA)
+        const regexData = /^\d{2}\/\d{2}\/\d{4}$/;
+        if (!regexData.test(dataInput)) {
+            alert("Data inválida. Use o formato DD/MM/AAAA"); return;
+        }
+        
+        // Converter DD/MM/AAAA para string pura para salvar no banco (DDMMAAAA) como pedido, 
+        // ou salvar como string formatada para facilitar leitura. 
+        // A regra diz "data (string — DDMMAAAA)". Vamos remover as barras.
+        const dataSalvar = dataInput.replace(/\//g, '');
+
+        window.mostrarCarregamento(true, "REGISTRANDO PAGAMENTO...");
+        
+        try {
+            const docRef = doc(db, "pedidos", docId);
+            const docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) throw new Error("Pedido não existe");
+
+            const pedido = docSnap.data();
+            let liquidacoes = pedido.liquidacoes || [];
+            
+            // Adicionar nova liquidação
+            liquidacoes.push({
+                valor: parseFloat(valorInput),
+                data: dataSalvar
+            });
+
+            await updateDoc(docRef, { liquidacoes: liquidacoes });
+            
+            document.getElementById('modalLiquidacao').classList.remove('active');
+            window.carregarPendencias(); // Recarrega a lista
+            
+        } catch (error) {
+            console.error("Erro ao liquidar:", error);
+            alert("Erro ao salvar liquidação.");
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+
+    // CANCELAR ÚLTIMA LIQUIDAÇÃO
+    window.cancelarUltimaLiquidacao = async function() {
+        if(!confirm("Deseja realmente cancelar a ÚLTIMA liquidação registrada?")) return;
+
+        const docId = document.getElementById('liquidacaoDocId').value;
+        window.mostrarCarregamento(true, "CANCELANDO...");
+
+        try {
+            const docRef = doc(db, "pedidos", docId);
+            const docSnap = await getDoc(docRef);
+            
+            if (!docSnap.exists()) throw new Error("Pedido não encontrado");
+
+            const pedido = docSnap.data();
+            let liquidacoes = pedido.liquidacoes || [];
+
+            if (liquidacoes.length === 0) {
+                alert("Não há liquidações para cancelar.");
+                window.mostrarCarregamento(false);
+                return;
+            }
+
+            // REMOVER A ÚLTIMA (POP)
+            liquidacoes.pop();
+
+            await updateDoc(docRef, { liquidacoes: liquidacoes });
+
+            // Atualizar Modal (reabrir para ver o histórico atualizado ou fechar)
+            document.getElementById('modalLiquidacao').classList.remove('active');
+            window.carregarPendencias();
+
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao cancelar liquidação.");
+        } finally {
+            window.mostrarCarregamento(false);
+        }
+    };
+
     window.confirmarFechamentoPedidos = async function() {
         const senhaInput = document.getElementById('senhaFecharPedidos'); const msgErro = document.getElementById('msgErroSenhaFechar'); const senha = senhaInput.value;
         if (senha !== 'JUBILEU') { msgErro.style.display = 'block'; return; }
@@ -1563,6 +1849,17 @@
                 e.target.value = v;
             });
         }
+        
+        // MÁSCARA DATA PARA LIQUIDAÇÃO (DD/MM/AAAA)
+        const inputDataLiq = document.getElementById('dataLiquidacao');
+        if (inputDataLiq) {
+            inputDataLiq.addEventListener('input', function(e) {
+                let v = e.target.value.replace(/\D/g, "");
+                if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1/$2");
+                if (v.length > 5) v = v.replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3");
+                e.target.value = v;
+            });
+        }
 
         safeOnClick('btnNovoPedido', () => { if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; } window.setupNovoPedido(); window.redirecionarComAnimacao('pedido'); });
         safeOnClick('btnConsultarPedido', () => { window.redirecionarComAnimacao('consultar'); });
@@ -1591,6 +1888,7 @@
         safeOnClick('atualizarDashboard', window.carregarDashboard);
         safeOnClick('atualizarPedidos', window.carregarPedidos);
         safeOnClick('atualizarFinanceiro', window.carregarDetalhesFinanceiros);
+        safeOnClick('atualizarPendencias', window.carregarPendencias);
         
         safeOnClick('btnVerDetalhes', () => { window.mostrarAdminSecao('detalhes-tamanhos'); window.carregarDetalhesTamanho(); });
         safeOnClick('voltarDashboard', () => window.mostrarAdminSecao('dashboard'));
@@ -1603,6 +1901,10 @@
         safeOnClick('btnFecharPedidosAction', () => { document.getElementById('modalFecharPedidos').classList.add('active'); });
         safeOnClick('btnReabrirPedidosAction', () => { document.getElementById('modalReabrirPedidos').classList.add('active'); });
         
+        // LISTENERS DO MODAL DE LIQUIDAÇÃO
+        safeOnClick('btnConfirmarLiquidacao', window.confirmarLiquidacao);
+        safeOnClick('btnCancelarLiquidacao', window.cancelarUltimaLiquidacao);
+
         safeOnChange('radioCapital', () => window.updateSetorCidadeInput());
         safeOnChange('radioInterior', () => window.updateSetorCidadeInput());
         
