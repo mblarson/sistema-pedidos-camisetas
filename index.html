@@ -999,6 +999,7 @@
         
         const btn = document.getElementById(btnId); if (btn) btn.classList.add('active');
         
+        // CORREÇÃO: Chamar o carregamento do Dashboard sempre que a seção for ativada.
         if (secao === 'dashboard') window.carregarDashboard();
         else if (secao === 'pedidos') window.carregarPedidos();
         else if (secao === 'financeiro') window.carregarDetalhesFinanceiros();
