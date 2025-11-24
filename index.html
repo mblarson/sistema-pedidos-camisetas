@@ -810,7 +810,7 @@
             </div>
 
             <div id="admin-financeiro" class="admin-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;"><h2>Financeiro</h2><button id="atualizarFinanceiro" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;"><h2>Financeiro</h2><button id="atualizarFinanceiro" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button></div>
                 <div class="card" style="margin-bottom:2rem;"><div style="display:flex; align-items:center; gap:1rem;"><label style="color:var(--text-muted); margin:0;">Valor Unitário (R$)</label><input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;"><button id="btnSalvarValor" class="btn-primary" type="button" style="padding:0.8rem 1.5rem; font-size:0.8rem; display:flex; justify-content:center; align-items:center;">SALVAR</button></div></div>
                 <div class="card"><h4 style="margin-bottom:1.5rem;">Por Setor / Localidade</h4><div id="resumoFinanceiroLocais"></div></div>
             </div>
@@ -875,6 +875,7 @@
     window.pedidosCache = [];
     let PRECO_CAMISETA = 30.00; 
     let SISTEMA_ABERTO = true; 
+    let pedidoDoModal = null; // Variável global para armazenar o pedido exibido no modal
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
@@ -1262,6 +1263,17 @@
         }
     };
     
+    // FUNÇÃO QUE RECUPERA O PEDIDO E CHAMA A GERAÇÃO DE PDF
+    window.baixarPedidoDoModal = function() {
+        if (pedidoDoModal) {
+            window.gerarPdfPedidoIndividual(pedidoDoModal);
+        } else {
+            console.error('Erro: Pedido não está disponível no modal.');
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao tentar baixar o pedido. Tente reabrir a consulta.";
+            document.getElementById('modalErroPDF').classList.add('active');
+        }
+    }
+
     // FUNÇÃO AJUSTADA PARA GERAR PDF DO PEDIDO INDIVIDUALMENTE
     window.gerarPdfPedidoIndividual = function(pedido) {
         if (!pedido || !pedido.numPedido) {
@@ -1436,6 +1448,7 @@
         // O PDF só será gerado ao clicar em "BAIXAR PEDIDO".
 
         currentPedidoParaEdicao = pedido; // Necessário para setupEdicaoPedido
+        pedidoDoModal = pedido; // Armazena o pedido completo na variável global
         const container = document.getElementById('conteudoDetalhesPedido');
         const total = calcularTotalPedido(pedido);
         
@@ -1511,12 +1524,9 @@
             window.setupEdicaoPedido();
         };
 
-        // Configura o novo botão de baixar (Regra 3, 6)
+        // CORREÇÃO: Configura o novo botão de baixar chamando a nova função auxiliar
         const btnBaixar = document.getElementById('btnBaixarNoModal');
-        // Serializa o objeto pedido para JSON antes de passá-lo para o onclick inline.
-        // O `replace` é para garantir que as aspas internas sejam HTML-escaped para não quebrar a string JS.
-        const pedidoJsonString = JSON.stringify(pedido).replace(/"/g, '&quot;');
-        btnBaixar.setAttribute('onclick', `window.gerarPdfPedidoIndividual(${pedidoJsonString})`);
+        btnBaixar.setAttribute('onclick', `window.baixarPedidoDoModal()`);
 
 
         document.getElementById('modalDetalhesPedido').classList.add('active');
