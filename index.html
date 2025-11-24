@@ -203,7 +203,9 @@
     .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
     .card-content h4 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
     #admin-dashboard .card-content h4, #admin-dashboard .dashboard-details h4, #admin-dashboard .detail-item span { color: #FFFFFF !important; }
-    .card-value { font-size: 2.5rem; font-weight: 300; color: #fff; }
+    
+    /* AJUSTE 1: Diminui fonte dos valores para caber no desktop */
+    .card-value { font-size: 1.8rem; font-weight: 300; color: #fff; } 
     
     .pedido-card-expandable { cursor: pointer; transition: background 0.3s ease; }
     .pedido-card-expandable:hover { background: rgba(255, 255, 255, 0.05); }
@@ -289,7 +291,8 @@
         .tamanhos-grid { grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
         .dashboard-cards { grid-template-columns: 1fr; gap: 1rem; }
         .admin-menu { gap: 1rem; padding-bottom: 5px; }
-        .admin-menu-btn { font-size: 0.8rem; padding: 0.8rem 0; }
+        /* AJUSTE 2: Reduz a fonte e padding do menu do ADMIN no mobile */
+        .admin-menu-btn { font-size: 0.75rem; padding: 0.6rem 0; } 
         .tamanhos-table-container { overflow-x: auto; display: block; width: 100%; }
         .tamanhos-table th, .tamanhos-table td { padding: 0.8rem 0.5rem; font-size: 0.8rem; }
         .pedido-header-minimized { flex-wrap: wrap; gap: 0.5rem; }
@@ -312,7 +315,6 @@
     <div id="loadingText" style="margin-top:1.5rem; font-size:0.9rem; letter-spacing:2px; color:var(--text-muted);">CARREGANDO</div>
   </div>
 
-  <!-- NOVO MODAL DE LIQUIDAÇÃO DE PENDÊNCIAS -->
   <div id="modalLiquidacao" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width: 500px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
@@ -323,8 +325,8 @@
           <input type="hidden" id="liquidacaoDocId">
           
           <div class="form-group">
-              <label>Valor Pago (R$)</label>
-              <input type="number" id="valorLiquidacao" placeholder="0,00" step="0.01">
+              <label>Valor Pago</label>
+              <input type="text" id="valorLiquidacao" placeholder="R$ 0,00" inputmode="decimal">
           </div>
           
           <div class="form-group">
@@ -347,7 +349,6 @@
       </div>
   </div>
 
-  <!-- NOVO MODAL DE DETALHAMENTO DE PEDIDO -->
   <div id="modalDetalhesPedido" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
@@ -355,8 +356,7 @@
               <button onclick="document.getElementById('modalDetalhesPedido').classList.remove('active')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;"><i class="fas fa-times"></i></button>
           </div>
           <div id="conteudoDetalhesPedido">
-              <!-- CONTEÚDO INJETADO VIA JS -->
-          </div>
+              </div>
           <div style="margin-top:2rem; display:flex; gap:1rem;">
               <button onclick="document.getElementById('modalDetalhesPedido').classList.remove('active')" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Fechar</button>
               <button id="btnEditarNoModal" class="btn-primary" style="flex:1;">EDITAR PEDIDO</button>
@@ -572,7 +572,6 @@
                 <div style="margin-top:4rem;">
                     <h3 style="text-align:center; color:var(--gold-solid); margin-bottom:2.5rem; text-transform:uppercase; font-size:1.1rem; letter-spacing:2px;">Seleção de Tamanhos</h3>
                     
-                    <!-- CONTAINER 1: VERDE-OLIVA -->
                     <div class="cor-header">
                         <div class="cor-dot" style="background-color: var(--shirt-verde);"></div>
                         <h4 style="margin:0; color:#fff;">Cor: <span style="color: var(--shirt-verde);">Verde-Oliva</span></h4>
@@ -618,7 +617,6 @@
                         </div>
                     </div>
 
-                    <!-- CONTAINER 2: TERRACOTA -->
                     <div class="cor-header" style="margin-top: 3rem;">
                         <div class="cor-dot" style="background-color: var(--shirt-terracota);"></div>
                         <h4 style="margin:0; color:#fff;">Cor: <span style="color: var(--shirt-terracota);">Terracota</span></h4>
@@ -690,7 +688,6 @@
                 <button class="admin-menu-btn active" id="btnDashboard" onclick="window.mostrarAdminSecao('dashboard')">Dashboard</button>
                 <button class="admin-menu-btn" id="btnPedidos" onclick="window.mostrarAdminSecao('pedidos')">Pedidos</button>
                 <button class="admin-menu-btn" id="btnFinanceiro" onclick="window.mostrarAdminSecao('financeiro')">Financeiro</button>
-                <!-- NOVO BOTÃO MENU -->
                 <button class="admin-menu-btn" id="btnPendencias" onclick="window.mostrarAdminSecao('pendencias')">Pendências Financeiras</button>
             </div>
 
@@ -704,7 +701,6 @@
                     <div class="card"><div class="card-content"><h4>Pedidos Totais</h4><p class="card-value" id="totalPedidos">0</p></div></div>
                     <div class="card"><div class="card-content"><h4>Camisetas</h4><p class="card-value" id="totalCamisetas">0</p></div></div>
                     <div class="card"><div class="card-content"><h4>Receita Prevista</h4><p class="card-value text-gold" id="totalArrecadado">R$ 0,00</p></div></div>
-                    <!-- NOVO CARD TOTAL RECEBIDO -->
                     <div class="card"><div class="card-content"><h4>Total Recebido (Real)</h4><p class="card-value text-gold" id="totalRecebidoReal">R$ 0,00</p></div></div>
                 </div>
                 <div class="card" style="margin-bottom:2rem;">
@@ -743,15 +739,13 @@
                 <div id="listaPedidos"></div>
             </div>
 
-            <!-- NOVA SEÇÃO PENDÊNCIAS FINANCEIRAS -->
             <div id="admin-pendencias" class="admin-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
                     <h2>Pendências Financeiras</h2>
                     <button id="atualizarPendencias" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                 </div>
                 <div id="listaPendencias">
-                    <!-- CARDS INJETADOS VIA JS -->
-                </div>
+                    </div>
             </div>
 
         </div>
@@ -845,6 +839,7 @@
     };
     
     const formatarMoeda = (valor) => { return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+    
     // Função auxiliar para data
     const formatarDataPTBR = (dataStr) => {
         if(!dataStr) return "-";
@@ -853,7 +848,10 @@
              return `${dataStr.substr(0,2)}/${dataStr.substr(2,2)}/${dataStr.substr(4,4)}`;
         }
         // Se for ISO ou data JS
-        return new Date(dataStr).toLocaleDateString('pt-BR');
+        const dateObj = new Date(dataStr);
+        // Garante que é uma data válida antes de formatar
+        if(isNaN(dateObj)) return dataStr; 
+        return dateObj.toLocaleDateString('pt-BR');
     };
 
     let unsubscribePreco = null; let unsubscribeSistema = null;
@@ -1314,7 +1312,6 @@
                             <p>TOTAL PEÇAS: <span style="color:#fff">${total}</span></p>
                             <p>VALOR TOTAL: <span style="color:var(--gold-solid); font-weight:700;">${formatarMoeda(total * PRECO_CAMISETA)}</span></p>
                         </div>
-                        <!-- BOTÃO ALTERADO PARA DETALHAR PEDIDO -->
                         <button id="btnDetalharOverlay" class="btn-primary" style="width:100%; margin-top:2rem; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); box-shadow:none;">DETALHAR PEDIDO</button>
                       </div>`;
         document.getElementById('resultadoConsulta').innerHTML = html;
@@ -1499,23 +1496,19 @@
                 <div class="pedido-item pedido-card-expandable" style="margin-bottom:1rem;">
                     <div onclick="window.togglePedidoDetails('${x.docId}')" style="cursor:pointer;">
                         
-                        <!-- LINHA 1: NÚMERO DO PEDIDO (COM ÍCONE DE EXPANDIR) -->
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                             <span style="color:var(--gold-solid); font-weight:700; font-size:1.1rem;">#${x.numPedido}</span>
                             <i id="icon-${x.docId}" class="fas fa-chevron-right" style="font-size:0.8rem; color:var(--text-muted); transition:0.3s;"></i>
                         </div>
 
-                        <!-- LINHA 2: QUANTIDADE E VALOR -->
                         <div style="margin-bottom:5px; font-size:1rem; font-weight:600; color:#fff;">
                             ${t} PÇS - <span style="color:var(--gold-solid);">${formatarMoeda(t * PRECO_CAMISETA)}</span>
                         </div>
 
-                        <!-- LINHA 3: NOME | LOCAL - SETOR -->
                         <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:2px;">
                             <strong style="color:#fff">${x.nome}</strong> | ${x.local} - ${x.setor}
                         </div>
 
-                        <!-- LINHA 4: CONTATO -->
                         <div style="font-size:0.85rem; color:var(--text-muted);">
                             <i class="fas fa-phone-alt" style="font-size:0.7rem; margin-right:4px;"></i>${x.contato || 'S/ Contato'}
                         </div>
@@ -1605,6 +1598,32 @@
     // =========================================================================
     // MÓDULO PENDÊNCIAS FINANCEIRAS - NOVA IMPLEMENTAÇÃO
     // =========================================================================
+    
+    // FUNÇÃO DE MÁSCARA MONETÁRIA
+    window.aplicarMascaraMonetaria = function(inputElement) {
+        let v = inputElement.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+
+        if (v.length === 0) {
+            inputElement.value = "";
+            return;
+        }
+
+        // Garante que pelo menos 2 casas decimais existam
+        while (v.length < 3) {
+            v = "0" + v;
+        }
+
+        // Separa os centavos
+        let integerPart = v.substring(0, v.length - 2);
+        let decimalPart = v.substring(v.length - 2);
+
+        // Adiciona separadores de milhares
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        // Formato final R$ 1.234,56
+        inputElement.value = "R$ " + integerPart + "," + decimalPart;
+    };
+
 
     window.carregarPendencias = async function() {
         window.mostrarCarregamento(true);
@@ -1636,11 +1655,6 @@
             let statusText = '';
             
             // Regra de exibição de Status (PAGO PARCIALMENTE)
-            // Se Recebido > 0 e Recebido < Total -> Pago Parcialmente
-            // Se Recebido >= Total -> (Opcional: Poderia sumir ou ficar verde, mas o requisito diz "Liquidado")
-            
-            // O requisito pede apenas "Se VALOR PAGO < VALOR TOTAL... Exibir PAGO PARCIALMENTE"
-            // Vamos assumir que se = 0, mostra nada ou "Pendente"
             if (valorRecebido > 0 && valorRecebido < valorTotal) {
                 statusText = '<span style="color:var(--warning-color); font-weight:bold; font-size:0.8rem; cursor:pointer; text-decoration:underline;" onclick="window.abrirModalLiquidacao(\''+pedido.docId+'\', true)">PAGO PARCIALMENTE <i class="fas fa-history"></i></span>';
             } else if (valorRecebido >= valorTotal && valorTotal > 0) {
@@ -1689,8 +1703,11 @@
 
         const pedido = { docId: docSnap.id, ...docSnap.data() };
         document.getElementById('liquidacaoDocId').value = pedido.docId;
-        document.getElementById('valorLiquidacao').value = '';
-        document.getElementById('dataLiquidacao').value = ''; // Resetar data
+        
+        // Resetar o valor e a data, mantendo a máscara limpa
+        const valorInput = document.getElementById('valorLiquidacao');
+        valorInput.value = '';
+        document.getElementById('dataLiquidacao').value = '';
         
         // Renderizar Histórico
         const histContainer = document.getElementById('historicoLiquidacoesContainer');
@@ -1713,7 +1730,6 @@
             histContainer.style.display = 'none';
         }
 
-        // Se clicou em "PAGO PARCIALMENTE", pode rolar pro histórico
         document.getElementById('modalLiquidacao').classList.add('active');
         window.mostrarCarregamento(false);
     };
@@ -1721,10 +1737,19 @@
     // CONFIRMAR LIQUIDAÇÃO
     window.confirmarLiquidacao = async function() {
         const docId = document.getElementById('liquidacaoDocId').value;
-        const valorInput = document.getElementById('valorLiquidacao').value;
         const dataInput = document.getElementById('dataLiquidacao').value; // Formato DD/MM/AAAA
+        
+        // Limpar a máscara para obter o valor numérico puro
+        const valorInput = document.getElementById('valorLiquidacao').value;
+        const valorLimpo = valorInput.replace(/\D/g, ""); // Remove todos os não-dígitos
+        let valorPago = 0;
+        
+        // Converte para float (Ex: "123456" -> 1234.56)
+        if (valorLimpo.length > 0) {
+            valorPago = parseFloat(valorLimpo.slice(0, -2) + "." + valorLimpo.slice(-2));
+        }
 
-        if (!valorInput || parseFloat(valorInput) <= 0) {
+        if (valorPago <= 0) {
             alert("Informe um valor válido."); return;
         }
 
@@ -1734,8 +1759,6 @@
             alert("Data inválida. Use o formato DD/MM/AAAA"); return;
         }
         
-        // Converter DD/MM/AAAA para string pura para salvar no banco (DDMMAAAA) como pedido, 
-        // ou salvar como string formatada para facilitar leitura. 
         // A regra diz "data (string — DDMMAAAA)". Vamos remover as barras.
         const dataSalvar = dataInput.replace(/\//g, '');
 
@@ -1751,8 +1774,8 @@
             
             // Adicionar nova liquidação
             liquidacoes.push({
-                valor: parseFloat(valorInput),
-                data: dataSalvar
+                valor: valorPago, // Valor numérico para cálculo
+                data: dataSalvar // String DDMMAAAA
             });
 
             await updateDoc(docRef, { liquidacoes: liquidacoes });
@@ -1827,7 +1850,7 @@
         const safeOnChange = (id, handler) => { const el = document.getElementById(id); if(el) el.onchange = handler; };
 
         // ============================================
-        // 2 — MÁSCARA AUTOMÁTICA DE CELULAR (NOVO)
+        // 2 — MÁSCARA AUTOMÁTICA DE CELULAR (MANTIDA)
         // ============================================
         const inputContato = document.getElementById('contato');
         if (inputContato) {
@@ -1850,7 +1873,9 @@
             });
         }
         
-        // MÁSCARA DATA PARA LIQUIDAÇÃO (DD/MM/AAAA)
+        // ====================================================
+        // MÁSCARA DATA PARA LIQUIDAÇÃO (DD/MM/AAAA) (MANTIDA)
+        // ====================================================
         const inputDataLiq = document.getElementById('dataLiquidacao');
         if (inputDataLiq) {
             inputDataLiq.addEventListener('input', function(e) {
@@ -1858,6 +1883,17 @@
                 if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1/$2");
                 if (v.length > 5) v = v.replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3");
                 e.target.value = v;
+            });
+        }
+        
+        // ====================================================
+        // 💰 3 — MÁSCARA MONETÁRIA (R$ 1.234,56) (NOVA)
+        // ====================================================
+        const inputValorLiq = document.getElementById('valorLiquidacao');
+        if (inputValorLiq) {
+            // Adiciona o listener para aplicar a máscara
+            inputValorLiq.addEventListener('input', function(e) {
+                window.aplicarMascaraMonetaria(e.target);
             });
         }
 
