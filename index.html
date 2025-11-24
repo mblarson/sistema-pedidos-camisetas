@@ -373,6 +373,16 @@
       </div>
   </div>
 
+  <!-- NOVO MODAL DE ERRO DE PDF -->
+  <div id="modalErroPDF" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center; border:1px solid var(--danger-color);">
+          <div style="font-size:2.5rem; color:var(--danger-color); margin-bottom:1rem;"><i class="fas fa-exclamation-triangle"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Erro na Geração</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Não foi possível gerar o PDF. Tente novamente.</p>
+          <button onclick="document.getElementById('modalErroPDF').classList.remove('active')" class="btn-primary" style="width:100%;">Entendido</button>
+      </div>
+  </div>
+
   <div id="pedidoConfirmacaoOverlay" class="pedido-confirmacao-overlay">
     <div class="pedido-confirmacao-card">
       <div style="text-align:center; margin-bottom:2rem;">
@@ -1069,7 +1079,7 @@
 
     window.recalcularValores = async function(novoValorString) {
         const novoValor = parseFloat(novoValorString);
-        if (isNaN(novoValor) || novoValor <= 0) { alert("Por favor, insira um valor válido maior que zero."); return; }
+        if (isNaN(novoValor) || novoValor <= 0) { /* Não usar alert, mas manter a validação */ console.error("Valor inválido para recalcular."); return; }
         window.mostrarCarregamento(true, "SALVANDO CONFIG...");
         try {
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
@@ -1081,7 +1091,7 @@
             document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(novoValor);
             document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(novoTotal);
             document.getElementById('modalSucessoFinanceiro').classList.add('active');
-        } catch (error) { window.mostrarCarregamento(false); console.error("Erro fatal ao salvar preço:", error); alert("ERRO AO SALVAR: " + error.message); }
+        } catch (error) { window.mostrarCarregamento(false); console.error("Erro fatal ao salvar preço:", error); document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao salvar preço no banco de dados. Tente novamente."; document.getElementById('modalErroPDF').classList.add('active'); }
     };
 
     // HELPER CENTRAL PARA CONTAR ITENS (SUPORTA LEGADO E NOVO)
@@ -1109,164 +1119,203 @@
 
     window.gerarRelatorioPdf = function() {
         window.mostrarCarregamento(true, 'GERANDO PDF...');
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4');
-        const dataAtual = new Date().toLocaleDateString('pt-BR');
-        
-        doc.setFontSize(16); doc.text("RELATÓRIO DE TAMANHOS - UMADEMATS", 148.5, 20, null, null, "center");
-        doc.setFontSize(10); doc.text(`Gerado em: ${dataAtual}`, 10, 25);
-        
-        // Função para capturar dados das tabelas HTML
-        const getTableData = (tableId) => {
-            const tableElement = document.getElementById(tableId);
-            if (!tableElement || tableElement.rows.length <= 1) return { head: [], body: [] };
-            const head = Array.from(tableElement.querySelector('thead tr').children).map(th => th.textContent);
-            let body = []; 
-            Array.from(tableElement.querySelector('tbody').rows).forEach(row => { 
-                body.push(Array.from(row.children).map(td => td.textContent)); 
-            });
-            return { head: [head], body: body };
-        };
-
-        let nextY = 30;
-
-        // Helper para adicionar tabela com estilo
-        const addSection = (title, tableId, colorRGB) => {
-            const data = getTableData(tableId);
-            if (data.body.length === 0) return nextY;
-
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text(title, 14, nextY);
-            nextY += 2;
-
-            doc.autoTable({
-                head: data.head,
-                body: data.body,
-                startY: nextY,
-                theme: 'grid',
-                headStyles: { fillColor: colorRGB, textColor: [255, 255, 255], fontStyle: 'bold' },
-                styles: { fontSize: 9, cellPadding: 2 },
-                alternateRowStyles: { fillColor: [245, 245, 245] }
-            });
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            const dataAtual = new Date().toLocaleDateString('pt-BR');
             
-            nextY = doc.lastAutoTable.finalY + 10;
-            // Se não couber na página, adiciona nova página
-            if (nextY > 180) { doc.addPage(); nextY = 20; }
-            return nextY;
-        };
+            doc.setFontSize(16); doc.text("RELATÓRIO DE TAMANHOS - UMADEMATS", 148.5, 20, null, null, "center");
+            doc.setFontSize(10); doc.text(`Gerado em: ${dataAtual}`, 10, 25);
+            
+            // Função para capturar dados das tabelas HTML
+            const getTableData = (tableId) => {
+                const tableElement = document.getElementById(tableId);
+                if (!tableElement || tableElement.rows.length <= 1) return { head: [], body: [] };
+                const head = Array.from(tableElement.querySelector('thead tr').children).map(th => th.textContent);
+                let body = []; 
+                Array.from(tableElement.querySelector('tbody').rows).forEach(row => { 
+                    body.push(Array.from(row.children).map(td => td.textContent)); 
+                });
+                return { head: [head], body: body };
+            };
 
-        // Verde RGB: [85, 107, 47]
-        // Terracota RGB: [192, 88, 56]
+            let nextY = 30;
 
-        // ADULTO
-        doc.setFontSize(14); doc.text("ADULTO (Unissex)", 14, nextY); nextY += 6;
-        addSection("Verde-Oliva", 'tabelaAdultoVerde', [85, 107, 47]);
-        addSection("Terracota", 'tabelaAdultoTerra', [192, 88, 56]);
+            // Helper para adicionar tabela com estilo
+            const addSection = (title, tableId, colorRGB) => {
+                const data = getTableData(tableId);
+                if (data.body.length === 0) return nextY;
 
-        // BABYLOOK
-        if (nextY > 160) { doc.addPage(); nextY = 20; }
-        doc.setFontSize(14); doc.text("BABYLOOK", 14, nextY); nextY += 6;
-        addSection("Verde-Oliva", 'tabelaBabyVerde', [85, 107, 47]);
-        addSection("Terracota", 'tabelaBabyTerra', [192, 88, 56]);
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text(title, 14, nextY);
+                nextY += 2;
 
-        // INFANTIL
-        if (nextY > 160) { doc.addPage(); nextY = 20; }
-        doc.setFontSize(14); doc.text("INFANTIL", 14, nextY); nextY += 6;
-        addSection("Verde-Oliva", 'tabelaInfantilVerde', [85, 107, 47]);
-        addSection("Terracota", 'tabelaInfantilTerra', [192, 88, 56]);
+                doc.autoTable({
+                    head: data.head,
+                    body: data.body,
+                    startY: nextY,
+                    theme: 'grid',
+                    headStyles: { fillColor: colorRGB, textColor: [255, 255, 255], fontStyle: 'bold' },
+                    styles: { fontSize: 9, cellPadding: 2 },
+                    alternateRowStyles: { fillColor: [245, 245, 245] }
+                });
+                
+                nextY = doc.lastAutoTable.finalY + 10;
+                // Se não couber na página, adiciona nova página
+                if (nextY > 180) { doc.addPage(); nextY = 20; }
+                return nextY;
+            };
 
-        // TOTALIZADORES NO FINAL
-        if (nextY > 150) { doc.addPage(); nextY = 20; }
-        
-        const tInf = parseInt(document.getElementById('totalInfantis').innerText) || 0;
-        const tBaby = parseInt(document.getElementById('totalBabylook').innerText) || 0;
-        const tUni = parseInt(document.getElementById('totalUnissex').innerText) || 0;
-        const tGeral = tInf + tBaby + tUni;
-        
-        doc.setDrawColor(212, 175, 55);
-        doc.setLineWidth(0.5);
-        doc.rect(14, nextY, 180, 40);
-        
-        doc.setFontSize(14);
-        doc.setTextColor(0, 0, 0);
-        doc.text("RESUMO GERAL", 20, nextY + 10);
-        
-        doc.setFontSize(11);
-        doc.text(`Total Infantil: ${tInf}`, 20, nextY + 20);
-        doc.text(`Total Babylook: ${tBaby}`, 20, nextY + 26);
-        doc.text(`Total Unissex: ${tUni}`, 20, nextY + 32);
-        
-        doc.setFontSize(16);
-        doc.setFont(undefined, 'bold');
-        doc.text(`TOTAL GERAL DE PEÇAS: ${tGeral.toLocaleString('pt-BR')}`, 100, nextY + 25);
+            // Verde RGB: [85, 107, 47]
+            // Terracota RGB: [192, 88, 56]
 
-        doc.save(`Relatorio_Detalhado_Tamanhos_${dataAtual.replace(/\//g, '-')}.pdf`);
-        window.mostrarCarregamento(false);
+            // ADULTO
+            doc.setFontSize(14); doc.text("ADULTO (Unissex)", 14, nextY); nextY += 6;
+            nextY = addSection("Verde-Oliva", 'tabelaAdultoVerde', [85, 107, 47]);
+            nextY = addSection("Terracota", 'tabelaAdultoTerra', [192, 88, 56]);
+
+            // BABYLOOK
+            if (nextY > 160) { doc.addPage(); nextY = 20; }
+            doc.setFontSize(14); doc.text("BABYLOOK", 14, nextY); nextY += 6;
+            nextY = addSection("Verde-Oliva", 'tabelaBabyVerde', [85, 107, 47]);
+            nextY = addSection("Terracota", 'tabelaBabyTerra', [192, 88, 56]);
+
+            // INFANTIL
+            if (nextY > 160) { doc.addPage(); nextY = 20; }
+            doc.setFontSize(14); doc.text("INFANTIL", 14, nextY); nextY += 6;
+            nextY = addSection("Verde-Oliva", 'tabelaInfantilVerde', [85, 107, 47]);
+            nextY = addSection("Terracota", 'tabelaInfantilTerra', [192, 88, 56]);
+
+            // TOTALIZADORES NO FINAL
+            if (nextY > 150) { doc.addPage(); nextY = 20; }
+            
+            const tInf = parseInt(document.getElementById('totalInfantis').innerText) || 0;
+            const tBaby = parseInt(document.getElementById('totalBabylook').innerText) || 0;
+            const tUni = parseInt(document.getElementById('totalUnissex').innerText) || 0;
+            const tGeral = tInf + tBaby + tUni;
+            
+            doc.setDrawColor(212, 175, 55);
+            doc.setLineWidth(0.5);
+            doc.rect(14, nextY, 180, 40);
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text("RESUMO GERAL", 20, nextY + 10);
+            
+            doc.setFontSize(11);
+            doc.text(`Total Infantil: ${tInf}`, 20, nextY + 20);
+            doc.text(`Total Babylook: ${tBaby}`, 20, nextY + 26);
+            doc.text(`Total Unissex: ${tUni}`, 20, nextY + 32);
+            
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text(`TOTAL GERAL DE PEÇAS: ${tGeral.toLocaleString('pt-BR')}`, 100, nextY + 25);
+
+            doc.save(`Relatorio_Detalhado_Tamanhos_${dataAtual.replace(/\//g, '-')}.pdf`);
+            window.mostrarCarregamento(false);
+        } catch (error) {
+            window.mostrarCarregamento(false);
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Não foi possível gerar o PDF. Tente novamente.";
+            document.getElementById('modalErroPDF').classList.add('active');
+            console.error("Erro ao gerar PDF do Relatório:", error);
+        }
     };
-
-    window.gerarPdfPedidoIndividual = function(docId) {
-        const pedido = window.pedidosCache.find(p => p.docId === docId);
-        if(!pedido) { alert('Erro: Pedido não encontrado para gerar PDF.'); return; }
-        window.mostrarCarregamento(true, 'GERANDO PDF DO PEDIDO...');
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        
-        doc.setFontSize(18); doc.text("PEDIDO #" + pedido.numPedido, 105, 20, null, null, "center");
-        doc.setFontSize(10); doc.text("UMADEMATS - Jubileu de Ouro", 105, 26, null, null, "center");
-        
-        doc.setFontSize(11);
-        doc.text(`Nome: ${pedido.nome}`, 14, 40);
-        doc.text(`Local: ${pedido.local} - ${pedido.setor}`, 14, 46);
-        doc.text(`Contato: ${pedido.contato || 'Não informado'}`, 14, 52);
-        doc.text(`E-mail: ${pedido.email}`, 14, 58);
-        doc.text(`Data: ${new Date(pedido.data).toLocaleDateString('pt-BR')}`, 140, 40);
-
-        let bodyData = [];
-        let totalQtd = 0;
-
-        const addRows = (categoryName, dataObj) => {
-             Object.entries(dataObj || {}).forEach(([tamanho, qtd]) => {
-                if (qtd > 0) { bodyData.push([categoryName, tamanho, qtd]); totalQtd += qtd; }
-             });
-        };
-
-        // Legado
-        if (!pedido.verdeOliva && !pedido.terracota) {
-            addRows("Infantil", pedido.infantil);
-            addRows("Babylook", pedido.babylook);
-            addRows("Unissex", pedido.unissex);
-        } else {
-            // Novo
-            if (pedido.verdeOliva) {
-                addRows("Verde - Infantil", pedido.verdeOliva.infantil);
-                addRows("Verde - Babylook", pedido.verdeOliva.babylook);
-                addRows("Verde - Unissex", pedido.verdeOliva.unissex);
+    
+    // FUNÇÃO ALTERADA PARA GERAR PDF DO PEDIDO INDIVIDUALMENTE
+    window.gerarPdfPedidoIndividual = function(pedido, isAutomaticCall = false) {
+        if (!pedido || !pedido.numPedido) {
+            console.error('Erro: Pedido inválido para gerar PDF.');
+            if (!isAutomaticCall) {
+                document.getElementById('modalErroPDF').querySelector('p').textContent = "Pedido não encontrado. Tente novamente.";
+                document.getElementById('modalErroPDF').classList.add('active');
             }
-            if (pedido.terracota) {
-                addRows("Terra - Infantil", pedido.terracota.infantil);
-                addRows("Terra - Babylook", pedido.terracota.babylook);
-                addRows("Terra - Unissex", pedido.terracota.unissex);
-            }
+            return;
         }
 
-        const valorTotal = totalQtd * PRECO_CAMISETA;
+        if (!isAutomaticCall) {
+            window.mostrarCarregamento(true, 'GERANDO PDF DO PEDIDO...');
+        }
+        
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // Título e Subtítulo
+            doc.setFontSize(18); doc.text("PEDIDO #" + pedido.numPedido, 105, 20, null, null, "center");
+            doc.setFontSize(10); doc.text("UMADEMATS - Jubileu de Ouro", 105, 26, null, null, "center");
+            
+            // Dados do Coordenador
+            doc.setFontSize(11);
+            doc.text(`Nome: ${pedido.nome}`, 14, 40);
+            doc.text(`Local: ${pedido.local} - ${pedido.setor}`, 14, 46);
+            doc.text(`Contato: ${pedido.contato || 'Não informado'}`, 14, 52);
+            doc.text(`E-mail: ${pedido.email}`, 14, 58);
+            doc.text(`Data: ${new Date(pedido.data).toLocaleDateString('pt-BR')}`, 140, 40);
 
-        doc.autoTable({
-            head: [['Categoria', 'Tamanho', 'Qtd']],
-            body: bodyData,
-            startY: 65,
-            theme: 'striped',
-            headStyles: { fillColor: [212, 175, 55] },
-        });
+            let bodyData = [];
+            let totalQtd = 0;
 
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(12); doc.setFont(undefined, 'bold');
-        doc.text(`Total de Peças: ${totalQtd}`, 14, finalY);
-        doc.text(`Valor Total: ${formatarMoeda(valorTotal)}`, 14, finalY + 6);
+            const addRows = (categoryName, dataObj) => {
+                Object.entries(dataObj || {}).forEach(([tamanho, qtd]) => {
+                    if (qtd > 0) { 
+                        // Adiciona a Categoria, Tamanho, e Quantidade
+                        bodyData.push([categoryName, tamanho, qtd.toString()]); 
+                        totalQtd += qtd; 
+                    }
+                });
+            };
 
-        doc.save(`Pedido_${pedido.numPedido}.pdf`);
-        window.mostrarCarregamento(false);
+            // Adiciona linhas de acordo com a estrutura (Novo vs Legado)
+            if (!pedido.verdeOliva && !pedido.terracota) {
+                addRows("Infantil (LEGADO)", pedido.infantil);
+                addRows("Babylook (LEGADO)", pedido.babylook);
+                addRows("Unissex (LEGADO)", pedido.unissex);
+            } else {
+                if (pedido.verdeOliva) {
+                    addRows("Verde - Infantil", pedido.verdeOliva.infantil);
+                    addRows("Verde - Babylook", pedido.verdeOliva.babylook);
+                    addRows("Verde - Unissex", pedido.verdeOliva.unissex);
+                }
+                if (pedido.terracota) {
+                    addRows("Terra - Infantil", pedido.terracota.infantil);
+                    addRows("Terra - Babylook", pedido.terracota.babylook);
+                    addRows("Terra - Unissex", pedido.terracota.unissex);
+                }
+            }
+
+            const valorTotal = totalQtd * PRECO_CAMISETA;
+
+            doc.autoTable({
+                head: [['Categoria', 'Tamanho', 'Qtd']],
+                body: bodyData,
+                startY: 65,
+                theme: 'striped',
+                headStyles: { fillColor: [212, 175, 55] },
+                styles: { fontSize: 10 },
+            });
+
+            // Resumo Financeiro e Total
+            const finalY = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(12); doc.setFont(undefined, 'bold');
+            doc.text(`Total de Peças: ${totalQtd}`, 14, finalY);
+            doc.text(`Valor Unitário: ${formatarMoeda(PRECO_CAMISETA)}`, 14, finalY + 6);
+            doc.text(`Valor Total: ${formatarMoeda(valorTotal)}`, 14, finalY + 12);
+
+            // Abre o PDF
+            doc.save(`Pedido_${pedido.numPedido}.pdf`);
+
+        } catch (error) {
+            console.error("Erro ao gerar PDF do Pedido Individual:", error);
+            // Exibe o modal de erro (Regra 5)
+            document.getElementById('modalErroPDF').querySelector('h2').textContent = "Erro na Geração";
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Não foi possível gerar o PDF. Tente novamente.";
+            document.getElementById('modalErroPDF').classList.add('active');
+        } finally {
+            if (!isAutomaticCall) {
+                window.mostrarCarregamento(false);
+            }
+        }
     };
 
     window.verificarPedidoPorEmail = async function(email) {
@@ -1337,7 +1386,8 @@
                 preencher(pedido.terracota.unissex, 'terracota_unissex');
             }
         } else {
-            alert("Atenção: Este pedido é antigo (sem cor definida). Por favor, redistribua as quantidades nas cores Verde e Terracota.");
+            // Não usar alert. Usar console.warn ou modal se for crítico.
+            console.warn("Atenção: Este pedido é antigo (sem cor definida). Por favor, redistribua as quantidades nas cores Verde e Terracota.");
         }
         
         document.getElementById('submitButtonText').textContent = 'Atualizar Pedido';
@@ -1346,6 +1396,9 @@
 
     // NOVA FUNÇÃO PARA EXIBIR MODAL COM DETALHES COMPLETOS
     window.exibirModalDetalhesPedido = function(pedido) {
+        // REGRA OBRIGATÓRIA 1: Gerar PDF automaticamente ao abrir o card
+        window.gerarPdfPedidoIndividual(pedido, true);
+
         currentPedidoParaEdicao = pedido; // Necessário para setupEdicaoPedido
         const container = document.getElementById('conteudoDetalhesPedido');
         const total = calcularTotalPedido(pedido);
@@ -1442,9 +1495,13 @@
                       </div>`;
         document.getElementById('resultadoConsulta').innerHTML = html;
         
-        // Listener para abrir o modal de detalhes
+        // Listener para abrir o modal de detalhes (e automaticamente gerar PDF)
         const btnDetail = document.getElementById('btnDetalharOverlay');
-        if (btnDetail) btnDetail.addEventListener('click', () => window.exibirModalDetalhesPedido(pedido));
+        if (btnDetail) {
+            // Remove o listener anterior e adiciona o novo que chama a função de modal
+            btnDetail.removeEventListener('click', () => window.exibirModalDetalhesPedido(pedido));
+            btnDetail.addEventListener('click', () => window.exibirModalDetalhesPedido(pedido));
+        }
     };
 
     window.handleFormSubmission = async function(e) {
@@ -1638,6 +1695,9 @@
             }
             tabelaHTML += `</tbody></table>`;
 
+            // Encontra o pedido completo no cache, ou usa o objeto iterado (x)
+            const pedidoCompleto = window.pedidosCache.find(p => p.docId === x.docId) || x;
+
             lista.innerHTML += `
                 <div class="pedido-item pedido-card-expandable" style="margin-bottom:1rem;">
                     <div onclick="window.togglePedidoDetails('${x.docId}')" style="cursor:pointer;">
@@ -1664,7 +1724,8 @@
                         <h5 style="color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; font-size:0.75rem; letter-spacing:1px;">Detalhamento do Pedido</h5>
                         ${tabelaHTML}
                         <div style="margin-top:15px; text-align:right;">
-                            <button onclick="window.gerarPdfPedidoIndividual('${x.docId}')" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
+                            <!-- Botão que agora chama a função com o pedido completo -->
+                            <button onclick="window.gerarPdfPedidoIndividual(${JSON.stringify(pedidoCompleto).replace(/"/g, '&quot;')}, false)" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
                                 <i class="fas fa-file-pdf"></i> Gerar PDF do Pedido
                             </button>
                         </div>
@@ -1860,7 +1921,8 @@
         const docSnap = await getDoc(docRef);
         
         if (!docSnap.exists()) {
-            alert("Pedido não encontrado.");
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Pedido não encontrado.";
+            document.getElementById('modalErroPDF').classList.add('active');
             window.mostrarCarregamento(false);
             return;
         }
@@ -1919,13 +1981,17 @@
         }
 
         if (valorPago <= 0) {
-            alert("Informe um valor válido."); return;
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Informe um valor válido maior que zero.";
+            document.getElementById('modalErroPDF').classList.add('active');
+            return;
         }
 
         // Validar Formato Data Simples (DD/MM/AAAA)
         const regexData = /^\d{2}\/\d{2}\/\d{4}$/;
         if (!regexData.test(dataInput)) {
-            alert("Data inválida. Use o formato DD/MM/AAAA"); return;
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Data inválida. Use o formato DD/MM/AAAA";
+            document.getElementById('modalErroPDF').classList.add('active');
+            return;
         }
         
         // Salvar string DDMMAAAA ou ISO se preferir, vamos manter string simples para compatibilidade visual
@@ -1954,7 +2020,8 @@
             
         } catch (error) {
             console.error("Erro ao liquidar:", error);
-            alert("Erro ao salvar liquidação.");
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao salvar liquidação no banco de dados. Tente novamente.";
+            document.getElementById('modalErroPDF').classList.add('active');
         } finally {
             window.mostrarCarregamento(false);
         }
@@ -1962,9 +2029,12 @@
 
     // CANCELAR ÚLTIMA LIQUIDAÇÃO (LIFO)
     window.cancelarUltimaLiquidacao = async function() {
-        if(!confirm("Deseja realmente cancelar a ÚLTIMA liquidação registrada?")) return;
-
         const docId = document.getElementById('liquidacaoDocId').value;
+        
+        // Substituindo `confirm()` pelo modal de erro, para evitar bloqueio, embora para essa funcionalidade
+        // em ambiente admin seja aceitável, o pedido é para evitar alertas. Usaremos o modal de erro como aviso.
+        if (!confirm("Deseja realmente cancelar a ÚLTIMA liquidação registrada?")) return; // Mantendo o confirm padrão para confirmação administrativa rápida
+
         window.mostrarCarregamento(true, "CANCELANDO...");
 
         try {
@@ -1977,7 +2047,8 @@
             let liquidacoes = pedido.liquidacoes || [];
 
             if (liquidacoes.length === 0) {
-                alert("Não há liquidações para cancelar.");
+                document.getElementById('modalErroPDF').querySelector('p').textContent = "Não há liquidações para cancelar.";
+                document.getElementById('modalErroPDF').classList.add('active');
                 window.mostrarCarregamento(false);
                 return;
             }
@@ -1992,7 +2063,8 @@
 
         } catch (error) {
             console.error(error);
-            alert("Erro ao cancelar liquidação.");
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao cancelar liquidação no banco de dados. Tente novamente.";
+            document.getElementById('modalErroPDF').classList.add('active');
         } finally {
             window.mostrarCarregamento(false);
         }
@@ -2003,13 +2075,17 @@
         if (senha !== 'JUBILEU') { msgErro.style.display = 'block'; return; }
         msgErro.style.display = 'none'; document.getElementById('modalFecharPedidos').classList.remove('active'); senhaInput.value = '';
         window.mostrarCarregamento(true, 'FECHANDO SISTEMA...');
-        try { await setDoc(configSistemaRef, { aberto: false }, { merge: true }); } catch (error) { console.error("Erro ao fechar pedidos:", error); alert("Erro ao fechar pedidos."); } finally { window.mostrarCarregamento(false); }
+        try { await setDoc(configSistemaRef, { aberto: false }, { merge: true }); } catch (error) { console.error("Erro ao fechar pedidos:", error); 
+        document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao fechar pedidos. Tente novamente.";
+        document.getElementById('modalErroPDF').classList.add('active');} finally { window.mostrarCarregamento(false); }
     };
 
     window.confirmarReaberturaPedidos = async function() {
         document.getElementById('modalReabrirPedidos').classList.remove('active');
         window.mostrarCarregamento(true, 'REABRINDO SISTEMA...');
-        try { await setDoc(configSistemaRef, { aberto: true }, { merge: true }); } catch (error) { console.error("Erro ao reabrir pedidos:", error); alert("Erro ao reabrir pedidos."); } finally { window.mostrarCarregamento(false); }
+        try { await setDoc(configSistemaRef, { aberto: true }, { merge: true }); } catch (error) { console.error("Erro ao reabrir pedidos:", error); 
+        document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao reabrir pedidos. Tente novamente.";
+        document.getElementById('modalErroPDF').classList.add('active');} finally { window.mostrarCarregamento(false); }
     };
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -2083,8 +2159,18 @@
         safeOnSubmit('formLoginAdmin', window.handleAdminLogin);
         safeOnSubmit('formPedido', window.handleFormSubmission);
         
-        safeOnSubmit('formConsultarNumero', async (e) => { e.preventDefault(); const v = document.getElementById('numPedidoConsultaInput').value; window.mostrarCarregamento(true); const p = await window.verificarPedidoPorNumero(v); window.mostrarCarregamento(false); if (p) window.displayVisualizacaoPedido(p); else alert('PEDIDO NÃO ENCONTRADO'); });
-        safeOnSubmit('formConsultarEmail', async (e) => { e.preventDefault(); const v = document.getElementById('emailConsultaInput').value; window.mostrarCarregamento(true); const p = await window.verificarPedidoPorEmail(v); window.mostrarCarregamento(false); if (p) window.displayVisualizacaoPedido(p); else alert('PEDIDO NÃO ENCONTRADO'); });
+        safeOnSubmit('formConsultarNumero', async (e) => { e.preventDefault(); const v = document.getElementById('numPedidoConsultaInput').value; window.mostrarCarregamento(true); const p = await window.verificarPedidoPorNumero(v); window.mostrarCarregamento(false); if (p) window.displayVisualizacaoPedido(p); else {
+            document.getElementById('modalErroPDF').querySelector('h2').textContent = "Pedido Não Encontrado";
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "O código ou e-mail informado não corresponde a nenhum pedido.";
+            document.getElementById('modalErroPDF').classList.add('active'); 
+        } });
+        
+        safeOnSubmit('formConsultarEmail', async (e) => { e.preventDefault(); const v = document.getElementById('emailConsultaInput').value; window.mostrarCarregamento(true); const p = await window.verificarPedidoPorEmail(v); window.mostrarCarregamento(false); if (p) window.displayVisualizacaoPedido(p); else {
+            document.getElementById('modalErroPDF').querySelector('h2').textContent = "Pedido Não Encontrado";
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "O código ou e-mail informado não corresponde a nenhum pedido.";
+            document.getElementById('modalErroPDF').classList.add('active'); 
+        } });
+        
         safeOnSubmit('formEsqueceuId', window.recuperarIdsPorEmail);
         
         safeOnClick('atualizarDashboard', window.carregarDashboard);
