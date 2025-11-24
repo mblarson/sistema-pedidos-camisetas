@@ -275,7 +275,7 @@
 
     /* ESTILOS DE FILTRO E BUSCA */
     .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-    .filter-container { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+    .filter-container { display: flex; gap: 0.5rem; align-items: center;}
     .filter-radio { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; }
     .filter-radio input { width: auto !important; margin: 0; accent-color: var(--gold-solid); }
     .filter-radio input:checked + span { color: var(--gold-solid); font-weight: 600; }
@@ -744,7 +744,8 @@
                 <button class="admin-menu-btn active" id="btnDashboard" onclick="window.mostrarAdminSecao('dashboard')">Dashboard</button>
                 <button class="admin-menu-btn" id="btnPedidos" onclick="window.mostrarAdminSecao('pedidos')">Pedidos</button>
                 <button class="admin-menu-btn" id="btnFinanceiro" onclick="window.mostrarAdminSecao('financeiro')">Financeiro</button>
-                <button class="admin-menu-btn" id="btnPendencias" onclick="window.mostrarAdminSecao('pendencias')">Pendências Financeiras</button>
+                <!-- RENOMEADO ID E TEXTO DO BOTÃO -->
+                <button class="admin-menu-btn" id="btnPagamentos" onclick="window.mostrarAdminSecao('pagamentos')">Pagamentos</button>
             </div>
 
             <div id="admin-dashboard" class="admin-section active">
@@ -817,9 +818,9 @@
 
             <div id="admin-pedidos" class="admin-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
-                    <h2>Todos os Pedidos</h2>
+                    <h4>Todos os Pedidos</h4>
                     <div style="display:flex; gap:10px; align-items:center;">
-                        <button id="btnFecharPedidosAction" style="background:rgba(212, 175, 55, 0.1); border:1px solid var(--gold-solid); color:var(--gold-solid); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase;"><i class="fas fa-ban"></i> Fechar Pedidos</button>
+                        <button id="btnFecharPedidosAction" style="background:rgba(212, 175, 55, 0.1); border:1px solid var(--gold-solid); color:var(--gold-solid); font-size:0.6rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase;"><i class="fas fa-ban"></i> Fechar Pedidos</button>
                         <button id="btnReabrirPedidosAction" style="background:rgba(100, 255, 218, 0.1); border:1px solid var(--success-color); color:var(--success-color); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase; display:none;"><i class="fas fa-check"></i> Reabrir Pedidos</button>
                         <button id="atualizarPedidos" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                     </div>
@@ -840,12 +841,15 @@
                 <div id="listaPedidos" style="margin-top:1.5rem;"></div>
             </div>
 
-            <div id="admin-pendencias" class="admin-section" style="display:none;">
+            <!-- RENOMEADO ID DA SEÇÃO -->
+            <div id="admin-pagamentos" class="admin-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
-                    <h2>Pendências Financeiras</h2>
-                    <button id="atualizarPendencias" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
+                    <h2>Pagamentos</h2>
+                    <!-- RENOMEADO ID DO BOTÃO -->
+                    <button id="atualizarPagamentos" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                 </div>
-                <div id="listaPendencias">
+                <!-- RENOMEADO ID DA LISTA -->
+                <div id="listaPagamentos">
                     </div>
             </div>
 
@@ -1029,21 +1033,22 @@
     window.mostrarAdminSecao = function(secao) {
         document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
         document.querySelectorAll('.admin-menu-btn').forEach(b => { b.classList.remove('active'); });
-        const secaoElement = document.getElementById(`admin-${secao}`); if (secaoElement) secaoElement.style.display = 'block';
         
-        let btnId = '';
-        if(secao === 'dashboard') btnId = 'btnDashboard';
-        else if(secao === 'pedidos') btnId = 'btnPedidos';
-        else if(secao === 'financeiro') btnId = 'btnFinanceiro';
-        else if(secao === 'pendencias') btnId = 'btnPendencias';
+        // Mapeamento de ID da Seção: 'pendencias' -> 'pagamentos'
+        const secaoId = secao === 'pagamentos' ? 'admin-pagamentos' : `admin-${secao}`;
+        const btnId = secao === 'pagamentos' ? 'btnPagamentos' : `btn${secao.charAt(0).toUpperCase() + secao.slice(1)}`;
         
-        const btn = document.getElementById(btnId); if (btn) btn.classList.add('active');
+        const secaoElement = document.getElementById(secaoId); 
+        if (secaoElement) secaoElement.style.display = 'block';
         
-        // Garante que o carregamento correto seja feito ao mudar a aba do Admin.
+        const btn = document.getElementById(btnId); 
+        if (btn) btn.classList.add('active');
+        
+        // Mapeamento de Funções: carregarPendencias -> carregarPagamentos
         if (secao === 'dashboard') window.carregarDashboard();
         else if (secao === 'pedidos') window.carregarPedidos();
         else if (secao === 'financeiro') window.carregarDetalhesFinanceiros();
-        else if (secao === 'pendencias') window.carregarPendencias();
+        else if (secao === 'pagamentos') window.carregarPagamentos(); // Chamada renomeada
     };
 
     window.redirecionarComAnimacao = function(secao, callback) {
@@ -1884,7 +1889,7 @@
     };
 
     // =========================================================================
-    // MÓDULO PENDÊNCIAS FINANCEIRAS - NOVA IMPLEMENTAÇÃO
+    // MÓDULO PAGAMENTOS (ANTIGO PENDÊNCIAS FINANCEIRAS)
     // =========================================================================
     
     // FUNÇÃO DE MÁSCARA MONETÁRIA (SHIFT LEFT)
@@ -1915,10 +1920,11 @@
         inputElement.value = "R$ " + integerPart + "," + decimalPart;
     };
 
-
-    window.carregarPendencias = async function() {
+    // RENOMEADA: carregarPendencias -> carregarPagamentos
+    window.carregarPagamentos = async function() {
         window.mostrarCarregamento(true);
-        const lista = document.getElementById('listaPendencias');
+        // RENOMEADO ID
+        const lista = document.getElementById('listaPagamentos');
         lista.innerHTML = '';
         
         // Garante que os dados mais recentes sejam carregados
@@ -1981,6 +1987,9 @@
         window.mostrarCarregamento(false);
     };
 
+    // FUNÇÃO PONTE (ALIAS) PARA MANTER COMPATIBILIDADE
+    window.carregarPendencias = window.carregarPagamentos;
+    
     // ABRIR MODAL
     window.abrirModalLiquidacao = async function(docId) {
         window.mostrarCarregamento(true);
@@ -2080,10 +2089,12 @@
                 timestamp: new Date().toISOString() // Para controle
             });
 
+            // IMPORTANTE: A coleção Firestore continua se chamando "pedidos" e o campo "liquidacoes" (Regra 1)
+
             await updateDoc(docRef, { liquidacoes: liquidacoes });
             
             document.getElementById('modalLiquidacao').classList.remove('active');
-            window.carregarPendencias(); 
+            window.carregarPagamentos(); // Chamada renomeada
             
             // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
             window.pedidosCache = [];
@@ -2160,6 +2171,12 @@
         document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao reabrir pedidos. Tente novamente.";
         document.getElementById('modalErroPDF').classList.add('active');} finally { window.mostrarCarregamento(false); }
     };
+
+    // FUNÇÕES PONTE (ALIAS) PARA COMPATIBILIDADE (Regra 2)
+    // Mantém compatibilidade com chamadas antigas como window.carregarPendencias()
+    window.atualizarPendencias = () => window.carregarPagamentos();
+    window.carregarPendencias = window.carregarPagamentos;
+
 
     document.addEventListener('DOMContentLoaded', () => {
         const safeOnClick = (id, handler) => { const el = document.getElementById(id); if(el) el.onclick = handler; };
@@ -2249,7 +2266,8 @@
         safeOnClick('atualizarDashboard', window.carregarDashboard);
         safeOnClick('atualizarPedidos', window.carregarPedidos);
         safeOnClick('atualizarFinanceiro', window.carregarDetalhesFinanceiros);
-        safeOnClick('atualizarPendencias', window.carregarPendencias);
+        // RENOMEADO LISTENER - APONTA PARA A NOVA FUNÇÃO
+        safeOnClick('atualizarPagamentos', window.carregarPagamentos); 
         
         safeOnClick('btnVerDetalhes', () => { window.mostrarAdminSecao('detalhes-tamanhos'); window.carregarDetalhesTamanho(); });
         safeOnClick('voltarDashboard', () => window.mostrarAdminSecao('dashboard'));
