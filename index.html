@@ -280,6 +280,32 @@
     .filter-radio input { width: auto !important; margin: 0; accent-color: var(--gold-solid); }
     .filter-radio input:checked + span { color: var(--gold-solid); font-weight: 600; }
 
+    /* ESTILOS ESPECÍFICOS PARA OS BOTÕES DO MODAL DE DETALHES (Regra 4) */
+    #modalDetalhesPedido .modal-actions {
+        display: flex; gap: 1rem; margin-top: 2rem; 
+        /* Envolve os botões para garantir que fiquem lado a lado */
+    }
+    #modalDetalhesPedido .modal-actions button {
+        flex: 1; /* Distribui o espaço igualmente */
+        padding: 0.7rem 1.2rem; /* Reduz o padding */
+        font-size: 0.75rem; /* Reduz o tamanho da fonte */
+        letter-spacing: 0.5px; /* Ajusta o espaçamento entre letras */
+        border-radius: 50px;
+    }
+    /* Estilo específico para o botão de fechar para manter a consistência */
+    #modalDetalhesPedido button:not(.btn-primary) {
+        background: transparent; 
+        border: 1px solid var(--border-subtle); 
+        color: var(--text-muted); 
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    #modalDetalhesPedido button:not(.btn-primary):hover {
+        border-color: var(--gold-solid); 
+        color: var(--gold-solid); 
+    }
+
+
     /* =========================================
        MOBILE RESPONSIVENESS
        ========================================= */
@@ -311,6 +337,14 @@
         .pedido-confirmacao-card { width: 95%; margin: 10px; max-height: 90vh; overflow-y: auto; }
         /* Ajuste de filtros no mobile */
         .filter-container { flex-direction: row; justify-content: space-between; }
+        /* Garantir que os botões do modalDetalhesPedido fiquem em coluna no mobile */
+        #modalDetalhesPedido .modal-actions {
+            flex-direction: column;
+        }
+        #modalDetalhesPedido .modal-actions button {
+            padding: 0.8rem 1.2rem; /* Aumenta um pouco para ser melhor de tocar */
+            font-size: 0.85rem;
+        }
     }
     @media (min-width: 481px) { .home-title { font-size: clamp(3rem, 6vw, 4.5rem); } }
   </style>
@@ -366,9 +400,12 @@
           </div>
           <div id="conteudoDetalhesPedido">
               </div>
-          <div style="margin-top:2rem; display:flex; gap:1rem;">
-              <button onclick="document.getElementById('modalDetalhesPedido').classList.remove('active')" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Fechar</button>
-              <button id="btnEditarNoModal" class="btn-primary" style="flex:1;">EDITAR PEDIDO</button>
+          
+          <!-- Botões ajustados para caberem lado a lado (Regra 2, 4) -->
+          <div class="modal-actions">
+              <button onclick="document.getElementById('modalDetalhesPedido').classList.remove('active')" style="flex:1;">Fechar</button>
+              <button id="btnBaixarNoModal" class="btn-primary" type="button" style="flex:1; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);"><i class="fas fa-download"></i> BAIXAR PEDIDO</button>
+              <button id="btnEditarNoModal" class="btn-primary" style="flex:1;"><i class="fas fa-edit"></i> EDITAR PEDIDO</button>
           </div>
       </div>
   </div>
@@ -892,7 +929,8 @@
             if (user) {
                 if (!user.isAnonymous) {
                     const loginDiv = document.getElementById('loginAdmin'); const painelDiv = document.getElementById('painelAdmin');
-                    if (loginDiv && painelDiv) { loginDiv.style.display = 'none'; painelDiv.style.display = 'block'; window.carregarDashboard(); }
+                    // CORREÇÃO: Força o redirecionamento para o Admin ao detectar login, e carrega o Dashboard.
+                    if (loginDiv && painelDiv) { loginDiv.style.display = 'none'; painelDiv.style.display = 'block'; window.mostrarSecao('admin'); window.carregarDashboard(); }
                 } else {
                     const loginDiv = document.getElementById('loginAdmin'); const painelDiv = document.getElementById('painelAdmin');
                     if (loginDiv && painelDiv) { loginDiv.style.display = 'block'; painelDiv.style.display = 'none'; }
@@ -932,6 +970,7 @@
                     PRECO_CAMISETA = novoPreco;
                     const valInput = document.getElementById('valorCamisetaInput');
                     if (valInput && document.activeElement !== valInput) { valInput.value = PRECO_CAMISETA.toFixed(2); }
+                    // Chamada para recarregar o dashboard em caso de mudança de preço (já estava aqui)
                     if (document.getElementById('painelAdmin').style.display === 'block') { window.carregarDashboard(); window.carregarDetalhesFinanceiros(); }
                 } else {
                     const valInput = document.getElementById('valorCamisetaInput');
@@ -999,7 +1038,7 @@
         
         const btn = document.getElementById(btnId); if (btn) btn.classList.add('active');
         
-        // CORREÇÃO: Chamar o carregamento do Dashboard sempre que a seção for ativada.
+        // Garante que o carregamento correto seja feito ao mudar a aba do Admin.
         if (secao === 'dashboard') window.carregarDashboard();
         else if (secao === 'pedidos') window.carregarPedidos();
         else if (secao === 'financeiro') window.carregarDetalhesFinanceiros();
@@ -1223,20 +1262,18 @@
         }
     };
     
-    // FUNÇÃO ALTERADA PARA GERAR PDF DO PEDIDO INDIVIDUALMENTE
-    window.gerarPdfPedidoIndividual = function(pedido, isAutomaticCall = false) {
+    // FUNÇÃO AJUSTADA PARA GERAR PDF DO PEDIDO INDIVIDUALMENTE
+    window.gerarPdfPedidoIndividual = function(pedido) {
         if (!pedido || !pedido.numPedido) {
             console.error('Erro: Pedido inválido para gerar PDF.');
-            if (!isAutomaticCall) {
-                document.getElementById('modalErroPDF').querySelector('p').textContent = "Pedido não encontrado. Tente novamente.";
-                document.getElementById('modalErroPDF').classList.add('active');
-            }
+            // Exibe o modal de erro se o pedido for inválido
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Pedido não encontrado. Tente novamente.";
+            document.getElementById('modalErroPDF').classList.add('active');
             return;
         }
 
-        if (!isAutomaticCall) {
-            window.mostrarCarregamento(true, 'GERANDO PDF DO PEDIDO...');
-        }
+        // Inicia o loading, pois agora só é chamado via clique explícito
+        window.mostrarCarregamento(true, 'GERANDO PDF DO PEDIDO...');
         
         try {
             const { jsPDF } = window.jspdf;
@@ -1313,9 +1350,7 @@
             document.getElementById('modalErroPDF').querySelector('p').textContent = "Não foi possível gerar o PDF. Tente novamente.";
             document.getElementById('modalErroPDF').classList.add('active');
         } finally {
-            if (!isAutomaticCall) {
-                window.mostrarCarregamento(false);
-            }
+            window.mostrarCarregamento(false);
         }
     };
 
@@ -1397,8 +1432,8 @@
 
     // NOVA FUNÇÃO PARA EXIBIR MODAL COM DETALHES COMPLETOS
     window.exibirModalDetalhesPedido = function(pedido) {
-        // REGRA OBRIGATÓRIA 1: Gerar PDF automaticamente ao abrir o card
-        window.gerarPdfPedidoIndividual(pedido, true);
+        // REGRA: Download automático removido.
+        // O PDF só será gerado ao clicar em "BAIXAR PEDIDO".
 
         currentPedidoParaEdicao = pedido; // Necessário para setupEdicaoPedido
         const container = document.getElementById('conteudoDetalhesPedido');
@@ -1475,6 +1510,14 @@
             document.getElementById('modalDetalhesPedido').classList.remove('active');
             window.setupEdicaoPedido();
         };
+
+        // Configura o novo botão de baixar (Regra 3, 6)
+        const btnBaixar = document.getElementById('btnBaixarNoModal');
+        // Serializa o objeto pedido para JSON antes de passá-lo para o onclick inline.
+        // O `replace` é para garantir que as aspas internas sejam HTML-escaped para não quebrar a string JS.
+        const pedidoJsonString = JSON.stringify(pedido).replace(/"/g, '&quot;');
+        btnBaixar.setAttribute('onclick', `window.gerarPdfPedidoIndividual(${pedidoJsonString})`);
+
 
         document.getElementById('modalDetalhesPedido').classList.add('active');
     };
@@ -1576,6 +1619,10 @@
             const pedidoConfirmado = { numPedido: finalNum, ...data };
             window.exibirConfirmacaoPedido(pedidoConfirmado);
             document.getElementById('formPedido').reset();
+            
+            // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
+            window.pedidosCache = [];
+            
         } catch (err) { window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); console.error(err); } finally { window.mostrarCarregamento(false); }
     };
 
@@ -1586,13 +1633,21 @@
         catch (error) { console.error("Erro login:", error); document.getElementById('modalErroLogin').classList.add('active'); } finally { window.mostrarCarregamento(false); }
     };
 
-    window.carregarTodosPedidos = async function() { const s = await getDocs(pedidosCollection); return s.docs.map(d => ({ docId: d.id, ...d.data() })); };
+    // Altera a função para sempre buscar novos dados, se o cache estiver vazio
+    window.carregarTodosPedidos = async function() { 
+        if (window.pedidosCache && window.pedidosCache.length > 0) {
+            return window.pedidosCache;
+        }
+        const s = await getDocs(pedidosCollection); 
+        window.pedidosCache = s.docs.map(d => ({ docId: d.id, ...d.data() }));
+        return window.pedidosCache;
+    };
 
     window.carregarDashboard = async function() {
         window.mostrarCarregamento(true);
         try {
+            // Garante que os dados mais recentes sejam carregados, ignorando o cache se vazio
             const p = await window.carregarTodosPedidos();
-            window.pedidosCache = p;
             
             let tP = p.length, tC = 0, inf = 0, baby = 0, uni = 0;
             let totalRecebidoReal = 0;
@@ -1646,10 +1701,8 @@
         const termoBusca = document.getElementById('buscaInput').value.toLowerCase().trim();
         const filtroLocal = document.querySelector('input[name="filtroLocal"]:checked').value;
 
-        // Se não houver cache, carrega
-        if (!window.pedidosCache || window.pedidosCache.length === 0) {
-            window.pedidosCache = await window.carregarTodosPedidos();
-        }
+        // Se não houver cache, carrega (forçando a leitura mais recente)
+        window.pedidosCache = await window.carregarTodosPedidos();
         const p = window.pedidosCache;
 
         const pedidosFiltrados = p.filter(x => {
@@ -1725,8 +1778,8 @@
                         <h5 style="color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; font-size:0.75rem; letter-spacing:1px;">Detalhamento do Pedido</h5>
                         ${tabelaHTML}
                         <div style="margin-top:15px; text-align:right;">
-                            <!-- Botão que agora chama a função com o pedido completo -->
-                            <button onclick="window.gerarPdfPedidoIndividual(${JSON.stringify(pedidoCompleto).replace(/"/g, '&quot;')}, false)" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
+                            <!-- Botão de baixar dentro do painel ADMIN que já está OK, sem alterações aqui -->
+                            <button onclick="window.gerarPdfPedidoIndividual(${JSON.stringify(pedidoCompleto).replace(/"/g, '&quot;')})" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
                                 <i class="fas fa-file-pdf"></i> Gerar PDF do Pedido
                             </button>
                         </div>
@@ -1741,6 +1794,7 @@
 
     window.carregarDetalhesTamanho = async function() {
         window.mostrarCarregamento(true);
+        // Garante que os dados mais recentes sejam carregados
         const p = await window.carregarTodosPedidos();
         const sizesA = ['PP', 'P', 'M', 'G', 'GG', 'XGG'];
         const sizesI = ['1', '2', '4', '6', '8', '10', '12', '14'];
@@ -1799,6 +1853,7 @@
 
     window.carregarDetalhesFinanceiros = async function() {
         window.mostrarCarregamento(true);
+        // Garante que os dados mais recentes sejam carregados
         const p = await window.carregarTodosPedidos();
         const res = {};
         
@@ -1856,6 +1911,7 @@
         const lista = document.getElementById('listaPendencias');
         lista.innerHTML = '';
         
+        // Garante que os dados mais recentes sejam carregados
         const p = await window.carregarTodosPedidos();
         window.pedidosCache = p;
 
@@ -2019,6 +2075,9 @@
             document.getElementById('modalLiquidacao').classList.remove('active');
             window.carregarPendencias(); 
             
+            // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
+            window.pedidosCache = [];
+            
         } catch (error) {
             console.error("Erro ao liquidar:", error);
             document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao salvar liquidação no banco de dados. Tente novamente.";
@@ -2061,6 +2120,9 @@
 
             // Reabrir modal para ver o histórico atualizado
             await window.abrirModalLiquidacao(docId);
+
+            // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
+            window.pedidosCache = [];
 
         } catch (error) {
             console.error(error);
