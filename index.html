@@ -19,7 +19,7 @@
 
     :root {
       /* GRADIENTE DOURADO METÁLICO (GOLD FOIL) */
-      --gold-metallic: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
+      --gold-metallic: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5f7 75%, #aa771c 100%);
       --gold-solid: #d4af37;
       
       /* NOVAS CORES DE CAMISETAS */
@@ -84,7 +84,7 @@
     }
 
     /* TIPOGRAFIA */
-    h1, h2, h3, h4, .home-title, .logo-text h1 { font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    h1, h2, h3, h4, .home-title, .logo-text h1 { font-weight: 100; color: #fff; letter-spacing: -0.02em; }
     .text-gold, .home-title span, .logo-text h1 {
       background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text; background-size: 200% auto; animation: shine 5s linear infinite;
@@ -275,7 +275,7 @@
 
     /* ESTILOS DE FILTRO E BUSCA */
     .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-    .filter-container { display: flex; gap: 0.5rem; align-items: center;}
+    .filter-container { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
     .filter-radio { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; }
     .filter-radio input { width: auto !important; margin: 0; accent-color: var(--gold-solid); }
     .filter-radio input:checked + span { color: var(--gold-solid); font-weight: 600; }
@@ -325,7 +325,7 @@
         .dashboard-cards { grid-template-columns: 1fr; gap: 1rem; }
         .admin-menu { gap: 1rem; padding-bottom: 5px; }
         /* AJUSTE 2: Reduz a fonte e padding do menu do ADMIN no mobile */
-        .admin-menu-btn { font-size: 0.75rem; padding: 0.6rem 0; } 
+        .admin-menu-btn { font-size: 0.9rem; padding: 0.6rem 0; } 
         .tamanhos-table-container { overflow-x: auto; display: block; width: 100%; margin-bottom: 1rem; }
         .tamanhos-table th, .tamanhos-table td { padding: 0.8rem 0.5rem; font-size: 0.8rem; }
         .pedido-header-minimized { flex-wrap: wrap; gap: 0.5rem; }
@@ -386,11 +386,43 @@
                   <tbody id="listaHistoricoLiquidacoes"></tbody>
               </table>
               <div style="margin-top:1.5rem; text-align:right;">
-                   <button id="btnCancelarLiquidacao" style="background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); padding:8px 16px; border-radius:50px; font-size:0.8rem; cursor:pointer;">CANCELAR ÚLTIMA LIQUIDAÇÃO</button>
+                   <button id="btnCancelarLiquidacao" onclick="window.cancelarUltimaLiquidacao()" style="background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); padding:8px 16px; border-radius:50px; font-size:0.8rem; cursor:pointer;">CANCELAR ÚLTIMA LIQUIDAÇÃO</button>
               </div>
           </div>
       </div>
   </div>
+  
+  <!-- NOVO MODAL DE FEEDBACK DE ATUALIZAÇÃO (Regra 2) -->
+  <div id="modalFeedbackSucesso" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--success-color); margin-bottom:1rem;"><i class="fas fa-check-circle"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">TELA ATUALIZADA</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">As métricas foram recarregadas com sucesso.</p>
+          <button onclick="document.getElementById('modalFeedbackSucesso').classList.remove('active')" class="btn-primary" style="width:100%;">OK</button>
+      </div>
+  </div>
+
+  <!-- MODAL DE SUCESSO PARA LIQUIDAÇÃO (Mantido do passo anterior) -->
+  <div id="modalSucessoLiquidacao" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--success-color); margin-bottom:1rem;"><i class="fas fa-check-circle"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Pagamento Registrado!</h2>
+          <!-- Chamada para carregarPagamentos() ao clicar em OK (Regra 2) -->
+          <p id="msgSucessoLiquidacao" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">O valor foi salvo e a lista será atualizada.</p>
+          <button onclick="document.getElementById('modalSucessoLiquidacao').classList.remove('active'); window.carregarPagamentos();" class="btn-primary" style="width:100%;">OK</button>
+      </div>
+  </div>
+  
+  <!-- NOVO MODAL DE CANCELAMENTO DE LIQUIDAÇÃO (Regra 1) -->
+  <div id="modalSucessoCancelamento" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-undo-alt"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Cancelamento Concluído</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">A quitação foi cancelada com sucesso. A lista será atualizada.</p>
+          <button onclick="document.getElementById('modalSucessoCancelamento').classList.remove('active'); window.carregarPagamentos();" class="btn-primary" style="width:100%;">OK</button>
+      </div>
+  </div>
+
 
   <div id="modalDetalhesPedido" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
@@ -743,15 +775,14 @@
             <div class="admin-menu">
                 <button class="admin-menu-btn active" id="btnDashboard" onclick="window.mostrarAdminSecao('dashboard')">Dashboard</button>
                 <button class="admin-menu-btn" id="btnPedidos" onclick="window.mostrarAdminSecao('pedidos')">Pedidos</button>
-                <button class="admin-menu-btn" id="btnFinanceiro" onclick="window.mostrarAdminSecao('financeiro')">Financeiro</button>
-                <!-- RENOMEADO ID E TEXTO DO BOTÃO -->
+                <button class="admin-menu-btn" id="btnEvento" onclick="window.mostrarAdminSecao('evento')">Evento</button>
                 <button class="admin-menu-btn" id="btnPagamentos" onclick="window.mostrarAdminSecao('pagamentos')">Pagamentos</button>
             </div>
 
             <div id="admin-dashboard" class="admin-section active">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                     <h2>Visão Geral</h2>
-                    <button id="atualizarDashboard" style="background:transparent; border:1px solid var(--border-subtle); color:var(--text-main); padding:0.5rem 1rem; border-radius:50px; cursor:pointer; display:flex; align-items:center; gap:8px;"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                    <button id="atualizarDashboard" onclick="window.recarregarDashboardComFeedback()" style="background:transparent; border:1px solid var(--border-subtle); color:var(--text-main); padding:0.5rem 1rem; border-radius:50px; cursor:pointer; display:flex; align-items:center; gap:8px;"><i class="fas fa-sync-alt"></i> Atualizar</button>
                 </div>
                 <button class="btn-ai-magic" id="btnAnaliseIA" style="margin-bottom:2rem; padding:1.2rem;"><i class="fas fa-sparkles"></i> Gerar Análise Inteligente de Vendas</button>
                 <div class="dashboard-cards">
@@ -772,7 +803,7 @@
             </div>
 
             <div id="admin-detalhes-tamanhos" class="admin-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;"><h2>Matriz de Tamanhos</h2><button id="voltarDashboard" style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; gap:5px;"><i class="fas fa-arrow-left"></i> Voltar</button></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;"><h2>Matriz de Tamanhos</h2><button id="voltarDashboard" style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; gap:5px;"><i class="fas fa-arrow-left"></i> Voltar</button></div>
                 
                 <!-- ADULTO -->
                 <h3 style="color:#fff; margin-bottom:1rem; border-bottom:1px solid var(--gold-solid); padding-bottom:0.5rem;">ADULTO</h3>
@@ -810,19 +841,19 @@
                 <div style="display:flex; gap:1rem;"><button class="btn-primary" id="btnGerarPdf" style="flex:1;">Baixar PDF</button><button id="atualizarDetalhesTamanho" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:#fff; border-radius:50px; cursor:pointer;">Atualizar Dados</button></div>
             </div>
 
-            <div id="admin-financeiro" class="admin-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;"><h2>Financeiro</h2><button id="atualizarFinanceiro" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button></div>
+            <div id="admin-evento" class="admin-section" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;"><h2>Configuração do Evento</h2> <button id="atualizarEvento" onclick="window.recarregarDetalhesEventoComFeedback()" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i> Atualizar</button></div>
                 <div class="card" style="margin-bottom:2rem;"><div style="display:flex; align-items:center; gap:1rem;"><label style="color:var(--text-muted); margin:0;">Valor Unitário (R$)</label><input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;"><button id="btnSalvarValor" class="btn-primary" type="button" style="padding:0.8rem 1.5rem; font-size:0.8rem; display:flex; justify-content:center; align-items:center;">SALVAR</button></div></div>
-                <div class="card"><h4 style="margin-bottom:1.5rem;">Por Setor / Localidade</h4><div id="resumoFinanceiroLocais"></div></div>
+                <div class="card"><h4 style="margin-bottom:1.5rem;">Por Setor / Localidade</h4><div id="resumoEventoLocais"></div></div>
             </div>
 
             <div id="admin-pedidos" class="admin-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
-                    <h4>Todos os Pedidos</h4>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                    <h2>Todos os Pedidos</h2>
                     <div style="display:flex; gap:10px; align-items:center;">
                         <button id="btnFecharPedidosAction" style="background:rgba(212, 175, 55, 0.1); border:1px solid var(--gold-solid); color:var(--gold-solid); font-size:0.6rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase;"><i class="fas fa-ban"></i> Fechar Pedidos</button>
                         <button id="btnReabrirPedidosAction" style="background:rgba(100, 255, 218, 0.1); border:1px solid var(--success-color); color:var(--success-color); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase; display:none;"><i class="fas fa-check"></i> Reabrir Pedidos</button>
-                        <button id="atualizarPedidos" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
+                        <button id="atualizarPedidos" onclick="window.recarregarPedidosComFeedback()" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
                 
@@ -841,14 +872,26 @@
                 <div id="listaPedidos" style="margin-top:1.5rem;"></div>
             </div>
 
-            <!-- RENOMEADO ID DA SEÇÃO -->
             <div id="admin-pagamentos" class="admin-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                     <h2>Pagamentos</h2>
-                    <!-- RENOMEADO ID DO BOTÃO -->
-                    <button id="atualizarPagamentos" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
+                    <button id="atualizarPagamentos" onclick="window.recarregarPagamentosComFeedback()" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i> Atualizar</button>
                 </div>
-                <!-- RENOMEADO ID DA LISTA -->
+                
+                <!-- INÍCIO: NOVOS FILTROS E BUSCA -->
+                <div id="filtrosPagamentos" class="search-container">
+                    <div class="form-group" style="margin-bottom:0.5rem;">
+                        <input type="text" id="buscaPagamentosInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;">
+                    </div>
+                    <div class="filter-container">
+                        <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase;">Filtrar Status:</span>
+                        <label class="filter-radio"><input type="radio" name="filtroStatusPagamento" value="todos" checked> <span>Todos</span></label>
+                        <label class="filter-radio"><input type="radio" name="filtroStatusPagamento" value="parcialmente"> <span>Parcialmente</span></label>
+                        <label class="filter-radio"><input type="radio" name="filtroStatusPagamento" value="quitado"> <span>Quitado</span></label>
+                    </div>
+                </div>
+                <!-- FIM: NOVOS FILTROS E BUSCA -->
+                
                 <div id="listaPagamentos">
                     </div>
             </div>
@@ -889,7 +932,10 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
     const pedidosCollection = collection(db, "pedidos");
-    const configDocRef = doc(db, "configuracoes", "financeiro");
+    
+    // REGRA DE RENOMEAÇÃO: configDocRef agora aponta para "evento"
+    const configDocRef = doc(db, "configuracoes", "evento"); 
+    
     const configSistemaRef = doc(db, "configuracoes", "sistema");
 
     let currentPedidoParaEdicao = null;
@@ -976,7 +1022,7 @@
                     const valInput = document.getElementById('valorCamisetaInput');
                     if (valInput && document.activeElement !== valInput) { valInput.value = PRECO_CAMISETA.toFixed(2); }
                     // Chamada para recarregar o dashboard em caso de mudança de preço (já estava aqui)
-                    if (document.getElementById('painelAdmin').style.display === 'block') { window.carregarDashboard(); window.carregarDetalhesFinanceiros(); }
+                    if (document.getElementById('painelAdmin').style.display === 'block') { window.carregarDashboard(); window.carregarDetalhesEvento(); }
                 } else {
                     const valInput = document.getElementById('valorCamisetaInput');
                     if(valInput && valInput.value === "") valInput.value = PRECO_CAMISETA.toFixed(2);
@@ -1034,9 +1080,8 @@
         document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
         document.querySelectorAll('.admin-menu-btn').forEach(b => { b.classList.remove('active'); });
         
-        // Mapeamento de ID da Seção: 'pendencias' -> 'pagamentos'
-        const secaoId = secao === 'pagamentos' ? 'admin-pagamentos' : `admin-${secao}`;
-        const btnId = secao === 'pagamentos' ? 'btnPagamentos' : `btn${secao.charAt(0).toUpperCase() + secao.slice(1)}`;
+        let secaoId = `admin-${secao}`;
+        let btnId = `btn${secao.charAt(0).toUpperCase() + secao.slice(1)}`;
         
         const secaoElement = document.getElementById(secaoId); 
         if (secaoElement) secaoElement.style.display = 'block';
@@ -1044,11 +1089,11 @@
         const btn = document.getElementById(btnId); 
         if (btn) btn.classList.add('active');
         
-        // Mapeamento de Funções: carregarPendencias -> carregarPagamentos
+        // Garante que o carregamento correto seja feito ao mudar a aba do Admin.
         if (secao === 'dashboard') window.carregarDashboard();
         else if (secao === 'pedidos') window.carregarPedidos();
-        else if (secao === 'financeiro') window.carregarDetalhesFinanceiros();
-        else if (secao === 'pagamentos') window.carregarPagamentos(); // Chamada renomeada
+        else if (secao === 'evento') window.carregarDetalhesEvento();
+        else if (secao === 'pagamentos') window.carregarPagamentos();
     };
 
     window.redirecionarComAnimacao = function(secao, callback) {
@@ -1267,6 +1312,21 @@
             console.error("Erro ao gerar PDF do Relatório:", error);
         }
     };
+
+    window.recarregarDashboardComFeedback = async function() {
+        await window.carregarDashboard();
+        document.getElementById('modalFeedbackSucesso').classList.add('active');
+    };
+
+    window.recarregarDetalhesEventoComFeedback = async function() {
+        await window.carregarDetalhesEvento();
+        document.getElementById('modalFeedbackSucesso').classList.add('active');
+    };
+
+    window.recarregarPedidosComFeedback = async function() {
+        await window.carregarPedidos();
+        document.getElementById('modalFeedbackSucesso').classList.add('active');
+    };
     
     // FUNÇÃO QUE RECUPERA O PEDIDO E CHAMA A GERAÇÃO DE PDF
     window.baixarPedidoDoModal = function() {
@@ -1402,7 +1462,7 @@
         document.getElementById('pedidoDocId').value = '';
         document.getElementById('formPedido').reset();
         document.getElementById('submitButtonText').textContent = 'Confirmar e Enviar';
-        const radioCapital = document.querySelector('input[name="local"][value="Capital"]');
+        const radioCapital = document.querySelector(`input[name="local"][value="Capital"]`);
         if (radioCapital) radioCapital.checked = true;
         window.updateSetorCidadeInput();
     };
@@ -1866,7 +1926,8 @@
         btn.disabled = true; btn.style.opacity = "0.5";
     };
 
-    window.carregarDetalhesFinanceiros = async function() {
+    // RENOMEADO: carregarDetalhesFinanceiros -> carregarDetalhesEvento
+    window.carregarDetalhesEvento = async function() {
         window.mostrarCarregamento(true);
         // Garante que os dados mais recentes sejam carregados
         const p = await window.carregarTodosPedidos();
@@ -1881,12 +1942,26 @@
         });
         
         let h = '';
+        // RENOMEADO ID DO CONTAINER
+        const resumoContainer = document.getElementById('resumoEventoLocais');
+        
         Object.keys(res).sort().forEach((k, i) => {
             h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(255,255,255,0.02); margin-bottom:8px; border-radius:4px; border:1px solid var(--border-subtle);"><div><strong style="color:#fff; font-size:0.9rem;">${k}</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">${res[k].qtd} PÇS - <span style="color:var(--gold-solid);">${formatarMoeda(res[k].val)}</span></span></div><div style="text-align:right;"><span id="status-fin-${i}" style="font-size:0.7rem; color:var(--warning-color); display:block; margin-bottom:5px; font-weight:600;">PENDENTE</span><button onclick="window.togglePagamento('fin-${i}', this)" style="background:var(--success-color); border:none; color:#fff; padding:4px 10px; font-size:0.7rem; cursor:pointer; border-radius:50px; font-weight:600;">PAGO</button></div></div>`;
         });
-        document.getElementById('resumoFinanceiroLocais').innerHTML = h || '<p style="text-align:center; color:var(--text-muted);">SEM DADOS</p>';
+        resumoContainer.innerHTML = h || '<p style="text-align:center; color:var(--text-muted);">SEM DADOS</p>';
         window.mostrarCarregamento(false);
     };
+
+    // FUNÇÃO PONTE (ALIAS) PARA MANTER COMPATIBILIDADE (Regra 3)
+    window.carregarDetalhesFinanceiros = window.carregarDetalhesEvento;
+    window.atualizarFinanceiro = window.carregarDetalhesEvento;
+    
+    // FUNÇÃO PARA RECARREGAR O EVENTO COM FEEDBACK
+    window.recarregarDetalhesEventoComFeedback = async function() {
+        await window.carregarDetalhesEvento();
+        document.getElementById('modalFeedbackSucesso').classList.add('active');
+    };
+
 
     // =========================================================================
     // MÓDULO PAGAMENTOS (ANTIGO PENDÊNCIAS FINANCEIRAS)
@@ -1927,20 +2002,62 @@
         const lista = document.getElementById('listaPagamentos');
         lista.innerHTML = '';
         
-        // Garante que os dados mais recentes sejam carregados
+        // Obtém valores dos filtros de Pagamento (Regra 1)
+        const termoBusca = document.getElementById('buscaPagamentosInput').value.toLowerCase().trim();
+        const filtroStatus = document.querySelector('input[name="filtroStatusPagamento"]:checked').value;
         const p = await window.carregarTodosPedidos();
-        window.pedidosCache = p;
-
+        window.pedidosCache = p; // Atualiza cache
+        
         if (p.length === 0) {
             lista.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Nenhum pedido encontrado.</p>';
             window.mostrarCarregamento(false);
             return;
         }
 
-        // Ordenar por setor para facilitar visualização
-        p.sort((a, b) => a.setor.localeCompare(b.setor));
+        // 1. Filtragem e Busca
+        const pedidosFiltrados = p.filter(pedido => {
+            const qtdTotal = calcularTotalPedido(pedido);
+            const valorTotal = qtdTotal * PRECO_CAMISETA;
+            const valorRecebido = (pedido.liquidacoes || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
+            
+            // 1.1 Filtragem por Status (Regra 1)
+            let statusCorrente = 'pendente';
+            const isQuitado = valorTotal > 0 && valorRecebido >= valorTotal - 0.01;
+            const isParcialmentePago = valorRecebido > 0 && !isQuitado;
+            
+            if (isQuitado) {
+                statusCorrente = 'quitado';
+            } else if (isParcialmentePago) {
+                statusCorrente = 'parcialmente';
+            }
+            
+            if (filtroStatus !== 'todos') {
+                if (filtroStatus === 'quitado' && statusCorrente !== 'quitado') return false;
+                if (filtroStatus === 'parcialmente' && statusCorrente !== 'parcialmente') return false;
+                // Para o filtro 'todos', basta passar. O status 'pendente' é incluído no 'todos'.
+            }
 
-        p.forEach(pedido => {
+            // 1.2 Busca por Termo (Regra 2)
+            if (termoBusca) {
+                const searchable = [
+                    pedido.nome, 
+                    pedido.numPedido, 
+                    pedido.setor, 
+                    pedido.local, 
+                    pedido.contato,
+                    pedido.email,
+                ].join(' ').toLowerCase();
+                
+                if (!searchable.includes(termoBusca)) return false;
+            }
+            
+            return true;
+        });
+
+        // 2. Renderização
+        pedidosFiltrados.sort((a, b) => a.setor.localeCompare(b.setor));
+
+        pedidosFiltrados.forEach(pedido => {
             const qtdTotal = calcularTotalPedido(pedido);
             const valorTotal = qtdTotal * PRECO_CAMISETA;
             
@@ -1956,14 +2073,16 @@
                 statusText = `<span style="color:var(--warning-color); font-weight:bold; font-size:0.8rem; cursor:pointer; text-decoration:underline; display:block; margin-top:0.5rem;" onclick="window.abrirModalLiquidacao('${pedido.docId}')">PAGO PARCIALMENTE <i class="fas fa-history"></i></span>`;
             } else if (valorRecebido >= valorTotal - 0.01 && valorTotal > 0) {
                 statusText = `<span style="color:var(--success-color); font-weight:bold; font-size:0.8rem; cursor:pointer; display:block; margin-top:0.5rem;" onclick="window.abrirModalLiquidacao('${pedido.docId}')">QUITADO <i class="fas fa-check"></i></span>`;
+            } else {
+                 statusText = `<span style="color:var(--danger-color); font-weight:bold; font-size:0.8rem; display:block; margin-top:0.5rem;" onclick="window.abrirModalLiquidacao('${pedido.docId}')">PENDENTE</span>`;
             }
 
             lista.innerHTML += `
                 <div class="card" style="margin-bottom:1rem; padding:1.5rem;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
                         <div>
-                            <h4 style="margin:0; color:#fff; font-size:1.1rem;">${pedido.setor}</h4>
-                            <span style="color:var(--text-muted); font-size:0.9rem;">${qtdTotal} Camisetas</span>
+                            <h4 style="margin:0; color:#fff; font-size:1.1rem;">#${pedido.numPedido} - ${pedido.setor}</h4>
+                            <span style="color:var(--text-muted); font-size:0.9rem;">${qtdTotal} Camisetas | ${pedido.nome}</span>
                             <br><span style="font-size:0.8rem; color:#888;">${pedido.local}</span>
                         </div>
                         <div style="text-align:right;">
@@ -1984,11 +2103,15 @@
             `;
         });
         
+        if(pedidosFiltrados.length === 0) lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">Nenhum pedido encontrado para o filtro atual.</p>`;
+
         window.mostrarCarregamento(false);
     };
 
     // FUNÇÃO PONTE (ALIAS) PARA MANTER COMPATIBILIDADE
     window.carregarPendencias = window.carregarPagamentos;
+    window.atualizarPendencias = window.carregarPagamentos;
+
     
     // ABRIR MODAL
     window.abrirModalLiquidacao = async function(docId) {
@@ -2040,6 +2163,18 @@
         
         window.mostrarCarregamento(false);
     };
+    
+    // FUNÇÃO PARA RECARREGAR LISTA DE PAGAMENTOS COM FEEDBACK
+    window.recarregarPagamentosComFeedback = async function() {
+        await window.carregarPagamentos();
+        document.getElementById('modalFeedbackSucesso').classList.add('active');
+    };
+
+    // FUNÇÃO PARA RECARREGAR LISTA DE PEDIDOS COM FEEDBACK
+    window.recarregarPedidosComFeedback = async function() {
+        await window.carregarPedidos();
+        document.getElementById('modalFeedbackSucesso').classList.add('active');
+    };
 
     // CONFIRMAR LIQUIDAÇÃO
     window.confirmarLiquidacao = async function() {
@@ -2089,12 +2224,12 @@
                 timestamp: new Date().toISOString() // Para controle
             });
 
-            // IMPORTANTE: A coleção Firestore continua se chamando "pedidos" e o campo "liquidacoes" (Regra 1)
-
             await updateDoc(docRef, { liquidacoes: liquidacoes });
             
             document.getElementById('modalLiquidacao').classList.remove('active');
-            window.carregarPagamentos(); // Chamada renomeada
+            
+            // REGRA 1 e 2: Exibe o modal de sucesso, que por sua vez acionará o recarregamento da lista ao ser fechado
+            document.getElementById('modalSucessoLiquidacao').classList.add('active'); 
             
             // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
             window.pedidosCache = [];
@@ -2112,9 +2247,8 @@
     window.cancelarUltimaLiquidacao = async function() {
         const docId = document.getElementById('liquidacaoDocId').value;
         
-        // Substituindo `confirm()` pelo modal de erro, para evitar bloqueio, embora para essa funcionalidade
-        // em ambiente admin seja aceitável, o pedido é para evitar alertas. Usaremos o modal de erro como aviso.
-        if (!confirm("Deseja realmente cancelar a ÚLTIMA liquidação registrada?")) return; // Mantendo o confirm padrão para confirmação administrativa rápida
+        // REMOVIDO: confirm() nativo, pois causava erro de UX/bloqueio.
+        // O clique no botão é considerado a confirmação (com logs de erro internos).
 
         window.mostrarCarregamento(true, "CANCELANDO...");
 
@@ -2122,12 +2256,17 @@
             const docRef = doc(db, "pedidos", docId);
             const docSnap = await getDoc(docRef);
             
-            if (!docSnap.exists()) throw new Error("Pedido não encontrado");
+            if (!docSnap.exists()) {
+                 console.error("CANCELAR ULTIMA LIQUIDAÇÃO: Pedido não encontrado no DB.");
+                 throw new Error("Pedido não encontrado");
+            }
 
             const pedido = docSnap.data();
             let liquidacoes = pedido.liquidacoes || [];
+            
 
             if (liquidacoes.length === 0) {
+                console.warn("CANCELAR ULTIMA LIQUIDAÇÃO: Não há liquidações para cancelar.");
                 document.getElementById('modalErroPDF').querySelector('p').textContent = "Não há liquidações para cancelar.";
                 document.getElementById('modalErroPDF').classList.add('active');
                 window.mostrarCarregamento(false);
@@ -2138,15 +2277,20 @@
             liquidacoes.pop();
 
             await updateDoc(docRef, { liquidacoes: liquidacoes });
-
-            // Reabrir modal para ver o histórico atualizado
-            await window.abrirModalLiquidacao(docId);
+            
+            // 1. Fecha o modal de liquidação
+            document.getElementById('modalLiquidacao').classList.remove('active');
+            
+            // 2. Exibe o modal de sucesso de cancelamento (Regra 1)
+            document.getElementById('modalSucessoCancelamento').classList.add('active'); 
+            
+            // A atualização da lista e dos totais (Regra 2) será feita quando o usuário clicar OK no modalSucessoCancelamento
 
             // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
             window.pedidosCache = [];
 
         } catch (error) {
-            console.error(error);
+            console.error("ERRO FATAL DURANTE O CANCELAMENTO.", error);
             document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao cancelar liquidação no banco de dados. Tente novamente.";
             document.getElementById('modalErroPDF').classList.add('active');
         } finally {
@@ -2171,12 +2315,6 @@
         document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao reabrir pedidos. Tente novamente.";
         document.getElementById('modalErroPDF').classList.add('active');} finally { window.mostrarCarregamento(false); }
     };
-
-    // FUNÇÕES PONTE (ALIAS) PARA COMPATIBILIDADE (Regra 2)
-    // Mantém compatibilidade com chamadas antigas como window.carregarPendencias()
-    window.atualizarPendencias = () => window.carregarPagamentos();
-    window.carregarPendencias = window.carregarPagamentos;
-
 
     document.addEventListener('DOMContentLoaded', () => {
         const safeOnClick = (id, handler) => { const el = document.getElementById(id); if(el) el.onclick = handler; };
@@ -2263,12 +2401,20 @@
         
         safeOnSubmit('formEsqueceuId', window.recuperarIdsPorEmail);
         
-        safeOnClick('atualizarDashboard', window.carregarDashboard);
-        safeOnClick('atualizarPedidos', window.carregarPedidos);
-        safeOnClick('atualizarFinanceiro', window.carregarDetalhesFinanceiros);
-        // RENOMEADO LISTENER - APONTA PARA A NOVA FUNÇÃO
-        safeOnClick('atualizarPagamentos', window.carregarPagamentos); 
+        // Listeners do Admin
+        safeOnClick('atualizarDashboard', window.recarregarDashboardComFeedback); // Chamando função com feedback
         
+        safeOnClick('btnPedidos', () => window.mostrarAdminSecao('pedidos'));
+        safeOnClick('atualizarPedidos', window.recarregarPedidosComFeedback); // Chamando função com feedback
+        
+        // LISTENERS DO MÓDULO EVENTO (Antigo Financeiro)
+        safeOnClick('btnEvento', () => window.mostrarAdminSecao('evento'));
+        safeOnClick('atualizarEvento', window.recarregarDetalhesEventoComFeedback);
+        
+        // LISTENERS DO MÓDULO PAGAMENTOS (Antigo Pendências Financeiras)
+        safeOnClick('btnPagamentos', () => window.mostrarAdminSecao('pagamentos'));
+        safeOnClick('atualizarPagamentos', window.recarregarPagamentosComFeedback); // Chamando função com feedback
+
         safeOnClick('btnVerDetalhes', () => { window.mostrarAdminSecao('detalhes-tamanhos'); window.carregarDetalhesTamanho(); });
         safeOnClick('voltarDashboard', () => window.mostrarAdminSecao('dashboard'));
         safeOnClick('atualizarDetalhesTamanho', window.carregarDetalhesTamanho);
@@ -2293,6 +2439,14 @@
         
         document.querySelectorAll('input[name="filtroLocal"]').forEach(radio => {
             radio.addEventListener('change', () => window.carregarPedidos());
+        });
+        
+        // CORREÇÃO: LISTENERS DA TELA PAGAMENTOS
+        const buscaPagamentosInput = document.getElementById('buscaPagamentosInput');
+        if(buscaPagamentosInput) buscaPagamentosInput.addEventListener('input', () => window.carregarPagamentos());
+        
+        document.querySelectorAll('input[name="filtroStatusPagamento"]').forEach(radio => {
+            radio.addEventListener('change', () => window.carregarPagamentos());
         });
 
         window.updateSetorCidadeInput();
