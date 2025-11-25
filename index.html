@@ -84,7 +84,7 @@
     }
 
     /* TIPOGRAFIA */
-    h1, h2, h3, h4, .home-title, .logo-text h1 { font-weight: 100; color: #fff; letter-spacing: -0.02em; }
+    h1, h2, h3, h4, .home-title, .logo-text h1 { font-weight: 700; color: #fff; letter-spacing: -0.02em; }
     .text-gold, .home-title span, .logo-text h1 {
       background: var(--gold-metallic); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text; background-size: 200% auto; animation: shine 5s linear infinite;
@@ -325,7 +325,7 @@
         .dashboard-cards { grid-template-columns: 1fr; gap: 1rem; }
         .admin-menu { gap: 1rem; padding-bottom: 5px; }
         /* AJUSTE 2: Reduz a fonte e padding do menu do ADMIN no mobile */
-        .admin-menu-btn { font-size: 0.9rem; padding: 0.6rem 0; } 
+        .admin-menu-btn { font-size: 0.75rem; padding: 0.6rem 0; } 
         .tamanhos-table-container { overflow-x: auto; display: block; width: 100%; margin-bottom: 1rem; }
         .tamanhos-table th, .tamanhos-table td { padding: 0.8rem 0.5rem; font-size: 0.8rem; }
         .pedido-header-minimized { flex-wrap: wrap; gap: 0.5rem; }
@@ -419,6 +419,7 @@
           <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-undo-alt"></i></div>
           <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Cancelamento Concluído</h2>
           <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">A quitação foi cancelada com sucesso. A lista será atualizada.</p>
+          <!-- CORREÇÃO: Atualização imediata ao clicar em OK -->
           <button onclick="document.getElementById('modalSucessoCancelamento').classList.remove('active'); window.carregarPagamentos();" class="btn-primary" style="width:100%;">OK</button>
       </div>
   </div>
@@ -568,7 +569,7 @@
 
   <div id="analiseIAOverlay" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:700px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
               <h2 style="font-size:1.3rem; margin:0; display:flex; align-items:center; gap:10px;"><i class="fas fa-brain" style="color:var(--gold-solid);"></i> Inteligência Artificial</h2>
               <button id="fecharAnaliseIA" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i class="fas fa-times"></i></button>
           </div>
@@ -803,7 +804,7 @@
             </div>
 
             <div id="admin-detalhes-tamanhos" class="admin-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;"><h2>Matriz de Tamanhos</h2><button id="voltarDashboard" style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; gap:5px;"><i class="fas fa-arrow-left"></i> Voltar</button></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:2rem; align-items:center;"><h2>Matriz de Tamanhos</h2><button id="voltarDashboard" style="background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; gap:5px;"><i class="fas fa-arrow-left"></i> Voltar</button></div>
                 
                 <!-- ADULTO -->
                 <h3 style="color:#fff; margin-bottom:1rem; border-bottom:1px solid var(--gold-solid); padding-bottom:0.5rem;">ADULTO</h3>
@@ -838,7 +839,7 @@
                     <div class="tamanhos-table-container"><table class="tamanhos-table" id="tabelaInfantilTerra" style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border-subtle); text-align:left;"><th style="padding:10px; color:var(--text-muted);">TIPO</th><th>1</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th><th>12</th><th>14</th></tr></thead><tbody id="infantilTerraBody"></tbody></table></div>
                 </div>
                 
-                <div style="display:flex; gap:1rem;"><button class="btn-primary" id="btnGerarPdf" style="flex:1;">Baixar PDF</button><button id="atualizarDetalhesTamanho" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:#fff; border-radius:50px; cursor:pointer;">Atualizar Dados</button></div>
+                <div style="display:flex; gap:1rem;"><button id="btnGerarPdf" class="btn-primary" style="flex:1;">Baixar PDF</button><button id="atualizarDetalhesTamanho" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:#fff; border-radius:50px; cursor:pointer;">Atualizar Dados</button></div>
             </div>
 
             <div id="admin-evento" class="admin-section" style="display:none;">
@@ -851,7 +852,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                     <h2>Todos os Pedidos</h2>
                     <div style="display:flex; gap:10px; align-items:center;">
-                        <button id="btnFecharPedidosAction" style="background:rgba(212, 175, 55, 0.1); border:1px solid var(--gold-solid); color:var(--gold-solid); font-size:0.6rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase;"><i class="fas fa-ban"></i> Fechar Pedidos</button>
+                        <button id="btnFecharPedidosAction" style="background:rgba(212, 175, 55, 0.1); border:1px solid var(--gold-solid); color:var(--gold-solid); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase;"><i class="fas fa-ban"></i> Fechar Pedidos</button>
                         <button id="btnReabrirPedidosAction" style="background:rgba(100, 255, 218, 0.1); border:1px solid var(--success-color); color:var(--success-color); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase; display:none;"><i class="fas fa-check"></i> Reabrir Pedidos</button>
                         <button id="atualizarPedidos" onclick="window.recarregarPedidosComFeedback()" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                     </div>
@@ -1089,7 +1090,7 @@
         const btn = document.getElementById(btnId); 
         if (btn) btn.classList.add('active');
         
-        // Garante que o carregamento correto seja feito ao mudar a aba do Admin.
+        // CORREÇÃO: Força o recarregamento ao entrar na seção (Regra 2 e 3)
         if (secao === 'dashboard') window.carregarDashboard();
         else if (secao === 'pedidos') window.carregarPedidos();
         else if (secao === 'evento') window.carregarDetalhesEvento();
@@ -1311,21 +1312,6 @@
             document.getElementById('modalErroPDF').classList.add('active');
             console.error("Erro ao gerar PDF do Relatório:", error);
         }
-    };
-
-    window.recarregarDashboardComFeedback = async function() {
-        await window.carregarDashboard();
-        document.getElementById('modalFeedbackSucesso').classList.add('active');
-    };
-
-    window.recarregarDetalhesEventoComFeedback = async function() {
-        await window.carregarDetalhesEvento();
-        document.getElementById('modalFeedbackSucesso').classList.add('active');
-    };
-
-    window.recarregarPedidosComFeedback = async function() {
-        await window.carregarPedidos();
-        document.getElementById('modalFeedbackSucesso').classList.add('active');
     };
     
     // FUNÇÃO QUE RECUPERA O PEDIDO E CHAMA A GERAÇÃO DE PDF
@@ -1803,6 +1789,7 @@
         });
 
         pedidosFiltrados.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(x => {
+            // CORREÇÃO: Usando a função correta
             const t = calcularTotalPedido(x);
             
             let tabelaHTML = `<table class="tabela-detalhe-pedido"><thead><tr><th>Categoria</th><th>Tamanho</th><th>Qtd</th></tr></thead><tbody>`;
@@ -2081,7 +2068,8 @@
                 <div class="card" style="margin-bottom:1rem; padding:1.5rem;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
                         <div>
-                            <h4 style="margin:0; color:#fff; font-size:1.1rem;">#${pedido.numPedido} - ${pedido.setor}</h4>
+                            <!-- CORREÇÃO: Removendo o número do pedido -->
+                            <h4 style="margin:0; color:#fff; font-size:1.1rem;">${pedido.setor}</h4>
                             <span style="color:var(--text-muted); font-size:0.9rem;">${qtdTotal} Camisetas | ${pedido.nome}</span>
                             <br><span style="font-size:0.8rem; color:#888;">${pedido.local}</span>
                         </div>
@@ -2247,7 +2235,7 @@
     window.cancelarUltimaLiquidacao = async function() {
         const docId = document.getElementById('liquidacaoDocId').value;
         
-        // REMOVIDO: confirm() nativo, pois causava erro de UX/bloqueio.
+        // Removendo o 'confirm' nativo para evitar problemas de execução.
         // O clique no botão é considerado a confirmação (com logs de erro internos).
 
         window.mostrarCarregamento(true, "CANCELANDO...");
@@ -2266,7 +2254,6 @@
             
 
             if (liquidacoes.length === 0) {
-                console.warn("CANCELAR ULTIMA LIQUIDAÇÃO: Não há liquidações para cancelar.");
                 document.getElementById('modalErroPDF').querySelector('p').textContent = "Não há liquidações para cancelar.";
                 document.getElementById('modalErroPDF').classList.add('active');
                 window.mostrarCarregamento(false);
@@ -2278,7 +2265,7 @@
 
             await updateDoc(docRef, { liquidacoes: liquidacoes });
             
-            // 1. Fecha o modal de liquidação
+            // 1. Fecha o modal de liquidação (Regra 2)
             document.getElementById('modalLiquidacao').classList.remove('active');
             
             // 2. Exibe o modal de sucesso de cancelamento (Regra 1)
