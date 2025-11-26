@@ -173,8 +173,29 @@
         border: 1px solid var(--border-subtle); transition: var(--transition);
     }
     .radio-label:hover { background: rgba(17, 34, 64, 0.8); }
-    .radio-label input { width: auto !important; margin: 0; accent-color: var(--gold-solid); }
+    .radio-label input { 
+        width: auto !important; 
+        margin: 0; 
+        accent-color: var(--gold-solid); 
+        /* Ajuste do tamanho padrão para o desktop/layout geral */
+        width: 16px; 
+        height: 16px;
+    }
 
+    /* ESTILOS DE FILTRO E BUSCA */
+    .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .filter-container { display: flex; gap: 1.0rem; align-items: center; flex-wrap: wrap; }
+    .filter-radio { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; }
+    .filter-radio input { 
+        width: auto !important; 
+        margin: 0; 
+        accent-color: var(--gold-solid); 
+        /* Ajuste do tamanho padrão para o desktop/layout geral */
+        width: 16px; 
+        height: 16px;
+    }
+    .filter-radio input:checked + span { color: var(--gold-solid); font-weight: 600; }
+    
     /* TAMANHOS E CORES (NOVO) */
     .tipo-camiseta {
         background: rgba(2, 12, 27, 0.5); border: 1px solid var(--border-subtle);
@@ -273,13 +294,6 @@
     .hist-table th { color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
     .hist-table td { color: #fff; }
 
-    /* ESTILOS DE FILTRO E BUSCA */
-    .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-    .filter-container { display: flex; gap: 1.0rem; align-items: center; flex-wrap: wrap; }
-    .filter-radio { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; }
-    .filter-radio input { width: auto !important; margin: 0; accent-color: var(--gold-solid); }
-    .filter-radio input:checked + span { color: var(--gold-solid); font-weight: 600; }
-
     /* ESTILOS ESPECÍFICOS PARA OS BOTÕES DO MODAL DE DETALHES (Regra 4) */
     #modalDetalhesPedido .modal-actions {
         display: flex; gap: 1rem; margin-top: 2rem; 
@@ -310,6 +324,41 @@
        MOBILE RESPONSIVENESS
        ========================================= */
     @media (max-width: 480px) {
+        /* *** AJUSTES PARA MELHORAR O FILTRO EM TELAS PEQUENAS (SOLICITAÇÃO DO USUÁRIO) *** */
+        
+        /* Reduz o espaçamento e garante que caiba em uma linha */
+        .filter-container { 
+            flex-direction: row; 
+            justify-content: flex-start; /* Alinha à esquerda para economizar espaço */
+            gap: 0.3rem; /* Reduz o gap entre os elementos (ajustado de 0.5rem para 0.3rem) */
+            flex-wrap: nowrap; /* Evita quebra de linha */
+            overflow-x: auto; /* Adiciona scroll horizontal se for o caso extremo */
+            padding-bottom: 5px; 
+            padding-right: 5px;
+        }
+
+        /* Reduz o tamanho do rádio e o padding do rótulo para economizar espaço */
+        .filter-radio {
+             /* Reduz o padding para diminuir a largura total do elemento (ajustado de 0.4rem 0.6rem para 0.3rem 0.5rem) */
+             padding: 0.3rem 0.5rem; 
+             font-size: 0.75rem; /* Leve redução na fonte */
+             white-space: nowrap; /* Garante que o texto de cada filtro não quebre */
+        }
+        
+        /* Reduz o tamanho da bolinha do radio button para o mobile */
+        .filter-radio input { 
+            width: 13px !important; 
+            height: 13px !important; 
+            margin-right: 0.2rem; /* Reduz margem interna do rádio */
+        }
+
+        .filter-container > span {
+             white-space: nowrap; 
+             margin-right: 0.1rem; /* Reduzido para economizar espaço */
+             font-size: 0.75rem; /* Leve redução na fonte para o rótulo */
+        }
+        
+        /* Layout Geral (mantido e ajustado) */
         .container { padding: 0 16px; }
         .main { padding: 5rem 0 2rem 0; }
         .logo-text h1 { font-size: 1.1rem; }
@@ -335,25 +384,6 @@
         .financeiro-item-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
         .financeiro-actions { width: 100%; justify-content: space-between; }
         .pedido-confirmacao-card { width: 95%; margin: 10px; max-height: 90vh; overflow-y: auto; }
-        /* Ajuste de filtros no mobile */
-        .filter-container { 
-            flex-direction: row; 
-            justify-content: space-between; 
-            gap: 0.5rem; /* Reduz o gap entre os elementos */
-            flex-wrap: nowrap; /* Evita quebra de linha forçada, dependendo do item */
-            overflow-x: auto; /* Adiciona scroll horizontal se for o caso extremo */
-            padding-bottom: 5px; /* Adiciona um pequeno padding para scrollbar */
-        }
-        .filter-radio {
-             /* Reduz o padding para diminuir a largura total do elemento */
-             padding: 0.4rem 0.6rem; 
-             font-size: 0.85rem; /* Leve redução na fonte */
-             white-space: nowrap; /* Garante que o texto de cada filtro não quebre */
-        }
-        .filter-container > span {
-             white-space: nowrap; /* Garante que o rótulo não quebre */
-             margin-right: 0.2rem; /* Pequeno ajuste de margem */
-        }
         
         /* Garantir que os botões do modalDetalhesPedido fiquem em coluna no mobile */
         #modalDetalhesPedido .modal-actions {
