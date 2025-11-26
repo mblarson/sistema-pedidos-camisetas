@@ -336,7 +336,25 @@
         .financeiro-actions { width: 100%; justify-content: space-between; }
         .pedido-confirmacao-card { width: 95%; margin: 10px; max-height: 90vh; overflow-y: auto; }
         /* Ajuste de filtros no mobile */
-        .filter-container { flex-direction: row; justify-content: space-between; gap: 1rem; }
+        .filter-container { 
+            flex-direction: row; 
+            justify-content: space-between; 
+            gap: 0.5rem; /* Reduz o gap entre os elementos */
+            flex-wrap: nowrap; /* Evita quebra de linha forçada, dependendo do item */
+            overflow-x: auto; /* Adiciona scroll horizontal se for o caso extremo */
+            padding-bottom: 5px; /* Adiciona um pequeno padding para scrollbar */
+        }
+        .filter-radio {
+             /* Reduz o padding para diminuir a largura total do elemento */
+             padding: 0.4rem 0.6rem; 
+             font-size: 0.85rem; /* Leve redução na fonte */
+             white-space: nowrap; /* Garante que o texto de cada filtro não quebre */
+        }
+        .filter-container > span {
+             white-space: nowrap; /* Garante que o rótulo não quebre */
+             margin-right: 0.2rem; /* Pequeno ajuste de margem */
+        }
+        
         /* Garantir que os botões do modalDetalhesPedido fiquem em coluna no mobile */
         #modalDetalhesPedido .modal-actions {
             flex-direction: column;
