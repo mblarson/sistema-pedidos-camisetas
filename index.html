@@ -980,18 +980,71 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 if (!user.isAnonymous) {
-                    const loginDiv = document.getElementById('loginAdmin'); const painelDiv = document.getElementById('painelAdmin');
-                    // CORREÇÃO: Força o redirecionamento para o Admin ao detectar login, e carrega o Dashboard.
-                    if (loginDiv && painelDiv) { loginDiv.style.display = 'none'; painelDiv.style.display = 'block'; window.mostrarSecao('admin'); window.carregarDashboard(); }
+                    // *** INÍCIO DA MUDANÇA OBRIGATÓRIA ***
+                    // Removendo ou desativando qualquer lógica que force o redirecionamento.
+                    // Os elementos de login/painel são mantidos ocultos no início,
+                    // e a lógica de exibição será ativada apenas pelo clique no botão.
+                    
+                    // A única lógica mantida é iniciar os monitores de preço e sistema,
+                    // pois eles são cruciais para a exibição correta dos valores
+                    // e do status de pedidos na tela de novo pedido.
+                    
+                    // console.log("Usuário logado como Admin. Aguardando clique em 'Área Administrativa'.");
+                    iniciarMonitoramentoPreco();
+                    iniciarMonitoramentoSistema();
+
                 } else {
-                    const loginDiv = document.getElementById('loginAdmin'); const painelDiv = document.getElementById('painelAdmin');
-                    if (loginDiv && painelDiv) { loginDiv.style.display = 'block'; painelDiv.style.display = 'none'; }
+                    // Usuário Anônimo. Garante que os monitores estejam rodando.
+                    // O painel deve estar oculto e o login visível (se for para a seção admin).
+                    const loginDiv = document.getElementById('loginAdmin');
+                    const painelDiv = document.getElementById('painelAdmin');
+                    if (loginDiv && painelDiv) {
+                        // Não faz nada aqui para o usuário anônimo, exceto manter o painel oculto.
+                        // A seção ativa (home) deve ser mantida.
+                        painelDiv.style.display = 'none'; 
+                    }
+                    iniciarMonitoramentoPreco();
+                    iniciarMonitoramentoSistema();
                 }
-                iniciarMonitoramentoPreco(); iniciarMonitoramentoSistema();
-            } else { signInAnonymously(auth).catch(console.error); }
+            } else { 
+                // Tenta logar anonimamente se não houver usuário.
+                signInAnonymously(auth).catch(console.error); 
+            }
         });
     };
     
+    // VARIÁVEL GLOBAL PARA RASTREAR SE O ADMIN JÁ ACESSOU O PAINEL UMA VEZ
+    // Usada para decidir se deve carregar o dashboard no clique ou apenas mostrar o login.
+    window.adminAcessouPainel = false;
+    
+    // Função acionada ao CLICAR no botão "Área Administrativa"
+    window.handleAdminAccessClick = function() {
+        window.redirecionarComAnimacao('admin', async () => {
+            const user = auth.currentUser;
+            const loginDiv = document.getElementById('loginAdmin');
+            const painelDiv = document.getElementById('painelAdmin');
+            
+            if (user && !user.isAnonymous) {
+                // Usuário logado (não anônimo) -> Libera acesso imediato ao painel
+                loginDiv.style.display = 'none';
+                painelDiv.style.display = 'block';
+                
+                // Carrega o dashboard apenas na primeira vez que o usuário logado acessa
+                // para evitar recarregamento desnecessário após o redirecionarComAnimacao
+                if (!window.adminAcessouPainel) {
+                    window.carregarDashboard();
+                    window.adminAcessouPainel = true;
+                }
+            } else {
+                // Usuário não logado (anônimo) -> Mostra a tela de login
+                loginDiv.style.display = 'block';
+                painelDiv.style.display = 'none';
+            }
+        });
+    };
+    
+    // *** FIM DA MUDANÇA OBRIGATÓRIA ***
+
     const formatarMoeda = (valor) => { return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
     
     // Função auxiliar para data
@@ -1023,6 +1076,7 @@
                     const valInput = document.getElementById('valorCamisetaInput');
                     if (valInput && document.activeElement !== valInput) { valInput.value = PRECO_CAMISETA.toFixed(2); }
                     // Chamada para recarregar o dashboard em caso de mudança de preço (já estava aqui)
+                    // Verifica se o painel está visível antes de carregar o dashboard
                     if (document.getElementById('painelAdmin').style.display === 'block') { window.carregarDashboard(); window.carregarDetalhesEvento(); }
                 } else {
                     const valInput = document.getElementById('valorCamisetaInput');
@@ -1091,6 +1145,7 @@
         if (btn) btn.classList.add('active');
         
         // CORREÇÃO: Força o recarregamento ao entrar na seção (Regra 2 e 3)
+        // Isso é mantido, pois o recarregamento deve ocorrer ao navegar pelas abas
         if (secao === 'dashboard') window.carregarDashboard();
         else if (secao === 'pedidos') window.carregarPedidos();
         else if (secao === 'evento') window.carregarDetalhesEvento();
@@ -1688,10 +1743,29 @@
     };
 
     window.handleAdminLogin = async function(e) {
-        e.preventDefault(); const email = document.getElementById('emailAdmin').value.trim(); const senha = document.getElementById('senhaAdmin').value;
+        e.preventDefault(); 
+        const email = document.getElementById('emailAdmin').value.trim(); 
+        const senha = document.getElementById('senhaAdmin').value;
+        
         window.mostrarCarregamento(true, "AUTENTICANDO...");
-        try { await signInWithEmailAndPassword(auth, email, senha); document.getElementById('loginAdmin').style.display = 'none'; document.getElementById('painelAdmin').style.display = 'block'; window.carregarDashboard(); } 
-        catch (error) { console.error("Erro login:", error); document.getElementById('modalErroLogin').classList.add('active'); } finally { window.mostrarCarregamento(false); }
+        try { 
+            await signInWithEmailAndPassword(auth, email, senha); 
+            
+            // Após o login manual, o onAuthStateChanged é acionado, mas não redireciona mais.
+            // Precisamos ativar a exibição do painel aqui.
+            document.getElementById('loginAdmin').style.display = 'none'; 
+            document.getElementById('painelAdmin').style.display = 'block'; 
+            
+            // Carrega o dashboard e marca que o admin já acessou
+            window.carregarDashboard();
+            window.adminAcessouPainel = true;
+
+        } catch (error) { 
+            console.error("Erro login:", error); 
+            document.getElementById('modalErroLogin').classList.add('active'); 
+        } finally { 
+            window.mostrarCarregamento(false); 
+        }
     };
 
     // Altera a função para sempre buscar novos dados, se o cache estiver vazio
@@ -2356,8 +2430,11 @@
 
         safeOnClick('btnNovoPedido', () => { if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; } window.setupNovoPedido(); window.redirecionarComAnimacao('pedido'); });
         safeOnClick('btnConsultarPedido', () => { window.redirecionarComAnimacao('consultar'); });
-        safeOnClick('btnAdministrador', () => { window.redirecionarComAnimacao('admin'); });
         
+        // *** MUDANÇA APLICADA AQUI: BOTÃO ÁREA ADMINISTRATIVA ***
+        safeOnClick('btnAdministrador', window.handleAdminAccessClick);
+        // *** FIM DA MUDANÇA ***
+
         safeOnClick('voltarHome1', () => window.redirecionarComAnimacao('home'));
         safeOnClick('voltarHomeConsulta', () => window.redirecionarComAnimacao('home'));
         safeOnClick('voltarHome3', () => window.redirecionarComAnimacao('home'));
