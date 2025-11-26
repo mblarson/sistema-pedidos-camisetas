@@ -294,6 +294,230 @@
     .hist-table th { color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
     .hist-table td { color: #fff; }
 
+    /* ESTILOS DE FILTRO E BUSCA */
+    .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .filter-container { display: flex; gap: 1.0rem; align-items: center; flex-wrap: wrap; }
+    .filter-radio { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; }
+    .filter-radio input { 
+        width: auto !important; 
+        margin: 0; 
+        accent-color: var(--gold-solid); 
+        /* Ajuste do tamanho padrão para o desktop/layout geral */
+        width: 16px; 
+        height: 16px;
+    }
+    .filter-radio input:checked + span { color: var(--gold-solid); font-weight: 600; }
+    
+    /* TAMANHOS E CORES (NOVO) */
+    .tipo-camiseta {
+        background: rgba(2, 12, 27, 0.5); border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;
+    }
+    .tipo-camiseta h4 {
+        color: var(--gold-solid); margin-bottom: 1.5rem; font-size: 1.1rem;
+        text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 1rem;
+    }
+    .tamanhos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 1rem; }
+    .tamanho-item { display: flex; flex-direction: column; align-items: center; }
+    .tamanho-item label { margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.8rem; }
+    #formPedido .tamanho-item label { color: #FFFFFF !important; }
+    .tamanho-item input { text-align: center; padding: 0.8rem !important; font-weight: 700; }
+
+    /* HEADER DAS CORES */
+    .cor-header {
+        display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+        padding: 1rem; background: rgba(255,255,255,0.03); border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+    }
+    .cor-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); }
+
+    /* DASHBOARD */
+    .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+    .card-content h4 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    #admin-dashboard .card-content h4, #admin-dashboard .dashboard-details h4, #admin-dashboard .detail-item span { color: #FFFFFF !important; }
+    
+    /* AJUSTE 1: Diminui fonte dos valores para caber no desktop e mobile sem quebrar */
+    .card-value { font-size: clamp(1.3rem, 2vw, 1.7rem); font-weight: 200; color: #fff; white-space: nowrap; } 
+    
+    .pedido-card-expandable { cursor: pointer; transition: background 0.3s ease; }
+    .pedido-card-expandable:hover { background: rgba(255, 255, 255, 0.05); }
+    .pedido-details-content { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); animation: slideDown 0.3s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .tabela-detalhe-pedido { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem; color: #ddd; }
+    .tabela-detalhe-pedido th, .tabela-detalhe-pedido td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
+    .tabela-detalhe-pedido th { color: var(--gold-solid); font-weight: 600; text-transform: uppercase; }
+
+    /* MODAIS */
+    .pedido-confirmacao-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(2, 12, 27, 0.9); backdrop-filter: blur(15px); z-index: 2000;
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0; visibility: hidden; transition: var(--transition);
+    }
+    .pedido-confirmacao-overlay.active { opacity: 1; visibility: visible; }
+    .pedido-confirmacao-card { width: 95%; max-width: 550px; border: 1px solid var(--gold-solid); max-height: 90vh; overflow-y: auto; }
+    
+    #pedidoConfirmacaoNumero {
+        word-break: break-all; overflow-wrap: break-word; white-space: normal;
+        font-size: clamp(1.2rem, 4vw, 2rem) !important; line-height: 1.2; padding: 0 10px;
+    }
+
+    /* IA BUTTON */
+    .btn-ai-magic {
+        background: transparent !important; border: 1px solid var(--border-subtle) !important; color: #fff !important;
+        width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+        border-radius: var(--radius-md); transition: var(--transition);
+    }
+    .btn-ai-magic:hover {
+        border-color: var(--gold-solid) !important; background: rgba(212, 175, 55, 0.05) !important;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+    }
+    .btn-ai-magic i { color: var(--gold-solid); }
+
+    /* LOADER */
+    .loading-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--bg-body); z-index: 3000;
+        display: flex; justify-content: center; align-items: center; flex-direction: column;
+        opacity: 0; visibility: hidden; transition: var(--transition);
+    }
+    .loading-overlay.active { opacity: 1; visibility: visible; }
+    .spinner-gold {
+        width: 50px; height: 50px; border-radius: 50%;
+        border: 2px solid rgba(212, 175, 55, 0.1); border-top-color: var(--gold-solid);
+        animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* ADMIN MENU */
+    .admin-menu { display: flex; gap: 2rem; border-bottom: 1px solid var(--border-subtle); margin-bottom: 2rem; overflow-x: auto; }
+    .admin-menu-btn {
+        background: transparent; border: none; color: var(--text-muted);
+        padding: 1rem 0; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+        transition: var(--transition); border-bottom: 2px solid transparent; white-space: nowrap;
+    }
+    .admin-menu-btn:hover { color: #fff; }
+    .admin-menu-btn.active { color: var(--gold-solid); border-bottom-color: var(--gold-solid); }
+
+    /* ESTILO PARA TABELA DE LIQUIDAÇÕES */
+    .hist-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+    .hist-table th, .hist-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
+    .hist-table th { color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
+    .hist-table td { color: #fff; }
+
+    /* ESTILOS DE FILTRO E BUSCA */
+    .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .filter-container { display: flex; gap: 1.0rem; align-items: center; flex-wrap: wrap; }
+    .filter-radio { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; }
+    .filter-radio input { 
+        width: auto !important; 
+        margin: 0; 
+        accent-color: var(--gold-solid); 
+        /* Ajuste do tamanho padrão para o desktop/layout geral */
+        width: 16px; 
+        height: 16px;
+    }
+    .filter-radio input:checked + span { color: var(--gold-solid); font-weight: 600; }
+    
+    /* TAMANHOS E CORES (NOVO) */
+    .tipo-camiseta {
+        background: rgba(2, 12, 27, 0.5); border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;
+    }
+    .tipo-camiseta h4 {
+        color: var(--gold-solid); margin-bottom: 1.5rem; font-size: 1.1rem;
+        text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 1rem;
+    }
+    .tamanhos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 1rem; }
+    .tamanho-item { display: flex; flex-direction: column; align-items: center; }
+    .tamanho-item label { margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.8rem; }
+    #formPedido .tamanho-item label { color: #FFFFFF !important; }
+    .tamanho-item input { text-align: center; padding: 0.8rem !important; font-weight: 700; }
+
+    /* HEADER DAS CORES */
+    .cor-header {
+        display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+        padding: 1rem; background: rgba(255,255,255,0.03); border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+    }
+    .cor-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); }
+
+    /* DASHBOARD */
+    .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+    .card-content h4 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    #admin-dashboard .card-content h4, #admin-dashboard .dashboard-details h4, #admin-dashboard .detail-item span { color: #FFFFFF !important; }
+    
+    /* AJUSTE 1: Diminui fonte dos valores para caber no desktop e mobile sem quebrar */
+    .card-value { font-size: clamp(1.3rem, 2vw, 1.7rem); font-weight: 200; color: #fff; white-space: nowrap; } 
+    
+    .pedido-card-expandable { cursor: pointer; transition: background 0.3s ease; }
+    .pedido-card-expandable:hover { background: rgba(255, 255, 255, 0.05); }
+    .pedido-details-content { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); animation: slideDown 0.3s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .tabela-detalhe-pedido { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem; color: #ddd; }
+    .tabela-detalhe-pedido th, .tabela-detalhe-pedido td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
+    .tabela-detalhe-pedido th { color: var(--gold-solid); font-weight: 600; text-transform: uppercase; }
+
+    /* MODAIS */
+    .pedido-confirmacao-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(2, 12, 27, 0.9); backdrop-filter: blur(15px); z-index: 2000;
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0; visibility: hidden; transition: var(--transition);
+    }
+    .pedido-confirmacao-overlay.active { opacity: 1; visibility: visible; }
+    .pedido-confirmacao-card { width: 95%; max-width: 550px; border: 1px solid var(--gold-solid); max-height: 90vh; overflow-y: auto; }
+    
+    #pedidoConfirmacaoNumero {
+        word-break: break-all; overflow-wrap: break-word; white-space: normal;
+        font-size: clamp(1.2rem, 4vw, 2rem) !important; line-height: 1.2; padding: 0 10px;
+    }
+
+    /* IA BUTTON */
+    .btn-ai-magic {
+        background: transparent !important; border: 1px solid var(--border-subtle) !important; color: #fff !important;
+        width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+        border-radius: var(--radius-md); transition: var(--transition);
+    }
+    .btn-ai-magic:hover {
+        border-color: var(--gold-solid) !important; background: rgba(212, 175, 55, 0.05) !important;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+    }
+    .btn-ai-magic i { color: var(--gold-solid); }
+
+    /* LOADER */
+    .loading-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--bg-body); z-index: 3000;
+        display: flex; justify-content: center; align-items: center; flex-direction: column;
+        opacity: 0; visibility: hidden; transition: var(--transition);
+    }
+    .loading-overlay.active { opacity: 1; visibility: visible; }
+    .spinner-gold {
+        width: 50px; height: 50px; border-radius: 50%;
+        border: 2px solid rgba(212, 175, 55, 0.1); border-top-color: var(--gold-solid);
+        animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* ADMIN MENU */
+    .admin-menu { display: flex; gap: 2rem; border-bottom: 1px solid var(--border-subtle); margin-bottom: 2rem; overflow-x: auto; }
+    .admin-menu-btn {
+        background: transparent; border: none; color: var(--text-muted);
+        padding: 1rem 0; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+        transition: var(--transition); border-bottom: 2px solid transparent; white-space: nowrap;
+    }
+    .admin-menu-btn:hover { color: #fff; }
+    .admin-menu-btn.active { color: var(--gold-solid); border-bottom-color: var(--gold-solid); }
+
+    /* ESTILO PARA TABELA DE LIQUIDAÇÕES */
+    .hist-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+    .hist-table th, .hist-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
+    .hist-table th { color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
+    .hist-table td { color: #fff; }
+
     /* ESTILOS ESPECÍFICOS PARA OS BOTÕES DO MODAL DE DETALHES (Regra 4) */
     #modalDetalhesPedido .modal-actions {
         display: flex; gap: 1rem; margin-top: 2rem; 
@@ -328,34 +552,34 @@
         
         /* Reduz o espaçamento e garante que caiba em uma linha */
         .filter-container { 
-            flex-direction: row; 
-            justify-content: flex-start; /* Alinha à esquerda para economizar espaço */
-            gap: 0.3rem; /* Reduz o gap entre os elementos (ajustado de 0.5rem para 0.3rem) */
-            flex-wrap: nowrap; /* Evita quebra de linha */
-            overflow-x: auto; /* Adiciona scroll horizontal se for o caso extremo */
+            display: flex; /* Garante que os itens fiquem lado a lado */
+            justify-content: flex-start; 
+            gap: 0.2rem; /* Reduz o gap entre os elementos */
+            flex-wrap: nowrap; 
+            overflow-x: auto; 
             padding-bottom: 5px; 
             padding-right: 5px;
         }
 
         /* Reduz o tamanho do rádio e o padding do rótulo para economizar espaço */
         .filter-radio {
-             /* Reduz o padding para diminuir a largura total do elemento (ajustado de 0.4rem 0.6rem para 0.3rem 0.5rem) */
-             padding: 0.3rem 0.5rem; 
-             font-size: 0.75rem; /* Leve redução na fonte */
-             white-space: nowrap; /* Garante que o texto de cada filtro não quebre */
+             /* Reduz o padding para diminuir a largura total do elemento */
+             padding: 0.2rem 0.4rem; /* Redução mais agressiva no padding */
+             font-size: 0.75rem; 
+             white-space: nowrap; 
         }
         
         /* Reduz o tamanho da bolinha do radio button para o mobile */
         .filter-radio input { 
-            width: 13px !important; 
-            height: 13px !important; 
-            margin-right: 0.2rem; /* Reduz margem interna do rádio */
+            width: 12px !important; /* Tamanho final ajustado (12px) */
+            height: 12px !important; 
+            margin-right: 0.1rem; /* Redução máxima na margem interna do rádio */
         }
 
         .filter-container > span {
              white-space: nowrap; 
-             margin-right: 0.1rem; /* Reduzido para economizar espaço */
-             font-size: 0.75rem; /* Leve redução na fonte para o rótulo */
+             margin-right: 0.1rem; 
+             font-size: 0.75rem; 
         }
         
         /* Layout Geral (mantido e ajustado) */
