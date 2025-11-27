@@ -318,11 +318,332 @@
         border-color: var(--gold-solid); 
         color: var(--gold-solid); 
     }
+    
+    /* =========================================
+       TELA INICIAL MOBILE (SPLASH SCREEN)
+       ========================================= */
+    #mobileSplashScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-body);
+        z-index: 4000; 
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        overflow: hidden;
+        
+        /* Controle de visibilidade via classe JS */
+        display: none; 
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+    }
+    
+    #mobileSplashScreen.active {
+        opacity: 1;
+        visibility: visible;
+        display: flex; 
+    }
 
+    #splashVideo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        object-fit: cover; 
+        filter: brightness(0.5); 
+    }
+
+    /* Reposicionamento e centralização do conteúdo (botão/loader) */
+    #splashContent {
+        position: fixed; 
+        bottom: 60px; /* SUBINDO BOTÃO PARA 60PX DO FUNDO */
+        left: 0;
+        right: 0;
+        z-index: 2;
+        text-align: center;
+        width: 100%;
+        padding: 0 20px; /* Adiciona padding lateral para os textos */
+    }
+
+    /* Estilos para o bloco de texto (NOVO LAYOUT) */
+    #splashTextContainer {
+        position: fixed;
+        bottom: 140px; /* SUBINDO TEXTO PARA 140PX DO FUNDO */
+        left: 0;
+        right: 0;
+        z-index: 2;
+        text-align: left; /* Alinhamento conforme imagem */
+        padding: 0 40px; /* Espaçamento lateral */
+        color: #fff;
+    }
+    #splashTitle {
+        font-family: 'Manrope', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+    }
+    #splashSubtitle {
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.4;
+    }
+
+
+    /* =========================================
+       NOVOS ESTILOS DO BOTÃO E LOADER
+       ========================================= */
+
+    /* ESTILO NOVO DO BOTÃO (Dourado Metálico) */
+    .button {
+        width: 250px; 
+        height: 50px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        
+        /* CORREÇÃO AQUI: USANDO GRADIENTE DOURADO */
+        background: var(--gold-metallic); 
+        
+        border-radius: 30px;
+        color: #020c1b; /* Texto na cor do fundo para contraste */
+        font-weight: 700;
+        border: none;
+        position: relative;
+        cursor: pointer;
+        transition-duration: .2s;
+        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+        padding: 0 16px; 
+        transition-duration: .5s;
+        margin: 0 auto; /* Centraliza o botão */
+    }
+    .button .text {
+        font-family: 'Manrope', sans-serif; 
+        font-size: 0.95rem; 
+        letter-spacing: 1px;
+    }
+    .svgIcon {
+        height: 25px;
+        transition-duration: 1.5s;
+        display: none; 
+    }
+    .bell path {
+        fill: rgb(19, 19, 19);
+    }
+    .button:hover {
+        background-color: var(--gold-solid); /* Dourado sólido no hover */
+        transition-duration: .5s;
+        transform: translateY(-2px); /* Efeito do btn-primary */
+        box-shadow: 0 7px 15px rgba(212, 175, 55, 0.4);
+    }
+    .button:active {
+        transform: scale(0.97);
+        transition-duration: .2s;
+    }
+    .button:hover .svgIcon {
+        transform: rotate(250deg);
+        transition-duration: 1.5s;
+    }
+
+    /* ESTILO NOVO DO LOADER (EXATO DO USUÁRIO) - AJUSTADO PARA SER RELATIVO AO splashContent */
+    .loader {
+      position: absolute; 
+      top: 5px; 
+      left: 50%;
+      transform: translateX(-50%);
+      animation: speeder 0.4s linear infinite;
+      display: none; 
+      width: 150px; 
+      height: 50px;
+      margin: 0; 
+    }
+    .loader.active {
+      display: block;
+    }
+    /* Ajustando as posições internas para centralizar o loader */
+    .loader > span {
+      height: 5px;
+      width: 35px;
+      background: #fff; /* Alterado para branco para contraste */
+      position: absolute;
+      top: 15px; 
+      left: 50%;
+      margin-left: -50px;
+      border-radius: 2px 10px 1px 0;
+    }
+    .base {
+        position: relative; 
+    }
+    .base span {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-right: 100px solid #fff; 
+      border-bottom: 6px solid transparent;
+      left: -50px;
+      top: 25px;
+    }
+    .base span:before {
+      content: "";
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: #fff; 
+      position: absolute;
+      right: -110px;
+      top: -16px;
+    }
+    .base span:after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 0 solid transparent;
+      border-right: 55px solid #fff; 
+      border-bottom: 16px solid transparent;
+      top: -16px;
+      right: -98px;
+    }
+    .face {
+      position: absolute;
+      height: 12px;
+      width: 20px;
+      background: #fff; 
+      border-radius: 20px 20px 0 0;
+      transform: rotate(-40deg);
+      right: -125px;
+      top: -15px;
+    }
+    .face:after {
+      content: "";
+      height: 12px;
+      width: 12px;
+      background: #fff; 
+      right: 4px;
+      top: 7px;
+      position: absolute;
+      transform: rotate(40deg);
+      transform-origin: 50% 50%;
+      border-radius: 0 0 0 2px;
+    }
+    .loader > span > span:nth-child(1),.loader > span > span:nth-child(2),.loader > span > span:nth-child(3),.loader > span > span:nth-child(4) {
+      width: 30px;
+      height: 1px;
+      background: #fff; 
+      position: absolute;
+      animation: fazer1 0.2s linear infinite;
+    }
+    .loader > span > span:nth-child(2) {
+      top: 3px;
+      animation: fazer2 0.4s linear infinite;
+    }
+    .loader > span > span:nth-child(3) {
+      top: 1px;
+      animation: fazer3 0.4s linear infinite;
+      animation-delay: -1s;
+    }
+    .loader > span > span:nth-child(4) {
+      top: 4px;
+      animation: fazer4 1s linear infinite;
+      animation-delay: -1s;
+    }
+    @keyframes fazer1 {
+      0% { left: 0; }
+      100% { left: -80px; opacity: 0; }
+    }
+    @keyframes fazer2 {
+      0% { left: 0; }
+      100% { left: -100px; opacity: 0; }
+    }
+    @keyframes fazer3 {
+      0% { left: 0; }
+      100% { left: -50px; opacity: 0; }
+    }
+    @keyframes fazer4 {
+      0% { left: 0; }
+      100% { left: -150px; opacity: 0; }
+    }
+    @keyframes speeder {
+      0% { transform: translate(2px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -3px) rotate(-1deg); }
+      20% { transform: translate(-2px, 0px) rotate(1deg); }
+      30% { transform: translate(1px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 3px) rotate(-1deg); }
+      60% { transform: translate(-1px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-2px, -1px) rotate(1deg); }
+      90% { transform: translate(2px, 1px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+    .longfazers {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    .longfazers span {
+      position: absolute;
+      height: 2px;
+      width: 20%;
+      background: #fff; 
+    }
+    .longfazers span:nth-child(1) {
+      top: 20%;
+      animation: lf 0.6s linear infinite;
+      animation-delay: -5s;
+    }
+    .longfazers span:nth-child(2) {
+      top: 40%;
+      animation: lf2 0.8s linear infinite;
+      animation-delay: -1s;
+    }
+    .longfazers span:nth-child(3) {
+      top: 60%;
+      animation: lf3 0.6s linear infinite;
+    }
+    .longfazers span:nth-child(4) {
+      top: 80%;
+      animation: lf4 0.5s linear infinite;
+      animation-delay: -3s;
+    }
+    @keyframes lf {
+      0% { left: 200%; }
+      100% { left: -200%; opacity: 0; }
+    }
+    @keyframes lf2 {
+      0% { left: 200%; }
+      100% { left: -200%; opacity: 0; }
+    }
+    @keyframes lf3 {
+      0% { left: 200%; }
+      100% { left: -100%; opacity: 0; }
+    }
+    @keyframes lf4 {
+      0% { left: 200%; }
+      100% { left: -100%; opacity: 0; }
+    }
 
     /* =========================================
        MOBILE RESPONSIVENESS
        ========================================= */
+    @media (max-width: 767px) {
+        /* Garante que o splash screen esteja escondido no desktop */
+        #mobileSplashScreen:not(.active) {
+            display: none !important;
+        }
+    }
+    
     @media (max-width: 480px) {
         /* *** AJUSTES PARA MELHORAR O FILTRO EM TELAS PEQUENAS (SOLICITAÇÃO DO USUÁRIO) *** */
         
@@ -399,38 +720,80 @@
 </head>
 <body>
 
+  <!-- TELA INICIAL EXCLUSIVA PARA MOBILE -->
+  <div id="mobileSplashScreen">
+    <video id="splashVideo" autoplay loop muted playsinline>
+        <source src="https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/aberturasite.mp4" type="video/mp4">
+        Seu navegador não suporta a tag de vídeo.
+    </video>
+    
+    <!-- NOVO BLOCO DE TEXTO -->
+    <div id="splashTextContainer">
+        <h1 id="splashTitle">PEDIDOS DE CAMISETA</h1>
+        <p id="splashSubtitle">Registre aqui os pedidos de camisetas para o Jubileu de Ouro da UMADEMATS</p>
+    </div>
+    
+    <div id="splashContent">
+        <!-- BOTÃO ACESSAR SISTEMA (NOVO ESTILO) -->
+        <button id="btnAcessarSistema" class="button">
+          <!-- Oculta o ícone SVG e centraliza o texto -->
+          <span class="text">ACESSAR O SISTEMA</span>
+        </button>
+
+        <!-- LOADER OCULTO -->
+        <div id="splashLoader" class="loader">
+            <span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <div class="base">
+              <span></span>
+              <div class="face"></div>
+            </div>
+            <div class="longfazers">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- FIM TELA INICIAL MOBILE -->
+
   <div id="beams-container"><canvas id="beams-canvas"></canvas><div class="beams-overlay"></div></div>
 
   <div id="loadingOverlay" class="loading-overlay">
     <div class="spinner-gold"></div>
     <div id="loadingText" style="margin-top:1.5rem; font-size:0.9rem; letter-spacing:2px; color:var(--text-muted);">CARREGANDO</div>
   </div>
-
-  <!-- NOVO MODAL: CONFIRMAÇÃO DE EXCLUSÃO DE PEDIDO -->
+  
+  <!-- MODAL DE EXCLUSÃO DE PEDIDO -->
   <div id="modalExcluirPedido" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
           <div style="font-size:2.5rem; color:var(--danger-color); margin-bottom:1rem;"><i class="fas fa-trash-alt"></i></div>
-          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Confirmação Necessária</h2>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Excluir Pedido?</h2>
           <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Tem certeza que deseja excluir este pedido? Essa ação não poderá ser desfeita.</p>
-          <input type="hidden" id="docIdParaExcluir">
+          <input type="hidden" id="excluirPedidoDocId">
           <div style="display:flex; gap:1rem;">
               <button onclick="document.getElementById('modalExcluirPedido').classList.remove('active')" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
-              <button id="btnConfirmarExclusao" class="btn-primary" style="flex:1; background:var(--danger-color);">Excluir Pedido</button>
+              <button id="btnConfirmarExclusao" class="btn-primary" style="flex:1; background:var(--danger-color); color:#fff;">Excluir Pedido</button>
           </div>
       </div>
   </div>
-  
-  <!-- NOVO MODAL: CONFIRMAÇÃO DE ENCERRAMENTO DE EVENTO -->
+
+  <!-- MODAL DE ENCERRAMENTO DE EVENTO -->
   <div id="modalEncerrarEvento" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:500px; text-align:center;">
           <div style="font-size:2.5rem; color:var(--danger-color); margin-bottom:1rem;"><i class="fas fa-exclamation-triangle"></i></div>
-          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">ENCERRAR EVENTO?</h2>
-          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Tem certeza que deseja **ENCERRAR** o evento?
-
-NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Encerrar Evento?</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem; font-weight:700;">NÃO SE ESQUEÇA DE GERAR OS RELATÓRIOS ANTES DE ENCERRAR.</p>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Tem certeza que deseja ENCERRAR o evento? Todos os pedidos serão removidos do sistema.</p>
           <div style="display:flex; gap:1rem;">
               <button onclick="document.getElementById('modalEncerrarEvento').classList.remove('active')" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
-              <button id="btnConfirmarEncerramento" class="btn-primary" style="flex:1; background:var(--danger-color);">Encerrar Evento</button>
+              <button id="btnConfirmarEncerrarEvento" class="btn-primary" style="flex:1; background:var(--danger-color); color:#fff;">Encerrar Evento</button>
           </div>
       </div>
   </div>
@@ -841,10 +1204,10 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         <button class="back-button" id="voltarHome3"><i class="fas fa-arrow-left"></i> Voltar</button>
         <div id="loginAdmin" class="modern-form" style="max-width:450px; margin:3rem auto;">
             <div style="text-align:center; margin-bottom:2rem;"><h2 style="margin-bottom:0.5rem;">Acesso Restrito</h2><p style="color:var(--text-muted);">Apenas pessoal autorizado</p></div>
-            <form id="formLoginAdmin" style="text-align: center;">
+            <form id="formLoginAdmin" style="text-align:center;">
                 <div class="form-group"><label>E-mail Administrativo</label><input type="email" id="emailAdmin" required placeholder="admin@umademats.com.br"></div>
                 <div class="form-group"><label>Senha de Administrador</label><div style="position:relative;"><input type="password" id="senhaAdmin" required style="padding-right:40px !important;"><button type="button" onclick="window.togglePasswordVisibility('senhaAdmin', this.querySelector('i'))" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer;"><i class="fas fa-eye"></i></button></div></div>
-                <button type="submit" class="btn-primary" style="width:100; margin-top:1rem;">Entrar no Sistema</button>
+                <button type="submit" class="btn-primary" style="width:100%; margin-top:1rem;">Entrar no Sistema</button>
             </form>
             <div id="mensagemLogin"></div>
         </div>
@@ -927,10 +1290,8 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
                         <input type="number" id="valorCamisetaInput" step="0.01" style="width:120px;">
                         <button id="btnSalvarValor" class="btn-primary" type="button" style="padding:0.8rem 1.5rem; font-size:0.8rem; display:flex; justify-content:center; align-items:center;">SALVAR</button>
                     </div>
-                    <!-- NOVO BOTÃO ENCERRAR EVENTO -->
-                    <button id="btnEncerrarEvento" class="btn-primary" type="button" style="background:var(--danger-color); width: 100%; padding:0.8rem 1.5rem;">
-                        <i class="fas fa-fire-extinguisher" style="margin-right: 5px;"></i> ENCERRAR EVENTO
-                    </button>
+                    <!-- BOTÃO ENCERRAR EVENTO ADICIONADO AQUI -->
+                    <button id="btnEncerrarEventoAction" class="btn-primary" type="button" style="width:100%; background:var(--danger-color); color:#fff; margin-top: 1rem;">ENCERRAR EVENTO</button>
                 </div>
                 <div class="card"><h4 style="margin-bottom:1.5rem;">Por Setor / Localidade</h4><div id="resumoEventoLocais"></div></div>
             </div>
@@ -950,7 +1311,7 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
                         <input type="text" id="buscaInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;">
                     </div>
                     <div class="filter-container">
-                        <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase;">LOCAL:</span>
+                        <span style="color:var(--text-muted); text-transform:uppercase;">LOCAL:</span>
                         <label class="filter-radio"><input type="radio" name="filtroLocal" value="todos" checked> <span>Todos</span></label>
                         <label class="filter-radio"><input type="radio" name="filtroLocal" value="Capital"> <span>Capital</span></label>
                         <label class="filter-radio"><input type="radio" name="filtroLocal" value="Interior"> <span>Interior</span></label>
@@ -998,7 +1359,6 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
   <script type="module">
-    // FIREBASE CONFIG (Mantida)
    const firebaseConfig = {
       apiKey: "AIzaSyDmYkZZ35rc--NPXdhSI0Bo7GzVvtLVFkE",
       authDomain: "pedidosumademats.firebaseapp.com",
@@ -1012,11 +1372,10 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
     let PRECO_CAMISETA = 30.00; 
     let SISTEMA_ABERTO = true; 
     let pedidoDoModal = null; // Variável global para armazenar o pedido exibido no modal
-    window.adminAcessouPainel = false; // Flag para controlar o primeiro acesso ao painel
+    let pedidoParaExcluir = null; // Variável global para exclusão
 
-    // IMPORTS DO FIREBASE (Adicionado deleteDoc, writeBatch)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
@@ -1030,6 +1389,86 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
     const configSistemaRef = doc(db, "configuracoes", "sistema");
 
     let currentPedidoParaEdicao = null;
+    window.adminAcessouPainel = false;
+
+    // ===============================================
+    // FUNÇÕES DA TELA INICIAL MÓVEL
+    // ===============================================
+
+    window.handleAccessAndLoading = function() {
+        const btn = document.getElementById('btnAcessarSistema');
+        const loader = document.getElementById('splashLoader');
+
+        // LOG: Início do processo de acesso e loading.
+        console.log("LOG: Splash Screen - Início do processo de loading.");
+
+        // 1. Esconder botão, exibir loader
+        btn.style.display = 'none';
+        loader.style.display = 'block'; // Garante que o loader apareça
+        loader.classList.add('active'); 
+
+        // 2. Aguardar 2 segundos e sumir com o splash
+        setTimeout(() => {
+            const splashScreen = document.getElementById('mobileSplashScreen');
+            const header = document.querySelector('header');
+            const main = document.querySelector('main');
+            const footer = document.querySelector('footer');
+
+            // LOG: 2 segundos passados. Removendo splash e exibindo sistema.
+            console.log("LOG: Splash Screen - Loading concluído. Exibindo sistema principal.");
+
+
+            splashScreen.classList.remove('active');
+            
+            // 3. Remover a ocultação do conteúdo principal
+            header.style.display = '';
+            main.style.display = '';
+            footer.style.display = '';
+
+            // Oculta o loader e exibe o botão para próxima vez (se houver)
+            loader.classList.remove('active');
+            loader.style.display = 'none'; // Esconde o loader
+            btn.style.display = 'flex'; 
+
+        }, 2000); // 2 segundos de loading
+    };
+
+    const checkAndShowSplash = () => {
+        const splashScreen = document.getElementById('mobileSplashScreen');
+        const video = document.getElementById('splashVideo');
+        const header = document.querySelector('header');
+        const main = document.querySelector('main');
+        const footer = document.querySelector('footer');
+
+        // A tela inicial deve aparecer apenas em mobile (largura < 768px)
+        if (window.innerWidth >= 768) {
+            splashScreen.style.display = 'none'; // Garante que esteja oculto no desktop
+            // LOG: Desktop detectado. Splash oculto. Sistema visível.
+            console.log("LOG: Splash Screen - Desktop detectado. Exibição direta.");
+            return;
+        }
+
+        // Se for Mobile, exibir o splash e ocultar o conteúdo principal.
+        splashScreen.classList.add('active'); // Para ativar a transição e o display: flex
+        
+        // Oculta o conteúdo principal para mostrar apenas o splash
+        header.style.display = 'none';
+        main.style.display = 'none';
+        footer.style.display = 'none';
+        
+        // LOG: Mobile detectado. Exibindo Splash e ocultando sistema principal.
+        console.log("LOG: Splash Screen - Mobile detectado. Exibindo tela inicial.");
+
+        // Tenta garantir que o vídeo comece a tocar em mobile
+        if (video) {
+            video.play().catch(e => console.log('Video auto-play blocked:', e));
+        }
+    };
+
+
+    // ===============================================
+    // FUNÇÕES DE AUTENTICAÇÃO E INICIALIZAÇÃO
+    // ===============================================
 
     (function initBeamsBackground() {
         const canvas = document.getElementById('beams-canvas');
@@ -1070,48 +1509,17 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 if (!user.isAnonymous) {
-                    // Usuário logado, mas não redireciona automaticamente (Regra 🔒)
+                    // Usuário logado. Apenas inicia monitores.
                     iniciarMonitoramentoPreco();
                     iniciarMonitoramentoSistema();
-
                 } else {
                     // Usuário Anônimo. Garante que os monitores estejam rodando.
-                    const loginDiv = document.getElementById('loginAdmin');
                     const painelDiv = document.getElementById('painelAdmin');
-                    if (loginDiv && painelDiv) {
-                        painelDiv.style.display = 'none'; 
-                    }
+                    if (painelDiv) { painelDiv.style.display = 'none'; }
                     iniciarMonitoramentoPreco();
                     iniciarMonitoramentoSistema();
                 }
-            } else { 
-                // Tenta logar anonimamente se não houver usuário.
-                signInAnonymously(auth).catch(console.error); 
-            }
-        });
-    };
-    
-    // Função acionada ao CLICAR no botão "Área Administrativa"
-    window.handleAdminAccessClick = function() {
-        window.redirecionarComAnimacao('admin', async () => {
-            const user = auth.currentUser;
-            const loginDiv = document.getElementById('loginAdmin');
-            const painelDiv = document.getElementById('painelAdmin');
-            
-            if (user && !user.isAnonymous) {
-                // Usuário logado (não anônimo) -> Libera acesso imediato ao painel
-                loginDiv.style.display = 'none';
-                painelDiv.style.display = 'block';
-                
-                if (!window.adminAcessouPainel) {
-                    window.carregarDashboard();
-                    window.adminAcessouPainel = true;
-                }
-            } else {
-                // Usuário não logado (anônimo) -> Mostra a tela de login
-                loginDiv.style.display = 'block';
-                painelDiv.style.display = 'none';
-            }
+            } else { signInAnonymously(auth).catch(console.error); }
         });
     };
     
@@ -1145,6 +1553,7 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
                     PRECO_CAMISETA = novoPreco;
                     const valInput = document.getElementById('valorCamisetaInput');
                     if (valInput && document.activeElement !== valInput) { valInput.value = PRECO_CAMISETA.toFixed(2); }
+                    // Verifica se o painel está visível antes de carregar o dashboard
                     if (document.getElementById('painelAdmin').style.display === 'block') { window.carregarDashboard(); window.carregarDetalhesEvento(); }
                 } else {
                     const valInput = document.getElementById('valorCamisetaInput');
@@ -1816,20 +2225,23 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         const senha = document.getElementById('senhaAdmin').value;
         
         window.mostrarCarregamento(true, "AUTENTICANDO...");
+        console.log("LOG: Tentativa de Login Admin iniciada para:", email); // LOG DE DEBUG
+
         try { 
             await signInWithEmailAndPassword(auth, email, senha); 
             
-            // Após o login manual, o onAuthStateChanged é acionado, mas não redireciona mais.
-            // Precisamos ativar a exibição do painel aqui.
+            console.log("LOG: Login Firebase BEM-SUCEDIDO."); // LOG DE DEBUG
+            
             document.getElementById('loginAdmin').style.display = 'none'; 
             document.getElementById('painelAdmin').style.display = 'block'; 
             
-            // Carrega o dashboard e marca que o admin já acessou
+            console.log("LOG: Painel Admin exibido após login manual."); // LOG DE DEBUG
+
             window.carregarDashboard();
             window.adminAcessouPainel = true;
 
         } catch (error) { 
-            console.error("Erro login:", error); 
+            console.error("LOG: Erro no login Firebase:", error.code, error.message); // LOG DE DEBUG
             document.getElementById('modalErroLogin').classList.add('active'); 
         } finally { 
             window.mostrarCarregamento(false); 
@@ -1895,41 +2307,44 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         else { detailsDiv.style.display = 'none'; icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-right'); }
     };
 
-    // FUNÇÃO 1: EXCLUIR PEDIDO (Abre o modal de confirmação)
+    // FUNÇÃO QUE ABRE O MODAL DE CONFIRMAÇÃO DE EXCLUSÃO
     window.abrirModalExcluirPedido = function(docId) {
-        document.getElementById('docIdParaExcluir').value = docId;
+        pedidoParaExcluir = docId;
+        document.getElementById('excluirPedidoDocId').value = docId;
         document.getElementById('modalExcluirPedido').classList.add('active');
     };
-
-    // FUNÇÃO 1: EXCLUIR PEDIDO (Ação final)
-    window.confirmarExclusaoPedido = async function() {
-        const docId = document.getElementById('docIdParaExcluir').value;
+    
+    // FUNÇÃO PARA EXCLUIR O PEDIDO NO FIREBASE
+    window.excluirPedido = async function() {
+        const docId = document.getElementById('excluirPedidoDocId').value;
         if (!docId) return;
 
         document.getElementById('modalExcluirPedido').classList.remove('active');
         window.mostrarCarregamento(true, "EXCLUINDO PEDIDO...");
 
         try {
-            // Ação: Remover o documento do Firebase
             await deleteDoc(doc(db, "pedidos", docId));
             
-            // Recarregar a lista e limpar o cache
-            window.pedidosCache = [];
-            await window.carregarPedidos();
+            // Limpa o cache para forçar a recarga
+            window.pedidosCache = []; 
             
-            // Recarrega o dashboard para atualizar as contagens
+            // Atualiza a lista de pedidos e o dashboard
+            await window.carregarPedidos();
             await window.carregarDashboard();
             
-            window.exibirMensagem('mensagemConsulta', 'sucesso', `Pedido ${docId.substring(0, 5)}... excluído com sucesso.`);
+            window.exibirMensagem('mensagemLogin', 'sucesso', `Pedido #${docId} excluído com sucesso.`);
+            
         } catch (error) {
-            console.error("Erro ao excluir pedido:", error);
-            document.getElementById('modalErroPDF').querySelector('p').textContent = `Erro ao excluir pedido. Código: ${error.code}`;
+            console.error("Erro ao excluir documento: ", error);
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao excluir o pedido. Tente novamente.";
             document.getElementById('modalErroPDF').classList.add('active');
         } finally {
             window.mostrarCarregamento(false);
+            pedidoParaExcluir = null;
         }
     };
-    
+
+
     // FILTRO E BUSCA ATUALIZADOS
     window.carregarPedidos = async function() {
         window.mostrarCarregamento(true);
@@ -1990,10 +2405,7 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
 
             // Encontra o pedido completo no cache, ou usa o objeto iterado (x)
             const pedidoCompleto = window.pedidosCache.find(p => p.docId === x.docId) || x;
-            
-            // JSON.stringify necessário para passar objeto complexo em onclick
-            const pedidoString = JSON.stringify(pedidoCompleto).replace(/"/g, '&quot;');
-            
+
             lista.innerHTML += `
                 <div class="pedido-item pedido-card-expandable" style="margin-bottom:1rem;">
                     <div onclick="window.togglePedidoDetails('${x.docId}')" style="cursor:pointer;">
@@ -2019,14 +2431,14 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
                     <div id="details-${x.docId}" class="pedido-details-content" style="display:none;">
                         <h5 style="color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; font-size:0.75rem; letter-spacing:1px;">Detalhamento do Pedido</h5>
                         ${tabelaHTML}
-                        <div style="margin-top:15px; text-align:right; display: flex; justify-content: flex-end; gap: 10px;">
-                            <!-- Botão de baixar -->
-                            <button onclick="window.gerarPdfPedidoIndividual(${pedidoString})" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
-                                <i class="fas fa-file-pdf"></i> Gerar PDF
+                        <div style="margin-top:15px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                            <!-- Botão de exclusão -->
+                             <button onclick="window.abrirModalExcluirPedido('${x.docId}')" class="btn-primary" style="background:var(--danger-color); color:#fff; padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fas fa-trash-alt"></i> EXCLUIR
                             </button>
-                            <!-- BOTÃO EXCLUIR PEDIDO -->
-                            <button onclick="window.abrirModalExcluirPedido('${x.docId}')" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px; background:var(--danger-color);">
-                                <i class="fas fa-trash"></i> EXCLUIR
+                            <!-- Botão de baixar -->
+                            <button onclick="window.gerarPdfPedidoIndividual(${JSON.stringify(pedidoCompleto).replace(/"/g, '&quot;')})" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">
+                                <i class="fas fa-file-pdf"></i> Gerar PDF
                             </button>
                         </div>
                     </div>
@@ -2133,50 +2545,42 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         document.getElementById('modalFeedbackSucesso').classList.add('active');
     };
 
-    // FUNÇÃO 2: AÇÃO FINAL DE ENCERRAR EVENTO
-    window.confirmarEncerramentoEvento = async function() {
+    // =========================================================================
+    // IMPLEMENTAÇÃO ENCERRAR EVENTO (2/2)
+    // =========================================================================
+    window.encerrarEvento = async function() {
         document.getElementById('modalEncerrarEvento').classList.remove('active');
-        window.mostrarCarregamento(true, "ENCERRANDO EVENTO E APAGANDO DADOS...");
+        window.mostrarCarregamento(true, "ENCERRANDO EVENTO E REMOVENDO PEDIDOS...");
 
         try {
-            // 1. Desabilitar o sistema para novos pedidos
+            // 1. Marcar sistema como fechado (se não estiver)
             await setDoc(configSistemaRef, { aberto: false }, { merge: true });
 
-            // 2. Apagar TODOS os documentos da coleção "pedidos"
-            // Nota: Esta é a única maneira de apagar uma coleção no Firebase client side. 
-            // Buscamos em batches e deletamos.
-            const batch = writeBatch(db);
-            const q = query(pedidosCollection);
-            const snapshot = await getDocs(q);
-            
-            let deleteCount = 0;
+            // 2. Apagar todos os documentos da coleção 'pedidos'
+            const snapshot = await getDocs(pedidosCollection);
+            const batch = db.batch();
+
             snapshot.docs.forEach((doc) => {
                 batch.delete(doc.ref);
-                deleteCount++;
             });
 
             await batch.commit();
 
-            console.log(`Encerrado! ${deleteCount} pedidos foram apagados.`);
-
-            // 3. Limpar o cache local e forçar recarga do dashboard
+            // 3. Limpar cache e recarregar painel
             window.pedidosCache = [];
-            window.adminAcessouPainel = false;
+            window.mostrarAdminSecao('dashboard'); // Recarrega o dashboard
             
-            await window.carregarDashboard();
-            window.mostrarAdminSecao('dashboard');
+            window.exibirMensagem('mensagemLogin', 'sucesso', `Evento encerrado e ${snapshot.size} pedidos removidos com sucesso.`);
             
-            window.exibirMensagem('mensagemLogin', 'sucesso', `Evento encerrado com sucesso. ${deleteCount} pedidos removidos.`);
-
         } catch (error) {
-            console.error("Erro fatal ao encerrar evento:", error);
-            document.getElementById('modalErroPDF').querySelector('p').textContent = `Erro ao encerrar evento. Detalhes: ${error.message}`;
+            console.error("Erro ao encerrar evento: ", error);
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro fatal ao encerrar o evento. Tente novamente.";
             document.getElementById('modalErroPDF').classList.add('active');
         } finally {
             window.mostrarCarregamento(false);
         }
     };
-    
+
 
     // =========================================================================
     // MÓDULO PAGAMENTOS (ANTIGO PENDÊNCIAS FINANCEIRAS)
@@ -2531,11 +2935,49 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         document.getElementById('modalErroPDF').classList.add('active');} finally { window.mostrarCarregamento(false); }
     };
 
+    // Função acionada ao CLICAR no botão "Área Administrativa"
+    window.handleAdminAccessClick = function() {
+        console.log("LOG: Botão 'Área Administrativa' clicado."); // LOG DE DEBUG
+        window.redirecionarComAnimacao('admin', async () => {
+            const user = auth.currentUser;
+            const loginDiv = document.getElementById('loginAdmin');
+            const painelDiv = document.getElementById('painelAdmin');
+            
+            console.log("LOG: Redirecionando para a seção 'admin'. User logado (não anônimo)?", user && !user.isAnonymous); // LOG DE DEBUG
+
+            if (user && !user.isAnonymous) {
+                // Usuário logado (não anônimo) -> Libera acesso imediato ao painel
+                loginDiv.style.display = 'none';
+                painelDiv.style.display = 'block';
+                console.log("LOG: Usuário logado. Exibindo Painel Admin."); // LOG DE DEBUG
+
+                if (!window.adminAcessouPainel) {
+                    window.carregarDashboard();
+                    window.adminAcessouPainel = true;
+                    console.log("LOG: Carregando Dashboard pela primeira vez.");
+                }
+            } else {
+                // Usuário não logado (anônimo) -> Mostra a tela de login
+                loginDiv.style.display = 'block';
+                painelDiv.style.display = 'none';
+                console.log("LOG: Usuário anônimo. Exibindo tela de Login."); // LOG DE DEBUG
+            }
+        });
+    };
+
+
     document.addEventListener('DOMContentLoaded', () => {
         const safeOnClick = (id, handler) => { const el = document.getElementById(id); if(el) el.onclick = handler; };
         const safeOnSubmit = (id, handler) => { const el = document.getElementById(id); if(el) el.onsubmit = handler; };
         const safeOnChange = (id, handler) => { const el = document.getElementById(id); if(el) el.onchange = handler; };
-
+        
+        // === CORREÇÃO TELA INICIAL MÓVEL ===
+        checkAndShowSplash();
+        
+        // Manipula o clique para iniciar o loading e liberar o sistema
+        safeOnClick('btnAcessarSistema', window.handleAccessAndLoading); 
+        // ===================================
+        
         // ============================================
         // 2 — MÁSCARA AUTOMÁTICA DE CELULAR (MANTIDA)
         // ============================================
@@ -2585,10 +3027,9 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         safeOnClick('btnNovoPedido', () => { if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; } window.setupNovoPedido(); window.redirecionarComAnimacao('pedido'); });
         safeOnClick('btnConsultarPedido', () => { window.redirecionarComAnimacao('consultar'); });
         
-        // *** MUDANÇA APLICADA AQUI: BOTÃO ÁREA ADMINISTRATIVA ***
+        // *** BOTÃO ÁREA ADMINISTRATIVA ***
         safeOnClick('btnAdministrador', window.handleAdminAccessClick);
-        // *** FIM DA MUDANÇA ***
-
+        
         safeOnClick('voltarHome1', () => window.redirecionarComAnimacao('home'));
         safeOnClick('voltarHomeConsulta', () => window.redirecionarComAnimacao('home'));
         safeOnClick('voltarHome3', () => window.redirecionarComAnimacao('home'));
@@ -2628,11 +3069,9 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         // LISTENERS DO MÓDULO EVENTO (Antigo Financeiro)
         safeOnClick('btnEvento', () => window.mostrarAdminSecao('evento'));
         safeOnClick('atualizarEvento', window.recarregarDetalhesEventoComFeedback);
+        safeOnClick('btnEncerrarEventoAction', () => { document.getElementById('modalEncerrarEvento').classList.add('active'); });
+        safeOnClick('btnConfirmarEncerrarEvento', window.encerrarEvento);
 
-        // LISTENERS DA NOVA FUNÇÃO ENCERRAR EVENTO
-        safeOnClick('btnEncerrarEvento', () => { document.getElementById('modalEncerrarEvento').classList.add('active'); });
-        safeOnClick('btnConfirmarEncerramento', window.confirmarEncerramentoEvento);
-        
         // LISTENERS DO MÓDULO PAGAMENTOS (Antigo Pendências Financeiras)
         safeOnClick('btnPagamentos', () => window.mostrarAdminSecao('pagamentos'));
         safeOnClick('atualizarPagamentos', window.recarregarPagamentosComFeedback); // Chamando função com feedback
@@ -2652,9 +3091,8 @@ NÃO SE ESQUEÇA DE **GERAR OS RELATÓRIOS** ANTES DE ENCERRAR.</p>
         safeOnClick('btnConfirmarLiquidacao', window.confirmarLiquidacao);
         safeOnClick('btnCancelarLiquidacao', window.cancelarUltimaLiquidacao);
 
-        // LISTENERS DA NOVA FUNÇÃO EXCLUIR PEDIDO
-        safeOnClick('btnConfirmarExclusao', window.confirmarExclusaoPedido);
-
+        // LISTENERS DO MODAL DE EXCLUSÃO DE PEDIDO
+        safeOnClick('btnConfirmarExclusao', window.excluirPedido);
 
         safeOnChange('radioCapital', () => window.updateSetorCidadeInput());
         safeOnChange('radioInterior', () => window.updateSetorCidadeInput());
