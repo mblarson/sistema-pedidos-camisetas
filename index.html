@@ -1373,7 +1373,8 @@
     let SISTEMA_ABERTO = true; 
     let pedidoDoModal = null; // Variável global para armazenar o pedido exibido no modal
     let pedidoParaExcluir = null; // Variável global para exclusão
-
+    let ultimoDocumentoCarregado = null; // Controle para o botão Expandir
+    
     // --- COLE AQUI O CÓDIGO ABAIXO ---
     function escapeHTML(str) {
         if (!str) return '';
@@ -1387,7 +1388,7 @@
     // ---------------------------------
     
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc, limit, orderBy, startAfter } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
@@ -2359,105 +2360,173 @@
 
     // FILTRO E BUSCA ATUALIZADOS
 // FILTRO E BUSCA ATUALIZADOS (COM SEGURANÇA APLICADA)
-    window.carregarPedidos = async function() {
-        window.mostrarCarregamento(true);
-        const lista = document.getElementById('listaPedidos'); lista.innerHTML = '';
+// FUNÇÃO DE CARREGAMENTO PAGINADO (10 POR VEZ)
+    window.carregarPedidos = async function(modoExpandir = false) {
+        const btnExpandirExistente = document.getElementById('btnCarregarMais');
+        if (modoExpandir) {
+            window.mostrarCarregamento(true, 'CARREGANDO MAIS...');
+        } else {
+            window.mostrarCarregamento(true, 'BUSCANDO...');
+            // Se não for expansão, limpa tudo para começar do zero
+            document.getElementById('listaPedidos').innerHTML = '';
+            ultimoDocumentoCarregado = null;
+            window.pedidosCache = [];
+            if(btnExpandirExistente) btnExpandirExistente.remove();
+        }
+
+        const lista = document.getElementById('listaPedidos');
         
-        // Obtém valores dos filtros
+        // Filtros
         const termoBusca = document.getElementById('buscaInput').value.toLowerCase().trim();
         const filtroLocal = document.querySelector('input[name="filtroLocal"]:checked').value;
 
-        // Se não houver cache, carrega (forçando a leitura mais recente)
-        window.pedidosCache = await window.carregarTodosPedidos();
-        const p = window.pedidosCache;
+        try {
+            let q;
+            const qtdPorPagina = 10;
 
-        const pedidosFiltrados = p.filter(x => {
-            // Filtro Local
-            if (filtroLocal !== 'todos' && x.local !== filtroLocal) return false;
-            
-            // Filtro Busca (substring em vários campos)
+            // ESTRATÉGIA:
+            // Se tiver busca digitada, infelizmente precisamos buscar com flexibilidade (Query Simples + Filtro JS em lotes maiores seria o ideal, mas aqui faremos busca direta para simplificar).
+            // Se NÃO tiver busca (uso comum), usamos a paginação eficiente do banco.
+
             if (termoBusca) {
-                const searchable = [
-                    x.nome, 
-                    x.numPedido, 
-                    x.setor, 
-                    x.local, 
-                    x.email, 
-                    x.contato,
-                    formatarMoeda(calcularTotalPedido(x) * PRECO_CAMISETA)
-                ].join(' ').toLowerCase();
-                
-                if (!searchable.includes(termoBusca)) return false;
-            }
-            return true;
-        });
-
-        pedidosFiltrados.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(x => {
-            const t = calcularTotalPedido(x);
-            
-            let tabelaHTML = `<table class="tabela-detalhe-pedido"><thead><tr><th>Categoria</th><th>Tamanho</th><th>Qtd</th></tr></thead><tbody>`;
-            const addRows = (cat, obj) => { let rows = ''; Object.entries(obj || {}).forEach(([tam, qtd]) => { if(qtd > 0) rows += `<tr><td>${cat}</td><td>${tam}</td><td>${qtd}</td></tr>`; }); return rows; };
-            
-            if(!x.verdeOliva && !x.terracota) {
-                tabelaHTML += addRows('Infantil', x.infantil); tabelaHTML += addRows('Babylook', x.babylook); tabelaHTML += addRows('Unissex', x.unissex);
+                // MODO BUSCA: Tenta buscar pelo termo (Limitado a 50 para não travar)
+                // Nota: Busca textual exata em NoSQL é limitada. Focaremos em performance.
+                // Se houver busca, ignoramos a paginação complexa e trazemos os matches (limite de segurança).
+                q = query(pedidosCollection, orderBy('data', 'desc'), limit(50));
             } else {
-                if(x.verdeOliva) {
-                    tabelaHTML += addRows('Verde - Inf', x.verdeOliva.infantil);
-                    tabelaHTML += addRows('Verde - Baby', x.verdeOliva.babylook);
-                    tabelaHTML += addRows('Verde - Uni', x.verdeOliva.unissex);
+                // MODO LISTAGEM: Paginação eficiente 10 em 10
+                let constraints = [orderBy('data', 'desc')];
+                
+                if (filtroLocal !== 'todos') {
+                    constraints.push(where('local', '==', filtroLocal));
                 }
-                if(x.terracota) {
-                    tabelaHTML += addRows('Terra - Inf', x.terracota.infantil);
-                    tabelaHTML += addRows('Terra - Baby', x.terracota.babylook);
-                    tabelaHTML += addRows('Terra - Uni', x.terracota.unissex);
+
+                if (modoExpandir && ultimoDocumentoCarregado) {
+                    constraints.push(startAfter(ultimoDocumentoCarregado));
+                }
+
+                constraints.push(limit(qtdPorPagina));
+                q = query(pedidosCollection, ...constraints);
+            }
+
+            const snapshot = await getDocs(q);
+            
+            // Atualiza o cursor para a próxima página
+            if (!snapshot.empty) {
+                ultimoDocumentoCarregado = snapshot.docs[snapshot.docs.length - 1];
+            }
+
+            const novosPedidos = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+            
+            // Se for busca, aplicamos filtro extra no client-side para garantir (já que o termo pode estar no nome, email, etc)
+            let pedidosProcessados = novosPedidos;
+            if (termoBusca) {
+                pedidosProcessados = novosPedidos.filter(x => {
+                    const searchable = [x.nome, x.numPedido, x.setor, x.local, x.email, x.contato].join(' ').toLowerCase();
+                    return searchable.includes(termoBusca);
+                });
+            }
+
+            // Renderização
+            if (pedidosProcessados.length === 0 && !modoExpandir) {
+                lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">Nenhum pedido encontrado.</p>`;
+            } else {
+                pedidosProcessados.forEach(x => {
+                    const t = calcularTotalPedido(x);
+                    
+                    let tabelaHTML = `<table class="tabela-detalhe-pedido"><thead><tr><th>Categoria</th><th>Tamanho</th><th>Qtd</th></tr></thead><tbody>`;
+                    const addRows = (cat, obj) => { let rows = ''; Object.entries(obj || {}).forEach(([tam, qtd]) => { if(qtd > 0) rows += `<tr><td>${cat}</td><td>${tam}</td><td>${qtd}</td></tr>`; }); return rows; };
+                    
+                    if(!x.verdeOliva && !x.terracota) {
+                        tabelaHTML += addRows('Infantil', x.infantil); tabelaHTML += addRows('Babylook', x.babylook); tabelaHTML += addRows('Unissex', x.unissex);
+                    } else {
+                        if(x.verdeOliva) {
+                            tabelaHTML += addRows('Verde - Inf', x.verdeOliva.infantil);
+                            tabelaHTML += addRows('Verde - Baby', x.verdeOliva.babylook);
+                            tabelaHTML += addRows('Verde - Uni', x.verdeOliva.unissex);
+                        }
+                        if(x.terracota) {
+                            tabelaHTML += addRows('Terra - Inf', x.terracota.infantil);
+                            tabelaHTML += addRows('Terra - Baby', x.terracota.babylook);
+                            tabelaHTML += addRows('Terra - Uni', x.terracota.unissex);
+                        }
+                    }
+                    tabelaHTML += `</tbody></table>`;
+
+                    // Usamos escapeHTML para segurança (já implementado)
+                    const htmlItem = `
+                        <div class="pedido-item pedido-card-expandable" style="margin-bottom:1rem; animation: slideDown 0.3s ease-out;">
+                            <div onclick="window.togglePedidoDetails('${x.docId}')" style="cursor:pointer;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                                    <span style="color:var(--gold-solid); font-weight:700; font-size:1.1rem;">#${escapeHTML(x.numPedido)}</span>
+                                    <i id="icon-${x.docId}" class="fas fa-chevron-right" style="font-size:0.8rem; color:var(--text-muted); transition:0.3s;"></i>
+                                </div>
+                                <div style="margin-bottom:5px; font-size:1rem; font-weight:600; color:#fff;">
+                                    ${t} PÇS - <span style="color:var(--gold-solid);">${formatarMoeda(t * PRECO_CAMISETA)}</span>
+                                </div>
+                                <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:2px;">
+                                    <strong style="color:#fff">${escapeHTML(x.nome)}</strong> | ${escapeHTML(x.local)} - ${escapeHTML(x.setor)}
+                                </div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">
+                                    <i class="fas fa-phone-alt" style="font-size:0.7rem; margin-right:4px;"></i>${escapeHTML(x.contato || 'S/ Contato')}
+                                </div>
+                            </div>
+                            <div id="details-${x.docId}" class="pedido-details-content" style="display:none;">
+                                <h5 style="color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; font-size:0.75rem; letter-spacing:1px;">Detalhamento do Pedido</h5>
+                                ${tabelaHTML}
+                                <div style="margin-top:15px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                                     <button onclick="window.abrirModalExcluirPedido('${x.docId}')" class="btn-primary" style="background:var(--danger-color); color:#fff; padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
+                                        <i class="fas fa-trash-alt"></i> EXCLUIR
+                                    </button>
+                                    <button onclick="window.gerarPdfPedidoIndividual({
+                                        numPedido: '${escapeHTML(x.numPedido)}',
+                                        nome: '${escapeHTML(x.nome)}',
+                                        local: '${escapeHTML(x.local)}',
+                                        setor: '${escapeHTML(x.setor)}',
+                                        email: '${escapeHTML(x.email)}',
+                                        contato: '${escapeHTML(x.contato || '')}',
+                                        data: '${x.data}',
+                                        verdeOliva: ${JSON.stringify(x.verdeOliva || null).replace(/"/g, "&quot;")},
+                                        terracota: ${JSON.stringify(x.terracota || null).replace(/"/g, "&quot;")},
+                                        infantil: ${JSON.stringify(x.infantil || null).replace(/"/g, "&quot;")},
+                                        babylook: ${JSON.stringify(x.babylook || null).replace(/"/g, "&quot;")},
+                                        unissex: ${JSON.stringify(x.unissex || null).replace(/"/g, "&quot;")}
+                                    })" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">
+                                        <i class="fas fa-file-pdf"></i> Gerar PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    lista.insertAdjacentHTML('beforeend', htmlItem);
+                });
+            }
+
+            // Gerenciamento do Botão "Expandir"
+            if (snapshot.docs.length === qtdPorPagina && !termoBusca) {
+                // Se retornou uma página cheia, provavelmente tem mais. Adiciona o botão.
+                if(btnExpandirExistente) btnExpandirExistente.remove(); // Remove o antigo para mover pro final
+                
+                const btnHtml = `
+                    <div id="containerBtnExpandir" style="text-align:center; margin-top:2rem; margin-bottom:4rem;">
+                        <button id="btnCarregarMais" onclick="window.carregarPedidos(true)" class="btn-primary" style="background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); width:100%;">
+                            <i class="fas fa-chevron-down"></i> EXPANDIR LISTA (+10)
+                        </button>
+                    </div>`;
+                lista.insertAdjacentHTML('beforeend', btnHtml);
+            } else {
+                // Se não tem mais ou é busca, remove o botão se existir
+                if(btnExpandirExistente) btnExpandirExistente.remove();
+                if(!termoBusca && pedidosProcessados.length > 0) {
+                    lista.insertAdjacentHTML('beforeend', `<div style="text-align:center; color:var(--text-muted); margin-top:2rem; font-size:0.8rem;">--- Fim da Lista ---</div>`);
                 }
             }
-            tabelaHTML += `</tbody></table>`;
 
-            // Encontra o pedido completo no cache, ou usa o objeto iterado (x)
-            const pedidoCompleto = window.pedidosCache.find(p => p.docId === x.docId) || x;
-
-            // AQUI ESTÁ A MUDANÇA DE SEGURANÇA: Usamos escapeHTML() nos dados do usuário
-            lista.innerHTML += `
-                <div class="pedido-item pedido-card-expandable" style="margin-bottom:1rem;">
-                    <div onclick="window.togglePedidoDetails('${x.docId}')" style="cursor:pointer;">
-                        
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                            <span style="color:var(--gold-solid); font-weight:700; font-size:1.1rem;">#${escapeHTML(x.numPedido)}</span>
-                            <i id="icon-${x.docId}" class="fas fa-chevron-right" style="font-size:0.8rem; color:var(--text-muted); transition:0.3s;"></i>
-                        </div>
-
-                        <div style="margin-bottom:5px; font-size:1rem; font-weight:600; color:#fff;">
-                            ${t} PÇS - <span style="color:var(--gold-solid);">${formatarMoeda(t * PRECO_CAMISETA)}</span>
-                        </div>
-
-                        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:2px;">
-                            <strong style="color:#fff">${escapeHTML(x.nome)}</strong> | ${escapeHTML(x.local)} - ${escapeHTML(x.setor)}
-                        </div>
-
-                        <div style="font-size:0.85rem; color:var(--text-muted);">
-                            <i class="fas fa-phone-alt" style="font-size:0.7rem; margin-right:4px;"></i>${escapeHTML(x.contato || 'S/ Contato')}
-                        </div>
-
-                    </div>
-                    <div id="details-${x.docId}" class="pedido-details-content" style="display:none;">
-                        <h5 style="color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; font-size:0.75rem; letter-spacing:1px;">Detalhamento do Pedido</h5>
-                        ${tabelaHTML}
-                        <div style="margin-top:15px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                             <button onclick="window.abrirModalExcluirPedido('${x.docId}')" class="btn-primary" style="background:var(--danger-color); color:#fff; padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px;">
-                                <i class="fas fa-trash-alt"></i> EXCLUIR
-                            </button>
-                            <button onclick="window.gerarPdfPedidoIndividual(${JSON.stringify(pedidoCompleto).replace(/"/g, '&quot;')})" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; display:inline-flex; align-items:center; gap:8px; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">
-                                <i class="fas fa-file-pdf"></i> Gerar PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
-        });
-        
-        if(pedidosFiltrados.length === 0) lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">Nenhum pedido encontrado para o filtro atual.</p>`;
-        
-        window.mostrarCarregamento(false);
+        } catch (error) {
+            console.error(error);
+            lista.innerHTML = `<p style="color:var(--danger-color); text-align:center;">Erro ao carregar lista. Tente novamente.</p>`;
+        } finally {
+            window.mostrarCarregamento(false);
+        }
     };
 
     window.carregarDetalhesTamanho = async function() {
