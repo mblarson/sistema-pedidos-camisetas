@@ -2342,16 +2342,56 @@
         window.mostrarCarregamento(true, "EXCLUINDO PEDIDO...");
 
         try {
-            await deleteDoc(doc(db, "pedidos", docId));
+         // 1. Pega os dados do pedido ANTES de excluir para saber o que subtrair
+            const docRef = doc(db, "pedidos", docId);
+            const docSnap = await getDoc(docRef);
             
-            // Limpa o cache para forçar a recarga
+            if (!docSnap.exists()) {
+                throw new Error("Pedido não encontrado para exclusão.");
+            }
+            
+            const p = docSnap.data();
+            
+            // 2. Calcula os totais que serão removidos
+            const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+            
+            let qInf = 0, qBaby = 0, qUni = 0;
+            
+            // Soma quantidades (Suporta estrutura nova e antiga)
+            if (p.verdeOliva || p.terracota) {
+                if(p.verdeOliva) { qInf += sum(p.verdeOliva.infantil); qBaby += sum(p.verdeOliva.babylook); qUni += sum(p.verdeOliva.unissex); }
+                if(p.terracota) { qInf += sum(p.terracota.infantil); qBaby += sum(p.terracota.babylook); qUni += sum(p.terracota.unissex); }
+            } else {
+                qInf += sum(p.infantil); qBaby += sum(p.babylook); qUni += sum(p.unissex);
+            }
+            
+            const totalPecas = qInf + qBaby + qUni;
+            const valorTotal = totalPecas * PRECO_CAMISETA;
+
+            // 3. Executa a exclusão e a atualização das estatísticas em Lote (Batch)
+            const batch = writeBatch(db);
+            const estatisticasRef = doc(db, "configuracoes", "estatisticas");
+
+            batch.delete(docRef); // Deleta o pedido
+            
+            // Decrementa os valores no documento de estatísticas
+            batch.set(estatisticasRef, {
+                qtd_pedidos: increment(-1),
+                qtd_camisetas: increment(-totalPecas),
+                valor_total: increment(-valorTotal),
+                qtd_infantil: increment(-qInf),
+                qtd_babylook: increment(-qBaby),
+                qtd_unissex: increment(-qUni)
+            }, { merge: true });
+
+            await batch.commit();
+
+            // 4. Atualiza a interface
             window.pedidosCache = []; 
-            
-            // Atualiza a lista de pedidos e o dashboard
             await window.carregarPedidos();
-            await window.carregarDashboard();
+            await window.carregarDashboard(); // O Dashboard lerá os novos valores atualizados
             
-            window.exibirMensagem('mensagemLogin', 'sucesso', `Pedido #${docId} excluído com sucesso.`);
+            window.exibirMensagem('mensagemLogin', 'sucesso', `Pedido removido e estatísticas atualizadas.`);
             
         } catch (error) {
             console.error("Erro ao excluir documento: ", error);
