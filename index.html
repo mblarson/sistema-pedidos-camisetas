@@ -2287,7 +2287,7 @@
                 window.exibirConfirmacaoPedido(dadosPedido);
             }
 
-            // Executa tudo junto (Atômico)
+          // Executa tudo junto (Atômico)
             await batch.commit();
             
             document.getElementById('formPedido').reset();
@@ -2298,13 +2298,15 @@
                 currentPedidoParaEdicao = null;
                 document.getElementById('pedidoDocId').value = '';
                 document.getElementById('submitButtonText').textContent = 'Confirmar e Enviar';
-            } catch (err) { 
+            }
+
+        } catch (err) { 
             window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); 
             console.error(err); 
         } finally { 
             window.mostrarCarregamento(false); 
         }
- };
+    };
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
         const email = document.getElementById('emailAdmin').value.trim(); 
