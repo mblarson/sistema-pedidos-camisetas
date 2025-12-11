@@ -2154,21 +2154,27 @@
         }
     };
 
+// SALVAMENTO OTIMIZADO COM ESCRITA EM LOTE (BATCH) - ALTA PERFORMANCE
     window.handleFormSubmission = async function(e) {
         e.preventDefault();
         if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; }
 
         const docId = document.getElementById('pedidoDocId').value;
-        const isEditing = !!docId;
+        const isEditing = !!docId; 
+        
+        // BLOQUEIO DE SEGURANÇA PARA ALTA ESCALA
+        if (isEditing) {
+            alert("EM MODO DE ALTA PERFORMANCE: Para alterar um pedido, por favor EXCLUA o pedido antigo e crie um novo. Isso garante a precisão do financeiro.");
+            return;
+        }
+
         const formData = new FormData(document.getElementById('formPedido'));
         const email = formData.get('email').toLowerCase().trim();
         const setor = normalizeString(formData.get('setor'));
         
         if (!isValidEmail(email)) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL INVÁLIDO'); return; }
 
-        // ============================================
-        // 1 — VALIDAÇÃO DE CELULAR OBRIGATÓRIO (NOVO)
-        // ============================================
+        // Validação Celular
         const contatoInput = formData.get('contato');
         const contatoNumeros = contatoInput ? contatoInput.replace(/\D/g, '') : '';
         if (!contatoNumeros || contatoNumeros.length < 11) {
@@ -2177,61 +2183,74 @@
             return;
         }
 
-        if (!isEditing) {
-            const dup = await window.verificarPedidoPorEmail(email);
-            if (dup) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL JÁ TEM PEDIDO'); return; }
-        }
+        // Validação Duplicidade
+        const dup = await window.verificarPedidoPorEmail(email);
+        if (dup) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL JÁ TEM PEDIDO'); return; }
         
-        const setorOriginal = currentPedidoParaEdicao ? normalizeString(currentPedidoParaEdicao.setor) : null;
-        if (!isEditing || setor !== setorOriginal) {
-            const dupSetor = await window.verificarPedidoPorSetor(setor);
-            if (dupSetor && (isEditing ? dupSetor.docId !== docId : true)) { window.exibirMensagem('mensagemPedido', 'erro', 'SETOR JÁ TEM PEDIDO'); return; }
-        }
+        // Calcular Totais para atualizar os contadores
+        const getQtd = (prefix) => getQuantidadesFromForm(formData, prefix);
+        const vInf = getQtd('verde_infantil'); const vBaby = getQtd('verde_babylook'); const vUni = getQtd('verde_unissex');
+        const tInf = getQtd('terracota_infantil'); const tBaby = getQtd('terracota_babylook'); const tUni = getQtd('terracota_unissex');
         
-        const totalInputs = Array.from(document.getElementById('formPedido').querySelectorAll('input[type="number"]')).reduce((sum, i) => sum + (parseInt(i.value) || 0), 0);
-        if (totalInputs === 0) { window.exibirMensagem('mensagemPedido', 'erro', 'ADICIONE PELO MENOS 1 CAMISETA'); return; }
+        const sumObj = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+        const qtdInf = sumObj(vInf) + sumObj(tInf);
+        const qtdBaby = sumObj(vBaby) + sumObj(tBaby);
+        const qtdUni = sumObj(vUni) + sumObj(tUni);
+        const totalPecas = qtdInf + qtdBaby + qtdUni;
+        const valorTotal = totalPecas * PRECO_CAMISETA;
+
+        if (totalPecas === 0) { window.exibirMensagem('mensagemPedido', 'erro', 'ADICIONE PELO MENOS 1 CAMISETA'); return; }
         
-        window.mostrarCarregamento(true);
+        window.mostrarCarregamento(true, "SALVANDO E COMPUTANDO...");
+
         try {
+            // INÍCIO DA MÁGICA DE ENGENHARIA DE DADOS
+            const batch = writeBatch(db);
+            const novoPedidoRef = doc(pedidosCollection);
+            const estatisticasRef = doc(db, "configuracoes", "estatisticas");
+
             const data = {
+                numPedido: novoPedidoRef.id,
                 data: new Date().toISOString(),
                 nome: formData.get('nome'),
                 local: formData.get('local'),
                 setor: setor,
                 email: email,
                 contato: formData.get('contato'),
-                
-                verdeOliva: {
-                    infantil: getQuantidadesFromForm(formData, 'verde_infantil'),
-                    babylook: getQuantidadesFromForm(formData, 'verde_babylook'),
-                    unissex: getQuantidadesFromForm(formData, 'verde_unissex'),
-                },
-                
-                terracota: {
-                    infantil: getQuantidadesFromForm(formData, 'terracota_infantil'),
-                    babylook: getQuantidadesFromForm(formData, 'terracota_babylook'),
-                    unissex: getQuantidadesFromForm(formData, 'terracota_unissex'),
-                },
-                
+                verdeOliva: { infantil: vInf, babylook: vBaby, unissex: vUni },
+                terracota: { infantil: tInf, babylook: tBaby, unissex: tUni },
                 status: 'Pendente'
             };
+
+            // 1. Adiciona o pedido na fila de gravação
+            batch.set(novoPedidoRef, data);
+
+            // 2. Atualiza contadores (Soma Verde + Terracota em cada categoria)
+            batch.set(estatisticasRef, {
+                qtd_pedidos: increment(1),
+                qtd_camisetas: increment(totalPecas),
+                valor_total: increment(valorTotal),
+                qtd_infantil: increment(qtdInf),
+                qtd_babylook: increment(qtdBaby),
+                qtd_unissex: increment(qtdUni)
+            }, { merge: true });
+
+            // 3. Executa as duas ações atomicamente
+            await batch.commit();
             
-            data.infantil = {}; data.babylook = {}; data.unissex = {};
-            
-            let finalNum = '';
-            if (isEditing) { await updateDoc(doc(db, "pedidos", docId), data); finalNum = currentPedidoParaEdicao.numPedido; }
-            else { const ref = doc(pedidosCollection); data.numPedido = ref.id; await setDoc(ref, data); finalNum = ref.id; }
-            
-            const pedidoConfirmado = { numPedido: finalNum, ...data };
-            window.exibirConfirmacaoPedido(pedidoConfirmado);
+            window.exibirConfirmacaoPedido(data);
             document.getElementById('formPedido').reset();
             
-            // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
-            window.pedidosCache = [];
-            
-        } catch (err) { window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); console.error(err); } finally { window.mostrarCarregamento(false); }
-    };
+            // Atualiza o dashboard
+            window.carregarDashboard();
 
+        } catch (err) { 
+            window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); 
+            console.error(err); 
+        } finally { 
+            window.mostrarCarregamento(false); 
+        }
+    };
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
         const email = document.getElementById('emailAdmin').value.trim(); 
