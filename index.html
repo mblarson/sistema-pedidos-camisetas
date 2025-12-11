@@ -2367,6 +2367,7 @@
     // FILTRO E BUSCA ATUALIZADOS
 // FILTRO E BUSCA ATUALIZADOS (COM SEGURANÇA APLICADA)
 // FUNÇÃO DE CARREGAMENTO PAGINADO (10 POR VEZ)
+// FUNÇÃO DE CARREGAMENTO COM BUSCA OTIMIZADA (ITEM C) E PAGINAÇÃO (ITEM A)
     window.carregarPedidos = async function(modoExpandir = false) {
         const btnExpandirExistente = document.getElementById('btnCarregarMais');
         if (modoExpandir) {
@@ -2382,25 +2383,30 @@
 
         const lista = document.getElementById('listaPedidos');
         
-        // Filtros
-        const termoBusca = document.getElementById('buscaInput').value.toLowerCase().trim();
+        // Captura os valores de busca
+        const inputBusca = document.getElementById('buscaInput');
+        const termoBusca = inputBusca.value.trim(); // Mantém Maiúsculas/Minúsculas para ID
+        const termoBuscaLower = termoBusca.toLowerCase();
         const filtroLocal = document.querySelector('input[name="filtroLocal"]:checked').value;
 
         try {
             let q;
             const qtdPorPagina = 10;
 
-            // ESTRATÉGIA:
-            // Se tiver busca digitada, infelizmente precisamos buscar com flexibilidade (Query Simples + Filtro JS em lotes maiores seria o ideal, mas aqui faremos busca direta para simplificar).
-            // Se NÃO tiver busca (uso comum), usamos a paginação eficiente do banco.
-
             if (termoBusca) {
-                // MODO BUSCA: Tenta buscar pelo termo (Limitado a 50 para não travar)
-                // Nota: Busca textual exata em NoSQL é limitada. Focaremos em performance.
-                // Se houver busca, ignoramos a paginação complexa e trazemos os matches (limite de segurança).
-                q = query(pedidosCollection, orderBy('data', 'desc'), limit(50));
+                // --- ITEM C: BUSCA DIRETA NO BANCO ---
+                // Em vez de filtrar na memória, pedimos exatamente o documento que queremos.
+                
+                if (termoBusca.includes('@')) {
+                    // Se tem @, assumimos que é E-MAIL (Buscamos pelo campo email minúsculo)
+                    q = query(pedidosCollection, where('email', '==', termoBuscaLower), limit(10));
+                } else {
+                    // Se não tem @, assumimos que é o ID DO PEDIDO (Busca exata, case-sensitive)
+                    q = query(pedidosCollection, where('numPedido', '==', termoBusca), limit(10));
+                }
+                
             } else {
-                // MODO LISTAGEM: Paginação eficiente 10 em 10
+                // --- ITEM A: LISTAGEM PAGINADA ---
                 let constraints = [orderBy('data', 'desc')];
                 
                 if (filtroLocal !== 'todos') {
@@ -2422,20 +2428,16 @@
                 ultimoDocumentoCarregado = snapshot.docs[snapshot.docs.length - 1];
             }
 
-            const novosPedidos = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+            const pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
             
-            // Se for busca, aplicamos filtro extra no client-side para garantir (já que o termo pode estar no nome, email, etc)
-            let pedidosProcessados = novosPedidos;
-            if (termoBusca) {
-                pedidosProcessados = novosPedidos.filter(x => {
-                    const searchable = [x.nome, x.numPedido, x.setor, x.local, x.email, x.contato].join(' ').toLowerCase();
-                    return searchable.includes(termoBusca);
-                });
-            }
-
             // Renderização
             if (pedidosProcessados.length === 0 && !modoExpandir) {
-                lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">Nenhum pedido encontrado.</p>`;
+                // Mensagem amigável explicando como buscar
+                const msg = termoBusca 
+                    ? `Nenhum pedido encontrado com o ID ou E-mail: "<strong>${escapeHTML(termoBusca)}</strong>".<br><span style="font-size:0.8rem">Dica: Digite o Código exato (ex: 3Xy9...) ou E-mail completo.</span>` 
+                    : `Nenhum pedido registrado.`;
+                
+                lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">${msg}</p>`;
             } else {
                 pedidosProcessados.forEach(x => {
                     const t = calcularTotalPedido(x);
@@ -2459,7 +2461,6 @@
                     }
                     tabelaHTML += `</tbody></table>`;
 
-                    // Usamos escapeHTML para segurança (já implementado)
                     const htmlItem = `
                         <div class="pedido-item pedido-card-expandable" style="margin-bottom:1rem; animation: slideDown 0.3s ease-out;">
                             <div onclick="window.togglePedidoDetails('${x.docId}')" style="cursor:pointer;">
@@ -2507,10 +2508,9 @@
                 });
             }
 
-            // Gerenciamento do Botão "Expandir"
+            // Gerenciamento do Botão "Expandir" (Só aparece se NÃO tiver busca e vieram 10 itens)
             if (snapshot.docs.length === qtdPorPagina && !termoBusca) {
-                // Se retornou uma página cheia, provavelmente tem mais. Adiciona o botão.
-                if(btnExpandirExistente) btnExpandirExistente.remove(); // Remove o antigo para mover pro final
+                if(btnExpandirExistente) btnExpandirExistente.remove();
                 
                 const btnHtml = `
                     <div id="containerBtnExpandir" style="text-align:center; margin-top:2rem; margin-bottom:4rem;">
@@ -2520,7 +2520,6 @@
                     </div>`;
                 lista.insertAdjacentHTML('beforeend', btnHtml);
             } else {
-                // Se não tem mais ou é busca, remove o botão se existir
                 if(btnExpandirExistente) btnExpandirExistente.remove();
                 if(!termoBusca && pedidosProcessados.length > 0) {
                     lista.insertAdjacentHTML('beforeend', `<div style="text-align:center; color:var(--text-muted); margin-top:2rem; font-size:0.8rem;">--- Fim da Lista ---</div>`);
