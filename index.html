@@ -2162,11 +2162,7 @@
         const docId = document.getElementById('pedidoDocId').value;
         const isEditing = !!docId; 
         
-        // BLOQUEIO DE SEGURANÇA PARA ALTA ESCALA
-        if (isEditing) {
-            alert("EM MODO DE ALTA PERFORMANCE: Para alterar um pedido, por favor EXCLUA o pedido antigo e crie um novo. Isso garante a precisão do financeiro.");
-            return;
-        }
+
 
         const formData = new FormData(document.getElementById('formPedido'));
         const email = formData.get('email').toLowerCase().trim();
@@ -2204,14 +2200,11 @@
         window.mostrarCarregamento(true, "SALVANDO E COMPUTANDO...");
 
         try {
-            // INÍCIO DA MÁGICA DE ENGENHARIA DE DADOS
             const batch = writeBatch(db);
-            const novoPedidoRef = doc(pedidosCollection);
             const estatisticasRef = doc(db, "configuracoes", "estatisticas");
 
-            const data = {
-                numPedido: novoPedidoRef.id,
-                data: new Date().toISOString(),
+            // Define os dados base do pedido
+            const dadosPedido = {
                 nome: formData.get('nome'),
                 local: formData.get('local'),
                 setor: setor,
@@ -2219,32 +2212,90 @@
                 contato: formData.get('contato'),
                 verdeOliva: { infantil: vInf, babylook: vBaby, unissex: vUni },
                 terracota: { infantil: tInf, babylook: tBaby, unissex: tUni },
-                status: 'Pendente'
+                // Mantém a data original se for edição, ou cria nova se for novo
+                ...(isEditing ? {} : { data: new Date().toISOString(), status: 'Pendente' }) 
             };
+            
+            // Remove campos indefinidos
+            Object.keys(dadosPedido).forEach(key => dadosPedido[key] === undefined && delete dadosPedido[key]);
 
-            // 1. Adiciona o pedido na fila de gravação
-            batch.set(novoPedidoRef, data);
+            if (isEditing) {
+                // ============================================================
+                // MODO EDIÇÃO: COMPENSAÇÃO MATEMÁTICA (Subtrai Velho, Soma Novo)
+                // ============================================================
+                
+                // 1. Busca o pedido ANTIGO no banco
+                const pedidoRef = doc(db, "pedidos", docId);
+                const docSnap = await getDoc(pedidoRef);
+                if (!docSnap.exists()) throw new Error("Pedido original não encontrado.");
+                
+                const pAntigo = docSnap.data();
 
-            // 2. Atualiza contadores (Soma Verde + Terracota em cada categoria)
-            batch.set(estatisticasRef, {
-                qtd_pedidos: increment(1),
-                qtd_camisetas: increment(totalPecas),
-                valor_total: increment(valorTotal),
-                qtd_infantil: increment(qtdInf),
-                qtd_babylook: increment(qtdBaby),
-                qtd_unissex: increment(qtdUni)
-            }, { merge: true });
+                // 2. Calcula as quantidades do pedido ANTIGO
+                const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+                let oldInf = 0, oldBaby = 0, oldUni = 0;
 
-            // 3. Executa as duas ações atomicamente
+                // Lógica híbrida (Lê tanto estrutura nova quanto legado)
+                if (pAntigo.verdeOliva || pAntigo.terracota) {
+                    if(pAntigo.verdeOliva) { oldInf += sum(pAntigo.verdeOliva.infantil); oldBaby += sum(pAntigo.verdeOliva.babylook); oldUni += sum(pAntigo.verdeOliva.unissex); }
+                    if(pAntigo.terracota) { oldInf += sum(pAntigo.terracota.infantil); oldBaby += sum(pAntigo.terracota.babylook); oldUni += sum(pAntigo.terracota.unissex); }
+                } else {
+                    oldInf += sum(pAntigo.infantil); oldBaby += sum(pAntigo.babylook); oldUni += sum(pAntigo.unissex);
+                }
+                
+                const oldTotalPecas = oldInf + oldBaby + oldUni;
+                const oldValorTotal = oldTotalPecas * PRECO_CAMISETA;
+
+                // 3. Atualiza os dados do pedido (Texto/Tamanhos)
+                batch.update(pedidoRef, dadosPedido);
+
+                // 4. Atualiza o Painel (Dashboard): Diferença entre NOVO e VELHO
+                // Se aumentou camisetas, o valor será positivo. Se diminuiu, negativo.
+                batch.update(estatisticasRef, {
+                    qtd_camisetas: increment(totalPecas - oldTotalPecas),
+                    valor_total: increment(valorTotal - oldValorTotal),
+                    qtd_infantil: increment(qtdInf - oldInf),
+                    qtd_babylook: increment(qtdBaby - oldBaby),
+                    qtd_unissex: increment(qtdUni - oldUni)
+                });
+                
+                window.exibirConfirmacaoPedido({ numPedido: pAntigo.numPedido, ...dadosPedido });
+
+            } else {
+                // ============================================================
+                // MODO CRIAÇÃO: SOMA SIMPLES
+                // ============================================================
+                
+                const novoPedidoRef = doc(pedidosCollection);
+                dadosPedido.numPedido = novoPedidoRef.id;
+                
+                batch.set(novoPedidoRef, dadosPedido);
+
+                batch.update(estatisticasRef, {
+                    qtd_pedidos: increment(1),
+                    qtd_camisetas: increment(totalPecas),
+                    valor_total: increment(valorTotal),
+                    qtd_infantil: increment(qtdInf),
+                    qtd_babylook: increment(qtdBaby),
+                    qtd_unissex: increment(qtdUni)
+                });
+                
+                window.exibirConfirmacaoPedido(dadosPedido);
+            }
+
+            // Executa tudo junto (Atômico)
             await batch.commit();
             
-            window.exibirConfirmacaoPedido(data);
             document.getElementById('formPedido').reset();
-            
-            // Atualiza o dashboard
             window.carregarDashboard();
-
-        } catch (err) { 
+            
+            // Limpa estado de edição
+            if(isEditing) {
+                currentPedidoParaEdicao = null;
+                document.getElementById('pedidoDocId').value = '';
+                document.getElementById('submitButtonText').textContent = 'Confirmar e Enviar';
+            }
+ { 
             window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); 
             console.error(err); 
         } finally { 
