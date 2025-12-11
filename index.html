@@ -1388,7 +1388,7 @@
     // ---------------------------------
     
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc, limit, orderBy, startAfter } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc, limit, orderBy, startAfter, writeBatch, increment } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     
     const app = initializeApp(firebaseConfig);
@@ -2271,49 +2271,36 @@
         return window.pedidosCache;
     };
 
+// DASHBOARD OTIMIZADO (LÊ APENAS 1 DOCUMENTO DE ESTATÍSTICAS)
     window.carregarDashboard = async function() {
-        window.mostrarCarregamento(true);
         try {
-            // Garante que os dados mais recentes sejam carregados, ignorando o cache se vazio
-            const p = await window.carregarTodosPedidos();
-            
-            let tP = p.length, tC = 0, inf = 0, baby = 0, uni = 0;
-            let totalRecebidoReal = 0;
-            const sumObj = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+            const docRef = doc(db, "configuracoes", "estatisticas");
+            const docSnap = await getDoc(docRef);
 
-            p.forEach(x => {
-                // Legado
-                let i = sumObj(x.infantil);
-                let b = sumObj(x.babylook);
-                let u = sumObj(x.unissex);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
                 
-                // Novo
-                if(x.verdeOliva) {
-                    i += sumObj(x.verdeOliva.infantil);
-                    b += sumObj(x.verdeOliva.babylook);
-                    u += sumObj(x.verdeOliva.unissex);
-                }
-                if(x.terracota) {
-                    i += sumObj(x.terracota.infantil);
-                    b += sumObj(x.terracota.babylook);
-                    u += sumObj(x.terracota.unissex);
-                }
+                // Atualiza a tela com os valores vindos direto do contador do banco
+                window.atualizarElemento('totalPedidos', data.qtd_pedidos || 0);
+                window.atualizarElemento('totalCamisetas', data.qtd_camisetas || 0);
+                window.atualizarElemento('totalArrecadado', formatarMoeda(data.valor_total || 0));
                 
-                tC += i + b + u; inf += i; baby += b; uni += u;
-
-                // SOMA TODAS AS LIQUIDAÇÕES
-                if (x.liquidacoes && Array.isArray(x.liquidacoes)) {
-                    totalRecebidoReal += x.liquidacoes.reduce((acc, curr) => acc + (curr.valor || 0), 0);
-                }
-            });
-            
-            window.atualizarElemento('totalPedidos', tP); window.atualizarElemento('totalCamisetas', tC);
-            const totalVal = tC * PRECO_CAMISETA; window.atualizarElemento('totalArrecadado', formatarMoeda(totalVal));
-            window.atualizarElemento('totalRecebidoReal', formatarMoeda(totalRecebidoReal));
-            window.atualizarElemento('totalInfantis', inf); window.atualizarElemento('totalBabylook', baby); window.atualizarElemento('totalUnissex', uni);
-        } catch (e) { console.error(e); } finally { window.mostrarCarregamento(false); }
+                // Totais por categoria
+                window.atualizarElemento('totalInfantis', data.qtd_infantil || 0);
+                window.atualizarElemento('totalBabylook', data.qtd_babylook || 0);
+                window.atualizarElemento('totalUnissex', data.qtd_unissex || 0);
+                
+                window.atualizarElemento('totalRecebidoReal', "---"); 
+            } else {
+                console.warn("Estatísticas não inicializadas. Aguardando novos pedidos.");
+                window.atualizarElemento('totalPedidos', 0);
+                window.atualizarElemento('totalCamisetas', 0);
+                window.atualizarElemento('totalArrecadado', formatarMoeda(0));
+            }
+        } catch (e) {
+            console.error("Erro ao carregar dashboard:", e);
+        }
     };
-
     window.togglePedidoDetails = function(docId) {
         const detailsDiv = document.getElementById(`details-${docId}`); const icon = document.getElementById(`icon-${docId}`);
         if (detailsDiv.style.display === 'none') { detailsDiv.style.display = 'block'; icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-down'); }
