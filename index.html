@@ -2298,11 +2298,13 @@
                 currentPedidoParaEdicao = null;
                 document.getElementById('pedidoDocId').value = '';
                 document.getElementById('submitButtonText').textContent = 'Confirmar e Enviar';
-            }
-
-        } 
-    }
-    };
+            } catch (err) { 
+            window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); 
+            console.error(err); 
+        } finally { 
+            window.mostrarCarregamento(false); 
+        }
+ };
     window.handleAdminLogin = async function(e) {
         e.preventDefault(); 
         const email = document.getElementById('emailAdmin').value.trim(); 
