@@ -2295,7 +2295,14 @@
                 document.getElementById('pedidoDocId').value = '';
                 document.getElementById('submitButtonText').textContent = 'Confirmar e Enviar';
             }
- { 
+
+        } catch (err) { // <--- ESTA LINHA ESTAVA FALTANDO
+            window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); 
+            console.error(err); 
+        } finally { 
+            window.mostrarCarregamento(false); 
+        }
+    }
             window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); 
             console.error(err); 
         } finally { 
