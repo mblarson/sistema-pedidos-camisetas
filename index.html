@@ -2788,7 +2788,7 @@
 
             // 2. Apagar todos os documentos da coleção 'pedidos'
             const snapshot = await getDocs(pedidosCollection);
-            const batch = db.batch();
+            const batch = writeBatch(db); // CORREÇÃO: Usar writeBatch(db)
 
             snapshot.docs.forEach((doc) => {
                 batch.delete(doc.ref);
