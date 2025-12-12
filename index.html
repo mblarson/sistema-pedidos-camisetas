@@ -983,6 +983,22 @@
               <h2 style="font-size:1.5rem;">Alterar Preço?</h2>
               <p style="color:var(--text-muted); font-size:0.9rem;">Isso recalculará todos os relatórios em todos os dispositivos.</p>
           </div>
+        <!-- MODAL SENHA PARA ALTERAR VALOR -->
+  <div id="modalSenhaValor" class="pedido-confirmacao-overlay">
+      <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
+          <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-lock"></i></div>
+          <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Segurança Necessária</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Esta ação recalcula todos os relatórios. Digite a senha para confirmar.</p>
+          <div class="form-group" style="margin-bottom:1.5rem;">
+              <input type="password" id="senhaAlterarValor" placeholder="Senha de Confirmação" style="text-align:center;">
+          </div>
+          <div id="msgErroSenhaValor" style="color:var(--danger-color); font-size:0.8rem; margin-bottom:1rem; display:none;">SENHA INCORRETA</div>
+          <div style="display:flex; gap:1rem;">
+              <button onclick="document.getElementById('modalSenhaValor').classList.remove('active'); document.getElementById('senhaAlterarValor').value='';" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
+              <button onclick="window.confirmarAlteracaoValorComSenha()" class="btn-primary" style="flex:1;">Confirmar</button>
+          </div>
+      </div>
+  </div>
           <div style="display:flex; gap:1rem;">
               <button id="btnCancelarAlteracao" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
               <button id="btnConfirmarAlteracao" class="btn-primary" style="flex:1;">Confirmar</button>
@@ -3174,6 +3190,26 @@
         document.getElementById('modalErroPDF').classList.add('active');} finally { window.mostrarCarregamento(false); }
     };
 
+     window.confirmarAlteracaoValorComSenha = function() {
+        const senhaInput = document.getElementById('senhaAlterarValor');
+        const msgErro = document.getElementById('msgErroSenhaValor');
+        const senha = senhaInput.value;
+        const novoValor = document.getElementById('valorCamisetaInput').value;
+
+        if (senha !== 'JUBILEU') {
+            msgErro.style.display = 'block';
+            return;
+        }
+
+        // Senha correta
+        msgErro.style.display = 'none';
+        document.getElementById('modalSenhaValor').classList.remove('active');
+        senhaInput.value = ''; // Limpa a senha
+
+        // Chama a função existente que recalcula tudo
+        window.recalcularValores(novoValor);
+    };
+
     window.confirmarReaberturaPedidos = async function() {
         document.getElementById('modalReabrirPedidos').classList.remove('active');
         window.mostrarCarregamento(true, 'REABRINDO SISTEMA...');
@@ -3328,9 +3364,11 @@
         safeOnClick('atualizarDetalhesTamanho', window.carregarDetalhesTamanho);
         safeOnClick('btnGerarPdf', window.gerarRelatorioPdf);
         
-        safeOnClick('btnSalvarValor', () => { document.getElementById('modalConfirmarValor').classList.add('active'); });
-        safeOnClick('btnCancelarAlteracao', () => { document.getElementById('modalConfirmarValor').classList.remove('active'); });
-        safeOnClick('btnConfirmarAlteracao', () => { document.getElementById('modalConfirmarValor').classList.remove('active'); const val = document.getElementById('valorCamisetaInput').value; window.recalcularValores(val); });
+       
+        safeOnClick('btnSalvarValor', () => { 
+          document.getElementById('msgErroSenhaValor').style.display = 'none'; // Reseta erro anterior
+          document.getElementById('modalSenhaValor').classList.add('active'); 
+          });
         safeOnClick('btnFecharPedidosAction', () => { document.getElementById('modalFecharPedidos').classList.add('active'); });
         safeOnClick('btnReabrirPedidosAction', () => { document.getElementById('modalReabrirPedidos').classList.add('active'); });
         
