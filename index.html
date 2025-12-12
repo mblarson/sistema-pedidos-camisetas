@@ -1714,21 +1714,45 @@
         overlay.classList.add('active');
     };
 
-    window.recalcularValores = async function(novoValorString) {
+ window.recalcularValores = async function(novoValorString) {
         const novoValor = parseFloat(novoValorString);
-        if (isNaN(novoValor) || novoValor <= 0) { /* Não usar alert, mas manter a validação */ console.error("Valor inválido para recalcular."); return; }
-        window.mostrarCarregamento(true, "SALVANDO CONFIG...");
+        if (isNaN(novoValor) || novoValor <= 0) { console.error("Valor inválido para recalcular."); return; }
+        
+        window.mostrarCarregamento(true, "RECALCULANDO ESTATÍSTICAS...");
+        
         try {
+            // 1. Salva o novo preço na configuração
             await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
-            window.mostrarCarregamento(false);
+            
+            // 2. Recalcula o total geral com base nos pedidos existentes
             const pedidos = await window.carregarTodosPedidos();
             let totalItens = 0;
             pedidos.forEach(p => { totalItens += calcularTotalPedido(p); });
-            const novoTotal = totalItens * novoValor;
+            
+            const novoTotalArrecadado = totalItens * novoValor;
+
+            // 3. ATUALIZA O DOCUMENTO DE ESTATÍSTICAS NO FIREBASE
+            // Isso é crucial para que o Dashboard reflita o novo valor imediatamente
+            const estatisticasRef = doc(db, "configuracoes", "estatisticas");
+            await setDoc(estatisticasRef, { 
+                valor_total: novoTotalArrecadado 
+            }, { merge: true });
+
+            // 4. Feedback Visual e Atualização Local
             document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(novoValor);
-            document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(novoTotal);
+            document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(novoTotalArrecadado);
             document.getElementById('modalSucessoFinanceiro').classList.add('active');
-        } catch (error) { window.mostrarCarregamento(false); console.error("Erro fatal ao salvar preço:", error); document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao salvar preço no banco de dados. Tente novamente."; document.getElementById('modalErroPDF').classList.add('active'); }
+            
+            // Força a atualização do dashboard na tela atual
+            window.carregarDashboard();
+
+        } catch (error) { 
+            console.error("Erro fatal ao salvar preço:", error); 
+            document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao atualizar estatísticas. Tente novamente."; 
+            document.getElementById('modalErroPDF').classList.add('active'); 
+        } finally {
+            window.mostrarCarregamento(false);
+        }
     };
 
     // HELPER CENTRAL PARA CONTAR ITENS (SUPORTA LEGADO E NOVO)
