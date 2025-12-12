@@ -3307,6 +3307,29 @@
             // Remove onclick inline para evitar conflitos e usa listener seguro
             btnConfirmarSenha.onclick = window.confirmarAlteracaoValorComSenha;
         }
+
+      // Localização: Dentro do <script type="module">, na seção '6. SETUP INICIAL'
+
+      // ...
+    // Listener para o estado de autenticação (para pegar o userId)
+    onAuthStateChanged(auth, (user) => {
+    // ...
+    // Seu código existente aqui
+    // ...
+    
+    // Configura eventos para Modais
+    document.getElementById('btnAlterarValorCamiseta').addEventListener('click', () => abrirModal('modalAlterarValorCamiseta'));
+    
+    // AQUI ESTÁ O AJUSTE:
+    // 1. Pega o elemento do botão "Salvar Novo Valor"
+    const btnSalvarValor = document.getElementById('btnSalvarNovoValorCamiseta');
+    
+    // 2. Adiciona o listener de 'click' que executa a função salvarNovoValorCamiseta()
+    if (btnSalvarValor) {
+        btnSalvarValor.addEventListener('click', salvarNovoValorCamiseta);
+    }
+});
+// ...
         
         // === CORREÇÃO TELA INICIAL MÓVEL ===
         checkAndShowSplash();
