@@ -2415,7 +2415,7 @@
                 window.atualizarElemento('totalBabylook', data.qtd_babylook || 0);
                 window.atualizarElemento('totalUnissex', data.qtd_unissex || 0);
                 
-                window.atualizarElemento('totalRecebidoReal', "---"); 
+             window.atualizarElemento('totalRecebidoReal', formatarMoeda(data.total_recebido_real || 0));
             } else {
                 console.warn("Estatísticas não inicializadas. Aguardando novos pedidos.");
                 window.atualizarElemento('totalPedidos', 0);
@@ -3102,6 +3102,7 @@
     };
 
     // CANCELAR ÚLTIMA LIQUIDAÇÃO (LIFO)
+// CANCELAR ÚLTIMA LIQUIDAÇÃO (LIFO)
     window.cancelarUltimaLiquidacao = async function() {
         const docId = document.getElementById('liquidacaoDocId').value;
         
@@ -3130,21 +3131,30 @@
                 return;
             }
 
-            // REMOVER A ÚLTIMA (POP)
-            liquidacoes.pop();
+            // REMOVER A ÚLTIMA (POP) e capturar o valor
+            const ultimaLiquidacao = liquidacoes.pop();
+            const valorEstornado = ultimaLiquidacao.valor || 0;
 
-            await updateDoc(docRef, { liquidacoes: liquidacoes });
+            const batch = writeBatch(db);
+            const estatisticasRef = doc(db, "configuracoes", "estatisticas");
+
+            // 1. Atualiza o pedido removendo a liquidação
+            batch.update(docRef, { liquidacoes: liquidacoes });
             
-            // 1. Fecha o modal de liquidação (Regra 2)
+            // 2. Decrementa o total recebido nas estatísticas globais
+            batch.update(estatisticasRef, {
+                total_recebido_real: increment(-valorEstornado)
+            });
+
+            await batch.commit();
+            
+            // Fecha modal e exibe sucesso
             document.getElementById('modalLiquidacao').classList.remove('active');
-            
-            // 2. Exibe o modal de sucesso de cancelamento (Regra 1)
             document.getElementById('modalSucessoCancelamento').classList.add('active'); 
             
-            // A atualização da lista e dos totais (Regra 2) será feita quando o usuário clicar OK no modalSucessoCancelamento
-
-            // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
+            // Limpa cache e força recarregamento do Dashboard para atualizar o valor
             window.pedidosCache = [];
+            window.carregarDashboard();
 
         } catch (error) {
             console.error("ERRO FATAL DURANTE O CANCELAMENTO.", error);
@@ -3154,7 +3164,6 @@
             window.mostrarCarregamento(false);
         }
     };
-
     window.confirmarFechamentoPedidos = async function() {
         const senhaInput = document.getElementById('senhaFecharPedidos'); const msgErro = document.getElementById('msgErroSenhaFechar'); const senha = senhaInput.value;
         if (senha !== 'JUBILEU') { msgErro.style.display = 'block'; return; }
