@@ -3027,6 +3027,7 @@
     };
 
     // CONFIRMAR LIQUIDAÇÃO
+// CONFIRMAR LIQUIDAÇÃO
     window.confirmarLiquidacao = async function() {
         const docId = document.getElementById('liquidacaoDocId').value;
         const dataInput = document.getElementById('dataLiquidacao').value; // Formato DD/MM/AAAA
@@ -3055,13 +3056,13 @@
             return;
         }
         
-        // Salvar string DDMMAAAA ou ISO se preferir, vamos manter string simples para compatibilidade visual
-        // Mas para ordenação futura, timestamp é salvo também.
-        
         window.mostrarCarregamento(true, "REGISTRANDO PAGAMENTO...");
         
         try {
+            const batch = writeBatch(db); // Usar Batch para garantir consistência
+            const estatisticasRef = doc(db, "configuracoes", "estatisticas");
             const docRef = doc(db, "pedidos", docId);
+            
             const docSnap = await getDoc(docRef);
             if (!docSnap.exists()) throw new Error("Pedido não existe");
 
@@ -3071,18 +3072,25 @@
             liquidacoes.push({
                 valor: valorPago, 
                 data: dataInput,
-                timestamp: new Date().toISOString() // Para controle
+                timestamp: new Date().toISOString()
             });
 
-            await updateDoc(docRef, { liquidacoes: liquidacoes });
+            // 1. Atualiza o pedido com a nova liquidação
+            batch.update(docRef, { liquidacoes: liquidacoes });
+
+            // 2. Incrementa o total recebido nas estatísticas globais
+            batch.update(estatisticasRef, {
+                total_recebido_real: increment(valorPago)
+            });
+
+            await batch.commit();
             
             document.getElementById('modalLiquidacao').classList.remove('active');
-            
-            // REGRA 1 e 2: Exibe o modal de sucesso, que por sua vez acionará o recarregamento da lista ao ser fechado
             document.getElementById('modalSucessoLiquidacao').classList.add('active'); 
             
-            // CORREÇÃO: Limpa o cache para que o Dashboard seja forçado a recarregar no próximo acesso
+            // Força atualização dos dados e limpa cache para refletir no Dashboard
             window.pedidosCache = [];
+            window.carregarDashboard(); 
             
         } catch (error) {
             console.error("Erro ao liquidar:", error);
