@@ -2184,8 +2184,34 @@
         }
 
         // Validação Duplicidade
-        const dup = await window.verificarPedidoPorEmail(email);
-        if (dup) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL JÁ TEM PEDIDO'); return; }
+        // --- NOVA VALIDAÇÃO (E-MAIL E SETOR) ---
+
+        // 1. Validação de E-mail (Aplica-se a Capital e Interior)
+        const dupEmail = await window.verificarPedidoPorEmail(email);
+        if (dupEmail) {
+            // Bloqueia se for um pedido novo OU se for edição mas o ID for diferente (tentando usar e-mail de outro)
+            if (!isEditing || dupEmail.docId !== docId) {
+                window.exibirMensagem('mensagemPedido', 'erro', 'ESTE E-MAIL JÁ POSSUI UM PEDIDO REGISTRADO.');
+                return; 
+            }
+        }
+
+        // 2. Validação de Setor (Aplica-se APENAS à Capital)
+        // Regra: Um Setor da Capital não pode enviar mais de um pedido.
+        const localSelecionado = formData.get('local'); // Pega valor "Capital" ou "Interior"
+        
+        if (localSelecionado === 'Capital') {
+            const dupSetor = await window.verificarPedidoPorSetor(setor);
+            if (dupSetor) {
+                // Bloqueia se o setor já existir e não for o próprio pedido sendo editado
+                if (!isEditing || dupSetor.docId !== docId) {
+                    window.exibirMensagem('mensagemPedido', 'erro', `O ${setor} JÁ POSSUI UM PEDIDO REGISTRADO (CAPITAL).`);
+                    return;
+                }
+            }
+        }
+        // --- FIM DA NOVA VALIDAÇÃO ---
+
         
         // Calcular Totais para atualizar os contadores
         const getQtd = (prefix) => getQuantidadesFromForm(formData, prefix);
