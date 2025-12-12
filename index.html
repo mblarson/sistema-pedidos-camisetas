@@ -976,13 +976,6 @@
       </div>
   </div>
 
-  <div id="modalConfirmarValor" class="pedido-confirmacao-overlay">
-      <div class="pedido-confirmacao-card" style="max-width:400px;">
-          <div style="text-align:center; margin-bottom:2rem;">
-              <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-exclamation-triangle"></i></div>
-              <h2 style="font-size:1.5rem;">Alterar Preço?</h2>
-              <p style="color:var(--text-muted); font-size:0.9rem;">Isso recalculará todos os relatórios em todos os dispositivos.</p>
-          </div>
   <div id="modalSenhaValor" class="pedido-confirmacao-overlay">
       <div class="pedido-confirmacao-card" style="max-width:400px; text-align:center;">
           <div style="font-size:2.5rem; color:var(--warning-color); margin-bottom:1rem;"><i class="fas fa-lock"></i></div>
@@ -995,20 +988,6 @@
           <div style="display:flex; gap:1rem;">
               <button onclick="document.getElementById('modalSenhaValor').classList.remove('active'); document.getElementById('senhaAlterarValor').value='';" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
               <button id="btnConfirmarSenhaValor" onclick="window.confirmarAlteracaoValorComSenha()" class="btn-primary" style="flex:1;">Confirmar</button>
-          </div>
-      </div>
-  </div>
-
-          <div id="msgErroSenhaValor" style="color:var(--danger-color); font-size:0.8rem; margin-bottom:1rem; display:none;">SENHA INCORRETA</div>
-          <div style="display:flex; gap:1rem;">
-              <button onclick="document.getElementById('modalSenhaValor').classList.remove('active'); document.getElementById('senhaAlterarValor').value='';" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
-              <button onclick="window.confirmarAlteracaoValorComSenha()" class="btn-primary" style="flex:1;">Confirmar</button>
-          </div>
-      </div>
-  </div>
-          <div style="display:flex; gap:1rem;">
-              <button id="btnCancelarAlteracao" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
-              <button id="btnConfirmarAlteracao" class="btn-primary" style="flex:1;">Confirmar</button>
           </div>
       </div>
   </div>
@@ -3239,25 +3218,7 @@
         }
     };
 
-     window.confirmarAlteracaoValorComSenha = function() {
-        const senhaInput = document.getElementById('senhaAlterarValor');
-        const msgErro = document.getElementById('msgErroSenhaValor');
-        const senha = senhaInput.value;
-        const novoValor = document.getElementById('valorCamisetaInput').value;
 
-        if (senha !== 'JUBILEU') {
-            msgErro.style.display = 'block';
-            return;
-        }
-
-        // Senha correta
-        msgErro.style.display = 'none';
-        document.getElementById('modalSenhaValor').classList.remove('active');
-        senhaInput.value = ''; // Limpa a senha
-
-        // Chama a função existente que recalcula tudo
-        window.recalcularValores(novoValor);
-    };
 
     window.confirmarReaberturaPedidos = async function() {
         document.getElementById('modalReabrirPedidos').classList.remove('active');
@@ -3307,29 +3268,6 @@
             // Remove onclick inline para evitar conflitos e usa listener seguro
             btnConfirmarSenha.onclick = window.confirmarAlteracaoValorComSenha;
         }
-
-      // Localização: Dentro do <script type="module">, na seção '6. SETUP INICIAL'
-
-      // ...
-    // Listener para o estado de autenticação (para pegar o userId)
-    onAuthStateChanged(auth, (user) => {
-    // ...
-    // Seu código existente aqui
-    // ...
-    
-    // Configura eventos para Modais
-    document.getElementById('btnAlterarValorCamiseta').addEventListener('click', () => abrirModal('modalAlterarValorCamiseta'));
-    
-    // AQUI ESTÁ O AJUSTE:
-    // 1. Pega o elemento do botão "Salvar Novo Valor"
-    const btnSalvarValor = document.getElementById('btnSalvarNovoValorCamiseta');
-    
-    // 2. Adiciona o listener de 'click' que executa a função salvarNovoValorCamiseta()
-    if (btnSalvarValor) {
-        btnSalvarValor.addEventListener('click', salvarNovoValorCamiseta);
-    }
-});
-// ...
         
         // === CORREÇÃO TELA INICIAL MÓVEL ===
         checkAndShowSplash();
