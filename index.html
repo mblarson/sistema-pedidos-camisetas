@@ -3253,6 +3253,11 @@
         const safeOnClick = (id, handler) => { const el = document.getElementById(id); if(el) el.onclick = handler; };
         const safeOnSubmit = (id, handler) => { const el = document.getElementById(id); if(el) el.onsubmit = handler; };
         const safeOnChange = (id, handler) => { const el = document.getElementById(id); if(el) el.onchange = handler; };
+        const btnConfirmarSenha = document.getElementById('btnConfirmarSenhaValor');
+        if (btnConfirmarSenha) {
+            // Remove onclick inline para evitar conflitos e usa listener seguro
+            btnConfirmarSenha.onclick = window.confirmarAlteracaoValorComSenha;
+        }
         
         // === CORREÇÃO TELA INICIAL MÓVEL ===
         checkAndShowSplash();
