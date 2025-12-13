@@ -1970,7 +1970,7 @@ window.gerarPdfPedidoIndividual = async function(pedido) {
             const blackLogoData = canvas.toDataURL('image/png');
 
             // 8. Add to PDF
-            doc.addImage(blackLogoData, 'PNG', 10, 10, 30, 30); // x=10, y=10 (Canto Superior Esquerdo)
+            doc.addImage(blackLogoData, 'PNG', 10, 10, 20, 20); // x=10, y=10 (Canto Superior Esquerdo)
 
         } catch (e) {
             console.warn("Logo não carregado no PDF", e);
