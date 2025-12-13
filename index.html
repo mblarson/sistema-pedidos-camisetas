@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3172,36 +3173,45 @@ window.cancelarUltimaLiquidacao = async function() {
         const estatisticasRef = doc(db, "configuracoes", "estatisticas");
 
         const snap = await getDoc(ref);
+        if (!snap.exists()) { // Verificação de segurança para garantir que o documento existe
+            throw new Error(`Pedido com ID ${docId} não foi encontrado.`);
+        }
+        
         const current = snap.data();
         let hist = current.historicoPagamentos || [];
         
-        if(hist.length === 0) return;
+        if(hist.length === 0) {
+            alert("Não há pagamentos para cancelar.");
+            return; // Sai da função, o 'finally' cuidará do loader.
+        }
         
-        const itemRemovido = hist.pop(); // Remove last
+        const itemRemovido = hist.pop(); // Remove o último pagamento
         const valorRemovido = parseFloat(itemRemovido.valor) || 0;
         
         const totalPecas = calcularTotalPedido(current);
         const totalDevido = totalPecas * PRECO_CAMISETA;
         const totalPago = hist.reduce((acc, h) => acc + (parseFloat(h.valor)||0), 0);
         
-        let novoStatus = totalPago > 0 ? 'Parcial' : 'Pendente';
-        if(totalPago >= totalDevido - 0.1) novoStatus = 'Pago';
+        // Recalcula o status do pagamento
+        let novoStatus = 'Pendente';
+        if (totalPago > 0) novoStatus = 'Parcial';
+        if (totalPago >= totalDevido - 0.1) novoStatus = 'Pago';
         
-        // Atualiza Pedido
+        // Atualiza o pedido com a lista de pagamentos e o novo total pago
         batch.update(ref, {
             historicoPagamentos: hist,
             valorPago: totalPago,
             statusPagamento: novoStatus
         });
         
-        // Atualiza Estatística Global (Decrementa)
+        // Decrementa o valor removido do total geral arrecadado
         batch.update(estatisticasRef, {
             total_recebido_real: increment(-valorRemovido)
         });
         
         await batch.commit();
 
-        // CORREÇÃO: Limpar cache e atualizar UI imediatamente
+        // Limpa o cache e recarrega os pagamentos para refletir a mudança na interface
         window.pedidosCache = [];
         await window.carregarPagamentos();
         
@@ -3209,8 +3219,9 @@ window.cancelarUltimaLiquidacao = async function() {
         document.getElementById('modalSucessoCancelamento').classList.add('active');
         
     } catch(e) {
-        console.error(e);
-        alert("Erro ao cancelar.");
+        // Log de erro detalhado para diagnóstico
+        console.error("LOG DE ERRO: Falha ao cancelar a última liquidação.", { docId: docId, erro: e });
+        alert("Erro ao cancelar o pagamento. Verifique o console de desenvolvedor (F12) para detalhes.");
     } finally {
         window.mostrarCarregamento(false);
     }
