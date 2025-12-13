@@ -177,7 +177,6 @@
         width: auto !important; 
         margin: 0; 
         accent-color: var(--gold-solid); 
-        /* Ajuste do tamanho padrão para o desktop/layout geral */
         width: 16px; 
         height: 16px;
     }
@@ -190,7 +189,6 @@
         width: auto !important; 
         margin: 0; 
         accent-color: var(--gold-solid); 
-        /* Ajuste do tamanho padrão para o desktop/layout geral */
         width: 16px; 
         height: 16px;
     }
@@ -225,7 +223,6 @@
     .card-content h4 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
     #admin-dashboard .card-content h4, #admin-dashboard .dashboard-details h4, #admin-dashboard .detail-item span { color: #FFFFFF !important; }
     
-    /* AJUSTE 1: Diminui fonte dos valores para caber no desktop e mobile sem quebrar */
     .card-value { font-size: clamp(1.3rem, 2vw, 1.7rem); font-weight: 200; color: #fff; white-space: nowrap; } 
     
     .pedido-card-expandable { cursor: pointer; transition: background 0.3s ease; }
@@ -1192,12 +1189,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div style="margin-top:3rem; text-align:center;">
-                    <button type="submit" class="btn-primary" style="min-width:250px;"><span id="submitButtonText">Confirmar e Enviar</span></button>
-                </div>
-            </form>
+                    <div style="margin-top:3rem; text-align:center;">
+                        <button type="submit" class="btn-primary" style="min-width:250px;"><span id="submitButtonText">Confirmar e Enviar</span></button>
+                    </div>
+                </form>
             <div id="mensagemPedido"></div>
         </div>
       </section>
@@ -1897,7 +1893,7 @@
     }
 
     // FUNÇÃO AJUSTADA PARA GERAR PDF DO PEDIDO INDIVIDUALMENTE
-    window.gerarPdfPedidoIndividual = function(pedido) {
+    window.gerarPdfPedidoIndividual = async function(pedido) {
         if (!pedido || !pedido.numPedido) {
             console.error('Erro: Pedido inválido para gerar PDF.');
             // Exibe o modal de erro se o pedido for inválido
@@ -1913,8 +1909,20 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
 
-           
-            doc.addImage(imgData, 'PNG', 10, 10, 30, 30); // x=10, y=10 (Canto Superior Esquerdo)
+            // Tenta carregar o logo dinamicamente
+            try {
+                const logoUrl = "https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png";
+                const response = await fetch(logoUrl);
+                const blob = await response.blob();
+                const imgData = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+                doc.addImage(imgData, 'PNG', 10, 10, 30, 30); // x=10, y=10 (Canto Superior Esquerdo)
+            } catch (e) {
+                console.warn("Logo não carregado no PDF", e);
+            }
             
             // Título e Subtítulo
             doc.setFontSize(18); doc.text("PEDIDO #" + pedido.numPedido, 105, 20, null, null, "center");
@@ -3373,6 +3381,8 @@
         // LISTENERS DO MÓDULO PAGAMENTOS (Antigo Pendências Financeiras)
         safeOnClick('btnPagamentos', () => window.mostrarAdminSecao('pagamentos'));
         safeOnClick('atualizarPagamentos', window.recarregarPagamentosComFeedback); // Chamando função com feedback
+
+        safeOnClick('btnConfirmarLiquidacao', window.confirmarLiquidacao);
 
         safeOnClick('btnVerDetalhes', () => { window.mostrarAdminSecao('detalhes-tamanhos'); window.carregarDetalhesTamanho(); });
         safeOnClick('voltarDashboard', () => window.mostrarAdminSecao('dashboard'));
