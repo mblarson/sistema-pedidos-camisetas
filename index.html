@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1659,6 +1658,7 @@ window.mostrarAdminSecao = function(secao) {
     else if (secao === 'pedidos') window.carregarPedidos();
     else if (secao === 'evento') window.carregarDetalhesEvento();
     else if (secao === 'pagamentos') window.carregarPagamentos();
+    else if (secao === 'detalhes-tamanhos') window.carregarDetalhesEvento();
 };
 
 window.redirecionarComAnimacao = function(secao, callback) {
@@ -1970,7 +1970,7 @@ window.gerarPdfPedidoIndividual = async function(pedido) {
             const blackLogoData = canvas.toDataURL('image/png');
 
             // 8. Add to PDF
-            doc.addImage(blackLogoData, 'PNG', 10, 10, 20, 20); // x=10, y=10 (Canto Superior Esquerdo)
+            doc.addImage(blackLogoData, 'PNG', 10, 10, 30, 30); // x=10, y=10 (Canto Superior Esquerdo)
 
         } catch (e) {
             console.warn("Logo não carregado no PDF", e);
@@ -2888,7 +2888,12 @@ window.carregarDetalhesEvento = async function() {
                 add('terracota', 'babylook', p.terracota.babylook);
                 add('terracota', 'unissex', p.terracota.unissex);
             }
-            // Handle legacy mapping if needed... (skipped for brevity, assuming new structure dominant)
+            // FIX: Handle legacy mapping
+            if (!p.verdeOliva && !p.terracota) {
+                add('verde', 'infantil', p.infantil);
+                add('verde', 'babylook', p.babylook);
+                add('verde', 'unissex', p.unissex);
+            }
         });
 
         // Helper to render row
