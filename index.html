@@ -1922,17 +1922,56 @@ window.gerarPdfPedidoIndividual = async function(pedido) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
 
-        // Tenta carregar o logo dinamicamente
+        // Tenta carregar o logo dinamicamente e converte para PRETO
         try {
             const logoUrl = "https://raw.githubusercontent.com/mblarson/sistema-pedidos-camisetas/main/50ANOS8080.png";
+            
+            // 1. Fetch original image
             const response = await fetch(logoUrl);
             const blob = await response.blob();
-            const imgData = await new Promise((resolve) => {
+            
+            // 2. Convert to Base64 (original)
+            const originalBase64 = await new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onloadend = () => resolve(reader.result);
                 reader.readAsDataURL(blob);
             });
-            doc.addImage(imgData, 'PNG', 10, 10, 30, 30); // x=10, y=10 (Canto Superior Esquerdo)
+
+            // 3. Create Image element to draw on Canvas
+            const img = new Image();
+            img.src = originalBase64;
+            await new Promise(r => img.onload = r);
+
+            // 4. Create Canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            
+            // 5. Draw image
+            ctx.drawImage(img, 0, 0);
+            
+            // 6. Manipulate pixels to Black
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const alpha = data[i + 3];
+                // Se o pixel não for totalmente transparente, transforma em preto
+                if (alpha > 0) {
+                    data[i] = 0;     // Red -> 0
+                    data[i + 1] = 0; // Green -> 0
+                    data[i + 2] = 0; // Blue -> 0
+                    // Alpha permanece o mesmo para manter a forma/transparência
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            
+            // 7. Get new Base64 (Black Logo)
+            const blackLogoData = canvas.toDataURL('image/png');
+
+            // 8. Add to PDF
+            doc.addImage(blackLogoData, 'PNG', 10, 10, 30, 30); // x=10, y=10 (Canto Superior Esquerdo)
+
         } catch (e) {
             console.warn("Logo não carregado no PDF", e);
         }
