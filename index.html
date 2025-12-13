@@ -1743,27 +1743,19 @@ window.recalcularValores = async function(novoValorString) {
         // 1. Salva o novo preço na configuração
         await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
         
-        // 2. Recalcula o total geral com base nos pedidos existentes
-        const pedidos = await window.carregarTodosPedidos();
-        let totalItens = 0;
-        pedidos.forEach(p => { totalItens += calcularTotalPedido(p); });
-        
-        const novoTotalArrecadado = totalItens * novoValor;
+        // 2. Chama carregarDashboard para recalcular tudo com o novo preço
+        // Isso garante que o documento de estatísticas seja atualizado
+        await window.carregarDashboard();
 
-        // 3. ATUALIZA O DOCUMENTO DE ESTATÍSTICAS NO FIREBASE
-        // Isso é crucial para que o Dashboard reflita o novo valor imediatamente
-        const estatisticasRef = doc(db, "configuracoes", "estatisticas");
-        await setDoc(estatisticasRef, { 
-            valor_total: novoTotalArrecadado 
-        }, { merge: true });
-
-        // 4. Feedback Visual e Atualização Local
-        document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(novoValor);
-        document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(novoTotalArrecadado);
-        document.getElementById('modalSucessoFinanceiro').classList.add('active');
-        
-        // Força a atualização do dashboard na tela atual
-        window.carregarDashboard();
+        // 3. Feedback Visual e Atualização Local (Opcional, pois carregarDashboard já atualiza a UI)
+        // Mas mantemos para dar feedback no modal
+        const docSnap = await getDoc(doc(db, "configuracoes", "estatisticas"));
+        if(docSnap.exists()) {
+             const stats = docSnap.data();
+             document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(novoValor);
+             document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(stats.valor_total || 0);
+             document.getElementById('modalSucessoFinanceiro').classList.add('active');
+        }
 
     } catch (error) { 
         console.error("Erro fatal ao salvar preço:", error); 
@@ -2461,31 +2453,74 @@ window.carregarTodosPedidos = async function(force = false) {
 // DASHBOARD OTIMIZADO (LÊ APENAS 1 DOCUMENTO DE ESTATÍSTICAS)
 window.carregarDashboard = async function() {
     try {
-        const docRef = doc(db, "configuracoes", "estatisticas");
-        const docSnap = await getDoc(docRef);
+        // --- NOVO LÓGICA DE RECALCULO COMPLETO ---
+        // Em vez de ler o documento, vamos recalcular tudo e ATUALIZAR o documento
+        // para garantir integridade sempre que o dashboard for acessado.
+        
+        const querySnapshot = await getDocs(collection(db, "pedidos"));
+        
+        let stats = {
+            qtd_pedidos: querySnapshot.size,
+            qtd_camisetas: 0,
+            qtd_infantil: 0,
+            qtd_babylook: 0,
+            qtd_unissex: 0,
+            valor_total: 0,
+            total_recebido_real: 0
+        };
 
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            
-            // Atualiza a tela com os valores vindos direto do contador do banco
-            window.atualizarElemento('totalPedidos', data.qtd_pedidos || 0);
-            window.atualizarElemento('totalCamisetas', data.qtd_camisetas || 0);
-            window.atualizarElemento('totalArrecadado', formatarMoeda(data.valor_total || 0));
-            
-            // Totais por categoria
-            window.atualizarElemento('totalInfantis', data.qtd_infantil || 0);
-            window.atualizarElemento('totalBabylook', data.qtd_babylook || 0);
-            window.atualizarElemento('totalUnissex', data.qtd_unissex || 0);
-            
-            window.atualizarElemento('totalRecebidoReal', formatarMoeda(data.total_recebido_real || 0));
-        } else {
-            console.warn("Estatísticas não inicializadas. Aguardando novos pedidos.");
-            window.atualizarElemento('totalPedidos', 0);
-            window.atualizarElemento('totalCamisetas', 0);
-            window.atualizarElemento('totalArrecadado', formatarMoeda(0));
-        }
+        querySnapshot.forEach((doc) => {
+            const p = doc.data();
+            const totalPeca = calcularTotalPedido(p);
+            stats.qtd_camisetas += totalPeca;
+
+            // Soma das categorias (mesma lógica de calcularTotalPedido, mas separada)
+            const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+            if (p.verdeOliva || p.terracota) {
+                if(p.verdeOliva) {
+                    stats.qtd_infantil += sum(p.verdeOliva.infantil);
+                    stats.qtd_babylook += sum(p.verdeOliva.babylook);
+                    stats.qtd_unissex += sum(p.verdeOliva.unissex);
+                }
+                if(p.terracota) {
+                    stats.qtd_infantil += sum(p.terracota.infantil);
+                    stats.qtd_babylook += sum(p.terracota.babylook);
+                    stats.qtd_unissex += sum(p.terracota.unissex);
+                }
+            } else {
+                stats.qtd_infantil += sum(p.infantil);
+                stats.qtd_babylook += sum(p.babylook);
+                stats.qtd_unissex += sum(p.unissex);
+            }
+
+            // Soma dos Pagamentos (Realizado)
+            if (p.historicoPagamentos && Array.isArray(p.historicoPagamentos)) {
+                p.historicoPagamentos.forEach(h => {
+                    stats.total_recebido_real += (parseFloat(h.valor) || 0);
+                });
+            } else if (p.valorPago) {
+                 stats.total_recebido_real += (parseFloat(p.valorPago) || 0);
+            }
+        });
+
+        // Recalcula o valor total previsto com base no preço ATUAL
+        stats.valor_total = stats.qtd_camisetas * PRECO_CAMISETA;
+
+        // Atualiza o documento no Firebase (Self-Healing)
+        await setDoc(doc(db, "configuracoes", "estatisticas"), stats);
+
+        // Atualiza a UI
+        window.atualizarElemento('totalPedidos', stats.qtd_pedidos);
+        window.atualizarElemento('totalCamisetas', stats.qtd_camisetas);
+        window.atualizarElemento('totalArrecadado', formatarMoeda(stats.valor_total));
+        window.atualizarElemento('totalRecebidoReal', formatarMoeda(stats.total_recebido_real));
+        
+        window.atualizarElemento('totalInfantis', stats.qtd_infantil);
+        window.atualizarElemento('totalBabylook', stats.qtd_babylook);
+        window.atualizarElemento('totalUnissex', stats.qtd_unissex);
+
     } catch (e) {
-        console.error("Erro ao carregar dashboard:", e);
+        console.error("Erro ao carregar/recalcular dashboard:", e);
     }
 };
 window.togglePedidoDetails = function(docId) {
@@ -3148,6 +3183,9 @@ window.realizarLiquidacao = async function(docId, valorRaw, dataStr) {
         // CORREÇÃO: Limpar cache e atualizar UI imediatamente
         window.pedidosCache = [];
         await window.carregarPagamentos();
+
+        // REQUISITO SOLICITADO: ATUALIZAR ESTATÍSTICAS IMEDIATAMENTE (FORÇAR RECALCULO)
+        await window.carregarDashboard();
         
         document.getElementById('modalLiquidacao').classList.remove('active');
         document.getElementById('modalSucessoLiquidacao').classList.add('active');
@@ -3214,6 +3252,9 @@ window.cancelarUltimaLiquidacao = async function() {
         // Limpa o cache e recarrega os pagamentos para refletir a mudança na interface
         window.pedidosCache = [];
         await window.carregarPagamentos();
+
+        // REQUISITO SOLICITADO: ATUALIZAR ESTATÍSTICAS IMEDIATAMENTE (FORÇAR RECALCULO)
+        await window.carregarDashboard();
         
         document.getElementById('modalLiquidacao').classList.remove('active');
         document.getElementById('modalSucessoCancelamento').classList.add('active');
