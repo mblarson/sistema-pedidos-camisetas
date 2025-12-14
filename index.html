@@ -1321,8 +1321,8 @@
                 
                 <div id="filtrosPedidos" class="search-container">
                     <div class="form-group" style="margin-bottom:0.5rem;">
-                        <input type="text" id="buscaInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;" onkeyup="if(event.key === 'Enter') window.carregarPedidos()">
-                        <button class="btn-primary" style="margin-top:5px;" onclick="window.carregarPedidos()">Buscar</button>
+                        <input type="text" id="buscaInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;" oninput="window.carregarPedidos()">
+                        
                     </div>
                     <div class="filter-container">
                         <span style="color:var(--text-muted); text-transform:uppercase;">LOCAL:</span>
@@ -1344,8 +1344,8 @@
                 <!-- INÍCIO: NOVOS FILTROS E BUSCA -->
                 <div id="filtrosPagamentos" class="search-container">
                     <div class="form-group" style="margin-bottom:0.5rem;">
-                        <input type="text" id="buscaPagamentosInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;" onkeyup="if(event.key === 'Enter') window.carregarPagamentos()">
-                        <button class="btn-primary" style="margin-top:5px;" onclick="window.carregarPagamentos()">Buscar</button>
+                        <input type="text" id="buscaPagamentosInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;" oninput="window.carregarPagamentos()">
+                        
                     </div>
                     <div class="filter-container">
                         <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase;">Status:</span>
@@ -2939,12 +2939,19 @@ window.togglePagamentoCard = function(docId) {
 
 // VERSÃO ATUALIZADA: CARDS EXPANSÍVEIS E NOVAS REGRAS DE STATUS
 // REFATORAÇÃO DE PAGINAÇÃO NO SERVIDOR (20 ITENS)
+// LÓGICA DE FILTRAGEM CORRIGIDA PARA CLIENT-SIDE NA PÁGINA (EVITAR ERRO DE INDEX)
+// IMPLEMENTAÇÃO DE BUSCA ON-INPUT
 window.carregarPagamentos = async function(modoExpandir = false) {
     const btnExpandirExistente = document.getElementById('btnCarregarMaisPagamentos');
     if (modoExpandir) {
         window.mostrarCarregamento(true, "CARREGANDO MAIS PAGAMENTOS...");
     } else {
-        window.mostrarCarregamento(true, "BUSCANDO PAGAMENTOS...");
+        // Se for busca inicial (oninput ou refresh), não mostra loader intrusivo para digitar fluido, apenas se necessário.
+        // Mas como é async, um loader sutil é bom. Para oninput, pode ser melhor sem loader full screen.
+        // Para manter padrão, usaremos o loader se o campo não estiver vazio ou se for a carga inicial.
+        const isSearch = document.getElementById('buscaPagamentosInput').value.trim().length > 0;
+        if(!isSearch) window.mostrarCarregamento(true, "BUSCANDO PAGAMENTOS...");
+        
         // Se não for expansão, limpa tudo para começar do zero
         document.getElementById('listaPagamentos').innerHTML = '';
         ultimoDocPagamentos = null;
@@ -2957,14 +2964,13 @@ window.carregarPagamentos = async function(modoExpandir = false) {
 
     try {
         let q;
-        const qtdPorPagina = 20; // Requisito: 20 itens por vez
+        // Aumentamos o limite para garantir que, após o filtro de status (client-side), sobrem itens.
+        // Isso evita o erro de "Index Missing" do Firestore ao usar 'where' com 'orderBy'.
+        const qtdPorPagina = 50; 
 
         // LÓGICA DE CONSTRUÇÃO DA QUERY FIRESTORE
         if (buscaInput) {
             // --- BUSCA ESPECÍFICA (WHERE) ---
-            // Se tiver busca, ignoramos a paginação complexa e o filtro de status para garantir que encontre o item exato.
-            // O Firestore não faz busca textual parcial ('contains'), então assumimos busca exata por ID ou Email.
-            
             if (buscaInput.includes('@')) {
                 // Busca por E-mail (Normalizado minúsculo)
                 q = query(pedidosCollection, where('email', '==', buscaInput.toLowerCase()), limit(20));
@@ -2972,32 +2978,23 @@ window.carregarPagamentos = async function(modoExpandir = false) {
                 // Busca por ID (Case sensitive no Firestore, mas o input é livre)
                 q = query(pedidosCollection, where('numPedido', '==', buscaInput), limit(20));
             }
-            
-            // Nota: Se a busca for feita, o botão "Carregar Mais" não faz muito sentido, mas limitamos a 20 por segurança.
-        
         } else {
             // --- LISTAGEM PADRÃO COM PAGINAÇÃO ---
             let constraints = [];
 
-            // 1. Filtragem por Status (Se aplicável)
-            // Assumimos que o campo 'statusPagamento' no banco reflete 'Parcial' ou 'Pago'.
-            if (filtroStatus === 'parcialmente') {
-                constraints.push(where('statusPagamento', '==', 'Parcial'));
-                constraints.push(orderBy('data', 'desc')); // Ordenação secundária necessária após o where
-            } else if (filtroStatus === 'quitado') {
-                constraints.push(where('statusPagamento', '==', 'Pago'));
-                constraints.push(orderBy('data', 'desc'));
-            } else {
-                // 'todos' -> Apenas ordenação por data
-                constraints.push(orderBy('data', 'desc'));
-            }
+            // NOTA IMPORTANTE DE CORREÇÃO:
+            // Removemos 'where' no statusPagamento para evitar o erro "The query requires an index".
+            // A filtragem será feita no loop abaixo (Client-Side) sobre o lote retornado.
+            // Isso garante que o sistema não trave e os dados sejam exibidos.
+            
+            constraints.push(orderBy('data', 'desc'));
 
             // 2. Paginação (StartAfter)
             if (modoExpandir && ultimoDocPagamentos) {
                 constraints.push(startAfter(ultimoDocPagamentos));
             }
 
-            // 3. Limite
+            // 3. Limite (Aumentado para compensar filtragem visual)
             constraints.push(limit(qtdPorPagina));
 
             q = query(pedidosCollection, ...constraints);
@@ -3013,134 +3010,142 @@ window.carregarPagamentos = async function(modoExpandir = false) {
 
         const pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
 
-        // RENDERIZAÇÃO
-        if (pedidosProcessados.length === 0 && !modoExpandir) {
-            const msg = buscaInput 
-                ? `Nenhum pagamento encontrado para "<strong>${escapeHTML(buscaInput)}</strong>".` 
-                : `Nenhum registro encontrado.`;
-            lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">${msg}</p>`;
-        } else {
-            // Se for a primeira carga, cria o container grid
-            // Se for expansão, adiciona ao container existente ou cria um fragmento
-            // Para manter o layout grid, vamos apenas adicionar os itens como HTML string ao final
-            // Mas o layout atual usa <div style="display:grid..."> wrapper.
-            // Se for expandir, precisamos adicionar DENTRO desse grid.
-            
-            let containerGrid = lista.querySelector('.pagamentos-grid-container');
-            if (!containerGrid) {
-                containerGrid = document.createElement('div');
-                containerGrid.className = 'pagamentos-grid-container';
-                containerGrid.style.cssText = "display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;";
-                lista.appendChild(containerGrid);
+        // Se for a primeira carga, cria o container grid
+        let containerGrid = lista.querySelector('.pagamentos-grid-container');
+        if (!containerGrid) {
+            containerGrid = document.createElement('div');
+            containerGrid.className = 'pagamentos-grid-container';
+            containerGrid.style.cssText = "display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;";
+            lista.appendChild(containerGrid);
+        }
+
+        let itensRenderizadosCount = 0;
+        let htmlBuffer = '';
+        
+        pedidosProcessados.forEach(p => {
+            const total = calcularTotalPedido(p) * PRECO_CAMISETA;
+            let pago = p.valorPago || 0;
+            // Fallback para cálculo legado se valorPago não estiver setado mas existir histórico
+            if (!p.valorPago && p.historicoPagamentos) {
+                pago = p.historicoPagamentos.reduce((acc, h) => acc + (parseFloat(h.valor)||0), 0);
+            }
+            const restante = Math.max(0, total - pago);
+
+            // --- CÁLCULO RIGOROSO DO STATUS ---
+            let statusCalculado = 'PENDENTE'; // Default
+            if (pago >= total && total > 0) {
+                statusCalculado = 'PAGO';
+            } else if (pago > 0 && pago < total) {
+                statusCalculado = 'PARCIAL';
             }
 
-            let htmlBuffer = '';
-            
-            pedidosProcessados.forEach(p => {
-                const total = calcularTotalPedido(p) * PRECO_CAMISETA;
-                let pago = p.valorPago || 0;
-                // Fallback para cálculo legado se valorPago não estiver setado mas existir histórico
-                if (!p.valorPago && p.historicoPagamentos) {
-                    pago = p.historicoPagamentos.reduce((acc, h) => acc + (parseFloat(h.valor)||0), 0);
-                }
-                const restante = Math.max(0, total - pago);
+            // --- FILTRAGEM VISUAL (CLIENT-SIDE) ---
+            // Aqui aplicamos a lógica solicitada: garantir que o status calculado bata com o filtro.
+            // Se o filtro for 'todos', passa tudo.
+            if (filtroStatus === 'parcialmente' && statusCalculado !== 'PARCIAL') return; // Pula este item
+            if (filtroStatus === 'quitado' && statusCalculado !== 'PAGO') return; // Pula este item
 
-                // --- REGRAS VISUAIS DE STATUS ---
-                // Nota: Mesmo paginando no servidor, recalculamos o visual para garantir consistência
-                let statusText = 'PENDENTE';
-                let statusColor = '#ff6b6b'; // Vermelho (Padrão/Pendente)
-                let statusBg = 'rgba(255, 107, 107, 0.1)';
+            itensRenderizadosCount++;
 
-                if (pago >= total && total > 0) {
-                    statusText = 'PAGO';
-                    statusColor = 'var(--success-color)'; // Verde
-                    statusBg = 'rgba(100, 255, 218, 0.1)';
-                } else if (pago > 0 && pago < total) {
-                    statusText = 'PARCIAL';
-                    statusColor = 'var(--warning-color)'; // Amarelo
-                    statusBg = 'rgba(255, 215, 0, 0.1)';
-                }
+            // --- DEFINIÇÃO DE CORES (UI) ---
+            let statusColor = '#ff6b6b'; // Vermelho (Padrão/Pendente)
+            let statusBg = 'rgba(255, 107, 107, 0.1)';
 
-                let identificacaoLocal = p.setor || 'Local não definido';
+            if (statusCalculado === 'PAGO') {
+                statusColor = 'var(--success-color)'; // Verde
+                statusBg = 'rgba(100, 255, 218, 0.1)';
+            } else if (statusCalculado === 'PARCIAL') {
+                statusColor = 'var(--warning-color)'; // Amarelo
+                statusBg = 'rgba(255, 215, 0, 0.1)';
+            }
 
-                htmlBuffer += `
-                <div class="pedido-item" onclick="window.togglePagamentoCard('${p.docId}')" style="margin-bottom:0; cursor:pointer; padding: 1.5rem !important; transition: background 0.2s; position:relative; animation: slideDown 0.3s ease-out;">
-                    
-                    <!-- CABEÇALHO (SEMPRE VISÍVEL) -->
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
-                         <span style="color:#fff; font-weight:700; font-size:1.1rem; letter-spacing:0.5px; text-transform:uppercase;">
-                            <i class="fas fa-map-marker-alt" style="color:var(--gold-solid); margin-right:6px; font-size:0.9rem;"></i>
-                            ${escapeHTML(identificacaoLocal)}
-                         </span>
-                         <span style="color:${statusColor}; background:${statusBg}; font-weight:800; font-size:0.75rem; letter-spacing:1px; padding:4px 10px; border-radius:4px; text-transform:uppercase; border:1px solid ${statusColor};">
-                            ${statusText}
-                         </span>
+            let identificacaoLocal = p.setor || 'Local não definido';
+
+            htmlBuffer += `
+            <div class="pedido-item" onclick="window.togglePagamentoCard('${p.docId}')" style="margin-bottom:0; cursor:pointer; padding: 1.5rem !important; transition: background 0.2s; position:relative; animation: slideDown 0.3s ease-out;">
+                
+                <!-- CABEÇALHO (SEMPRE VISÍVEL) -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
+                     <span style="color:#fff; font-weight:700; font-size:1.1rem; letter-spacing:0.5px; text-transform:uppercase;">
+                        <i class="fas fa-map-marker-alt" style="color:var(--gold-solid); margin-right:6px; font-size:0.9rem;"></i>
+                        ${escapeHTML(identificacaoLocal)}
+                     </span>
+                     <span style="color:${statusColor}; background:${statusBg}; font-weight:800; font-size:0.75rem; letter-spacing:1px; padding:4px 10px; border-radius:4px; text-transform:uppercase; border:1px solid ${statusColor};">
+                        ${statusCalculado}
+                     </span>
+                </div>
+
+                <!-- RESUMO FINANCEIRO (VISÍVEL APENAS QUANDO FECHADO) -->
+                <div id="pay-summary-${p.docId}" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px; border-radius:6px;">
+                    <div style="text-align:left;">
+                        <p style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Total</p>
+                        <p style="color:#fff; font-weight:600; font-size:0.9rem;">${formatarMoeda(total)}</p>
                     </div>
-
-                    <!-- RESUMO FINANCEIRO (VISÍVEL APENAS QUANDO FECHADO) -->
-                    <div id="pay-summary-${p.docId}" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px; border-radius:6px;">
-                        <div style="text-align:left;">
-                            <p style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Total</p>
-                            <p style="color:#fff; font-weight:600; font-size:0.9rem;">${formatarMoeda(total)}</p>
-                        </div>
-                        <div style="text-align:center;">
-                            <p style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Pago</p>
-                            <p style="color:${statusColor}; font-weight:600; font-size:0.9rem;">${formatarMoeda(pago)}</p>
-                        </div>
-                        <div style="text-align:right;">
-                            <p style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Restante</p>
-                            <p style="color:#ddd; font-weight:600; font-size:0.9rem;">${formatarMoeda(restante)}</p>
-                        </div>
+                    <div style="text-align:center;">
+                        <p style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Pago</p>
+                        <p style="color:${statusColor}; font-weight:600; font-size:0.9rem;">${formatarMoeda(pago)}</p>
                     </div>
-                    
-                    <!-- CONTEÚDO EXPANDIDO -->
-                    <div id="pay-details-${p.docId}" style="display:none; margin-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
-                        <div style="margin-bottom:1.5rem;">
-                            <p style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">Líder Responsável</p>
-                            <p style="font-size:1.2rem; color:#fff; font-weight:500;">${escapeHTML(p.nome)}</p>
-                        </div>
-                        <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:8px; margin-bottom:1.5rem;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px;">
-                                <span style="color:var(--text-muted); font-size:0.9rem;">TOTAL</span>
-                                <span style="color:#fff; font-weight:700;">${formatarMoeda(total)}</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px;">
-                                <span style="color:var(--text-muted); font-size:0.9rem;">TOTAL PAGO</span>
-                                <span style="color:${statusColor}; font-weight:700;">${formatarMoeda(pago)}</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="color:var(--text-muted); font-size:0.9rem;">TOTAL RECEBIDO</span>
-                                <span style="color:#fff; font-weight:700;">${formatarMoeda(pago)}</span> 
-                            </div>
-                        </div>
-                        <button onclick="event.stopPropagation(); window.abrirModalLiquidacao('${p.docId}')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); box-shadow:none; font-size:0.8rem; padding: 12px;">
-                            <i class="fas fa-wallet" style="margin-right:8px;"></i> GERENCIAR
-                        </button>
-                    </div>
-                    <div style="position:absolute; bottom:5px; left:50%; transform:translateX(-50%); opacity:0.3;">
-                        <i id="pay-icon-${p.docId}" class="fas fa-chevron-right" style="font-size:0.8rem; color:#fff;"></i>
+                    <div style="text-align:right;">
+                        <p style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Restante</p>
+                        <p style="color:#ddd; font-weight:600; font-size:0.9rem;">${formatarMoeda(restante)}</p>
                     </div>
                 </div>
-                `;
-            });
+                
+                <!-- CONTEÚDO EXPANDIDO -->
+                <div id="pay-details-${p.docId}" style="display:none; margin-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
+                    <div style="margin-bottom:1.5rem;">
+                        <p style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">Líder Responsável</p>
+                        <p style="font-size:1.2rem; color:#fff; font-weight:500;">${escapeHTML(p.nome)}</p>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:8px; margin-bottom:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px;">
+                            <span style="color:var(--text-muted); font-size:0.9rem;">TOTAL</span>
+                            <span style="color:#fff; font-weight:700;">${formatarMoeda(total)}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px;">
+                            <span style="color:var(--text-muted); font-size:0.9rem;">TOTAL PAGO</span>
+                            <span style="color:${statusColor}; font-weight:700;">${formatarMoeda(pago)}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-muted); font-size:0.9rem;">TOTAL RECEBIDO</span>
+                            <span style="color:#fff; font-weight:700;">${formatarMoeda(pago)}</span> 
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); window.abrirModalLiquidacao('${p.docId}')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); box-shadow:none; font-size:0.8rem; padding: 12px;">
+                        <i class="fas fa-wallet" style="margin-right:8px;"></i> GERENCIAR
+                    </button>
+                </div>
+                <div style="position:absolute; bottom:5px; left:50%; transform:translateX(-50%); opacity:0.3;">
+                    <i id="pay-icon-${p.docId}" class="fas fa-chevron-right" style="font-size:0.8rem; color:#fff;"></i>
+                </div>
+            </div>
+            `;
+        });
 
-            containerGrid.insertAdjacentHTML('beforeend', htmlBuffer);
+        containerGrid.insertAdjacentHTML('beforeend', htmlBuffer);
+
+        // Feedback se a filtragem removeu tudo
+        if (itensRenderizadosCount === 0 && !modoExpandir) {
+             const msg = buscaInput 
+                ? `Nenhum pagamento encontrado para "<strong>${escapeHTML(buscaInput)}</strong>".` 
+                : `Nenhum registro com status "<strong>${filtroStatus.toUpperCase()}</strong>" encontrado nesta página.`;
+            lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">${msg}</p>`;
         }
 
         // GERENCIAMENTO DO BOTÃO "CARREGAR MAIS"
-        if (btnExpandirExistente) btnExpandirExistente.remove(); // Remove o antigo para reposicionar
+        if (btnExpandirExistente) btnExpandirExistente.remove(); 
 
-        // Se trouxemos o número máximo de itens (20) e não é uma busca específica (que retorna poucos), mostramos o botão
+        // Se trouxemos o número máximo de itens (50) e não é uma busca específica, mostramos o botão
         if (snapshot.docs.length === qtdPorPagina && !buscaInput) {
             const btnHtml = `
                 <div id="btnCarregarMaisPagamentos" style="text-align:center; margin-top:2rem; margin-bottom:4rem; width: 100%;">
                     <button onclick="window.carregarPagamentos(true)" class="btn-primary" style="background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); width:100%;">
-                        <i class="fas fa-chevron-down"></i> CARREGAR MAIS PAGAMENTOS (+20)
+                        <i class="fas fa-chevron-down"></i> CARREGAR MAIS PAGAMENTOS (+50)
                     </button>
                 </div>`;
             lista.insertAdjacentHTML('beforeend', btnHtml);
         } else if (!buscaInput && pedidosProcessados.length > 0) {
-            lista.insertAdjacentHTML('beforeend', `<div style="text-align:center; color:var(--text-muted); margin-top:2rem; font-size:0.8rem;">--- Todos os registros carregados ---</div>`);
+            lista.insertAdjacentHTML('beforeend', `<div style="text-align:center; color:var(--text-muted); margin-top:2rem; font-size:0.8rem;">--- Fim dos registros ---</div>`);
         }
 
     } catch(e) {
@@ -3438,7 +3443,9 @@ window.acaoEncerrarEvento = async function() {
         alert("Ocorreu um erro ao tentar encerrar o evento. Verifique o console.");
     } finally {
         window.mostrarCarregamento(false);
-    }
+    }r("Erro fatal ao encerrar evento:", error);
+        alert("Ocorreu um erro ao tentar encerrar o evento. Verifique o console.");
+    } finally {
 };
 
 window.mascaraTelefone = function(input) {
