@@ -1026,6 +1026,11 @@
       </div>
   </div>
 
+  <!-- BOTÃO DE STRESS TEST (TEMPORÁRIO) -->
+  <button onclick="window.rodarTesteCarga()" style="position:fixed; bottom:20px; right:20px; z-index:9999; background:red; color:white; padding:15px 25px; border:none; border-radius:50px; font-weight:800; box-shadow:0 0 20px rgba(0,0,0,0.5); cursor:pointer; font-family:'Manrope', sans-serif;">
+      🚀 RODAR TESTE (600 PEDIDOS)
+  </button>
+
   <header class="header">
     <div class="container header-content">
       <div class="logo">
@@ -3568,6 +3573,117 @@ window.mascaraTelefone = function(input) {
 // Associa o botão de confirmar pagamento ao evento (uma vez que não tinha onclick no HTML)
 window.setupLiquidacaoListener = function() {
     // This is now handled by onclick inside abrirModalLiquidacao
+};
+
+// ============================================
+// SCRIPT DE TESTE DE CARGA (SOLICITADO)
+// ============================================
+window.rodarTesteCarga = async function() {
+    if (!confirm("⚠️ ATENÇÃO: TEM CERTEZA?\n\nIsso vai gerar 600 PEDIDOS de teste (240.000 camisetas) no banco de dados.\nEssa operação consome cota de gravação do Firestore.")) return;
+
+    window.mostrarCarregamento(true, "GERANDO 600 PEDIDOS (LOTE)...");
+    
+    try {
+        const TOTAL_PEDIDOS = 600;
+        const QTD_POR_TAMANHO = 10;
+        const BATCH_SIZE = 400; // Limite seguro (Max 500)
+        
+        // Definição dos tamanhos e cores
+        const tamsInf = ['1','2','4','6','8','10','12','14']; // 8 tamanhos
+        const tamsAdulto = ['PP','P','M','G','GG','XGG']; // 6 tamanhos
+        
+        // Helper para gerar objeto { '1': 10, '2': 10... }
+        const makeQtyObj = (arr) => arr.reduce((acc, curr) => ({ ...acc, [curr]: QTD_POR_TAMANHO }), {});
+        
+        const objInf = makeQtyObj(tamsInf);
+        const objAdulto = makeQtyObj(tamsAdulto);
+        
+        // Estrutura do Pedido (Total 400 camisetas)
+        const pedidoBase = {
+            nome: "TESTE DE CARGA AUTOMATICO",
+            email: "teste@stress.com",
+            contato: "(67) 99999-9999",
+            local: "Capital",
+            setor: "TESTE DE CARGA",
+            observacao: "Pedido gerado via script de stress test",
+            status: "Pendente",
+            data: new Date().toISOString(),
+            // 20 tamanhos x 10 und = 200 camisetas
+            verdeOliva: { infantil: objInf, babylook: objAdulto, unissex: objAdulto },
+            // 20 tamanhos x 10 und = 200 camisetas
+            terracota: { infantil: objInf, babylook: objAdulto, unissex: objAdulto }
+        };
+        
+        // Gerar Batches
+        let batches = [];
+        let currentBatch = writeBatch(db);
+        let opCount = 0;
+        
+        for (let i = 0; i < TOTAL_PEDIDOS; i++) {
+            const ref = doc(collection(db, "pedidos"));
+            // Copia base e adiciona ID e Nome único
+            const dados = { ...pedidoBase, numPedido: ref.id, nome: `TESTE CARGA #${i+1}` };
+            
+            currentBatch.set(ref, dados);
+            opCount++;
+            
+            if (opCount >= BATCH_SIZE) {
+                batches.push(currentBatch.commit());
+                currentBatch = writeBatch(db);
+                opCount = 0;
+            }
+        }
+        if (opCount > 0) batches.push(currentBatch.commit());
+        
+        // Aguarda gravação dos pedidos
+        await Promise.all(batches);
+        
+        // Atualizar Estatísticas (UMA ÚNICA VEZ)
+        // Totais: 600 pedidos * 400 camisetas = 240.000
+        const totalCamisetas = TOTAL_PEDIDOS * 400;
+        const valorTotal = totalCamisetas * PRECO_CAMISETA;
+        
+        // Totais por categoria (Verde + Terracota)
+        // Inf: 160 por pedido (80v + 80t)
+        // Baby: 120 por pedido (60v + 60t)
+        // Uni: 120 por pedido (60v + 60t)
+        const totalInf = TOTAL_PEDIDOS * 160;
+        const totalBaby = TOTAL_PEDIDOS * 120;
+        const totalUni = TOTAL_PEDIDOS * 120;
+        
+        const statsRef = doc(db, "configuracoes", "estatisticas");
+        const updatePayload = {
+            qtd_pedidos: increment(TOTAL_PEDIDOS),
+            qtd_camisetas: increment(totalCamisetas),
+            valor_total: increment(valorTotal),
+            qtd_infantil: increment(totalInf),
+            qtd_babylook: increment(totalBaby),
+            qtd_unissex: increment(totalUni),
+            // Local
+            "local_Capital_TESTE DE CARGA": increment(totalCamisetas)
+        };
+        
+        // Atualizar SKUs individuais (para a matriz funcionar)
+        // Cada SKU específico recebeu 10 un * 600 pedidos = 6000
+        const incrementoSku = TOTAL_PEDIDOS * QTD_POR_TAMANHO;
+        
+        ['verde', 'terracota'].forEach(cor => {
+            tamsInf.forEach(t => updatePayload[`${cor}_infantil_${t}`] = increment(incrementoSku));
+            tamsAdulto.forEach(t => updatePayload[`${cor}_babylook_${t}`] = increment(incrementoSku));
+            tamsAdulto.forEach(t => updatePayload[`${cor}_unissex_${t}`] = increment(incrementoSku));
+        });
+        
+        await updateDoc(statsRef, updatePayload);
+        
+        alert(`SUCESSO! ${TOTAL_PEDIDOS} pedidos gerados (240.000 camisetas). Página será recarregada.`);
+        window.location.reload();
+        
+    } catch (error) {
+        console.error(error);
+        alert("ERRO NO TESTE DE CARGA: " + error.message);
+    } finally {
+        window.mostrarCarregamento(false);
+    }
 };
 
 // Inicialização
