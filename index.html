@@ -2274,32 +2274,6 @@ window.exibirModalDetalhesPedido = function(pedido) {
     document.getElementById('modalDetalhesPedido').classList.add('active');
 };
 
-window.displayVisualizacaoPedido = function(pedido) {
-    currentPedidoParaEdicao = pedido;
-    const total = calcularTotalPedido(pedido);
-    const html = `<div class="pedido-item">
-                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem; margin-bottom:1rem; align-items:center;">
-                        <span style="color:var(--gold-solid); font-size:1.2rem; font-weight:700;">#${pedido.numPedido}</span>
-                    </div>
-                    <div style="display:grid; gap:0.5rem; color:var(--text-muted); font-size:0.9rem;">
-                        <p>NOME: <span style="color:#fff">${pedido.nome}</span></p>
-                        <p>LOCAL: <span style="color:#fff">${pedido.local} - ${pedido.setor}</span></p>
-                        <p>TOTAL PEÇAS: <span style="color:#fff">${total}</span></p>
-                        <p>VALOR TOTAL: <span style="color:var(--gold-solid); font-weight:700;">${formatarMoeda(total * PRECO_CAMISETA)}</span></p>
-                    </div>
-                    <button id="btnDetalharOverlay" class="btn-primary" style="width:100%; margin-top:2rem; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); box-shadow:none;">DETALHAR PEDIDO</button>
-                    </div>`;
-    document.getElementById('resultadoConsulta').innerHTML = html;
-    
-    // Listener para abrir o modal de detalhes (e automaticamente gerar PDF)
-    const btnDetail = document.getElementById('btnDetalharOverlay');
-    if (btnDetail) {
-        // Remove o listener anterior e adiciona o novo que chama a função de modal
-        btnDetail.removeEventListener('click', () => window.exibirModalDetalhesPedido(pedido));
-        btnDetail.addEventListener('click', () => window.exibirModalDetalhesPedido(pedido));
-    }
-};
-
 /**
  * AGGREGATED COUNTERS (CONTADORES AGREGADOS)
  * Helper para extrair o mapa de quantidades (SKUs) de um pedido ou formulário.
@@ -2467,14 +2441,6 @@ window.handleFormSubmission = async function(e) {
                 const antigaChaveLocal = `local_${pAntigo.local}_${pAntigo.setor}`;
                 if (antigaChaveLocal !== novaChaveLocal) {
                     // Remove do antigo (todos os itens antigos)
-                    updatesStats[antigaChaveLocal] = increment({ qtd: -oldTotalPecas, valor: -oldValorTotal });
-                    // Adiciona ao novo (todos os itens novos - lógica abaixo trata a soma, aqui só troca de bucket)
-                    // Na verdade, a lógica é: Decrementa o antigo total da chave antiga, Incrementa o novo total na chave nova.
-                    // ATENÇÃO: O increment do Firestore não suporta objetos complexos diretamente em map fields aninhados facilmente sem dot notation.
-                    // Para simplificar e manter integridade flat, usaremos chaves separadas se necessário ou assumiremos objeto se suportado.
-                    // A solução mais robusta "flat key" solicitada:
-                    // Vamos simplificar para contar apenas QTD de peças por local para o relatório.
-                    // Se o relatório precisa de valor, calculamos qtd * preço.
                     updatesStats[antigaChaveLocal] = increment(-oldTotalPecas); // Remove qtd antiga do bucket antigo
                     updatesStats[novaChaveLocal] = increment(totalPecas);       // Adiciona qtd nova no bucket novo
                 } else {
@@ -2722,7 +2688,10 @@ window.carregarPedidos = async function(modoExpandir = false) {
     if (modoExpandir) {
         window.mostrarCarregamento(true, 'CARREGANDO MAIS...');
     } else {
-        window.mostrarCarregamento(true, 'BUSCANDO...');
+        // Se for busca inicial (oninput ou refresh), não mostra loader intrusivo para digitar fluido, apenas se necessário.
+        const isSearch = document.getElementById('buscaInput').value.trim().length > 0;
+        if(!isSearch) window.mostrarCarregamento(true, 'BUSCANDO...');
+        
         // Se não for expansão, limpa tudo para começar do zero
         document.getElementById('listaPedidos').innerHTML = '';
         ultimoDocumentoCarregado = null;
@@ -2743,19 +2712,23 @@ window.carregarPedidos = async function(modoExpandir = false) {
         const qtdPorPagina = 10;
 
         if (termoBusca) {
-            // --- ITEM C: BUSCA DIRETA NO BANCO ---
-            // Em vez de filtrar na memória, pedimos exatamente o documento que queremos.
-            
+            // --- BUSCA HÍBRIDA GLOBAL (FUZZY SIMULADO) ---
             if (termoBusca.includes('@')) {
-                // Se tem @, assumimos que é E-MAIL (Buscamos pelo campo email minúsculo)
-                q = query(pedidosCollection, where('email', '==', termoBuscaLower), limit(10));
+                // Email: Busca exata
+                q = query(pedidosCollection, where('email', '==', termoBuscaLower), limit(20));
+            } else if (termoBusca.length < 10 && /^[A-Z0-9]+$/.test(termoBusca) && !termoBusca.match(/^\d+$/)) {
+                // ID curto alfanumérico (Provável ID de pedido, ex: 3Xy9) - Prioriza busca exata por ID
+                q = query(pedidosCollection, where('numPedido', '==', termoBusca), limit(20));
             } else {
-                // Se não tem @, assumimos que é o ID DO PEDIDO (Busca exata, case-sensitive)
-                q = query(pedidosCollection, where('numPedido', '==', termoBusca), limit(10));
+                // Busca Global (Nome, Telefone, Cidade) - Busca "Smart"
+                // Como Firestore não tem "LIKE", baixamos os últimos 100 registros para filtrar no cliente.
+                // Isso permite achar "Maria", "Cuiabá", "9999" dentro dos pedidos ativos recentes.
+                // É um compromisso entre performance (não baixar tudo) e usabilidade (achar nomes).
+                q = query(pedidosCollection, orderBy('data', 'desc'), limit(100));
             }
             
         } else {
-            // --- ITEM A: LISTAGEM PAGINADA ---
+            // --- ITEM A: LISTAGEM PADRÃO PAGINADA ---
             let constraints = [orderBy('data', 'desc')];
             
             if (filtroLocal !== 'todos') {
@@ -2772,18 +2745,30 @@ window.carregarPedidos = async function(modoExpandir = false) {
 
         const snapshot = await getDocs(q);
         
-        // Atualiza o cursor para a próxima página
+        // Atualiza o cursor para a próxima página (apenas se não for busca global filtrada)
         if (!snapshot.empty) {
             ultimoDocumentoCarregado = snapshot.docs[snapshot.docs.length - 1];
         }
 
-        const pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+        let pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
         
+        // Se for busca global, aplicamos o filtro na memória agora
+        if (termoBusca && !termoBusca.includes('@') && !(termoBusca.length < 10 && /^[A-Z0-9]+$/.test(termoBusca) && !termoBusca.match(/^\d+$/))) {
+             pedidosProcessados = pedidosProcessados.filter(p => {
+                 const t = termoBuscaLower;
+                 return (p.nome && p.nome.toLowerCase().includes(t)) ||
+                        (p.contato && p.contato.includes(t)) ||
+                        (p.setor && p.setor.toLowerCase().includes(t)) ||
+                        (p.local && p.local.toLowerCase().includes(t)) ||
+                        (p.numPedido && p.numPedido.toLowerCase().includes(t));
+             });
+        }
+
         // Renderização
         if (pedidosProcessados.length === 0 && !modoExpandir) {
             // Mensagem amigável explicando como buscar
             const msg = termoBusca 
-                ? `Nenhum pedido encontrado com o ID ou E-mail: "<strong>${escapeHTML(termoBusca)}</strong>".<br><span style="font-size:0.8rem">Dica: Digite o Código exato (ex: 3Xy9...) ou E-mail completo.</span>` 
+                ? `Nenhum pedido encontrado para "<strong>${escapeHTML(termoBusca)}</strong>" nos registros recentes.` 
                 : `Nenhum pedido registrado.`;
             
             lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">${msg}</p>`;
@@ -3047,8 +3032,6 @@ window.carregarPagamentos = async function(modoExpandir = false) {
         window.mostrarCarregamento(true, "CARREGANDO MAIS PAGAMENTOS...");
     } else {
         // Se for busca inicial (oninput ou refresh), não mostra loader intrusivo para digitar fluido, apenas se necessário.
-        // Mas como é async, um loader sutil é bom. Para oninput, pode ser melhor sem loader full screen.
-        // Para manter padrão, usaremos o loader se o campo não estiver vazio ou se for a carga inicial.
         const isSearch = document.getElementById('buscaPagamentosInput').value.trim().length > 0;
         if(!isSearch) window.mostrarCarregamento(true, "BUSCANDO PAGAMENTOS...");
         
@@ -3070,13 +3053,18 @@ window.carregarPagamentos = async function(modoExpandir = false) {
 
         // LÓGICA DE CONSTRUÇÃO DA QUERY FIRESTORE
         if (buscaInput) {
-            // --- BUSCA ESPECÍFICA (WHERE) ---
+            // --- BUSCA HÍBRIDA GLOBAL (FUZZY SIMULADO) ---
             if (buscaInput.includes('@')) {
-                // Busca por E-mail (Normalizado minúsculo)
+                // Email: Busca exata
                 q = query(pedidosCollection, where('email', '==', buscaInput.toLowerCase()), limit(20));
-            } else {
-                // Busca por ID (Case sensitive no Firestore, mas o input é livre)
+            } else if (buscaInput.length < 10 && /^[A-Z0-9]+$/.test(buscaInput) && !buscaInput.match(/^\d+$/)) {
+                // ID curto alfanumérico (Provável ID de pedido, ex: 3Xy9) - Prioriza busca exata por ID
                 q = query(pedidosCollection, where('numPedido', '==', buscaInput), limit(20));
+            } else {
+                // Busca Global (Nome, Telefone, Cidade) - Busca "Smart"
+                // Como Firestore não tem "LIKE", baixamos os últimos 100 registros para filtrar no cliente.
+                // Isso permite achar "Maria", "Cuiabá", "9999" dentro dos pedidos ativos recentes.
+                q = query(pedidosCollection, orderBy('data', 'desc'), limit(100));
             }
         } else {
             // --- LISTAGEM PADRÃO COM PAGINAÇÃO ---
@@ -3103,12 +3091,24 @@ window.carregarPagamentos = async function(modoExpandir = false) {
         // EXECUÇÃO DA QUERY
         const snapshot = await getDocs(q);
 
-        // Atualiza o cursor para a próxima página
+        // Atualiza o cursor para a próxima página (apenas se não for busca global filtrada)
         if (!snapshot.empty) {
             ultimoDocPagamentos = snapshot.docs[snapshot.docs.length - 1];
         }
 
-        const pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+        let pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+
+        // Se for busca global, aplicamos o filtro na memória agora
+        if (buscaInput && !buscaInput.includes('@') && !(buscaInput.length < 10 && /^[A-Z0-9]+$/.test(buscaInput) && !buscaInput.match(/^\d+$/))) {
+             const termoBuscaLower = buscaInput.toLowerCase();
+             pedidosProcessados = pedidosProcessados.filter(p => {
+                 return (p.nome && p.nome.toLowerCase().includes(termoBuscaLower)) ||
+                        (p.contato && p.contato.includes(termoBuscaLower)) ||
+                        (p.setor && p.setor.toLowerCase().includes(termoBuscaLower)) ||
+                        (p.local && p.local.toLowerCase().includes(termoBuscaLower)) ||
+                        (p.numPedido && p.numPedido.toLowerCase().includes(termoBuscaLower));
+             });
+        }
 
         // Se for a primeira carga, cria o container grid
         let containerGrid = lista.querySelector('.pagamentos-grid-container');
@@ -3227,7 +3227,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
         // Feedback se a filtragem removeu tudo
         if (itensRenderizadosCount === 0 && !modoExpandir) {
              const msg = buscaInput 
-                ? `Nenhum pagamento encontrado para "<strong>${escapeHTML(buscaInput)}</strong>".` 
+                ? `Nenhum pagamento encontrado para "<strong>${escapeHTML(buscaInput)}</strong>" nos registros recentes.` 
                 : `Nenhum registro com status "<strong>${filtroStatus.toUpperCase()}</strong>" encontrado nesta página.`;
             lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">${msg}</p>`;
         }
