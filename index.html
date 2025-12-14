@@ -800,7 +800,7 @@
           <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Tem certeza que deseja ENCERRAR o evento? Todos os pedidos serão removidos do sistema.</p>
           <div style="display:flex; gap:1rem;">
               <button onclick="document.getElementById('modalEncerrarEvento').classList.remove('active')" style="flex:1; background:transparent; border:1px solid var(--border-subtle); color:var(--text-muted); padding:1rem; border-radius:50px; cursor:pointer;">Cancelar</button>
-              <button id="btnConfirmarEncerrarEvento" class="btn-primary" style="flex:1; background:var(--danger-color); color:#fff;">Encerrar Evento</button>
+              <button id="btnConfirmarEncerrarEvento" class="btn-primary" onclick="window.acaoEncerrarEvento()" style="flex:1; background:var(--danger-color); color:#fff;">Encerrar Evento</button>
           </div>
       </div>
   </div>
@@ -1304,7 +1304,7 @@
                         <button id="btnSalvarValor" class="btn-primary" type="button" onclick="window.abrirModalSenhaValor()" style="padding:0.8rem 1.5rem; font-size:0.8rem; display:flex; justify-content:center; align-items:center;">SALVAR</button>
                     </div>
                     <!-- BOTÃO ENCERRAR EVENTO ADICIONADO AQUI -->
-                    <button id="btnEncerrarEventoAction" class="btn-primary" type="button" style="width:100%; background:var(--danger-color); color:#fff; margin-top: 1rem;">ENCERRAR EVENTO</button>
+                    <button id="btnEncerrarEventoAction" class="btn-primary" type="button" style="width:100%; background:var(--danger-color); color:#fff; margin-top: 1rem;" onclick="document.getElementById('modalEncerrarEvento').classList.add('active')">ENCERRAR EVENTO</button>
                 </div>
                 <div class="card"><h4 style="margin-bottom:1.5rem;">Por Setor / Localidade</h4><div id="resumoEventoLocais"></div></div>
             </div>
@@ -1313,8 +1313,8 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                     <h3>Todos os Pedidos</h3>
                     <div style="display:flex; gap:10px; align-items:center;">
-                        <button id="btnFecharPedidosAction" style="background:rgba(212, 175, 55, 0.1); border:1px solid var(--gold-solid); color:var(--gold-solid); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase;"><i class="fas fa-ban"></i> Fechar Pedidos</button>
-                        <button id="btnReabrirPedidosAction" style="background:rgba(100, 255, 218, 0.1); border:1px solid var(--success-color); color:var(--success-color); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase; display:none;"><i class="fas fa-check"></i> Reabrir Pedidos</button>
+                        <button id="btnFecharPedidosAction" style="background:rgba(212, 175, 55, 0.1); border:1px solid var(--gold-solid); color:var(--gold-solid); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase;" onclick="document.getElementById('modalFecharPedidos').classList.add('active')"><i class="fas fa-ban"></i> Fechar Pedidos</button>
+                        <button id="btnReabrirPedidosAction" style="background:rgba(100, 255, 218, 0.1); border:1px solid var(--success-color); color:var(--success-color); font-size:0.75rem; cursor:pointer; padding:6px 12px; border-radius:50px; font-weight:700; text-transform:uppercase; display:none;" onclick="document.getElementById('modalReabrirPedidos').classList.add('active')"><i class="fas fa-check"></i> Reabrir Pedidos</button>
                         <button id="atualizarPedidos" onclick="window.recarregarPedidosComFeedback()" style="background:none; border:none; color:var(--gold-solid); font-size:1.2rem; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
@@ -1995,7 +1995,7 @@ window.gerarPdfPedidoIndividual = async function(pedido) {
             const blackLogoData = canvas.toDataURL('image/png');
 
             // 8. Add to PDF
-            doc.addImage(blackLogoData, 'PNG', 10, 10, 20, 20); // x=10, y=10 (Canto Superior Esquerdo)
+            doc.addImage(blackLogoData, 'PNG', 10, 10, 30, 30); // x=10, y=10 (Canto Superior Esquerdo)
 
         } catch (e) {
             console.warn("Logo não carregado no PDF", e);
@@ -3305,6 +3305,80 @@ window.confirmarReaberturaPedidos = async function() {
     await setDoc(configSistemaRef, { aberto: true });
     document.getElementById('modalReabrirPedidos').classList.remove('active');
     alert("Pedidos reabertos.");
+};
+
+// --- FUNÇÃO DE ENCERRAMENTO TOTAL DO EVENTO ---
+// Implementa a lógica solicitada para limpar o banco de dados e zerar estatísticas
+window.acaoEncerrarEvento = async function() {
+    // Fechar modal
+    document.getElementById('modalEncerrarEvento').classList.remove('active');
+    
+    // Verificação de segurança adicional
+    const confirmacao = prompt("Para confirmar o encerramento do evento e a EXCLUSÃO DE TODOS OS PEDIDOS, digite 'ENCERRAR' abaixo:");
+    
+    if (confirmacao !== 'ENCERRAR') {
+        alert("Ação cancelada. A frase de confirmação estava incorreta.");
+        return;
+    }
+
+    window.mostrarCarregamento(true, "LIMPANDO BANCO DE DADOS...");
+    
+    try {
+        // 1. Resetar Estatísticas
+        await setDoc(doc(db, "configuracoes", "estatisticas"), {
+            qtd_pedidos: 0,
+            qtd_camisetas: 0,
+            qtd_infantil: 0,
+            qtd_babylook: 0,
+            qtd_unissex: 0,
+            valor_total: 0,
+            total_recebido_real: 0
+        });
+        
+        // 2. Excluir Pedidos em Lote (Batch)
+        // O Firestore limita batches a 500 operações. Vamos processar em chunks.
+        const snapshot = await getDocs(collection(db, "pedidos"));
+        const totalDocs = snapshot.size;
+        
+        if (totalDocs === 0) {
+            alert("Evento encerrado. Não havia pedidos para excluir.");
+            window.carregarDashboard();
+            window.mostrarCarregamento(false);
+            return;
+        }
+
+        let batch = writeBatch(db);
+        let count = 0;
+        let promises = [];
+
+        snapshot.forEach((doc) => {
+            batch.delete(doc.ref);
+            count++;
+
+            if (count >= 400) {
+                promises.push(batch.commit());
+                batch = writeBatch(db);
+                count = 0;
+            }
+        });
+
+        if (count > 0) {
+            promises.push(batch.commit());
+        }
+
+        await Promise.all(promises);
+        
+        window.pedidosCache = [];
+        window.carregarDashboard();
+        
+        alert("EVENTO ENCERRADO COM SUCESSO!\nTodos os pedidos foram removidos e as métricas zeradas.");
+
+    } catch (error) {
+        console.error("Erro fatal ao encerrar evento:", error);
+        alert("Ocorreu um erro ao tentar encerrar o evento. Verifique o console.");
+    } finally {
+        window.mostrarCarregamento(false);
+    }
 };
 
 window.mascaraTelefone = function(input) {
