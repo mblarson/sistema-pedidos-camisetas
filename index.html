@@ -1375,7 +1375,7 @@
   <script type="module">
 // @ts-nocheck
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc, limit, orderBy, startAfter, writeBatch, increment } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc, limit, orderBy, startAfter, writeBatch, increment, runTransaction } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
 const firebaseConfig = {
@@ -2299,15 +2299,15 @@ window.displayVisualizacaoPedido = function(pedido) {
     }
 };
 
-// SALVAMENTO OTIMIZADO COM ESCRITA EM LOTE (BATCH) - ALTA PERFORMANCE
+// ===============================================
+// LÓGICA REFORMULADA: FIRESTORE TRANSACTION
+// ===============================================
 window.handleFormSubmission = async function(e) {
     e.preventDefault();
     if (!SISTEMA_ABERTO) { document.getElementById('modalPedidosFechados').classList.add('active'); return; }
 
     const docId = document.getElementById('pedidoDocId').value;
-    const isEditing = !!docId; 
-    
-
+    const isEditing = !!docId;
 
     const formData = new FormData(document.getElementById('formPedido'));
     const email = formData.get('email').toLowerCase().trim();
@@ -2315,7 +2315,6 @@ window.handleFormSubmission = async function(e) {
     
     if (!isValidEmail(email)) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL INVÁLIDO'); return; }
 
-    // Validação Celular
     const contatoInput = formData.get('contato');
     const contatoNumeros = contatoInput ? contatoInput.replace(/\D/g, '') : '';
     if (!contatoNumeros || contatoNumeros.length < 11) {
@@ -2324,37 +2323,22 @@ window.handleFormSubmission = async function(e) {
         return;
     }
 
-    // Validação Duplicidade
-    // --- NOVA VALIDAÇÃO (E-MAIL E SETOR) ---
-
-    // 1. Validação de E-mail (Aplica-se a Capital e Interior)
+    // Duplicidade Checks (simplificados para leitura)
     const dupEmail = await window.verificarPedidoPorEmail(email);
-    if (dupEmail) {
-        // Bloqueia se for um pedido novo OU se for edição mas o ID for diferente (tentando usar e-mail de outro)
-        if (!isEditing || dupEmail.docId !== docId) {
-            window.exibirMensagem('mensagemPedido', 'erro', 'ESTE E-MAIL JÁ POSSUI UM PEDIDO REGISTRADO.');
-            return; 
-        }
+    if (dupEmail && (!isEditing || dupEmail.docId !== docId)) {
+        window.exibirMensagem('mensagemPedido', 'erro', 'ESTE E-MAIL JÁ POSSUI UM PEDIDO REGISTRADO.');
+        return; 
     }
-
-    // 2. Validação de Setor (Aplica-se APENAS à Capital)
-    // Regra: Um Setor da Capital não pode enviar mais de um pedido.
-    const localSelecionado = formData.get('local'); // Pega valor "Capital" ou "Interior"
-    
+    const localSelecionado = formData.get('local');
     if (localSelecionado === 'Capital') {
         const dupSetor = await window.verificarPedidoPorSetor(setor);
-        if (dupSetor) {
-            // Bloqueia se o setor já existir e não for o próprio pedido sendo editado
-            if (!isEditing || dupSetor.docId !== docId) {
-                window.exibirMensagem('mensagemPedido', 'erro', `O ${setor} JÁ POSSUI UM PEDIDO REGISTRADO (CAPITAL).`);
-                return;
-            }
+        if (dupSetor && (!isEditing || dupSetor.docId !== docId)) {
+            window.exibirMensagem('mensagemPedido', 'erro', `O ${setor} JÁ POSSUI UM PEDIDO REGISTRADO (CAPITAL).`);
+            return;
         }
     }
-    // --- FIM DA NOVA VALIDAÇÃO ---
 
-    
-    // Calcular Totais para atualizar os contadores
+    // Calcular Totais
     const getQtd = (prefix) => getQuantidadesFromForm(formData, prefix);
     const vInf = getQtd('verde_infantil'); const vBaby = getQtd('verde_babylook'); const vUni = getQtd('verde_unissex');
     const tInf = getQtd('terracota_infantil'); const tBaby = getQtd('terracota_babylook'); const tUni = getQtd('terracota_unissex');
@@ -2368,100 +2352,88 @@ window.handleFormSubmission = async function(e) {
 
     if (totalPecas === 0) { window.exibirMensagem('mensagemPedido', 'erro', 'ADICIONE PELO MENOS 1 CAMISETA'); return; }
     
-    window.mostrarCarregamento(true, "SALVANDO E COMPUTANDO...");
+    window.mostrarCarregamento(true, "SALVANDO (TRANSAÇÃO)...");
 
     try {
-        const batch = writeBatch(db);
-        const estatisticasRef = doc(db, "configuracoes", "estatisticas");
-
-        // Define os dados base do pedido
-        const dadosPedido = {
-            nome: formData.get('nome'),
-            local: formData.get('local'),
-            setor: setor,
-            email: email,
-            contato: formData.get('contato'),
-            observacao: formData.get('observacao'), // ADICIONADO CAMPO DE OBSERVAÇÃO
-            verdeOliva: { infantil: vInf, babylook: vBaby, unissex: vUni },
-            terracota: { infantil: tInf, babylook: tBaby, unissex: tUni },
-            // Mantém a data original se for edição, ou cria nova se for novo
-            ...(isEditing ? {} : { data: new Date().toISOString(), status: 'Pendente' }) 
-        };
-        
-        // Remove campos indefinidos
-        Object.keys(dadosPedido).forEach(key => dadosPedido[key] === undefined && delete dadosPedido[key]);
-
-        if (isEditing) {
-            // ============================================================
-            // MODO EDIÇÃO: COMPENSAÇÃO MATEMÁTICA (Subtrai Velho, Soma Novo)
-            // ============================================================
+        await runTransaction(db, async (transaction) => {
+            // 1. Ler Estatísticas
+            const estatisticasRef = doc(db, "configuracoes", "estatisticas");
+            const statsSnap = await transaction.get(estatisticasRef);
             
-            // 1. Busca o pedido ANTIGO no banco
-            const pedidoRef = doc(db, "pedidos", docId);
-            const docSnap = await getDoc(pedidoRef);
-            if (!docSnap.exists()) throw new Error("Pedido original não encontrado.");
-            
-            const pAntigo = docSnap.data();
-
-            // 2. Calcula os totais que serão removidos
-            const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
-            let oldInf = 0, oldBaby = 0, oldUni = 0;
-
-            // Lógica híbrida (Lê tanto estrutura nova quanto legado)
-            if (pAntigo.verdeOliva || pAntigo.terracota) {
-                if(pAntigo.verdeOliva) { oldInf += sum(pAntigo.verdeOliva.infantil); oldBaby += sum(pAntigo.verdeOliva.babylook); oldUni += sum(pAntigo.verdeOliva.unissex); }
-                if(pAntigo.terracota) { oldInf += sum(pAntigo.terracota.infantil); oldBaby += sum(pAntigo.terracota.babylook); oldUni += sum(pAntigo.terracota.unissex); }
-            } else {
-                oldInf += sum(pAntigo.infantil); oldBaby += sum(pAntigo.babylook); oldUni += sum(pAntigo.unissex);
+            if (!statsSnap.exists()) {
+                throw "Estatísticas não inicializadas!";
             }
-            
-            const oldTotalPecas = oldInf + oldBaby + oldUni;
-            const oldValorTotal = oldTotalPecas * PRECO_CAMISETA;
+            const stats = statsSnap.data();
 
-            // 3. Atualiza os dados do pedido (Texto/Tamanhos)
-            batch.update(pedidoRef, dadosPedido);
+            // 2. Preparar Dados
+            const dadosPedido = {
+                nome: formData.get('nome'),
+                local: formData.get('local'),
+                setor: setor,
+                email: email,
+                contato: formData.get('contato'),
+                observacao: formData.get('observacao'), 
+                verdeOliva: { infantil: vInf, babylook: vBaby, unissex: vUni },
+                terracota: { infantil: tInf, babylook: tBaby, unissex: tUni },
+                ...(isEditing ? {} : { data: new Date().toISOString(), status: 'Pendente' }) 
+            };
+            Object.keys(dadosPedido).forEach(key => dadosPedido[key] === undefined && delete dadosPedido[key]);
 
-            // 4. Atualiza o Painel (Dashboard): Diferença entre NOVO e VELHO
-            // Se aumentou camisetas, o valor será positivo. Se diminuiu, negativo.
-            batch.update(estatisticasRef, {
-                qtd_camisetas: increment(totalPecas - oldTotalPecas),
-                valor_total: increment(valorTotal - oldValorTotal),
-                qtd_infantil: increment(qtdInf - oldInf),
-                qtd_babylook: increment(qtdBaby - oldBaby),
-                qtd_unissex: increment(qtdUni - oldUni)
-            });
-            
-            window.exibirConfirmacaoPedido({ numPedido: pAntigo.numPedido, ...dadosPedido });
+            if (isEditing) {
+                // EDIÇÃO ATÔMICA
+                const pedidoRef = doc(db, "pedidos", docId);
+                const pedidoSnap = await transaction.get(pedidoRef);
+                if (!pedidoSnap.exists()) throw "Pedido original não encontrado.";
+                
+                const pAntigo = pedidoSnap.data();
+                
+                // Totais Antigos
+                let oldInf = 0, oldBaby = 0, oldUni = 0;
+                const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+                if (pAntigo.verdeOliva || pAntigo.terracota) {
+                    if(pAntigo.verdeOliva) { oldInf += sum(pAntigo.verdeOliva.infantil); oldBaby += sum(pAntigo.verdeOliva.babylook); oldUni += sum(pAntigo.verdeOliva.unissex); }
+                    if(pAntigo.terracota) { oldInf += sum(pAntigo.terracota.infantil); oldBaby += sum(pAntigo.terracota.babylook); oldUni += sum(pAntigo.terracota.unissex); }
+                } else {
+                    oldInf += sum(pAntigo.infantil); oldBaby += sum(pAntigo.babylook); oldUni += sum(pAntigo.unissex);
+                }
+                const oldTotalPecas = oldInf + oldBaby + oldUni;
+                const oldValorTotal = oldTotalPecas * PRECO_CAMISETA;
 
-        } else {
-            // ============================================================
-            // MODO CRIAÇÃO: SOMA SIMPLES
-            // ============================================================
-            
-            const novoPedidoRef = doc(pedidosCollection);
-            dadosPedido.numPedido = novoPedidoRef.id;
-            
-            batch.set(novoPedidoRef, dadosPedido);
+                // Aplicar Deltas
+                transaction.update(pedidoRef, dadosPedido);
+                transaction.update(estatisticasRef, {
+                    qtd_camisetas: (stats.qtd_camisetas || 0) + (totalPecas - oldTotalPecas),
+                    valor_total: (stats.valor_total || 0) + (valorTotal - oldValorTotal),
+                    qtd_infantil: (stats.qtd_infantil || 0) + (qtdInf - oldInf),
+                    qtd_babylook: (stats.qtd_babylook || 0) + (qtdBaby - oldBaby),
+                    qtd_unissex: (stats.qtd_unissex || 0) + (qtdUni - oldUni)
+                });
+                
+                // Exibição pós-transação (hacky, mas funcional para manter padrão)
+                setTimeout(() => window.exibirConfirmacaoPedido({ numPedido: pAntigo.numPedido, ...dadosPedido }), 100);
 
-            batch.update(estatisticasRef, {
-                qtd_pedidos: increment(1),
-                qtd_camisetas: increment(totalPecas),
-                valor_total: increment(valorTotal),
-                qtd_infantil: increment(qtdInf),
-                qtd_babylook: increment(qtdBaby),
-                qtd_unissex: increment(qtdUni)
-            });
-            
-            window.exibirConfirmacaoPedido(dadosPedido);
-        }
+            } else {
+                // CRIAÇÃO ATÔMICA
+                const newPedidoRef = doc(collection(db, "pedidos"));
+                dadosPedido.numPedido = newPedidoRef.id;
+                
+                transaction.set(newPedidoRef, dadosPedido);
+                transaction.update(estatisticasRef, {
+                    qtd_pedidos: (stats.qtd_pedidos || 0) + 1,
+                    qtd_camisetas: (stats.qtd_camisetas || 0) + totalPecas,
+                    valor_total: (stats.valor_total || 0) + valorTotal,
+                    qtd_infantil: (stats.qtd_infantil || 0) + qtdInf,
+                    qtd_babylook: (stats.qtd_babylook || 0) + qtdBaby,
+                    qtd_unissex: (stats.qtd_unissex || 0) + qtdUni
+                });
+                
+                setTimeout(() => window.exibirConfirmacaoPedido(dadosPedido), 100);
+            }
+        });
 
-        // Executa tudo junto (Atômico)
-        await batch.commit();
-        
         document.getElementById('formPedido').reset();
         window.carregarDashboard();
         
-        // Limpa estado de edição
         if(isEditing) {
             currentPedidoParaEdicao = null;
             document.getElementById('pedidoDocId').value = '';
@@ -2469,12 +2441,13 @@ window.handleFormSubmission = async function(e) {
         }
 
     } catch (err) { 
-        window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR'); 
+        window.exibirMensagem('mensagemPedido', 'erro', 'ERRO AO SALVAR: ' + err); 
         console.error(err); 
     } finally { 
         window.mostrarCarregamento(false); 
     }
 };
+
 window.handleAdminLogin = async function(e) {
     e.preventDefault(); 
     const email = document.getElementById('emailAdmin').value.trim(); 
@@ -2514,17 +2487,14 @@ window.carregarTodosPedidos = async function(force = false) {
     return window.pedidosCache;
 };
 
-// DASHBOARD OTIMIZADO (LÊ APENAS 1 DOCUMENTO DE ESTATÍSTICAS)
+// DASHBOARD REFORMULADO: LEITURA DIRETA DO DOC ESTATÍSTICAS
 window.carregarDashboard = async function() {
     try {
-        // --- NOVO LÓGICA DE RECALCULO COMPLETO ---
-        // Em vez de ler o documento, vamos recalcular tudo e ATUALIZAR o documento
-        // para garantir integridade sempre que o dashboard for acessado.
-        
-        const querySnapshot = await getDocs(collection(db, "pedidos"));
+        const statsRef = doc(db, "configuracoes", "estatisticas");
+        const docSnap = await getDoc(statsRef);
         
         let stats = {
-            qtd_pedidos: querySnapshot.size,
+            qtd_pedidos: 0,
             qtd_camisetas: 0,
             qtd_infantil: 0,
             qtd_babylook: 0,
@@ -2533,60 +2503,27 @@ window.carregarDashboard = async function() {
             total_recebido_real: 0
         };
 
-        querySnapshot.forEach((doc) => {
-            const p = doc.data();
-            const totalPeca = calcularTotalPedido(p);
-            stats.qtd_camisetas += totalPeca;
+        if (docSnap.exists()) {
+            stats = docSnap.data();
+        } else {
+            console.warn("Stats missing, displaying zero.");
+        }
 
-            // Soma das categorias (mesma lógica de calcularTotalPedido, mas separada)
-            const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
-            if (p.verdeOliva || p.terracota) {
-                if(p.verdeOliva) {
-                    stats.qtd_infantil += sum(p.verdeOliva.infantil);
-                    stats.qtd_babylook += sum(p.verdeOliva.babylook);
-                    stats.qtd_unissex += sum(p.verdeOliva.unissex);
-                }
-                if(p.terracota) {
-                    stats.qtd_infantil += sum(p.terracota.infantil);
-                    stats.qtd_babylook += sum(p.terracota.babylook);
-                    stats.qtd_unissex += sum(p.terracota.unissex);
-                }
-            } else {
-                stats.qtd_infantil += sum(p.infantil);
-                stats.qtd_babylook += sum(p.babylook);
-                stats.qtd_unissex += sum(p.unissex);
-            }
-
-            // Soma dos Pagamentos (Realizado)
-            if (p.historicoPagamentos && Array.isArray(p.historicoPagamentos)) {
-                p.historicoPagamentos.forEach(h => {
-                    stats.total_recebido_real += (parseFloat(h.valor) || 0);
-                });
-            } else if (p.valorPago) {
-                 stats.total_recebido_real += (parseFloat(p.valorPago) || 0);
-            }
-        });
-
-        // Recalcula o valor total previsto com base no preço ATUAL
-        stats.valor_total = stats.qtd_camisetas * PRECO_CAMISETA;
-
-        // Atualiza o documento no Firebase (Self-Healing)
-        await setDoc(doc(db, "configuracoes", "estatisticas"), stats);
-
-        // Atualiza a UI
-        window.atualizarElemento('totalPedidos', stats.qtd_pedidos);
-        window.atualizarElemento('totalCamisetas', stats.qtd_camisetas);
-        window.atualizarElemento('totalArrecadado', formatarMoeda(stats.valor_total));
-        window.atualizarElemento('totalRecebidoReal', formatarMoeda(stats.total_recebido_real));
+        // Atualiza a UI diretamente com os valores lidos (sem loop)
+        window.atualizarElemento('totalPedidos', stats.qtd_pedidos || 0);
+        window.atualizarElemento('totalCamisetas', stats.qtd_camisetas || 0);
+        window.atualizarElemento('totalArrecadado', formatarMoeda(stats.valor_total || 0));
+        window.atualizarElemento('totalRecebidoReal', formatarMoeda(stats.total_recebido_real || 0));
         
-        window.atualizarElemento('totalInfantis', stats.qtd_infantil);
-        window.atualizarElemento('totalBabylook', stats.qtd_babylook);
-        window.atualizarElemento('totalUnissex', stats.qtd_unissex);
+        window.atualizarElemento('totalInfantis', stats.qtd_infantil || 0);
+        window.atualizarElemento('totalBabylook', stats.qtd_babylook || 0);
+        window.atualizarElemento('totalUnissex', stats.qtd_unissex || 0);
 
     } catch (e) {
-        console.error("Erro ao carregar/recalcular dashboard:", e);
+        console.error("Erro ao carregar dashboard:", e);
     }
 };
+
 window.togglePedidoDetails = function(docId) {
     const detailsDiv = document.getElementById(`details-${docId}`); const icon = document.getElementById(`icon-${docId}`);
     if (detailsDiv.style.display === 'none') { detailsDiv.style.display = 'block'; icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-down'); }
@@ -2600,63 +2537,60 @@ window.abrirModalExcluirPedido = function(docId) {
     document.getElementById('modalExcluirPedido').classList.add('active');
 };
 
-// FUNÇÃO PARA EXCLUIR O PEDIDO NO FIREBASE
+// FUNÇÃO PARA EXCLUIR O PEDIDO NO FIREBASE (AGORA COM TRANSACTION)
 window.excluirPedido = async function() {
     const docId = document.getElementById('excluirPedidoDocId').value;
     if (!docId) return;
 
     document.getElementById('modalExcluirPedido').classList.remove('active');
-    window.mostrarCarregamento(true, "EXCLUINDO PEDIDO...");
+    window.mostrarCarregamento(true, "EXCLUINDO (TRANSAÇÃO)...");
 
     try {
-        // 1. Pega os dados do pedido ANTES de excluir para saber o que subtrair
-        const docRef = doc(db, "pedidos", docId);
-        const docSnap = await getDoc(docRef);
-        
-        if (!docSnap.exists()) {
-            throw new Error("Pedido não encontrado para exclusão.");
-        }
-        
-        const p = docSnap.data();
-        
-        // 2. Calcula os totais que serão removidos
-        const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
-        
-        let qInf = 0, qBaby = 0, qUni = 0;
-        
-        // Soma quantidades (Suporta estrutura nova e antiga)
-        if (p.verdeOliva || p.terracota) {
-            if(p.verdeOliva) { qInf += sum(p.verdeOliva.infantil); qBaby += sum(p.verdeOliva.babylook); qUni += sum(p.verdeOliva.unissex); }
-            if(p.terracota) { qInf += sum(p.terracota.infantil); qBaby += sum(p.terracota.babylook); qUni += sum(p.terracota.unissex); }
-        } else {
-            qInf += sum(p.infantil); qBaby += sum(p.babylook); qUni += sum(p.unissex);
-        }
-        
-        const totalPecas = qInf + qBaby + qUni;
-        const valorTotal = totalPecas * PRECO_CAMISETA;
+        await runTransaction(db, async (transaction) => {
+            const pedidoRef = doc(db, "pedidos", docId);
+            const estatisticasRef = doc(db, "configuracoes", "estatisticas");
 
-        // 3. Executa a exclusão e a atualização das estatísticas em Lote (Batch)
-        const batch = writeBatch(db);
-        const estatisticasRef = doc(db, "configuracoes", "estatisticas");
+            const [pedidoSnap, statsSnap] = await Promise.all([
+                transaction.get(pedidoRef),
+                transaction.get(estatisticasRef)
+            ]);
 
-        batch.delete(docRef); // Deleta o pedido
-        
-        // Decrementa os valores no documento de estatísticas
-        batch.set(estatisticasRef, {
-            qtd_pedidos: increment(-1),
-            qtd_camisetas: increment(-totalPecas),
-            valor_total: increment(-valorTotal),
-            qtd_infantil: increment(-qInf),
-            qtd_babylook: increment(-qBaby),
-            qtd_unissex: increment(-qUni)
-        }, { merge: true });
+            if (!pedidoSnap.exists()) throw "Pedido não encontrado.";
+            if (!statsSnap.exists()) throw "Estatísticas não encontradas.";
+            
+            const p = pedidoSnap.data();
+            const stats = statsSnap.data();
+            
+            // Calcula totais a remover
+            const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+            let qInf = 0, qBaby = 0, qUni = 0;
+            
+            if (p.verdeOliva || p.terracota) {
+                if(p.verdeOliva) { qInf += sum(p.verdeOliva.infantil); qBaby += sum(p.verdeOliva.babylook); qUni += sum(p.verdeOliva.unissex); }
+                if(p.terracota) { qInf += sum(p.terracota.infantil); qBaby += sum(p.terracota.babylook); qUni += sum(p.terracota.unissex); }
+            } else {
+                qInf += sum(p.infantil); qBaby += sum(p.babylook); qUni += sum(p.unissex);
+            }
+            
+            const totalPecas = qInf + qBaby + qUni;
+            const valorTotal = totalPecas * PRECO_CAMISETA;
 
-        await batch.commit();
+            // Executa exclusão e atualização
+            transaction.delete(pedidoRef);
+            transaction.update(estatisticasRef, {
+                qtd_pedidos: (stats.qtd_pedidos || 0) - 1,
+                qtd_camisetas: (stats.qtd_camisetas || 0) - totalPecas,
+                valor_total: (stats.valor_total || 0) - valorTotal,
+                qtd_infantil: (stats.qtd_infantil || 0) - qInf,
+                qtd_babylook: (stats.qtd_babylook || 0) - qBaby,
+                qtd_unissex: (stats.qtd_unissex || 0) - qUni
+            });
+        });
 
-        // 4. Atualiza a interface
+        // Atualiza a interface
         window.pedidosCache = []; 
         await window.carregarPedidos();
-        await window.carregarDashboard(); // O Dashboard lerá os novos valores atualizados
+        await window.carregarDashboard(); // Rápido pois agora só lê um doc
         
         window.exibirMensagem('mensagemLogin', 'sucesso', `Pedido removido e estatísticas atualizadas.`);
         
