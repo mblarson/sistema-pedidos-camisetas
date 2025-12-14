@@ -2300,8 +2300,48 @@ window.displayVisualizacaoPedido = function(pedido) {
     }
 };
 
+/**
+ * AGGREGATED COUNTERS (CONTADORES AGREGADOS)
+ * Helper para extrair o mapa de quantidades (SKUs) de um pedido ou formulário.
+ * Retorna objeto com chaves planas ex: 'verde_infantil_4': 2
+ */
+function getSkuMap(source, isForm = false) {
+    const map = {};
+    const cores = ['verde', 'terracota'];
+    const tipos = ['infantil', 'babylook', 'unissex'];
+    const tamanhosInf = ['1','2','4','6','8','10','12','14'];
+    const tamanhosAdulto = ['PP','P','M','G','GG','XGG'];
+
+    cores.forEach(cor => {
+        tipos.forEach(tipo => {
+            const tams = tipo === 'infantil' ? tamanhosInf : tamanhosAdulto;
+            tams.forEach(tam => {
+                // Chave padrão: cor_tipo_tamanho (ex: verde_infantil_4)
+                const key = `${cor}_${tipo}_${tam}`;
+                let val = 0;
+                
+                if (isForm) {
+                    // Lendo do HTML (IDs dos inputs seguem o padrão da chave)
+                    const el = document.getElementById(key);
+                    val = el ? (parseInt(el.value) || 0) : 0;
+                } else {
+                    // Lendo do objeto Pedido do Firestore
+                    // Firestore structure: pedido.verdeOliva.infantil['4']
+                    const colorKey = cor === 'verde' ? 'verdeOliva' : 'terracota';
+                    if (source && source[colorKey] && source[colorKey][tipo]) {
+                        val = parseInt(source[colorKey][tipo][tam]) || 0;
+                    }
+                }
+                
+                if (val > 0) map[key] = val;
+            });
+        });
+    });
+    return map;
+}
+
 // ===============================================
-// LÓGICA REFORMULADA: FIRESTORE TRANSACTION
+// LÓGICA REFORMULADA: FIRESTORE TRANSACTION (COM AGREGAÇÃO)
 // ===============================================
 window.handleFormSubmission = async function(e) {
     e.preventDefault();
@@ -2313,6 +2353,7 @@ window.handleFormSubmission = async function(e) {
     const formData = new FormData(document.getElementById('formPedido'));
     const email = formData.get('email').toLowerCase().trim();
     const setor = normalizeString(formData.get('setor'));
+    const local = formData.get('local'); // Capital ou Interior
     
     if (!isValidEmail(email)) { window.exibirMensagem('mensagemPedido', 'erro', 'E-MAIL INVÁLIDO'); return; }
 
@@ -2330,8 +2371,8 @@ window.handleFormSubmission = async function(e) {
         window.exibirMensagem('mensagemPedido', 'erro', 'ESTE E-MAIL JÁ POSSUI UM PEDIDO REGISTRADO.');
         return; 
     }
-    const localSelecionado = formData.get('local');
-    if (localSelecionado === 'Capital') {
+    
+    if (local === 'Capital') {
         const dupSetor = await window.verificarPedidoPorSetor(setor);
         if (dupSetor && (!isEditing || dupSetor.docId !== docId)) {
             window.exibirMensagem('mensagemPedido', 'erro', `O ${setor} JÁ POSSUI UM PEDIDO REGISTRADO (CAPITAL).`);
@@ -2339,7 +2380,7 @@ window.handleFormSubmission = async function(e) {
         }
     }
 
-    // Calcular Totais
+    // Calcular Totais do Formulário
     const getQtd = (prefix) => getQuantidadesFromForm(formData, prefix);
     const vInf = getQtd('verde_infantil'); const vBaby = getQtd('verde_babylook'); const vUni = getQtd('verde_unissex');
     const tInf = getQtd('terracota_infantil'); const tBaby = getQtd('terracota_babylook'); const tUni = getQtd('terracota_unissex');
@@ -2357,7 +2398,7 @@ window.handleFormSubmission = async function(e) {
 
     try {
         await runTransaction(db, async (transaction) => {
-            // 1. Ler Estatísticas
+            // 1. Referência Estatísticas
             const estatisticasRef = doc(db, "configuracoes", "estatisticas");
             const statsSnap = await transaction.get(estatisticasRef);
             
@@ -2366,10 +2407,10 @@ window.handleFormSubmission = async function(e) {
             }
             const stats = statsSnap.data();
 
-            // 2. Preparar Dados
+            // 2. Preparar Dados do Pedido
             const dadosPedido = {
                 nome: formData.get('nome'),
-                local: formData.get('local'),
+                local: local,
                 setor: setor,
                 email: email,
                 contato: formData.get('contato'),
@@ -2378,17 +2419,25 @@ window.handleFormSubmission = async function(e) {
                 terracota: { infantil: tInf, babylook: tBaby, unissex: tUni },
                 ...(isEditing ? {} : { data: new Date().toISOString(), status: 'Pendente' }) 
             };
+            // Limpa undefined
             Object.keys(dadosPedido).forEach(key => dadosPedido[key] === undefined && delete dadosPedido[key]);
 
+            // Mapas de SKU e Locais para o cálculo de Delta
+            const novoMapaSku = getSkuMap(null, true); // Lê do DOM (inputs atuais)
+            const novaChaveLocal = `local_${local}_${setor}`; // Ex: local_Capital_SetorA
+
+            // Objeto de updates para o documento de estatísticas
+            const updatesStats = {};
+
             if (isEditing) {
-                // EDIÇÃO ATÔMICA
+                // --- EDIÇÃO ATÔMICA ---
                 const pedidoRef = doc(db, "pedidos", docId);
                 const pedidoSnap = await transaction.get(pedidoRef);
                 if (!pedidoSnap.exists()) throw "Pedido original não encontrado.";
                 
                 const pAntigo = pedidoSnap.data();
                 
-                // Totais Antigos
+                // Totais Financeiros Antigos
                 let oldInf = 0, oldBaby = 0, oldUni = 0;
                 const sum = (obj) => Object.values(obj || {}).reduce((a, b) => a + b, 0);
                 if (pAntigo.verdeOliva || pAntigo.terracota) {
@@ -2400,33 +2449,78 @@ window.handleFormSubmission = async function(e) {
                 const oldTotalPecas = oldInf + oldBaby + oldUni;
                 const oldValorTotal = oldTotalPecas * PRECO_CAMISETA;
 
-                // Aplicar Deltas
-                transaction.update(pedidoRef, dadosPedido);
-                transaction.update(estatisticasRef, {
-                    qtd_camisetas: (stats.qtd_camisetas || 0) + (totalPecas - oldTotalPecas),
-                    valor_total: (stats.valor_total || 0) + (valorTotal - oldValorTotal),
-                    qtd_infantil: (stats.qtd_infantil || 0) + (qtdInf - oldInf),
-                    qtd_babylook: (stats.qtd_babylook || 0) + (qtdBaby - oldBaby),
-                    qtd_unissex: (stats.qtd_unissex || 0) + (qtdUni - oldUni)
-                });
+                // --- CÁLCULO DE DELTA (ESTOQUE / SKUS) ---
+                const antigoMapaSku = getSkuMap(pAntigo, false);
+                const todasAsChaves = new Set([...Object.keys(novoMapaSku), ...Object.keys(antigoMapaSku)]);
                 
-                // Exibição pós-transação (hacky, mas funcional para manter padrão)
+                todasAsChaves.forEach(key => {
+                    const qtdNova = novoMapaSku[key] || 0;
+                    const qtdAntiga = antigoMapaSku[key] || 0;
+                    const delta = qtdNova - qtdAntiga;
+                    if (delta !== 0) {
+                        updatesStats[key] = increment(delta);
+                    }
+                });
+
+                // --- CÁLCULO DE DELTA (LOCALIDADES) ---
+                // Verifica se mudou de local/setor
+                const antigaChaveLocal = `local_${pAntigo.local}_${pAntigo.setor}`;
+                if (antigaChaveLocal !== novaChaveLocal) {
+                    // Remove do antigo (todos os itens antigos)
+                    updatesStats[antigaChaveLocal] = increment({ qtd: -oldTotalPecas, valor: -oldValorTotal });
+                    // Adiciona ao novo (todos os itens novos - lógica abaixo trata a soma, aqui só troca de bucket)
+                    // Na verdade, a lógica é: Decrementa o antigo total da chave antiga, Incrementa o novo total na chave nova.
+                    // ATENÇÃO: O increment do Firestore não suporta objetos complexos diretamente em map fields aninhados facilmente sem dot notation.
+                    // Para simplificar e manter integridade flat, usaremos chaves separadas se necessário ou assumiremos objeto se suportado.
+                    // A solução mais robusta "flat key" solicitada:
+                    // Vamos simplificar para contar apenas QTD de peças por local para o relatório.
+                    // Se o relatório precisa de valor, calculamos qtd * preço.
+                    updatesStats[antigaChaveLocal] = increment(-oldTotalPecas); // Remove qtd antiga do bucket antigo
+                    updatesStats[novaChaveLocal] = increment(totalPecas);       // Adiciona qtd nova no bucket novo
+                } else {
+                    // Mesmo local, apenas ajusta a diferença de quantidade
+                    const deltaQtd = totalPecas - oldTotalPecas;
+                    if (deltaQtd !== 0) {
+                        updatesStats[novaChaveLocal] = increment(deltaQtd);
+                    }
+                }
+
+                // --- CÁLCULO GERAL (FINANCEIRO E CATEGORIAS) ---
+                updatesStats['qtd_camisetas'] = increment(totalPecas - oldTotalPecas);
+                updatesStats['valor_total'] = increment(valorTotal - oldValorTotal);
+                updatesStats['qtd_infantil'] = increment(qtdInf - oldInf);
+                updatesStats['qtd_babylook'] = increment(qtdBaby - oldBaby);
+                updatesStats['qtd_unissex'] = increment(qtdUni - oldUni);
+
+                // Executa Updates
+                transaction.update(pedidoRef, dadosPedido);
+                transaction.update(estatisticasRef, updatesStats);
+                
                 setTimeout(() => window.exibirConfirmacaoPedido({ numPedido: pAntigo.numPedido, ...dadosPedido }), 100);
 
             } else {
-                // CRIAÇÃO ATÔMICA
+                // --- CRIAÇÃO ATÔMICA ---
                 const newPedidoRef = doc(collection(db, "pedidos"));
                 dadosPedido.numPedido = newPedidoRef.id;
                 
-                transaction.set(newPedidoRef, dadosPedido);
-                transaction.update(estatisticasRef, {
-                    qtd_pedidos: (stats.qtd_pedidos || 0) + 1,
-                    qtd_camisetas: (stats.qtd_camisetas || 0) + totalPecas,
-                    valor_total: (stats.valor_total || 0) + valorTotal,
-                    qtd_infantil: (stats.qtd_infantil || 0) + qtdInf,
-                    qtd_babylook: (stats.qtd_babylook || 0) + qtdBaby,
-                    qtd_unissex: (stats.qtd_unissex || 0) + qtdUni
+                // SKUs
+                Object.keys(novoMapaSku).forEach(key => {
+                    updatesStats[key] = increment(novoMapaSku[key]);
                 });
+
+                // Localidade
+                updatesStats[novaChaveLocal] = increment(totalPecas);
+
+                // Geral
+                updatesStats['qtd_pedidos'] = increment(1);
+                updatesStats['qtd_camisetas'] = increment(totalPecas);
+                updatesStats['valor_total'] = increment(valorTotal);
+                updatesStats['qtd_infantil'] = increment(qtdInf);
+                updatesStats['qtd_babylook'] = increment(qtdBaby);
+                updatesStats['qtd_unissex'] = increment(qtdUni);
+
+                transaction.set(newPedidoRef, dadosPedido);
+                transaction.update(estatisticasRef, updatesStats);
                 
                 setTimeout(() => window.exibirConfirmacaoPedido(dadosPedido), 100);
             }
@@ -2538,7 +2632,7 @@ window.abrirModalExcluirPedido = function(docId) {
     document.getElementById('modalExcluirPedido').classList.add('active');
 };
 
-// FUNÇÃO PARA EXCLUIR O PEDIDO NO FIREBASE (AGORA COM TRANSACTION)
+// FUNÇÃO PARA EXCLUIR O PEDIDO NO FIREBASE (AGORA COM TRANSACTION E AGGREGATED COUNTERS)
 window.excluirPedido = async function() {
     const docId = document.getElementById('excluirPedidoDocId').value;
     if (!docId) return;
@@ -2576,22 +2670,35 @@ window.excluirPedido = async function() {
             const totalPecas = qInf + qBaby + qUni;
             const valorTotal = totalPecas * PRECO_CAMISETA;
 
+            // Updates Object
+            const updatesStats = {
+                qtd_pedidos: increment(-1),
+                qtd_camisetas: increment(-totalPecas),
+                valor_total: increment(-valorTotal),
+                qtd_infantil: increment(-qInf),
+                qtd_babylook: increment(-qBaby),
+                qtd_unissex: increment(-qUni)
+            };
+
+            // Remover do Estoque (Aggregated Keys)
+            const mapaSku = getSkuMap(p, false);
+            Object.keys(mapaSku).forEach(key => {
+                updatesStats[key] = increment(-mapaSku[key]); // Decrementa a qtd
+            });
+
+            // Remover do Local (Aggregated Key)
+            const chaveLocal = `local_${p.local}_${p.setor}`;
+            updatesStats[chaveLocal] = increment(-totalPecas);
+
             // Executa exclusão e atualização
             transaction.delete(pedidoRef);
-            transaction.update(estatisticasRef, {
-                qtd_pedidos: (stats.qtd_pedidos || 0) - 1,
-                qtd_camisetas: (stats.qtd_camisetas || 0) - totalPecas,
-                valor_total: (stats.valor_total || 0) - valorTotal,
-                qtd_infantil: (stats.qtd_infantil || 0) - qInf,
-                qtd_babylook: (stats.qtd_babylook || 0) - qBaby,
-                qtd_unissex: (stats.qtd_unissex || 0) - qUni
-            });
+            transaction.update(estatisticasRef, updatesStats);
         });
 
         // Atualiza a interface
         window.pedidosCache = []; 
         await window.carregarPedidos();
-        await window.carregarDashboard(); // Rápido pois agora só lê um doc
+        await window.carregarDashboard(); 
         
         window.exibirMensagem('mensagemLogin', 'sucesso', `Pedido removido e estatísticas atualizadas.`);
         
@@ -2817,47 +2924,50 @@ window.recarregarPagamentosComFeedback = async function() {
 };
 
 // --- EVENT DETAILS (MATRIZ & RESUMO) ---
-
+// REFATORADO: AGORA LÊ APENAS 1 DOC (estatisticas) E NÃO BAIXA MAIS TODOS OS PEDIDOS
 window.carregarDetalhesEvento = async function() {
-    window.mostrarCarregamento(true, "COMPILANDO DADOS...");
+    window.mostrarCarregamento(true, "LENDO ESTATÍSTICAS...");
     try {
-        const pedidos = await window.carregarTodosPedidos(true); // Force fetch
-        
-        // 1. Matrix Calculation
+        // Lógica Otimizada: Lê o doc de estatísticas onde os contadores estão agregados
+        const statsRef = doc(db, "configuracoes", "estatisticas");
+        const docSnap = await getDoc(statsRef);
+        const stats = docSnap.exists() ? docSnap.data() : {};
+
+        // 1. Matrix Construction from Aggregated Keys
         const sizes = ['1','2','4','6','8','10','12','14','PP','P','M','G','GG','XGG'];
         const matrix = {
             verde: { infantil: {}, babylook: {}, unissex: {} },
             terracota: { infantil: {}, babylook: {}, unissex: {} }
         };
-        // Helper to ensure 0
-        const z = (c, t, s) => { if(!matrix[c][t][s]) matrix[c][t][s] = 0; };
         
-        pedidos.forEach(p => {
-            const add = (c, t, obj) => {
-                Object.entries(obj || {}).forEach(([s, q]) => {
-                    if(!matrix[c][t][s]) matrix[c][t][s] = 0;
-                    matrix[c][t][s] += (parseInt(q)||0);
-                });
-            };
-            if(p.verdeOliva) {
-                add('verde', 'infantil', p.verdeOliva.infantil);
-                add('verde', 'babylook', p.verdeOliva.babylook);
-                add('verde', 'unissex', p.verdeOliva.unissex);
-            }
-            if(p.terracota) {
-                add('terracota', 'infantil', p.terracota.infantil);
-                add('terracota', 'babylook', p.terracota.babylook);
-                add('terracota', 'unissex', p.terracota.unissex);
-            }
-            // FIX: Handle legacy mapping
-            if (!p.verdeOliva && !p.terracota) {
-                add('verde', 'infantil', p.infantil);
-                add('verde', 'babylook', p.babylook);
-                add('verde', 'unissex', p.unissex);
+        // Helper to reconstruct matrix from flat keys (ex: verde_infantil_4)
+        Object.keys(stats).forEach(key => {
+            const parts = key.split('_');
+            // Chave esperada: cor_tipo_tamanho (3 partes)
+            // Filtra chaves que não sejam de estoque
+            if (parts.length === 3 && (parts[0] === 'verde' || parts[0] === 'terracota')) {
+                const [cor, tipo, tam] = parts;
+                if (matrix[cor] && matrix[cor][tipo]) {
+                    matrix[cor][tipo][tam] = stats[key];
+                }
             }
         });
 
-        // Helper to render row
+        // 2. Resumo Localidade from Aggregated Keys (ex: local_Capital_SetorA)
+        const locais = {};
+        
+        Object.keys(stats).forEach(key => {
+            if (key.startsWith('local_')) {
+                // Remove o prefixo 'local_' para exibição
+                const nomeLocal = key.substring(6).replace(/_/g, ' - '); // Capital_SetorA -> Capital - SetorA
+                const qtd = stats[key] || 0;
+                if (qtd > 0) {
+                    locais[nomeLocal] = { qtd: qtd, valor: qtd * PRECO_CAMISETA };
+                }
+            }
+        });
+
+        // Helper to render row (Mantido IDÊNTICO para compatibilidade visual)
         const renderRow = (tbodyId, typeLabel, dataObj, sizeKeys) => {
             const tbody = document.getElementById(tbodyId);
             if(!tbody) return;
@@ -2878,22 +2988,12 @@ window.carregarDetalhesEvento = async function() {
         renderRow('infantilVerdeBody', 'Infantil', matrix.verde.infantil, ['1','2','4','6','8','10','12','14']);
         renderRow('infantilTerraBody', 'Infantil', matrix.terracota.infantil, ['1','2','4','6','8','10','12','14']);
 
-        // 2. Resumo Localidade
-        const locais = {};
-        let totalValorGeral = 0;
-        
-        pedidos.forEach(p => {
-            const key = (p.local || 'Indefinido') + ' - ' + (p.setor || 'Indefinido');
-            if(!locais[key]) locais[key] = { qtd: 0, valor: 0 };
-            const t = calcularTotalPedido(p);
-            locais[key].qtd += t;
-            locais[key].valor += t * PRECO_CAMISETA;
-            totalValorGeral += t * PRECO_CAMISETA;
-        });
-
+        // Renderização da Tabela de Locais
         let htmlLocais = `<table style="width:100%; border-collapse:collapse; font-size:0.9rem;"><thead><tr style="border-bottom:1px solid var(--border-subtle);"><th style="text-align:left; padding:8px; color:var(--text-muted);">Local/Setor</th><th style="padding:8px; color:var(--text-muted);">Qtd</th><th style="text-align:right; padding:8px; color:var(--text-muted);">Total</th></tr></thead><tbody>`;
         
-        Object.entries(locais).sort().forEach(([k, v]) => {
+        // Ordena chaves alfabeticamente
+        Object.keys(locais).sort().forEach(k => {
+            const v = locais[k];
             htmlLocais += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${k}</td><td style="padding:8px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.05);">${v.qtd}</td><td style="padding:8px; text-align:right; border-bottom:1px solid rgba(255,255,255,0.05);">${formatarMoeda(v.valor)}</td></tr>`;
         });
         htmlLocais += `</tbody></table>`;
@@ -3443,9 +3543,7 @@ window.acaoEncerrarEvento = async function() {
         alert("Ocorreu um erro ao tentar encerrar o evento. Verifique o console.");
     } finally {
         window.mostrarCarregamento(false);
-    }r("Erro fatal ao encerrar evento:", error);
-        alert("Ocorreu um erro ao tentar encerrar o evento. Verifique o console.");
-    } finally {
+    }
 };
 
 window.mascaraTelefone = function(input) {
