@@ -728,6 +728,20 @@
             padding: 0.8rem 1.2rem; /* Aumenta um pouco para ser melhor de tocar */
             font-size: 0.85rem;
         }
+
+        /* CORREÇÃO VISUAL MODAL MOBILE (SOLICITADO - Regra 1) */
+        #modalDetalhesPedido .pedido-confirmacao-card {
+            width: 95% !important;
+            padding: 1.5rem !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+        #modalDetalhesPedido h2 {
+            font-size: 1.2rem !important;
+        }
+        #modalDetalhesPedido p, #modalDetalhesPedido span, #modalDetalhesPedido td, #modalDetalhesPedido th {
+            font-size: 0.85rem !important;
+        }
     }
     @media (min-width: 481px) { .home-title { font-size: clamp(3rem, 6vw, 4.5rem); } }
   </style>
@@ -892,6 +906,7 @@
           <div class="modal-actions">
               <button onclick="document.getElementById('modalDetalhesPedido').classList.remove('active')" style="flex:1;">Fechar</button>
               <button id="btnBaixarNoModal" class="btn-primary" type="button" style="flex:1; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);"><i class="fas fa-download"></i> BAIXAR PEDIDO</button>
+              <!-- BOTÃO DE EDIÇÃO GARANTIDO NO HTML ESTÁTICO (Regra 2) -->
               <button id="btnEditarNoModal" class="btn-primary" style="flex:1;"><i class="fas fa-edit"></i> EDITAR PEDIDO</button>
           </div>
       </div>
@@ -2103,6 +2118,15 @@ window.verificarPedidoPorEmail = async function(email) {
     try { const q = query(pedidosCollection, where("email", "==", email.toLowerCase().trim())); const snapshot = await getDocs(q); if (!snapshot.empty) return { docId: snapshot.docs[0].id, ...snapshot.docs[0].data() }; return null; } catch (error) { return null; }
 };
 
+window.prepararEdicaoViaBusca = function(pedido) {
+    if(!SISTEMA_ABERTO) { 
+        document.getElementById('modalPedidosFechados').classList.add('active'); 
+        return; 
+    }
+    currentPedidoParaEdicao = pedido;
+    window.setupEdicaoPedido();
+};
+
 window.displayVisualizacaoPedido = function(pedido) {
     const container = document.getElementById('resultadoConsulta');
     if(!container) return;
@@ -2203,9 +2227,12 @@ window.displayVisualizacaoPedido = function(pedido) {
                 <span style="font-size:1.4rem; font-weight:700; color:#fff;">${formatarMoeda(total * PRECO_CAMISETA)}</span>
             </div>
             
-            <div style="margin-top:1.5rem;">
-                 <button onclick='window.gerarPdfPedidoIndividual(${JSON.stringify(pedido).replace(/'/g, "&#39;")})' class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">
+            <div style="margin-top:1.5rem; display:flex; gap:10px;">
+                 <button onclick='window.gerarPdfPedidoIndividual(${JSON.stringify(pedido).replace(/'/g, "&#39;")})' class="btn-primary" style="flex:1; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">
                     <i class="fas fa-file-pdf" style="margin-right:8px;"></i> BAIXAR PDF
+                </button>
+                <button onclick='window.prepararEdicaoViaBusca(${JSON.stringify(pedido).replace(/'/g, "&#39;")})' class="btn-primary" style="flex:1;">
+                    <i class="fas fa-edit" style="margin-right:8px;"></i> EDITAR
                 </button>
             </div>
         </div>
@@ -2379,10 +2406,17 @@ window.exibirModalDetalhesPedido = function(pedido) {
     
     // Configura o botão de edição
     const btnEdit = document.getElementById('btnEditarNoModal');
-    btnEdit.onclick = function() {
-        document.getElementById('modalDetalhesPedido').classList.remove('active');
-        window.setupEdicaoPedido();
-    };
+    if(btnEdit) {
+        btnEdit.onclick = function() {
+            if (!SISTEMA_ABERTO) { 
+                document.getElementById('modalDetalhesPedido').classList.remove('active');
+                document.getElementById('modalPedidosFechados').classList.add('active'); 
+                return; 
+            }
+            document.getElementById('modalDetalhesPedido').classList.remove('active');
+            window.setupEdicaoPedido();
+        };
+    }
 
     // CORREÇÃO: Configura o novo botão de baixar chamando a nova função auxiliar
     const btnBaixar = document.getElementById('btnBaixarNoModal');
@@ -2458,6 +2492,7 @@ window.handleFormSubmission = async function(e) {
     }
 
     // Duplicidade Checks (simplificados para leitura)
+    // LÓGICA DE VALIDAÇÃO AJUSTADA: PERMITE SALVAR SE FOR O PRÓPRIO PEDIDO
     const dupEmail = await window.verificarPedidoPorEmail(email);
     if (dupEmail && (!isEditing || dupEmail.docId !== docId)) {
         window.exibirMensagem('mensagemPedido', 'erro', 'ESTE E-MAIL JÁ POSSUI UM PEDIDO REGISTRADO.');
