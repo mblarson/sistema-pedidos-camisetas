@@ -649,6 +649,10 @@
         #mobileSplashScreen:not(.active) {
             display: none !important;
         }
+        
+        /* OTIMIZAÇÃO PERFORMANCE MOBILE: Desativa canvas pesado */
+        #beams-canvas { display: none !important; }
+        #beams-container { background: radial-gradient(circle at top, #0a192f 0%, #020c1b 100%); }
     }
     
     @media (max-width: 480px) {
@@ -1223,7 +1227,7 @@
         <div id="loginAdmin" class="modern-form" style="max-width:450px; margin:3rem auto;">
             <div style="text-align:center; margin-bottom:2rem;"><h2 style="margin-bottom:0.5rem;">Acesso Restrito</h2><p style="color:var(--text-muted);">Apenas pessoal autorizado</p></div>
             <form id="formLoginAdmin" style="text-align:center;" onsubmit="window.handleAdminLogin(event)">
-                <div class="form-group"><label>E-mail Administrativo</label><input type="email" id="emailAdmin" required placeholder="admin@umademats.com.br"></div>
+                <input type="hidden" id="emailAdmin" value="admin@umademats.com.br">
                 <div class="form-group"><label>Senha de Administrador</label><div style="position:relative;"><input type="password" id="senhaAdmin" required style="padding-right:40px !important;"><button type="button" onclick="window.togglePasswordVisibility('senhaAdmin', this.querySelector('i'))" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer;"><i class="fas fa-eye"></i></button></div></div>
                 <button type="submit" class="btn-primary" style="width:100%; margin-top:1rem;">Entrar no Sistema</button>
             </form>
@@ -1310,6 +1314,14 @@
                     </div>
                     <!-- BOTÃO ENCERRAR EVENTO ADICIONADO AQUI -->
                     <button id="btnEncerrarEventoAction" class="btn-primary" type="button" style="width:100%; background:var(--danger-color); color:#fff; margin-top: 1rem;" onclick="document.getElementById('modalEncerrarEvento').classList.add('active')">ENCERRAR EVENTO</button>
+                    
+                    <!-- BOTÃO DE SINCRONIZAÇÃO DE DADOS (DATA REPAIR) -->
+                    <div style="margin-top: 1rem; text-align: center; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+                       <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.5rem;">Manutenção de Dados</p>
+                       <button onclick="window.sincronizarEstatisticas()" class="btn-primary" style="background:transparent; border:1px solid var(--warning-color); color:var(--warning-color); font-size:0.8rem; padding: 0.8rem 1.5rem;">
+                           <i class="fas fa-tools"></i> SINCRONIZAR DADOS
+                       </button>
+                    </div>
                 </div>
                 <div class="card"><h4 style="margin-bottom:1.5rem;">Por Setor / Localidade</h4><div id="resumoEventoLocais"></div></div>
             </div>
@@ -1374,6 +1386,10 @@
   <footer style="text-align:center; padding:3rem 0; border-top:1px solid var(--border-subtle); margin-top:4rem; color:var(--text-muted); font-size:0.8rem;">
     <p>&copy; 2025 UMADEMATS</p>
   </footer>
+  
+  <button onclick="window.rodarTesteCarga()" style="position:fixed; bottom:20px; right:20px; z-index:9999; background:#ff4757; color:white; padding:15px 25px; border-radius:50px; font-weight:800; border:2px solid white; box-shadow:0 10px 30px rgba(0,0,0,0.5); cursor:pointer; display:flex; align-items:center; gap:10px; font-family:'Manrope',sans-serif; text-transform:uppercase; font-size:0.9rem; transition:transform 0.2s;">
+        <i class="fas fa-rocket"></i> RODAR TESTE (600)
+  </button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
@@ -2759,6 +2775,7 @@ window.carregarPedidos = async function(modoExpandir = false) {
         
         // Se for busca global, aplicamos o filtro na memória agora
         if (termoBusca && !termoBusca.includes('@') && !(termoBusca.length < 10 && /^[A-Z0-9]+$/.test(termoBusca) && !termoBusca.match(/^\d+$/))) {
+             const termoBuscaLower = termoBusca.toLowerCase();
              pedidosProcessados = pedidosProcessados.filter(p => {
                  const t = termoBuscaLower;
                  return (p.nome && p.nome.toLowerCase().includes(t)) ||
@@ -3073,7 +3090,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
             }
         } else {
             // --- LISTAGEM PADRÃO COM PAGINAÇÃO ---
-            let constraints = [];
+            let constraints = [orderBy('data', 'desc')];
 
             // NOTA IMPORTANTE DE CORREÇÃO:
             // Removemos 'where' no statusPagamento para evitar o erro "The query requires an index".
@@ -3096,7 +3113,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
         // EXECUÇÃO DA QUERY
         const snapshot = await getDocs(q);
 
-        // Atualiza o cursor para a próxima página (apenas se não for busca global filtrada)
+        // Atualiza o cursor para a próxima página
         if (!snapshot.empty) {
             ultimoDocPagamentos = snapshot.docs[snapshot.docs.length - 1];
         }
@@ -3576,111 +3593,214 @@ window.setupLiquidacaoListener = function() {
 };
 
 // ============================================
-// SCRIPT DE TESTE DE CARGA (SOLICITADO)
+// FUNÇÃO DE DATA REPAIR (SINCRONIZAR ESTATÍSTICAS)
 // ============================================
-window.rodarTesteCarga = async function() {
-    if (!confirm("⚠️ ATENÇÃO: TEM CERTEZA?\n\nIsso vai gerar 600 PEDIDOS de teste (240.000 camisetas) no banco de dados.\nEssa operação consome cota de gravação do Firestore.")) return;
+window.sincronizarEstatisticas = async function() {
+    if(!confirm("Isso irá ler TODOS os pedidos e recalcular as estatísticas do zero. Continuar?")) return;
+    window.mostrarCarregamento(true, "SINCRONIZANDO DADOS...");
 
-    window.mostrarCarregamento(true, "GERANDO 600 PEDIDOS (LOTE)...");
+    try {
+        const snapshot = await getDocs(collection(db, "pedidos"));
+        
+        // Init counters
+        let stats = {
+            qtd_pedidos: 0,
+            qtd_camisetas: 0,
+            qtd_infantil: 0,
+            qtd_babylook: 0,
+            qtd_unissex: 0,
+            valor_total: 0,
+            total_recebido_real: 0
+        };
+        
+        // Helper to safe add
+        const addStat = (key, val) => {
+            if(!stats[key]) stats[key] = 0;
+            stats[key] += val;
+        }
+
+        snapshot.forEach(doc => {
+            const p = doc.data();
+            stats.qtd_pedidos++;
+
+            // Payments
+            let pago = p.valorPago || 0;
+            if (!p.valorPago && p.historicoPagamentos) {
+                pago = p.historicoPagamentos.reduce((acc, h) => acc + (parseFloat(h.valor)||0), 0);
+            }
+            stats.total_recebido_real += pago;
+
+            // Items
+            let totalPecasPedido = 0;
+
+            const processItems = (cor, tipo, obj) => {
+                Object.entries(obj || {}).forEach(([tam, qtd]) => {
+                    const q = parseInt(qtd) || 0;
+                    if(q > 0) {
+                        totalPecasPedido += q;
+                        const skuKey = `${cor}_${tipo}_${tam}`; // verde_infantil_10
+                        addStat(skuKey, q);
+                        
+                        // Category totals
+                        addStat(`qtd_${tipo}`, q);
+                    }
+                });
+            };
+
+            if (p.verdeOliva || p.terracota) {
+                if(p.verdeOliva) {
+                    processItems('verde', 'infantil', p.verdeOliva.infantil);
+                    processItems('verde', 'babylook', p.verdeOliva.babylook);
+                    processItems('verde', 'unissex', p.verdeOliva.unissex);
+                }
+                if(p.terracota) {
+                    processItems('terracota', 'infantil', p.terracota.infantil);
+                    processItems('terracota', 'babylook', p.terracota.babylook);
+                    processItems('terracota', 'unissex', p.terracota.unissex);
+                }
+            } else {
+                // Legacy -> Map to Verde
+                processItems('verde', 'infantil', p.infantil);
+                processItems('verde', 'babylook', p.babylook);
+                processItems('verde', 'unissex', p.unissex);
+            }
+
+            stats.qtd_camisetas += totalPecasPedido;
+            stats.valor_total += (totalPecasPedido * PRECO_CAMISETA);
+
+            // Location
+            if(totalPecasPedido > 0) {
+                const locKey = `local_${p.local}_${p.setor}`;
+                addStat(locKey, totalPecasPedido); 
+            }
+        });
+
+        // Write to Firestore
+        await setDoc(doc(db, "configuracoes", "estatisticas"), stats);
+        
+        alert("Sincronização concluída com sucesso!");
+        window.location.reload(); // Reload to refresh everything cleanly
+
+    } catch(e) {
+        console.error(e);
+        alert("Erro na sincronização: " + e.message);
+    } finally {
+        window.mostrarCarregamento(false);
+    }
+};
+
+window.rodarTesteCarga = async function() {
+    if(!confirm("⚠️ ATENÇÃO: INICIAR TESTE DE CARGA?\n\nIsso criará 600 pedidos (240.000 camisetas) em lote.\nEssa operação impacta o banco de dados real.")) return;
+    
+    window.mostrarCarregamento(true, "GERANDO 600 PEDIDOS...");
     
     try {
         const TOTAL_PEDIDOS = 600;
-        const QTD_POR_TAMANHO = 10;
-        const BATCH_SIZE = 400; // Limite seguro (Max 500)
+        const BATCH_SIZE = 400; // Safe limit
+        const QTD_POR_SKU = 10;
         
-        // Definição dos tamanhos e cores
-        const tamsInf = ['1','2','4','6','8','10','12','14']; // 8 tamanhos
-        const tamsAdulto = ['PP','P','M','G','GG','XGG']; // 6 tamanhos
+        // Estrutura de tamanhos
+        const sizesInf = ['1','2','4','6','8','10','12','14']; // 8
+        const sizesAdulto = ['PP','P','M','G','GG','XGG']; // 6
         
-        // Helper para gerar objeto { '1': 10, '2': 10... }
-        const makeQtyObj = (arr) => arr.reduce((acc, curr) => ({ ...acc, [curr]: QTD_POR_TAMANHO }), {});
-        
-        const objInf = makeQtyObj(tamsInf);
-        const objAdulto = makeQtyObj(tamsAdulto);
-        
-        // Estrutura do Pedido (Total 400 camisetas)
-        const pedidoBase = {
-            nome: "TESTE DE CARGA AUTOMATICO",
-            email: "teste@stress.com",
-            contato: "(67) 99999-9999",
-            local: "Capital",
-            setor: "TESTE DE CARGA",
-            observacao: "Pedido gerado via script de stress test",
-            status: "Pendente",
-            data: new Date().toISOString(),
-            // 20 tamanhos x 10 und = 200 camisetas
-            verdeOliva: { infantil: objInf, babylook: objAdulto, unissex: objAdulto },
-            // 20 tamanhos x 10 und = 200 camisetas
-            terracota: { infantil: objInf, babylook: objAdulto, unissex: objAdulto }
+        // Montar objeto de tamanhos preenchido
+        const createSizeObj = (sizes) => {
+            const obj = {};
+            sizes.forEach(s => obj[s] = QTD_POR_SKU);
+            return obj;
         };
         
-        // Gerar Batches
-        let batches = [];
-        let currentBatch = writeBatch(db);
-        let opCount = 0;
+        const objInf = createSizeObj(sizesInf);
+        const objAdulto = createSizeObj(sizesAdulto);
         
+        // Dados do Pedido Modelo (400 peças total)
+        const pedidoModelo = {
+            nome: "TESTE DE CARGA",
+            local: "Capital",
+            setor: "TESTE",
+            email: "teste@carga.com",
+            contato: "(00) 00000-0000",
+            observacao: "Pedido gerado automaticamente para Stress Test",
+            data: new Date().toISOString(),
+            status: "Pendente",
+            // 20 SKUs * 10 = 200 * 2 cores = 400 total
+            verdeOliva: { infantil: objInf, babylook: objAdulto, unissex: objAdulto },
+            terracota: { infantil: objInf, babylook: objAdulto, unissex: objAdulto }
+        };
+
+        // Preparar Batches
+        let batch = writeBatch(db);
+        let operationCount = 0;
+        let batchCount = 0;
+
         for (let i = 0; i < TOTAL_PEDIDOS; i++) {
             const ref = doc(collection(db, "pedidos"));
-            // Copia base e adiciona ID e Nome único
-            const dados = { ...pedidoBase, numPedido: ref.id, nome: `TESTE CARGA #${i+1}` };
-            
-            currentBatch.set(ref, dados);
-            opCount++;
-            
-            if (opCount >= BATCH_SIZE) {
-                batches.push(currentBatch.commit());
-                currentBatch = writeBatch(db);
-                opCount = 0;
+            // Clone and add ID
+            const p = { ...pedidoModelo, numPedido: ref.id };
+            batch.set(ref, p);
+            operationCount++;
+
+            if (operationCount >= BATCH_SIZE) {
+                await batch.commit();
+                batchCount++;
+                console.log(`Batch ${batchCount} commitado.`);
+                batch = writeBatch(db); // Reset
+                operationCount = 0;
             }
         }
-        if (opCount > 0) batches.push(currentBatch.commit());
+
+        if (operationCount > 0) {
+            await batch.commit();
+            console.log("Batch final commitado.");
+        }
+
+        // Atualizar Estatísticas (Aggregated Update)
+        window.mostrarCarregamento(true, "ATUALIZANDO ESTATÍSTICAS...");
         
-        // Aguarda gravação dos pedidos
-        await Promise.all(batches);
+        const totalPecas = TOTAL_PEDIDOS * 400;
+        const totalValor = totalPecas * PRECO_CAMISETA;
         
-        // Atualizar Estatísticas (UMA ÚNICA VEZ)
-        // Totais: 600 pedidos * 400 camisetas = 240.000
-        const totalCamisetas = TOTAL_PEDIDOS * 400;
-        const valorTotal = totalCamisetas * PRECO_CAMISETA;
+        // Calcular totais por categoria para incrementar
+        // Verde: 8 inf + 6 baby + 6 uni = 20 skus * 10 = 200
+        // Terra: 8 inf + 6 baby + 6 uni = 20 skus * 10 = 200
+        const totalInf = TOTAL_PEDIDOS * (8 * QTD_POR_SKU * 2); // 16 * 10 * 600
+        const totalBaby = TOTAL_PEDIDOS * (6 * QTD_POR_SKU * 2);
+        const totalUni = TOTAL_PEDIDOS * (6 * QTD_POR_SKU * 2);
         
-        // Totais por categoria (Verde + Terracota)
-        // Inf: 160 por pedido (80v + 80t)
-        // Baby: 120 por pedido (60v + 60t)
-        // Uni: 120 por pedido (60v + 60t)
-        const totalInf = TOTAL_PEDIDOS * 160;
-        const totalBaby = TOTAL_PEDIDOS * 120;
-        const totalUni = TOTAL_PEDIDOS * 120;
-        
-        const statsRef = doc(db, "configuracoes", "estatisticas");
-        const updatePayload = {
+        const statsUpdate = {
             qtd_pedidos: increment(TOTAL_PEDIDOS),
-            qtd_camisetas: increment(totalCamisetas),
-            valor_total: increment(valorTotal),
+            qtd_camisetas: increment(totalPecas),
+            valor_total: increment(totalValor),
             qtd_infantil: increment(totalInf),
             qtd_babylook: increment(totalBaby),
             qtd_unissex: increment(totalUni),
             // Local
-            "local_Capital_TESTE DE CARGA": increment(totalCamisetas)
+            "local_Capital_TESTE": increment(totalPecas)
         };
-        
-        // Atualizar SKUs individuais (para a matriz funcionar)
-        // Cada SKU específico recebeu 10 un * 600 pedidos = 6000
-        const incrementoSku = TOTAL_PEDIDOS * QTD_POR_TAMANHO;
-        
+
+        // Adicionar incremento para cada SKU individual
+        const addSkuIncrements = (cor, tipo, sizes) => {
+            sizes.forEach(s => {
+                const key = `${cor}_${tipo}_${s}`;
+                statsUpdate[key] = increment(TOTAL_PEDIDOS * QTD_POR_SKU);
+            });
+        };
+
         ['verde', 'terracota'].forEach(cor => {
-            tamsInf.forEach(t => updatePayload[`${cor}_infantil_${t}`] = increment(incrementoSku));
-            tamsAdulto.forEach(t => updatePayload[`${cor}_babylook_${t}`] = increment(incrementoSku));
-            tamsAdulto.forEach(t => updatePayload[`${cor}_unissex_${t}`] = increment(incrementoSku));
+            addSkuIncrements(cor, 'infantil', sizesInf);
+            addSkuIncrements(cor, 'babylook', sizesAdulto);
+            addSkuIncrements(cor, 'unissex', sizesAdulto);
         });
-        
-        await updateDoc(statsRef, updatePayload);
-        
-        alert(`SUCESSO! ${TOTAL_PEDIDOS} pedidos gerados (240.000 camisetas). Página será recarregada.`);
+
+        const statsRef = doc(db, "configuracoes", "estatisticas");
+        await updateDoc(statsRef, statsUpdate);
+
+        alert("SUCESSO! 600 Pedidos criados e estatísticas atualizadas.");
         window.location.reload();
-        
-    } catch (error) {
-        console.error(error);
-        alert("ERRO NO TESTE DE CARGA: " + error.message);
+
+    } catch (e) {
+        console.error(e);
+        alert("Erro no teste de carga: " + e.message);
     } finally {
         window.mostrarCarregamento(false);
     }
