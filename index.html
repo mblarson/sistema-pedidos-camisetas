@@ -729,18 +729,72 @@
             font-size: 0.85rem;
         }
 
-        /* CORREÇÃO VISUAL MODAL MOBILE (SOLICITADO - Regra 1) */
+        /* REFINAMENTO VISUAL DO MODAL DE DETALHES (MOBILE) */
         #modalDetalhesPedido .pedido-confirmacao-card {
-            width: 95% !important;
-            padding: 1.5rem !important;
+            width: 92% !important; /* Margem segura */
             margin: 0 auto !important;
+            padding: 1.2rem !important; /* Padding reduzido */
+            max-height: 85vh;
+            border-radius: 12px; /* Curva mais suave */
             overflow-x: hidden !important;
         }
+
+        /* Títulos e Textos */
         #modalDetalhesPedido h2 {
-            font-size: 1.2rem !important;
+            font-size: 1.1rem !important;
+            margin-bottom: 0.8rem !important;
         }
-        #modalDetalhesPedido p, #modalDetalhesPedido span, #modalDetalhesPedido td, #modalDetalhesPedido th {
-            font-size: 0.85rem !important;
+        
+        #modalDetalhesPedido p, 
+        #modalDetalhesPedido span,
+        #modalDetalhesPedido label {
+            font-size: 0.8rem !important; /* Fonte menor e mais delicada */
+        }
+        
+        #modalDetalhesPedido .form-group label {
+            font-size: 0.7rem !important;
+        }
+
+        /* Tabelas Compactas */
+        #modalDetalhesPedido table {
+            font-size: 0.75rem !important;
+        }
+        #modalDetalhesPedido table th, 
+        #modalDetalhesPedido table td {
+            padding: 4px 8px !important; /* Células mais apertadas */
+        }
+
+        /* Botões Compactos */
+        #modalDetalhesPedido .modal-actions {
+            display: flex !important;
+            flex-direction: row !important; /* Força lado a lado */
+            gap: 8px !important;
+            margin-top: 1.5rem !important;
+        }
+        
+        #modalDetalhesPedido .modal-actions button {
+            padding: 8px 10px !important; /* Redução drástica de padding */
+            font-size: 0.7rem !important; /* Fonte pequena */
+            letter-spacing: 0.5px !important;
+            height: auto !important;
+            border-radius: 50px !important;
+            flex: 1; /* Distribui igual */
+            white-space: nowrap; /* Evita quebra de linha feia */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2 !important;
+            min-height: 35px !important;
+        }
+        
+        /* Ajuste de ícones nos botões */
+        #modalDetalhesPedido .modal-actions button i {
+            font-size: 0.7rem !important;
+            margin-right: 4px !important;
+        }
+        
+        #modalDetalhesPedido button:not(.btn-primary) {
+             font-size: 0.75rem !important;
         }
     }
     @media (min-width: 481px) { .home-title { font-size: clamp(3rem, 6vw, 4.5rem); } }
