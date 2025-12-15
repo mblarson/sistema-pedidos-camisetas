@@ -2155,7 +2155,7 @@ window.gerarPdfPedidoIndividual = async function(pedido) {
         }
 
         // Abre o PDF
-        doc.save(`Pedido_${pedido.numPedido}.pdf`);
+        doc.save(`Pedido_$`${pedido.setor} - ${pedido.nome}.pdf`);
 
     } catch (error) {
         console.error("Erro ao gerar PDF do Pedido Individual:", error);
