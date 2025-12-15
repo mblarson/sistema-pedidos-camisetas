@@ -1033,11 +1033,6 @@
       </div>
   </div>
 
-  <!-- BOTÃO DE STRESS TEST (TEMPORÁRIO) -->
-  <button onclick="window.rodarTesteCarga()" style="position:fixed; bottom:20px; right:20px; z-index:9999; background:red; color:white; padding:15px 25px; border:none; border-radius:50px; font-weight:800; box-shadow:0 0 20px rgba(0,0,0,0.5); cursor:pointer; font-family:'Manrope', sans-serif;">
-      🚀 RODAR TESTE (600 PEDIDOS)
-  </button>
-
   <header class="header">
     <div class="container header-content">
       <div class="logo">
@@ -1387,7 +1382,7 @@
   <script type="module">
 // @ts-nocheck
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc, limit, orderBy, startAfter, writeBatch, increment, runTransaction } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc, limit, orderBy, startAfter, writeBatch, increment, runTransaction, startAt, endAt } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
 const firebaseConfig = {
@@ -2720,25 +2715,47 @@ window.carregarPedidos = async function(modoExpandir = false) {
     const filtroLocal = document.querySelector('input[name="filtroLocal"]:checked').value;
 
     try {
-        let q;
+        let pedidosProcessados = [];
+        let snapshot = { empty: true, docs: [] }; // Mock para o caso de busca onde não usamos snapshot único
         const qtdPorPagina = 10;
 
         if (termoBusca) {
-            // --- BUSCA HÍBRIDA GLOBAL (FUZZY SIMULADO) ---
-            if (termoBusca.includes('@')) {
-                // Email: Busca exata
-                q = query(pedidosCollection, where('email', '==', termoBuscaLower), limit(20));
-            } else if (termoBusca.length < 10 && /^[A-Z0-9]+$/.test(termoBusca) && !termoBusca.match(/^\d+$/)) {
-                // ID curto alfanumérico (Provável ID de pedido, ex: 3Xy9) - Prioriza busca exata por ID
-                q = query(pedidosCollection, where('numPedido', '==', termoBusca), limit(20));
-            } else {
-                // Busca Global (Nome, Telefone, Cidade) - Busca "Smart"
-                // Como Firestore não tem "LIKE", baixamos os últimos 100 registros para filtrar no cliente.
-                // Isso permite achar "Maria", "Cuiabá", "9999" dentro dos pedidos ativos recentes.
-                // É um compromisso entre performance (não baixar tudo) e usabilidade (achar nomes).
-                q = query(pedidosCollection, orderBy('data', 'desc'), limit(100));
-            }
+            // --- BUSCA UNIVERSAL INDEXADA (ID, EMAIL, NOME PREFIXO) ---
             
+            // 1. Busca por ID Exato (NumPedido)
+            const qID = query(pedidosCollection, where('numPedido', '==', termoBusca), limit(5));
+            
+            // 2. Busca por Email Exato
+            const qEmail = query(pedidosCollection, where('email', '==', termoBuscaLower), limit(5));
+            
+            // 3. Busca por Nome (Prefixo) usando startAt/endAt
+            const qNome = query(pedidosCollection, orderBy('nome'), startAt(termoBusca), endAt(termoBusca + '\uf8ff'), limit(20));
+
+            // Executa em paralelo
+            const [snapID, snapEmail, snapNome] = await Promise.all([
+                getDocs(qID),
+                getDocs(qEmail),
+                getDocs(qNome)
+            ]);
+
+            // Combina resultados e remove duplicatas usando Map (chave = docId)
+            const uniqueDocs = new Map();
+            
+            const processSnap = (snap) => {
+                snap.forEach(d => {
+                    uniqueDocs.set(d.id, { docId: d.id, ...d.data() });
+                });
+            };
+
+            processSnap(snapID);
+            processSnap(snapEmail);
+            processSnap(snapNome);
+
+            pedidosProcessados = Array.from(uniqueDocs.values());
+            
+            // Ordena por data decrescente para consistência visual
+            pedidosProcessados.sort((a, b) => new Date(b.data) - new Date(a.data));
+
         } else {
             // --- ITEM A: LISTAGEM PADRÃO PAGINADA ---
             let constraints = [orderBy('data', 'desc')];
@@ -2752,35 +2769,23 @@ window.carregarPedidos = async function(modoExpandir = false) {
             }
 
             constraints.push(limit(qtdPorPagina));
-            q = query(pedidosCollection, ...constraints);
-        }
+            const q = query(pedidosCollection, ...constraints);
+            
+            snapshot = await getDocs(q);
+            
+            // Atualiza o cursor para a próxima página (apenas se não for busca global filtrada)
+            if (!snapshot.empty) {
+                ultimoDocumentoCarregado = snapshot.docs[snapshot.docs.length - 1];
+            }
 
-        const snapshot = await getDocs(q);
-        
-        // Atualiza o cursor para a próxima página (apenas se não for busca global filtrada)
-        if (!snapshot.empty) {
-            ultimoDocumentoCarregado = snapshot.docs[snapshot.docs.length - 1];
-        }
-
-        let pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
-        
-        // Se for busca global, aplicamos o filtro na memória agora
-        if (termoBusca && !termoBusca.includes('@') && !(termoBusca.length < 10 && /^[A-Z0-9]+$/.test(termoBusca) && !termoBusca.match(/^\d+$/))) {
-             pedidosProcessados = pedidosProcessados.filter(p => {
-                 const t = termoBuscaLower;
-                 return (p.nome && p.nome.toLowerCase().includes(t)) ||
-                        (p.contato && p.contato.includes(t)) ||
-                        (p.setor && p.setor.toLowerCase().includes(t)) ||
-                        (p.local && p.local.toLowerCase().includes(t)) ||
-                        (p.numPedido && p.numPedido.toLowerCase().includes(t));
-             });
+            pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
         }
 
         // Renderização
         if (pedidosProcessados.length === 0 && !modoExpandir) {
             // Mensagem amigável explicando como buscar
             const msg = termoBusca 
-                ? `Nenhum pedido encontrado para "<strong>${escapeHTML(termoBusca)}</strong>" nos registros recentes.` 
+                ? `Nenhum pedido encontrado para "<strong>${escapeHTML(termoBusca)}</strong>".` 
                 : `Nenhum pedido registrado.`;
             
             lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">${msg}</p>`;
@@ -3580,117 +3585,6 @@ window.mascaraTelefone = function(input) {
 // Associa o botão de confirmar pagamento ao evento (uma vez que não tinha onclick no HTML)
 window.setupLiquidacaoListener = function() {
     // This is now handled by onclick inside abrirModalLiquidacao
-};
-
-// ============================================
-// SCRIPT DE TESTE DE CARGA (SOLICITADO)
-// ============================================
-window.rodarTesteCarga = async function() {
-    if (!confirm("⚠️ ATENÇÃO: TEM CERTEZA?\n\nIsso vai gerar 600 PEDIDOS de teste (240.000 camisetas) no banco de dados.\nEssa operação consome cota de gravação do Firestore.")) return;
-
-    window.mostrarCarregamento(true, "GERANDO 600 PEDIDOS (LOTE)...");
-    
-    try {
-        const TOTAL_PEDIDOS = 600;
-        const QTD_POR_TAMANHO = 10;
-        const BATCH_SIZE = 400; // Limite seguro (Max 500)
-        
-        // Definição dos tamanhos e cores
-        const tamsInf = ['1','2','4','6','8','10','12','14']; // 8 tamanhos
-        const tamsAdulto = ['PP','P','M','G','GG','XGG']; // 6 tamanhos
-        
-        // Helper para gerar objeto { '1': 10, '2': 10... }
-        const makeQtyObj = (arr) => arr.reduce((acc, curr) => ({ ...acc, [curr]: QTD_POR_TAMANHO }), {});
-        
-        const objInf = makeQtyObj(tamsInf);
-        const objAdulto = makeQtyObj(tamsAdulto);
-        
-        // Estrutura do Pedido (Total 400 camisetas)
-        const pedidoBase = {
-            nome: "TESTE DE CARGA AUTOMATICO",
-            email: "teste@stress.com",
-            contato: "(67) 99999-9999",
-            local: "Capital",
-            setor: "TESTE DE CARGA",
-            observacao: "Pedido gerado via script de stress test",
-            status: "Pendente",
-            data: new Date().toISOString(),
-            // 20 tamanhos x 10 und = 200 camisetas
-            verdeOliva: { infantil: objInf, babylook: objAdulto, unissex: objAdulto },
-            // 20 tamanhos x 10 und = 200 camisetas
-            terracota: { infantil: objInf, babylook: objAdulto, unissex: objAdulto }
-        };
-        
-        // Gerar Batches
-        let batches = [];
-        let currentBatch = writeBatch(db);
-        let opCount = 0;
-        
-        for (let i = 0; i < TOTAL_PEDIDOS; i++) {
-            const ref = doc(collection(db, "pedidos"));
-            // Copia base e adiciona ID e Nome único
-            const dados = { ...pedidoBase, numPedido: ref.id, nome: `TESTE CARGA #${i+1}` };
-            
-            currentBatch.set(ref, dados);
-            opCount++;
-            
-            if (opCount >= BATCH_SIZE) {
-                batches.push(currentBatch.commit());
-                currentBatch = writeBatch(db);
-                opCount = 0;
-            }
-        }
-        if (opCount > 0) batches.push(currentBatch.commit());
-        
-        // Aguarda gravação dos pedidos
-        await Promise.all(batches);
-        
-        // Atualizar Estatísticas (UMA ÚNICA VEZ)
-        // Totais: 600 pedidos * 400 camisetas = 240.000
-        const totalCamisetas = TOTAL_PEDIDOS * 400;
-        const valorTotal = totalCamisetas * PRECO_CAMISETA;
-        
-        // Totais por categoria (Verde + Terracota)
-        // Inf: 160 por pedido (80v + 80t)
-        // Baby: 120 por pedido (60v + 60t)
-        // Uni: 120 por pedido (60v + 60t)
-        const totalInf = TOTAL_PEDIDOS * 160;
-        const totalBaby = TOTAL_PEDIDOS * 120;
-        const totalUni = TOTAL_PEDIDOS * 120;
-        
-        const statsRef = doc(db, "configuracoes", "estatisticas");
-        const updatePayload = {
-            qtd_pedidos: increment(TOTAL_PEDIDOS),
-            qtd_camisetas: increment(totalCamisetas),
-            valor_total: increment(valorTotal),
-            qtd_infantil: increment(totalInf),
-            qtd_babylook: increment(totalBaby),
-            qtd_unissex: increment(totalUni),
-            // Local
-            "local_Capital_TESTE DE CARGA": increment(totalCamisetas)
-        };
-        
-        // Atualizar SKUs individuais (para a matriz funcionar)
-        // Cada SKU específico recebeu 10 un * 600 pedidos = 6000
-        const incrementoSku = TOTAL_PEDIDOS * QTD_POR_TAMANHO;
-        
-        ['verde', 'terracota'].forEach(cor => {
-            tamsInf.forEach(t => updatePayload[`${cor}_infantil_${t}`] = increment(incrementoSku));
-            tamsAdulto.forEach(t => updatePayload[`${cor}_babylook_${t}`] = increment(incrementoSku));
-            tamsAdulto.forEach(t => updatePayload[`${cor}_unissex_${t}`] = increment(incrementoSku));
-        });
-        
-        await updateDoc(statsRef, updatePayload);
-        
-        alert(`SUCESSO! ${TOTAL_PEDIDOS} pedidos gerados (240.000 camisetas). Página será recarregada.`);
-        window.location.reload();
-        
-    } catch (error) {
-        console.error(error);
-        alert("ERRO NO TESTE DE CARGA: " + error.message);
-    } finally {
-        window.mostrarCarregamento(false);
-    }
 };
 
 // Inicialização
