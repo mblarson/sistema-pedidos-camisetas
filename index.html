@@ -2239,11 +2239,11 @@ window.displayVisualizacaoPedido = function(pedido) {
     }
 
     const html = `
-        <div class="pedido-confirmacao-card" style="width:100%; border:1px solid var(--border-gold); margin-top:2rem; animation: slideDown 0.4s ease;">
+        <div class="pedido-confirmacao-card" style="width:100%; max-width:600px; margin:2rem auto; border:1px solid var(--border-gold); animation: slideDown 0.4s ease;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem; margin-bottom:1rem;">
                 <div>
                     <span style="display:block; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">PEDIDO</span>
-                    <span style="font-size:1rem; font-weight:400; color:var(--gold-solid);">#${pedido.numPedido}</span>
+                    <span style="font-size:1rem; font-weight:700; color:var(--gold-solid);">#${pedido.numPedido}</span>
                 </div>
                 ${statusBadge}
             </div>
@@ -2282,10 +2282,10 @@ window.displayVisualizacaoPedido = function(pedido) {
             </div>
             
             <div style="margin-top:1.5rem; display:flex; gap:10px;">
-                 <button onclick='window.gerarPdfPedidoIndividual(${JSON.stringify(pedido).replace(/'/g, "&#39;")})' class="btn-primary" style="flex:1; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">
+                 <button onclick='window.gerarPdfPedidoIndividual(${JSON.stringify(pedido).replace(/'/g, "&#39;")})' class="btn-primary" style="flex:1; padding:10px 0; font-size:0.8rem; background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid);">
                     <i class="fas fa-file-pdf" style="margin-right:8px;"></i> BAIXAR PDF
                 </button>
-                <button onclick='window.prepararEdicaoViaBusca(${JSON.stringify(pedido).replace(/'/g, "&#39;")})' class="btn-primary" style="flex:1;">
+                <button onclick='window.prepararEdicaoViaBusca(${JSON.stringify(pedido).replace(/'/g, "&#39;")})' class="btn-primary" style="flex:1; padding:10px 0; font-size:0.8rem;">
                     <i class="fas fa-edit" style="margin-right:8px;"></i> EDITAR
                 </button>
             </div>
