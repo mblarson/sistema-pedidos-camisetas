@@ -797,7 +797,36 @@
              font-size: 0.75rem !important;
         }
     }
-    @media (min-width: 481px) { .home-title { font-size: clamp(3rem, 6vw, 4.5rem); } }
+    
+    /* ========================================================================= */
+    /* AJUSTES PARA DESKTOP (PC) - REGRAS ESPECÍFICAS DE ALINHAMENTO E REMOÇÃO   */
+    /* ========================================================================= */
+    @media (min-width: 769px) {
+        .home-title { font-size: clamp(3rem, 6vw, 4.5rem); }
+        
+        /* REGRA 2: REMOVER EFEITO DE FUNDO (BEAMS) NO DESKTOP */
+        #beams-canvas { display: none !important; }
+        
+        /* REGRA 3: CORREÇÃO E ALINHAMENTO DAS TABELAS NO DESKTOP */
+        .tamanhos-table, .hist-table {
+            width: 100% !important;
+            table-layout: fixed; /* Garante colunas proporcionais */
+            border-collapse: collapse;
+        }
+        
+        .tamanhos-table th, .tamanhos-table td,
+        .hist-table th, .hist-table td {
+            text-align: center; /* Centraliza conteúdo */
+            vertical-align: middle;
+            padding: 10px;
+        }
+        
+        /* Alinha a primeira coluna (rótulos) à esquerda */
+        .tamanhos-table th:first-child, .tamanhos-table td:first-child {
+            text-align: left;
+            width: 25%; /* Largura fixa para rótulos */
+        }
+    }
   </style>
 </head>
 <body>
@@ -1759,7 +1788,7 @@ window.mostrarAdminSecao = function(secao) {
                 window.pedidosCache = []; // Garante dados atualizados
                 refreshFunc();
             }
-        }, 60000);
+        }, 15000);
     }
 };
 
@@ -2154,8 +2183,9 @@ window.gerarPdfPedidoIndividual = async function(pedido) {
             doc.text(splitObs, 14, finalY2 + 5);
         }
 
-        // Abre o PDF
-        doc.save(`Pedido_${pedido.numPedido}.pdf`);
+        // Abre o PDF - Alteração Regra 4: Nome do arquivo com Setor
+        const safeName = (pedido.setor || pedido.local || "Pedido").replace(/[^a-z0-9]/gi, '_').toUpperCase();
+        doc.save(`Pedido_${safeName}.pdf`);
 
     } catch (error) {
         console.error("Erro ao gerar PDF do Pedido Individual:", error);
@@ -3319,8 +3349,9 @@ window.carregarPagamentos = async function(modoExpandir = false) {
             // --- LISTAGEM PADRÃO COM PAGINAÇÃO E FILTRO SERVER-SIDE ---
             let constraints = [];
 
-            // TAREFA 2: Mapear filtro visual para campo do banco
+            // TAREFA 2: Mapear filtro visual para campo do banco (Lógica Rígida Regra 1)
             if (filtroStatus === 'quitado') {
+                // Exige estritamente que seja 'Pago'
                 constraints.push(where('statusPagamento', '==', 'Pago'));
             } else if (filtroStatus === 'parcialmente') {
                 constraints.push(where('statusPagamento', '==', 'Parcial'));
@@ -3820,6 +3851,25 @@ window.setupLiquidacaoListener = function() {
     // This is now handled by onclick inside abrirModalLiquidacao
 };
 
+// ============================================
+// MELHORIA DE UX NOS INPUTS DE QUANTIDADE
+// ============================================
+window.setupInputBehavior = function() {
+    const inputs = document.querySelectorAll('#formPedido input[type="number"]');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            if (this.value === '0') {
+                this.value = '';
+            }
+        });
+        input.addEventListener('blur', function() {
+            if (this.value === '' || this.value === null) {
+                this.value = '0';
+            }
+        });
+    });
+};
+
 // Inicialização
 window.addEventListener('load', () => {
     // Garante que a tela de splash seja verificada
@@ -3828,6 +3878,7 @@ window.addEventListener('load', () => {
     if(window.innerWidth >= 768 && window.mostrarSecao) window.mostrarSecao('home');
     
     window.setupLiquidacaoListener();
+    window.setupInputBehavior();
 });
 </script>
 </body>
