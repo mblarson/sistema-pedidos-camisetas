@@ -2598,7 +2598,7 @@ window.handleFormSubmission = async function(e) {
                 observacao: formData.get('observacao'), 
                 verdeOliva: { infantil: vInf, babylook: vBaby, unissex: vUni },
                 terracota: { infantil: tInf, babylook: tBaby, unissex: tUni },
-                ...(isEditing ? {} : { data: new Date().toISOString(), status: 'Pendente' }) 
+                ...(isEditing ? {} : { data: new Date().toISOString(), statusPagamento: 'Pendente' }) 
             };
             // Limpa undefined
             Object.keys(dadosPedido).forEach(key => dadosPedido[key] === undefined && delete dadosPedido[key]);
