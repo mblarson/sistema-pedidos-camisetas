@@ -2928,8 +2928,10 @@ window.carregarPedidos = async function(modoExpandir = false) {
             const p2 = getDocs(query(pedidosCollection, where('email', '==', termoBuscaLower))); // Email Exato
             // Nome Prefixo: Encontra 'Maria' -> 'Maria Silva', 'Mariana', etc.
             const p3 = getDocs(query(pedidosCollection, orderBy('nome'), startAt(termoBusca), endAt(termoBusca + '\uf8ff'), limit(20)));
+            // Estratégia 4: Busca Geral nos Últimos 100 para encontrar Telefone, Setor, Local (Super Busca)
+            const p4 = getDocs(query(pedidosCollection, orderBy('data', 'desc'), limit(100)));
 
-            const [snapId, snapEmail, snapNome] = await Promise.all([p1, p2, p3]);
+            const [snapId, snapEmail, snapNome, snapGeral] = await Promise.all([p1, p2, p3, p4]);
 
             // Combinação e Deduplicação usando Map
             const mapResultados = new Map();
@@ -2945,8 +2947,25 @@ window.carregarPedidos = async function(modoExpandir = false) {
             processarSnap(snapId);
             processarSnap(snapEmail);
             processarSnap(snapNome);
+            processarSnap(snapGeral);
 
             pedidosProcessados = Array.from(mapResultados.values());
+
+            // FILTRAGEM CLIENT-SIDE AVANÇADA (SUPER BUSCA)
+            // Garante que o termo digitado exista em algum dos campos principais
+            pedidosProcessados = pedidosProcessados.filter(p => {
+                const term = termoBuscaLower;
+                // Normaliza e verifica campos
+                const matchNome = p.nome && p.nome.toLowerCase().includes(term);
+                const matchEmail = p.email && p.email.toLowerCase().includes(term);
+                const matchId = p.numPedido && p.numPedido.toLowerCase().includes(term);
+                const matchContato = p.contato && p.contato.toLowerCase().includes(term); // Verifica telefone com caracteres simples
+                const matchSetor = p.setor && p.setor.toLowerCase().includes(term);     // Verifica Setor/Cidade
+                const matchLocal = p.local && p.local.toLowerCase().includes(term);     // Verifica Capital/Interior
+                const matchObs = p.observacao && p.observacao.toLowerCase().includes(term); // Bônus: Obs
+
+                return matchNome || matchEmail || matchId || matchContato || matchSetor || matchLocal || matchObs;
+            });
 
             // Ordenação manual pois as queries paralelas não garantem ordem cronológica
             pedidosProcessados.sort((a, b) => {
@@ -3335,11 +3354,15 @@ window.carregarPagamentos = async function(modoExpandir = false) {
         if (buscaInput && !buscaInput.includes('@') && !(buscaInput.length < 10 && /^[A-Z0-9]+$/.test(buscaInput) && !buscaInput.match(/^\d+$/))) {
              const termoBuscaLower = buscaInput.toLowerCase();
              pedidosProcessados = pedidosProcessados.filter(p => {
-                 return (p.nome && p.nome.toLowerCase().includes(termoBuscaLower)) ||
-                        (p.contato && p.contato.includes(termoBuscaLower)) ||
-                        (p.setor && p.setor.toLowerCase().includes(termoBuscaLower)) ||
-                        (p.local && p.local.toLowerCase().includes(termoBuscaLower)) ||
-                        (p.numPedido && p.numPedido.toLowerCase().includes(termoBuscaLower));
+                 // Lógica "Super Busca" unificada para Pagamentos
+                 const matchNome = p.nome && p.nome.toLowerCase().includes(termoBuscaLower);
+                 const matchContato = p.contato && p.contato.toLowerCase().includes(termoBuscaLower);
+                 const matchSetor = p.setor && p.setor.toLowerCase().includes(termoBuscaLower);
+                 const matchLocal = p.local && p.local.toLowerCase().includes(termoBuscaLower);
+                 const matchId = p.numPedido && p.numPedido.toLowerCase().includes(termoBuscaLower);
+                 const matchEmail = p.email && p.email.toLowerCase().includes(termoBuscaLower);
+                 
+                 return matchNome || matchContato || matchSetor || matchLocal || matchId || matchEmail;
              });
         }
 
