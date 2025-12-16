@@ -3694,25 +3694,29 @@ window.abrirModalSenhaValor = function() {
 };
 
 window.confirmarAlteracaoValorComSenha = function() {
-    const senha = document.getElementById('senhaAlterarValor').value;
-    if(senha === 'admin123' || senha === '123456') { // Simple hardcoded check as requested often or placeholder
-        // Actually perform update
-        const novoValor = document.getElementById('valorCamisetaInput').value;
-        window.recalcularValores(novoValor);
-        document.getElementById('modalSenhaValor').classList.remove('active');
-    } else {
-        document.getElementById('msgErroSenhaValor').style.display = 'block';
-    }
+    // REMOVIDO: if(senha === 'admin123'...) 
+    // MOTIVO: A segurança real é feita pelas Regras do Firebase (isAdmin)
+    
+    // Apenas pegamos o valor e enviamos. Se não for admin, o Firebase dará erro.
+    const novoValor = document.getElementById('valorCamisetaInput').value;
+    window.recalcularValores(novoValor);
+    document.getElementById('modalSenhaValor').classList.remove('active');
+    
+    // Limpa o campo de senha (que agora é opcional/visual)
+    document.getElementById('senhaAlterarValor').value = '';
 };
 
 window.confirmarFechamentoPedidos = async function() {
-    const senha = document.getElementById('senhaFecharPedidos').value;
-    if(senha === 'admin123' || senha === '123456') {
+    // REMOVIDO: if(senha === 'admin123'...)
+    // MOTIVO: A segurança real é feita pelas Regras do Firebase
+    
+    try {
         await setDoc(configSistemaRef, { aberto: false });
         document.getElementById('modalFecharPedidos').classList.remove('active');
         alert("Pedidos fechados com sucesso.");
-    } else {
-        document.getElementById('msgErroSenhaFechar').style.display = 'block';
+    } catch (error) {
+        console.error(error);
+        alert("Erro: Você não tem permissão de Administrador.");
     }
 };
 
