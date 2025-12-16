@@ -2962,17 +2962,22 @@ window.carregarPedidos = async function(modoExpandir = false) {
             }
 
         } else {
-            // --- LISTAGEM PADRÃO PAGINADA (COM FILTRAGEM CLIENT-SIDE) ---
-            // Removemos 'where' no filtroLocal para evitar o erro "The query requires an index".
-            // A filtragem será feita no loop abaixo (Client-Side).
+            // --- LISTAGEM PADRÃO PAGINADA (AGORA COM FILTRO SERVER-SIDE) ---
             
-            let constraints = [orderBy('data', 'desc')];
+            let constraints = [];
+
+            // TAREFA 1: Aplicar filtro de Local direto no banco
+            if (filtroLocal !== 'todos') {
+                constraints.push(where('local', '==', filtroLocal));
+            }
+
+            constraints.push(orderBy('data', 'desc'));
 
             if (modoExpandir && ultimoDocumentoCarregado) {
                 constraints.push(startAfter(ultimoDocumentoCarregado));
             }
 
-            // Buscamos mais itens para compensar a filtragem em memória
+            // Buscamos itens (agora filtrados corretamente pelo banco)
             constraints.push(limit(qtdPorPagina));
             
             const q = query(pedidosCollection, ...constraints);
@@ -2984,11 +2989,6 @@ window.carregarPedidos = async function(modoExpandir = false) {
             }
 
             pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
-
-            // Apply Local Filter in Memory to fix "Capital e Interior não está funcionando"
-            if (filtroLocal !== 'todos') {
-                pedidosProcessados = pedidosProcessados.filter(p => p.local === filtroLocal);
-            }
         }
 
         // Renderização
@@ -3297,14 +3297,17 @@ window.carregarPagamentos = async function(modoExpandir = false) {
                 q = query(pedidosCollection, orderBy('data', 'desc'), limit(100));
             }
         } else {
-            // --- LISTAGEM PADRÃO COM PAGINAÇÃO ---
+            // --- LISTAGEM PADRÃO COM PAGINAÇÃO E FILTRO SERVER-SIDE ---
             let constraints = [];
 
-            // NOTA IMPORTANTE DE CORREÇÃO:
-            // Removemos 'where' no statusPagamento para evitar o erro "The query requires an index".
-            // A filtragem será feita no loop abaixo (Client-Side) sobre o lote retornado.
-            // Isso garante que o sistema não trave e os dados sejam exibidos.
-            
+            // TAREFA 2: Mapear filtro visual para campo do banco
+            if (filtroStatus === 'quitado') {
+                constraints.push(where('statusPagamento', '==', 'Pago'));
+            } else if (filtroStatus === 'parcialmente') {
+                constraints.push(where('statusPagamento', '==', 'Parcial'));
+            }
+            // Se 'todos', não adiciona cláusula where
+
             constraints.push(orderBy('data', 'desc'));
 
             // 2. Paginação (StartAfter)
@@ -3312,7 +3315,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
                 constraints.push(startAfter(ultimoDocPagamentos));
             }
 
-            // 3. Limite (Aumentado para compensar filtragem visual)
+            // 3. Limite
             constraints.push(limit(qtdPorPagina));
 
             q = query(pedidosCollection, ...constraints);
@@ -3368,12 +3371,6 @@ window.carregarPagamentos = async function(modoExpandir = false) {
             } else if (pago > 0 && pago < total) {
                 statusCalculado = 'PARCIAL';
             }
-
-            // --- FILTRAGEM VISUAL (CLIENT-SIDE) ---
-            // Aqui aplicamos a lógica solicitada: garantir que o status calculado bata com o filtro.
-            // Se o filtro for 'todos', passa tudo.
-            if (filtroStatus === 'parcialmente' && statusCalculado !== 'PARCIAL') return; // Pula este item
-            if (filtroStatus === 'quitado' && statusCalculado !== 'PAGO') return; // Pula este item
 
             itensRenderizadosCount++;
 
