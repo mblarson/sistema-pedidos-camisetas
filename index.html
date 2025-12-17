@@ -1449,7 +1449,7 @@
                 <!-- INÍCIO: NOVOS FILTROS E BUSCA -->
                 <div id="filtrosPagamentos" class="search-container">
                     <div class="form-group" style="margin-bottom:0.5rem;">
-                        <input type="text" id="buscaPagamentosInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;" oninput="window.carregarPagamentos()">
+                        <input type="text" id="buscaPagamentosInput" placeholder="🔍 Buscar por Setor ou Cidade..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;" oninput="window.carregarPagamentos()">
                     </div>
                 </div>
                 <!-- FIM: NOVOS FILTROS E BUSCA -->
@@ -3300,87 +3300,106 @@ window.togglePagamentoCard = function(docId) {
 // IMPLEMENTAÇÃO DE BUSCA ON-INPUT
 window.carregarPagamentos = async function(modoExpandir = false) {
     const btnExpandirExistente = document.getElementById('btnCarregarMaisPagamentos');
+    
+    // Configura loader
     if (modoExpandir) {
         window.mostrarCarregamento(true, "CARREGANDO MAIS PAGAMENTOS...");
     } else {
-        // Se for busca inicial (oninput ou refresh), não mostra loader intrusivo para digitar fluido, apenas se necessário.
-        const isSearch = document.getElementById('buscaPagamentosInput').value.trim().length > 0;
+        const input = document.getElementById('buscaPagamentosInput');
+        const isSearch = input && input.value.trim().length > 0;
         if(!isSearch) window.mostrarCarregamento(true, "BUSCANDO PAGAMENTOS...");
         
-        // Se não for expansão, limpa tudo para começar do zero
+        // Reset se não for expandir
         document.getElementById('listaPagamentos').innerHTML = '';
         ultimoDocPagamentos = null;
         if(btnExpandirExistente) btnExpandirExistente.remove();
     }
 
     const lista = document.getElementById('listaPagamentos');
-    const buscaInput = document.getElementById('buscaPagamentosInput').value.trim();
+    const inputBusca = document.getElementById('buscaPagamentosInput');
+    const termoBusca = inputBusca ? inputBusca.value.trim() : "";
+    const termoBuscaLower = termoBusca.toLowerCase();
 
     try {
-        let q;
-        // Aumentamos o limite para garantir que, após o filtro de status (client-side), sobrem itens.
-        // Isso evita o erro de "Index Missing" do Firestore ao usar 'where' com 'orderBy'.
+        let pedidosProcessados = [];
         const qtdPorPagina = 50; 
 
-        // LÓGICA DE CONSTRUÇÃO DA QUERY FIRESTORE
-        if (buscaInput) {
-            // --- BUSCA HÍBRIDA GLOBAL (FUZZY SIMULADO) ---
-            if (buscaInput.includes('@')) {
-                // Email: Busca exata
-                q = query(pedidosCollection, where('email', '==', buscaInput.toLowerCase()), limit(20));
-            } else if (buscaInput.length < 10 && /^[A-Z0-9]+$/.test(buscaInput) && !buscaInput.match(/^\d+$/)) {
-                // ID curto alfanumérico (Provável ID de pedido, ex: 3Xy9) - Prioriza busca exata por ID
-                q = query(pedidosCollection, where('numPedido', '==', buscaInput), limit(20));
-            } else {
-                // Busca Global (Nome, Telefone, Cidade) - Busca "Smart"
-                // Como Firestore não tem "LIKE", baixamos os últimos 100 registros para filtrar no cliente.
-                // Isso permite achar "Maria", "Cuiabá", "9999" dentro dos pedidos ativos recentes.
-                q = query(pedidosCollection, orderBy('data', 'desc'), limit(100));
-            }
-        } else {
-            // --- LISTAGEM PADRÃO COM PAGINAÇÃO E FILTRO SERVER-SIDE ---
-            let constraints = [];
+        if (termoBusca) {
+            // MODO 1: BUSCA FOCADA EM SETOR/CIDADE (SOLICITADO)
+            const termoUpper = termoBusca.toUpperCase();
             
+            // 1. Busca por Prefixo no Setor (Ex: "CUI" -> "CUIABA")
+            const q1 = query(pedidosCollection, orderBy('setor'), startAt(termoUpper), endAt(termoUpper + '\uf8ff'), limit(50));
+            
+            // 2. Busca Exata/Inteligente para "Setor + Letra" (Ex: "A" -> "SETOR A")
+            // Isso resolve o problema de digitar "A" e querer ver o Setor A que não começa com A.
+            const q2 = query(pedidosCollection, where('setor', '==', `SETOR ${termoUpper}`));
+            
+            // 3. Busca Recente para varredura local (Substring)
+            const q3 = query(pedidosCollection, orderBy('data', 'desc'), limit(100));
+
+            const [snapPrefix, snapSmart, snapRecent] = await Promise.all([
+                getDocs(q1),
+                getDocs(q2),
+                getDocs(q3)
+            ]);
+
+            const mapResultados = new Map();
+            const processarSnap = (snap) => {
+                snap.forEach(doc => {
+                    if (!mapResultados.has(doc.id)) {
+                        mapResultados.set(doc.id, { docId: doc.id, ...doc.data() });
+                    }
+                });
+            };
+
+            processarSnap(snapPrefix);
+            processarSnap(snapSmart);
+            processarSnap(snapRecent);
+
+            pedidosProcessados = Array.from(mapResultados.values());
+            
+            // FILTRO CLIENT-SIDE RIGOROSO (Apenas Setor ou Cidade)
+            pedidosProcessados = pedidosProcessados.filter(p => {
+                 // Garante que o termo digitado esteja contido no Setor ou Local
+                 // Isso cobre o caso do "Recente" trazer itens que não são do setor, então filtramos.
+                 // E cobre o caso do "Setor A" (contém "A").
+                 const setor = (p.setor || '').toUpperCase();
+                 const local = (p.local || '').toUpperCase(); // Capital / Interior
+                 
+                 // Se digitou "A", "SETOR A" contém "A". 
+                 return setor.includes(termoUpper) || local.includes(termoUpper);
+            });
+            
+            // Ordenação
+            pedidosProcessados.sort((a, b) => {
+                const dA = a.data || '';
+                const dB = b.data || '';
+                return dB.localeCompare(dA);
+            });
+
+        } else {
+            // MODO 2: LISTAGEM PADRÃO
+            let constraints = [];
             constraints.push(orderBy('data', 'desc'));
 
-            // 2. Paginação (StartAfter)
             if (modoExpandir && ultimoDocPagamentos) {
                 constraints.push(startAfter(ultimoDocPagamentos));
             }
 
-            // 3. Limite
             constraints.push(limit(qtdPorPagina));
 
-            q = query(pedidosCollection, ...constraints);
+            const q = query(pedidosCollection, ...constraints);
+            const snapshot = await getDocs(q);
+
+            if (!snapshot.empty) {
+                ultimoDocPagamentos = snapshot.docs[snapshot.docs.length - 1];
+            }
+
+            pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
         }
 
-        // EXECUÇÃO DA QUERY
-        const snapshot = await getDocs(q);
-
-        // Atualiza o cursor para a próxima página (apenas se não for busca global filtrada)
-        if (!snapshot.empty) {
-            ultimoDocPagamentos = snapshot.docs[snapshot.docs.length - 1];
-        }
-
-        let pedidosProcessados = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
-
-        // Se for busca global, aplicamos o filtro na memória agora
-        if (buscaInput && !buscaInput.includes('@') && !(buscaInput.length < 10 && /^[A-Z0-9]+$/.test(buscaInput) && !buscaInput.match(/^\d+$/))) {
-             const termoBuscaLower = buscaInput.toLowerCase();
-             pedidosProcessados = pedidosProcessados.filter(p => {
-                 // Lógica "Super Busca" unificada para Pagamentos
-                 const matchNome = p.nome && p.nome.toLowerCase().includes(termoBuscaLower);
-                 const matchContato = p.contato && p.contato.toLowerCase().includes(termoBuscaLower);
-                 const matchSetor = p.setor && p.setor.toLowerCase().includes(termoBuscaLower);
-                 const matchLocal = p.local && p.local.toLowerCase().includes(termoBuscaLower);
-                 const matchId = p.numPedido && p.numPedido.toLowerCase().includes(termoBuscaLower);
-                 const matchEmail = p.email && p.email.toLowerCase().includes(termoBuscaLower);
-                 
-                 return matchNome || matchContato || matchSetor || matchLocal || matchId || matchEmail;
-             });
-        }
-
-        // Se for a primeira carga, cria o container grid
+        // --- RENDERIZAÇÃO ---
         let containerGrid = lista.querySelector('.pagamentos-grid-container');
         if (!containerGrid) {
             containerGrid = document.createElement('div');
@@ -3393,42 +3412,37 @@ window.carregarPagamentos = async function(modoExpandir = false) {
         let htmlBuffer = '';
         
         pedidosProcessados.forEach(p => {
+            // Lógica de cálculo do total
             const total = calcularTotalPedido(p) * PRECO_CAMISETA;
             let pago = p.valorPago || 0;
-            // Fallback para cálculo legado se valorPago não estiver setado mas existir histórico
             if (!p.valorPago && p.historicoPagamentos) {
                 pago = p.historicoPagamentos.reduce((acc, h) => acc + (parseFloat(h.valor)||0), 0);
             }
             const restante = Math.max(0, total - pago);
 
-            // --- CÁLCULO RIGOROSO DO STATUS ---
-            let statusCalculado = 'PENDENTE'; // Default
+            // Status
+            let statusCalculado = 'PENDENTE';
             if (pago >= total && total > 0) {
                 statusCalculado = 'PAGO';
             } else if (pago > 0 && pago < total) {
                 statusCalculado = 'PARCIAL';
             }
 
-            itensRenderizadosCount++;
-
-            // --- DEFINIÇÃO DE CORES (UI) ---
-            let statusColor = '#ff6b6b'; // Vermelho (Padrão/Pendente)
+            // Cores
+            let statusColor = '#ff6b6b'; 
             let statusBg = 'rgba(255, 107, 107, 0.1)';
-
             if (statusCalculado === 'PAGO') {
-                statusColor = 'var(--success-color)'; // Verde
-                statusBg = 'rgba(100, 255, 218, 0.1)';
+                statusColor = 'var(--success-color)'; statusBg = 'rgba(100, 255, 218, 0.1)';
             } else if (statusCalculado === 'PARCIAL') {
-                statusColor = 'var(--warning-color)'; // Amarelo
-                statusBg = 'rgba(255, 215, 0, 0.1)';
+                statusColor = 'var(--warning-color)'; statusBg = 'rgba(255, 215, 0, 0.1)';
             }
 
-            let identificacaoLocal = p.setor || 'Local não definido';
+            const identificacaoLocal = p.setor || 'Local não definido';
+            itensRenderizadosCount++;
 
             htmlBuffer += `
             <div class="pedido-item" onclick="window.togglePagamentoCard('${p.docId}')" style="margin-bottom:0; cursor:pointer; padding: 1.5rem !important; transition: background 0.2s; position:relative; animation: slideDown 0.3s ease-out;">
-                
-                <!-- CABEÇALHO (SEMPRE VISÍVEL) -->
+                <!-- Header -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
                      <span style="color:#fff; font-weight:700; font-size:1.1rem; letter-spacing:0.5px; text-transform:uppercase;">
                         <i class="fas fa-map-marker-alt" style="color:var(--gold-solid); margin-right:6px; font-size:0.9rem;"></i>
@@ -3438,8 +3452,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
                         ${statusCalculado}
                      </span>
                 </div>
-
-                <!-- RESUMO FINANCEIRO (VISÍVEL APENAS QUANDO FECHADO) -->
+                <!-- Summary -->
                 <div id="pay-summary-${p.docId}" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px; border-radius:6px;">
                     <div style="text-align:left;">
                         <p style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px;">Total</p>
@@ -3455,7 +3468,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
                     </div>
                 </div>
                 
-                <!-- CONTEÚDO EXPANDIDO -->
+                <!-- Expanded Details -->
                 <div id="pay-details-${p.docId}" style="display:none; margin-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
                     <div style="margin-bottom:1.5rem;">
                         <p style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">Líder Responsável</p>
@@ -3490,17 +3503,17 @@ window.carregarPagamentos = async function(modoExpandir = false) {
 
         // Feedback se a filtragem removeu tudo
         if (itensRenderizadosCount === 0 && !modoExpandir) {
-             const msg = buscaInput 
-                ? `Nenhum pagamento encontrado para "<strong>${escapeHTML(buscaInput)}</strong>" nos registros recentes.` 
-                : `Nenhum registro encontrado nesta página.`;
+             const msg = termoBusca 
+                ? `Nenhum pagamento encontrado para "<strong>${escapeHTML(termoBusca)}</strong>".` 
+                : `Nenhum registro encontrado.`;
             lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">${msg}</p>`;
         }
 
         // GERENCIAMENTO DO BOTÃO "CARREGAR MAIS"
         if (btnExpandirExistente) btnExpandirExistente.remove(); 
 
-        // Se trouxemos o número máximo de itens (50) e não é uma busca específica, mostramos o botão
-        if (snapshot.docs.length === qtdPorPagina && !buscaInput) {
+        // Se estiver em modo de listagem padrão e tiver resultados, mostra botão
+        if (!termoBusca && pedidosProcessados.length === qtdPorPagina) {
             const btnHtml = `
                 <div id="btnCarregarMaisPagamentos" style="text-align:center; margin-top:2rem; margin-bottom:4rem; width: 100%;">
                     <button onclick="window.carregarPagamentos(true)" class="btn-primary" style="background:transparent; border:1px solid var(--gold-solid); color:var(--gold-solid); width:100%;">
@@ -3508,7 +3521,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
                     </button>
                 </div>`;
             lista.insertAdjacentHTML('beforeend', btnHtml);
-        } else if (!buscaInput && pedidosProcessados.length > 0) {
+        } else if (!termoBusca && pedidosProcessados.length > 0) {
             lista.insertAdjacentHTML('beforeend', `<div style="text-align:center; color:var(--text-muted); margin-top:2rem; font-size:0.8rem;">--- Fim dos registros ---</div>`);
         }
 
