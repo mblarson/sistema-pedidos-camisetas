@@ -1450,13 +1450,6 @@
                 <div id="filtrosPagamentos" class="search-container">
                     <div class="form-group" style="margin-bottom:0.5rem;">
                         <input type="text" id="buscaPagamentosInput" placeholder="🔍 Buscar por nome, ID, setor, cidade, telefone..." style="background:rgba(255,255,255,0.05)!important; border-color:var(--border-subtle)!important;" oninput="window.carregarPagamentos()">
-                        
-                    </div>
-                    <div class="filter-container">
-                        <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase;">Status:</span>
-                        <label class="filter-radio"><input type="radio" name="filtroStatusPagamento" value="todos" checked onchange="window.carregarPagamentos()"> <span>Todos</span></label>
-                        <label class="filter-radio"><input type="radio" name="filtroStatusPagamento" value="parcialmente" onchange="window.carregarPagamentos()"> <span>PARCIAL</span></label>
-                        <label class="filter-radio"><input type="radio" name="filtroStatusPagamento" value="quitado" onchange="window.carregarPagamentos()"> <span>Quitado</span></label>
                     </div>
                 </div>
                 <!-- FIM: NOVOS FILTROS E BUSCA -->
@@ -3322,7 +3315,6 @@ window.carregarPagamentos = async function(modoExpandir = false) {
 
     const lista = document.getElementById('listaPagamentos');
     const buscaInput = document.getElementById('buscaPagamentosInput').value.trim();
-    const filtroStatus = document.querySelector('input[name="filtroStatusPagamento"]:checked').value;
 
     try {
         let q;
@@ -3348,16 +3340,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
         } else {
             // --- LISTAGEM PADRÃO COM PAGINAÇÃO E FILTRO SERVER-SIDE ---
             let constraints = [];
-
-            // TAREFA 2: Mapear filtro visual para campo do banco (Lógica Rígida Regra 1)
-            if (filtroStatus === 'quitado') {
-                // Exige estritamente que seja 'Pago'
-                constraints.push(where('statusPagamento', '==', 'Pago'));
-            } else if (filtroStatus === 'parcialmente') {
-                constraints.push(where('statusPagamento', '==', 'Parcial'));
-            }
-            // Se 'todos', não adiciona cláusula where
-
+            
             constraints.push(orderBy('data', 'desc'));
 
             // 2. Paginação (StartAfter)
@@ -3509,7 +3492,7 @@ window.carregarPagamentos = async function(modoExpandir = false) {
         if (itensRenderizadosCount === 0 && !modoExpandir) {
              const msg = buscaInput 
                 ? `Nenhum pagamento encontrado para "<strong>${escapeHTML(buscaInput)}</strong>" nos registros recentes.` 
-                : `Nenhum registro com status "<strong>${filtroStatus.toUpperCase()}</strong>" encontrado nesta página.`;
+                : `Nenhum registro encontrado nesta página.`;
             lista.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:2rem;">${msg}</p>`;
         }
 
