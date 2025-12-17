@@ -1047,7 +1047,7 @@
           <div style="font-size:2.5rem; color:var(--danger-color); margin-bottom:1rem;"><i class="fas fa-times-circle"></i></div>
           <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Acesso Negado</h2>
           <p id="msgErroLogin" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">E-mail ou senha incorretos.</p>
-          <button onclick="document.getElementById('modalErroLogin').classList.remove('active')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color);">Tentar Novamente</button>
+          <button onclick="document.getElementById('modalErroLogin').classList.add('active')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color);">Tentar Novamente</button>
       </div>
   </div>
 
@@ -1864,26 +1864,46 @@ window.recalcularValores = async function(novoValorString) {
     window.mostrarCarregamento(true, "RECALCULANDO ESTATÍSTICAS...");
     
     try {
-        // 1. Salva o novo preço na configuração
-        await setDoc(configDocRef, { valor_camiseta: novoValor }, { merge: true });
+        // a. Ler documento de estatísticas para obter o total de peças vendidas até agora
+        const statsRef = doc(db, "configuracoes", "estatisticas");
+        const statsSnap = await getDoc(statsRef);
         
-        // 2. Chama carregarDashboard para recalcular tudo com o novo preço
-        // Isso garante que o documento de estatísticas seja atualizado
+        if (!statsSnap.exists()) {
+            throw "O documento de estatísticas não foi inicializado corretamente.";
+        }
+        
+        const statsData = statsSnap.data();
+        const qtdTotalCamisetas = statsData.qtd_camisetas || 0;
+        
+        // b. Realizar o cálculo matemático em memória: Novo Total = Qtd Peças * Novo Valor
+        const novoTotalArrecadado = qtdTotalCamisetas * novoValor;
+        
+        // c. Utilizar writeBatch para garantir atomicidade contábil
+        const batch = writeBatch(db);
+        
+        // Operação 1: Atualizar o valor unitário oficial do evento
+        batch.update(configDocRef, { valor_camiseta: novoValor });
+        
+        // Operação 2: Atualizar a cópia de segurança e recalcular retroativamente a Receita Prevista
+        batch.update(statsRef, {
+            valor_camiseta: novoValor,
+            valor_total: novoTotalArrecadado
+        });
+        
+        await batch.commit();
+
+        // Atualização Global e de Interface
+        PRECO_CAMISETA = novoValor;
         await window.carregarDashboard();
 
-        // 3. Feedback Visual e Atualização Local (Opcional, pois carregarDashboard já atualiza a UI)
-        // Mas mantemos para dar feedback no modal
-        const docSnap = await getDoc(doc(db, "configuracoes", "estatisticas"));
-        if(docSnap.exists()) {
-             const stats = docSnap.data();
-             document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(novoValor);
-             document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(stats.valor_total || 0);
-             document.getElementById('modalSucessoFinanceiro').classList.add('active');
-        }
+        // Feedback Visual no Modal de Sucesso
+        document.getElementById('confirmacaoNovoValor').innerText = formatarMoeda(novoValor);
+        document.getElementById('confirmacaoNovoTotal').innerText = formatarMoeda(novoTotalArrecadado);
+        document.getElementById('modalSucessoFinanceiro').classList.add('active');
 
     } catch (error) { 
-        console.error("Erro fatal ao salvar preço:", error); 
-        document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao atualizar estatísticas. Tente novamente."; 
+        console.error("Erro fatal ao recalcular estatísticas financeiras:", error); 
+        document.getElementById('modalErroPDF').querySelector('p').textContent = "Erro ao sincronizar valores financeiros. Tente novamente."; 
         document.getElementById('modalErroPDF').classList.add('active'); 
     } finally {
         window.mostrarCarregamento(false);
@@ -2803,7 +2823,11 @@ window.carregarDashboard = async function() {
         // Atualiza a UI diretamente com os valores lidos (sem loop)
         window.atualizarElemento('totalPedidos', stats.qtd_pedidos || 0);
         window.atualizarElemento('totalCamisetas', stats.qtd_camisetas || 0);
+        
+        // CORREÇÃO CRÍTICA: Usa o valor acumulado no banco (valor_total), 
+        // e NÃO o cálculo (qtd * preço atual), para preservar histórico contábil.
         window.atualizarElemento('totalArrecadado', formatarMoeda(stats.valor_total || 0));
+        
         window.atualizarElemento('totalRecebidoReal', formatarMoeda(stats.total_recebido_real || 0));
         
         window.atualizarElemento('totalInfantis', stats.qtd_infantil || 0);
@@ -3681,7 +3705,7 @@ window.cancelarUltimaLiquidacao = async function() {
         if (totalPago > 0) novoStatus = 'Parcial';
         if (totalPago >= totalDevido - 0.1) novoStatus = 'Pago';
         
-        // Atualiza o pedido com a lista de pagamentos e o novo total pago
+        // Atualiza o pedido with a lista de pagamentos e o novo total pago
         batch.update(ref, {
             historicoPagamentos: hist,
             valorPago: totalPago,
