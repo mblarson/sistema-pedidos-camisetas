@@ -1047,7 +1047,7 @@
           <div style="font-size:2.5rem; color:var(--danger-color); margin-bottom:1rem;"><i class="fas fa-times-circle"></i></div>
           <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Acesso Negado</h2>
           <p id="msgErroLogin" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">E-mail ou senha incorretos.</p>
-          <button onclick="document.getElementById('modalErroLogin').classList.add('active')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color);">Tentar Novamente</button>
+          <button onclick="document.getElementById('modalErroLogin').classList.remove('active')" class="btn-primary" style="width:100%; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color);">Tentar Novamente</button>
       </div>
   </div>
 
@@ -1733,6 +1733,20 @@ function isValidEmail(value) { const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
 function normalizeString(str) { if (typeof str !== 'string') return ''; return str.toUpperCase().trim(); }
 
 window.mostrarSecao = function(secao) {
+    // 1 - No menu CONSULTAR PEDIDO eu não quero que a ultima pesquisa fique salva no cache. 
+    // Ajuste para que toda vez que eu sair da TELA CONSULTAR PEDIDO, a ultima pesquisa não ficar salva.
+    const secaoAtual = document.querySelector('.section.active');
+    if (secaoAtual && secaoAtual.id === 'consultar' && secao !== 'consultar') {
+        const inputNum = document.getElementById('numPedidoConsultaInput');
+        const inputEmail = document.getElementById('emailConsultaInput');
+        const resultado = document.getElementById('resultadoConsulta');
+        const mensagem = document.getElementById('mensagemConsulta');
+        if (inputNum) inputNum.value = '';
+        if (inputEmail) inputEmail.value = '';
+        if (resultado) resultado.innerHTML = '';
+        if (mensagem) mensagem.innerHTML = '';
+    }
+
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     const secaoElement = document.getElementById(secao);
     if (secaoElement) { secaoElement.classList.add('active'); secaoElement.style.opacity = ""; secaoElement.style.transform = ""; }
@@ -1751,9 +1765,22 @@ window.mostrarAdminSecao = function(secao) {
     const btn = document.getElementById(btnId); 
     if (btn) btn.classList.add('active');
     
-    // === IMPLEMENTAÇÃO: AUTO REFRESH E LIMPEZA DE CACHE ===
+    // 2 - Ao acessar a tela de PEDIDOS e PAGAMENTOS, antes de exibir os resultados, 
+    // o sistema internamente tem que dar um "refresh" para buscar as alterações.
     if (window.adminRefreshInterval) clearInterval(window.adminRefreshInterval);
-    window.pedidosCache = []; // Força leitura fresca (Regra: Ignorar cache local na primeira carga)
+    window.pedidosCache = []; // Força leitura fresca
+
+    // Limpa filtros de busca ao entrar na aba para garantir refresh completo (Solicitação 2)
+    if (secao === 'pedidos') {
+        const bInput = document.getElementById('buscaInput');
+        if (bInput) bInput.value = '';
+        const fLocal = document.querySelector('input[name="filtroLocal"][value="todos"]');
+        if (fLocal) fLocal.checked = true;
+    }
+    if (secao === 'pagamentos') {
+        const pInput = document.getElementById('buscaPagamentosInput');
+        if (pInput) pInput.value = '';
+    }
 
     let refreshFunc = null;
 
