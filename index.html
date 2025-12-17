@@ -1110,7 +1110,7 @@
               <h2 style="font-size:1.5rem; margin:0;">Recuperar Acesso</h2>
               <button id="fecharEsqueceuId" onclick="window.mostrarSecao('consultar')" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
           </div>
-          <form id="formEsqueceuId" onclick="window.recuperarIdsPorEmail(event)">
+          <form id="formEsqueceuId" onsubmit="window.recuperarIdsPorEmail(event)">
               <div class="form-group">
                   <label>E-mail Cadastrado</label>
                   <input type="email" id="emailRecuperacao" required placeholder="exemplo@email.com">
@@ -1776,10 +1776,13 @@ window.mostrarAdminSecao = function(secao) {
         if (bInput) bInput.value = '';
         const fLocal = document.querySelector('input[name="filtroLocal"][value="todos"]');
         if (fLocal) fLocal.checked = true;
+        // SEMPRE buscar estatísticas do dashboard junto para garantir números reais (Regra 2)
+        window.carregarDashboard();
     }
     if (secao === 'pagamentos') {
         const pInput = document.getElementById('buscaPagamentosInput');
         if (pInput) pInput.value = '';
+        window.carregarDashboard();
     }
 
     let refreshFunc = null;
